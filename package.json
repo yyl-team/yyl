@@ -1,0 +1,19 @@
+{
+  "name": "yylive",
+  "version": "0.1.0",
+  "description": "yy live workflow",
+  "keywords": [
+    "yylive"
+  ],
+  "preferGlobal": true,
+  "author": "yylive FE team",
+  "license": "ISC",
+  "bin": {
+    "yyl": "./bin/init.js"
+  },
+
+  "dependencies": {
+    "inquirer": "~0.8.5",
+    "keypress": "*"
+  }
+}
