@@ -11,6 +11,8 @@ var
                 usage: 'yyl',
                 commands: {
                     'init': 'project init commands',
+                    'watch': 'project watch',
+                    'server': 'local server run',
                     'update': 'update yyl workflow'
                 },
                 options: {
@@ -31,7 +33,8 @@ module.exports = function(ctx){
 
         case '-h':
         case '--help':
-            events.help();
+            events.help()
+            ;
             break;
 
         case 'init':
