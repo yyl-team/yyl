@@ -1,0 +1,22 @@
+@mixin w-demo($path){
+    $cssjsdate: 201609201140;
+
+    .w-demo {
+        width: 400px;
+        border: 1px solid #ccc;
+        padding: 50px;
+        margin: 10px auto;
+        background: #fff;
+    }
+    .w-demo-logo {
+        display: block;
+        width: 150px;
+        height: 116px;
+        margin: 0 auto 10px;
+        background: url($path + '/images/logo.png?' + $cssjsdate) no-repeat;
+    }
+    .w-demo-tl {
+        text-align: center;
+        font-size: 14px;
+    }
+}

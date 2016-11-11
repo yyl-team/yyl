@@ -11,9 +11,11 @@
   "bin": {
     "yyl": "./bin/init.js"
   },
-
   "dependencies": {
     "inquirer": "~0.8.5",
     "keypress": "*"
+  },
+  "devDependencies": {
+    "inquirer": "^0.8.5"
   }
 }

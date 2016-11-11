@@ -1,34 +1,23 @@
 'use strict';
 var 
-    color = require('../lib/colors'),
     util = require('../lib/yyl-util');
 
 var 
     events = {
-        version: function(){
-            var iVer = require('../package.json').version;
-            console.log([
-                color.yellow('---------------------'),
-                ' yyl version: ' + iVer,
-                color.yellow('---------------------')
-            ].join("\n"));
-
-        },
+        version: require('./w-version'),
+        init: require('./w-init'),
         help: function(){
             util.help({
                 usage: 'yyl',
                 commands: {
                     'init': 'project init commands',
+                    'update': 'update yyl workflow'
                 },
                 options: {
                     '-h, --help': 'print usage information',
                     '-v, --version': 'print yyl version'
                 }
             });
-
-        },
-        init: function(){
-
         }
     };
 
