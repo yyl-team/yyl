@@ -10,12 +10,14 @@ var
     events = {
         version: require('./w-version'),
         init: require('./w-init'),
+        optimize: require('./w-optimize'),
         help: function(){
             util.help({
                 usage: 'yyl',
                 commands: {
-                    'init': 'project init commands',
-                    'watch': 'project watch',
+                    'init': 'init commands',
+                    'watch': 'watch task run',
+                    'all': 'all task run',
                     'server': 'local server commands',
                     'update': 'update yyl workflow'
                 },
@@ -58,18 +60,20 @@ var
                 util.runCMD('open ' + vars.BASE_PATH);
             }
 
-
-
         }
     };
 
 
 module.exports = function(ctx){
+    var 
+        iArgv = util.makeArray(arguments);
+
     switch(ctx){
         case '-v': 
         case '--version':
             events.version();
             break;
+
 
         case '-h':
         case '--help':
@@ -87,6 +91,15 @@ module.exports = function(ctx){
 
         case 'update':
             events.update();
+            break;
+
+        case 'html':
+        case 'js':
+        case 'css':
+        case 'images':
+        case 'watch':
+        case 'watchAll':
+            events.optimize.apply(events, iArgv);
             break;
 
         default:

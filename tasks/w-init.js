@@ -134,7 +134,7 @@ var
                         fs.mkdirSync(dirPath);
                     }
                     if(fs.readdirSync(dirPath).length){
-                        done(dirname + ' directory is not empty, init fail')
+                        done(dirname + ' directory is not empty, init fail');
                         return;
                     }
 
@@ -229,6 +229,7 @@ var
                         if(done){
                             done();
                         }
+                        next();
                     }).start();
                     
                 };

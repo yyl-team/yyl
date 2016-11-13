@@ -50,64 +50,64 @@ var fn = {
         return through.obj(function(file, enc, next){next(null, file);});
     },
     get: function(url){
-		var myfn, 
-			myQuery,
-			myProxy;
+        var myfn, 
+            myQuery,
+            myProxy;
 
-		if(typeof arguments[1] == 'function'){
-			myfn = arguments[1];
-			myProxy = arguments[2];
-			myQuery = {};
-		} else if(typeof arguments[1] == 'object'){
-			myQuery = arguments[1];
-			myfn = arguments[2];
-			myProxy = arguments[3];
-		}
-		var queryData = require('querystring').stringify(myQuery),
-			urlAcc = require('url').parse(url),
-			opt = {
+        if(typeof arguments[1] == 'function'){
+            myfn = arguments[1];
+            myProxy = arguments[2];
+            myQuery = {};
+        } else if(typeof arguments[1] == 'object'){
+            myQuery = arguments[1];
+            myfn = arguments[2];
+            myProxy = arguments[3];
+        }
+        var queryData = require('querystring').stringify(myQuery),
+            urlAcc = require('url').parse(url),
+            opt = {
                 host: urlAcc.hostname,
                 port: urlAcc.port || 80,
                 path: urlAcc.pathname +  urlAcc.search,
-				method:'GET',
-				headers:{
+                method:'GET',
+                headers:{
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0',
-					"Content-Type": 'application/x-www-form-urlencoded',  
-					"Content-Length": queryData.length 
+                    "Content-Type": 'application/x-www-form-urlencoded',  
+                    "Content-Length": queryData.length 
                 }
             };
 
-		if(myProxy && myProxy.port && myProxy.host){
-			opt.host = myProxy.host;
-			opt.port = myProxy.port;
-			opt.path = url;
+        if(myProxy && myProxy.port && myProxy.host){
+            opt.host = myProxy.host;
+            opt.port = myProxy.port;
+            opt.path = url;
 
-		} else {
-			opt.host = urlAcc.host;
-			opt.port = urlAcc.port;
-			opt.path = urlAcc.path;
-			
-		}
-		var myReq = http.request(opt, function(result){
-			var chunks = [],
-				size = 0;
+        } else {
+            opt.host = urlAcc.host;
+            opt.port = urlAcc.port;
+            opt.path = urlAcc.path;
+            
+        }
+        var myReq = http.request(opt, function(result){
+            var chunks = [],
+                size = 0;
 
-			result.on('data', function(chunk){
-				size += chunk.length;
-				chunks.push(chunk);
-			});
+            result.on('data', function(chunk){
+                size += chunk.length;
+                chunks.push(chunk);
+            });
 
-			result.on('end', function(){
-				var myBuffer = Buffer.concat(chunks, size);
+            result.on('end', function(){
+                var myBuffer = Buffer.concat(chunks, size);
 
                 if(myfn){
                     myfn(myBuffer);
                 }
-			});
-		});
-		myReq.write('');
-		myReq.end();
-	},
+            });
+        });
+        myReq.write('');
+        myReq.end();
+    },
     /**
      * 运行 cmd
      * @param  {String|Array} str           cmd执行语句 or 数组

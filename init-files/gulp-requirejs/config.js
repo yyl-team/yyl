@@ -16,7 +16,8 @@ var
                 'css': 'css',
                 'images': 'images',
                 'html': 'html',
-                'assets': 'assets'
+                'assets': 'assets',
+                'globallib': '../commons/pc/lib'
             },
             concat: {
                 './src/js/vendors.js': [
