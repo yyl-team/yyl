@@ -2,7 +2,8 @@
 var 
     util = require('../lib/yyl-util'),
     path = require('path'),
-    color = require('../lib/colors');
+    color = require('../lib/colors'),
+    vars = util.vars;
 
 
 var 
@@ -21,7 +22,7 @@ var
                 options: {
                     '-h, --help': 'print usage information',
                     '-v, --version': 'print yyl version',
-                    '--path': 'show the yyl command local path'
+                    '--p, --path': 'show the yyl command local path'
                 }
             });
         },
@@ -43,11 +44,19 @@ var
 
         },
         path: function(){
-            var rootPath = path.join(__dirname, '..');
             console.log([
+                '',
                 'yyl command path:',
-                color.yellow(rootPath)
+                color.yellow(vars.BASE_PATH),
+                ''
             ].join('\n'));
+
+            if(vars.IS_WINDOWS){
+                util.runCMD('explorer.exe "'+ vars.BASE_PATH +'"');
+
+            } else {
+                util.runCMD('open ' + vars.BASE_PATH);
+            }
 
 
 
@@ -68,6 +77,7 @@ module.exports = function(ctx){
             break;
 
         case '--path':
+        case '--p':
             events.path();
             break;
 

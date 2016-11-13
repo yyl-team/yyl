@@ -82,7 +82,10 @@ var
                     ' |     |+ css',
                     ' |     |+ sass',
                     ' |     |+ images',
-                    ' |     `+ html',
+                    ' |     |+ html',
+                    ' |     |- config.js',
+                    ' |     |- config.mine.js',
+                    ' |     `- README.md'
 
                 ]);
             }
@@ -96,7 +99,10 @@ var
                     ' |     |+ css',
                     ' |     |+ sass',
                     ' |     |+ images',
-                    ' |     `+ html'
+                    ' |     |+ html',
+                    ' |     |- config.js',
+                    ' |     |- config.mine.js',
+                    ' |     `- README.md'
 
                 ]);
             }

@@ -6,4 +6,5 @@ npm link
 echo ------------------------------
 echo command yyl installed!
 echo have fun!
+yyl
 pause
