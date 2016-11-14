@@ -88,7 +88,6 @@ var
                             }
                         }
                     }
-                    
 
                     return obj;
 
@@ -115,7 +114,7 @@ var
                                 }
                                 break;
                             case 'string':
-                                if(/^(src)$/.test(key)){ // 替换 string
+                                if(/^(src|root)$/.test(key)){ // 替换 string
                                     obj[key] = pathTrans(obj[key]);
                                 }
                                 break;

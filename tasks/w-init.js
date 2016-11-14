@@ -148,7 +148,7 @@ var
                             util.msg.success('init client', workflowName, 'success');
                             done();
                         },
-                        /package\.json|node_modules|gulpfile.js|.DS_Store/g,
+                        /package\.json|node_modules|gulpfile.js|.DS_Store|.sass-cache/g,
                         null,
                         path.join(vars.PROJECT_PATH, frontPath)
                     );
@@ -248,6 +248,7 @@ var
 
                     if(!padding){
                         util.msg.line().success(data.name + ' init complete');
+                        util.runCMD('yyl');
 
                     }
 

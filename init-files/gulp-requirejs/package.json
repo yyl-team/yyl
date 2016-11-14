@@ -25,7 +25,6 @@
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.0",
-    "gulp-devserver": "^0.6.1",
     "gulp-filter": "^2.0.2",
     "gulp-imagemin": "^2.2.1",
     "gulp-inline-source": "^2.1.0",
@@ -40,7 +39,7 @@
     "gulp-replace-path": "^0.4.0",
     "gulp-requirejs-optimize": "^0.3.2",
     "gulp-rev": "^7.1.0",
-    "gulp-ruby-sass": "^1.0.5",
+    "gulp-sass": "^2.3.2",
     "gulp-uglify": "^1.5.3",
     "run-sequence": "^1.1.5",
     "through2": "^2.0.1"

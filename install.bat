@@ -1,10 +1,10 @@
-title yy workflow initial
+title yy workflow install
 @echo off
-npm install
-npm link
+cmd /c npm install
+cmd /c npm link
 
 echo ------------------------------
 echo command yyl installed!
 echo have fun!
-yyl
-pause
+cmd /k yyl
+

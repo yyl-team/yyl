@@ -11,13 +11,14 @@ var
         version: require('./w-version'),
         init: require('./w-init'),
         optimize: require('./w-optimize'),
+        server: require('./w-server'),
         help: function(){
             util.help({
                 usage: 'yyl',
                 commands: {
                     'init': 'init commands',
-                    'watch': 'watch task run',
-                    'all': 'all task run',
+                    'watch': 'watch task',
+                    'all': 'optimize task',
                     'server': 'local server commands',
                     'update': 'update yyl workflow'
                 },
@@ -53,12 +54,7 @@ var
                 ''
             ].join('\n'));
 
-            if(vars.IS_WINDOWS){
-                util.runCMD('explorer.exe "'+ vars.BASE_PATH +'"');
-
-            } else {
-                util.runCMD('open ' + vars.BASE_PATH);
-            }
+            util.openPath(vars.BASE_PATH);
 
         }
     };
@@ -100,6 +96,10 @@ module.exports = function(ctx){
         case 'watch':
         case 'watchAll':
             events.optimize.apply(events, iArgv);
+            break;
+
+        case 'server':
+            events.server.apply(events, iArgv);
             break;
 
         default:
