@@ -99,7 +99,9 @@ css层通过sass来管理，这样能更加灵活，方便和容易维护。具�
 
 HTML层主要就是版本号的控制，这个放在下面GULP的使用时介绍。html的规范参考[HTML规范](http://git.yypm.com/YYLive/styleGuide/blob/master/html-guide.md)。
 
-### 5.2.5.	JS层  （[js规范点击这里](http://git.yypm.com/YYLive/styleGuide/blob/master/javascript-guide.md)）
+### 5.2.5.	JS层  
+
+[js规范点击这里](http://git.yypm.com/YYLive/styleGuide/blob/master/javascript-guide.md)  
 
 #### 5.2.5.1.	JS模块化标准--RequireJS  
 
