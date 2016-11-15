@@ -42,7 +42,7 @@ var
                 return done('config.workflow is not exist');
             }
 
-            workFlowPath = path.join(vars.SERVER_PATH, config.workflow);
+            workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
 
             var 
                 pathTrans = function(iPath){
@@ -54,44 +54,20 @@ var
                     );
 
                 },
-                objTrans = function(obj){
-                    var r = {};
+                relateHere = function(obj){
                     for(var key in obj){
-                        if(obj.hasOwnProperty(key)){
-                            r[key] = pathTrans(obj[key]);
+                        switch(util.type(obj[key])){
+                            case 'string':
+                                obj[key] = pathTrans(obj[key]);
+                                break;
+
+                            default:
+                                break;
                         }
                     }
-                    return r;
-                },
-                objTrans2 = function(obj){
-                    var 
-                        i, len,
-                        newKey;
-                    for(var key in obj){
-                        if(obj.hasOwnProperty(key)){
-                            newKey = pathTrans(key);
-                            switch(util.type(obj[key])){
-                                case 'array':
-                                    obj[newKey] = [];
-                                    for(i = 0, len = obj[key].length; i < len; i++){
-                                        obj[newKey][i] = pathTrans(obj[key][i]);
-                                    }
-                                    delete obj[key];
-                                    break;
-
-                                case 'string':
-                                    obj[newKey] = pathTrans(obj[key]);
-                                    delete obj[key];
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-
                     return obj;
-
                 };
+
 
             // 路径替换
             (function deep(obj){
@@ -100,23 +76,14 @@ var
                     if(obj.hasOwnProperty(key)){
                         switch(util.type(obj[key])){
                             case 'object':
-                                if(/^(path|global)$/.test(key)){ // 替换 val
-                                    obj[key] = objTrans(obj[key]);
-
-                                } else if(/^(concat|copy)$/.test(key)){ // 替换 key, val
-                                    objTrans2(obj[key]);
-
-                                } else if(obj[key] === null) {
+                                if(key == 'alias'){ // 替换 val
+                                    obj[key] = relateHere(obj[key]);
 
                                 } else {
                                     deep(obj[key]);
-
                                 }
                                 break;
                             case 'string':
-                                if(/^(src|root)$/.test(key)){ // 替换 string
-                                    obj[key] = pathTrans(obj[key]);
-                                }
                                 break;
 
                             default:
@@ -142,17 +109,19 @@ var
             iArgv = util.makeArray(arguments);
 
         new util.Promise(function(next){
+            util.msg.info('build server config start');
             fn.buildServerConfig(function(err, config){ // 创建 server 端 config
                 if(err){
                     return util.msg.error(iArgv, 'task error', err);
                 }
 
+                util.msg.info('build server config success');
                 next(config);
 
             });
 
         }).then(function(config){ // 运行命令
-            var workFlowPath = path.join(vars.SERVER_PATH, config.workflow);
+            var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
             util.runCMD([
                 'cd ' + workFlowPath,
                 'gulp ' + iArgv.join(' '),

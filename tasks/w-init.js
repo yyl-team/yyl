@@ -138,9 +138,10 @@ var
                         return;
                     }
 
+
                     util.copyFiles(
                         path.join(vars.BASE_PATH, 'init-files', workflowName),
-                        dirPath,
+                        path.join(vars.PROJECT_PATH, dirPath),
                         function(err){
                             if(err){
                                 return done('copy file error, init fail');
@@ -148,81 +149,67 @@ var
                             util.msg.success('init client', workflowName, 'success');
                             done();
                         },
-                        /package\.json|node_modules|gulpfile.js|.DS_Store|.sass-cache/g,
+                        /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache/g,
                         null,
                         path.join(vars.PROJECT_PATH, frontPath)
                     );
                 },
                 initServerPackage = function(workflowName, done){
-                    util.msg.info('init server', workflowName, 'start');
-                    var workflowPath = path.join(vars.SERVER_PATH, workflowName);
-                    if(!fs.existsSync(vars.SERVER_PATH)){
-                        fs.mkdirSync(vars.SERVER_PATH);
-                    }
+                    var workflowPath = path.join(vars.SERVER_WORKFLOW_PATH, workflowName);
 
-                    if(!fs.existsSync(workflowPath)){
-                        fs.mkdirSync(workflowPath);
-                    }
-                    var files = [],
-                        fileParam = {};
+                    new util.Promise(function(next){ // server init
 
-                    switch(workflowName){
-                        case 'gulp-requirejs':
-                        case 'webpack-vue':
-                            files = ['package.json', 'gulpfile.js'];
-                            break;
+                        util.msg.info('init server', workflowName, 'start');
 
-                        default:
-                            files = ['package.json'];
-                            break;
-                    }
-                    files.forEach(function(filePath){
-                        fileParam[path.join(vars.BASE_PATH, 'init-files', workflowName, filePath)] = path.join(workflowPath, filePath);
-                    });
+                        util.mkdirSync(vars.SERVER_PATH);
+                        util.mkdirSync(workflowPath);
 
-                    new util.Promise(function(next){ // copy files
-                        util.copyFiles(fileParam, function(err){
-                            if(err){
-                                util.msg.error('copy file to serverpath fail', err);
-                                return;
-                            }
-                            util.msg.info('copy file to serverpath pass');
+                        // copy the lib to server
+                        util.copyFiles( path.join(vars.BASE_PATH, 'lib'), path.join(vars.SERVER_PATH, 'lib'), function(){
+                            util.msg.info('copy lib to serverpath pass');
                             next();
                         });
 
-                    }).then(function(next){ // cd to the path
-                        util.runCMD('cd ' + workflowPath, function(err){
+                    }).then(function(next){ // copy files to server
+                        var files = [],
+                            fileParam = {};
+
+                        switch(workflowName){
+                            case 'gulp-requirejs':
+                            case 'webpack-vue':
+                                files = ['package.json', 'gulpfile.js'];
+                                break;
+
+                            default:
+                                files = ['package.json'];
+                                break;
+                        }
+                        files.forEach(function(filePath){
+                            fileParam[path.join(vars.BASE_PATH, 'init-files', workflowName, filePath)] = path.join(workflowPath, filePath);
+                        });
+
+                        util.copyFiles(fileParam, function(err){
                             if(err){
-                                util.msg.error('change to dir '+ workflowPath +' fail');
+                                util.msg.error('copy', workflowName, 'files to serverpath fail', err);
                                 return;
                             }
-                            util.msg.info('cd '+ workflowPath +' pass');
+                            util.msg.info('copy', workflowName, 'files to serverpath pass');
                             next();
-
                         });
 
                     }).then(function(next){ // npm install 
-
+                        process.chdir(workflowPath);
                         util.runCMD('npm install', function(err){
                             if(err){
                                 util.msg.error('npm install fail on server!');
                                 return;
                             }
                             util.msg.info('npm install success');
+                            process.chdir(vars.PROJECT_PATH);
                             next();
 
                         }, workflowPath);
 
-                    }).then(function(next){ // back to dirPath
-                        util.runCMD('cd ' + vars.PROJECT_PATH, function(err){
-                            if(err){
-                                util.msg.error('change to dir '+ vars.PROJECT_PATH +' fail');
-                                return;
-                            }
-                            util.msg.info('cd '+ vars.PROJECT_PATH +' pass');
-                            next();
-
-                        });
 
                     }).then(function(next){ // back to dirPath
                         util.msg.success('init server', workflowName, 'success');
@@ -231,7 +218,6 @@ var
                         }
                         next();
                     }).start();
-                    
                 };
 
             if(parentDir !== data.name){ // 如项目名称与父级名称不一致, 创建顶级目录
