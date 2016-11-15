@@ -82,7 +82,8 @@ PNG用来存储灰度图像时，灰度图像的深度可多到16位，存储彩
 4、PNG8 适合所含颜色很少(少于256)、具有大块颜色相近的区域或亮度差异十分明显的较简单的图片。  
 5、PNG24适合图片较为复杂且有透明效果且透明效果无法用css来实现的情况。  
 6、如果页面中有较多的小icon，首先考虑使用webfont,如果webfont不能满足需求，必须使用css sprite将图片合并，来压缩总体图片的大小，同时减少页面请求提高访问速度。参考见[webfont字库](http://www.youziku.com)  
-7、小于8k的图片请转化为base64.  
+7、小于8k的图片请转化为base64。  
+
 
 
 ### 5.2.3.	CSS层
@@ -98,7 +99,7 @@ css层通过sass来管理，这样能更加灵活，方便和容易维护。具�
 
 HTML层主要就是版本号的控制，这个放在下面GULP的使用时介绍。html的规范参考[HTML规范](http://git.yypm.com/YYLive/styleGuide/blob/master/html-guide.md)。
 
-### 5.2.5.	JS层  
+### 5.2.5.	JS层  （[js规范点击这里](http://git.yypm.com/YYLive/styleGuide/blob/master/javascript-guide.md)）
 
 #### 5.2.5.1.	JS模块化标准--RequireJS  
 
