@@ -89,11 +89,11 @@ PNG用来存储灰度图像时，灰度图像的深度可多到16位，存储彩
 ### 5.2.3.	CSS层
 ![](http://i.imgur.com/JnxKRfM.png)
 
-css层通过sass来管理，这样能更加灵活，方便和容易维护。具体规范参考[css规范](http://git.yypm.com/YYLive/styleGuide/blob/master/css-guide.md)。
-使用规则：
-1、Include文件夹用来存放公共模块，reset或者重用性很高的mixin等等全局公用的样式。
-2、Components文件夹用来存放组件级别的公用样式，例如公用的按钮样式，icon样式，弹窗的样式等等。
-3、css命名最好就语义化。
+css层通过sass来管理，这样能更加灵活，方便和容易维护。具体规范参考[css规范](http://git.yypm.com/YYLive/styleGuide/blob/master/css-guide.md)。  
+使用规则：  
+1、Include文件夹用来存放公共模块，reset或者重用性很高的mixin等等全局公用的样式。  
+2、Components文件夹用来存放组件级别的公用样式，例如公用的按钮样式，icon样式，弹窗的样式等等。  
+3、css命名最好就语义化。  
 
 ### 5.2.4.	HTML层  
 
@@ -105,14 +105,14 @@ HTML层主要就是版本号的控制，这个放在下面GULP的使用时介绍
 
 #### 5.2.5.1.	JS模块化标准--RequireJS  
 
-通过使用大家熟悉的AMD规范，能统一大家的js标准。模块化的开发更方便代码的共享和按需加载，提高开发的效率。借助RequireJS可以实现js文件的异步加载，管理模块之间的依赖性，便于代码的编写和维护。 
+通过使用大家熟悉的AMD规范，能统一大家的js标准。模块化的开发更方便代码的共享和按需加载，提高开发的效率。借助RequireJS可以实现js文件的异步加载，管理模块之间的依赖性，便于代码的编写和维护。  
 **RequireJS使用原则：**  
 ![](http://i.imgur.com/NiN0DmR.png)
 
 新项目可以采取这个模板为基础去扩展代码。都在同一个区域定义变量，都在同一个区域定义事件，都在同一个地方绑定事件，最后初始化和暴露方法。套用代码标准模板可以做到大家的代码风格类似，以后接手的同学一看就知道代码在哪里，快速上手。
 
 #### 5.2.5.2.	JS模板引擎--artTemplate  
-artTemplate这个模板引擎相对成熟，性能比较好。支持运行时调试，可精确定位异常模板所在语句，模板语句简洁，浏览器支持完整。 
+artTemplate这个模板引擎相对成熟，性能比较好。支持运行时调试，可精确定位异常模板所在语句，模板语句简洁，浏览器支持完整。  
 **artTemplate的使用规则：**  
 按照它的api来使用即可。  
 ![](http://i.imgur.com/2NiYyyO.png)  
@@ -152,7 +152,7 @@ React 的一大创新，就是将组件看成是一个状态机，一开始有�
 截图的例子中，getInitialState 方法用于定义初始状态，这个对象可以通过 this.state 属性读取。当用户点击组件，导致状态变化，this.setState 方法就修改状态值，每次修改以后，自动调用 this.render 方法，再次渲染组件。  
 
 ##### 5.2.5.3.2.	VueJS  
-VueJs是一个短小精悍容易上手的MVVM框架。Api清晰，使用容易。支持ie8以上等其他主流的浏览器。适合在移动端和浏览器要求偏弱的项目。
+VueJs是一个短小精悍容易上手的MVVM框架。Api清晰，使用容易。支持ie8以上等其他主流的浏览器。适合在移动端和浏览器要求偏弱的项目。  
 VueJs的基本使用：
 
 ###### 5.2.5.3.2.1.	数据绑定  
@@ -216,11 +216,12 @@ gulp-rev-append 插件会通过正则(?:href|src)=”(.*)[?]rev=(.*)[“]查找�
 #### 5.2.6.2.	Webpack  
 ![](http://i.imgur.com/wXeV2Mf.png)  
 
-**webpack**是近期最火的一款模块加载器兼打包工具。
-**webpack**是以 commonJS 的形式来书写脚本滴，但对 AMD/CMD 的支持也很全面，方便旧项目进行代码迁移。
-开发便捷，能替代部分 grunt/gulp 的工作，比如打包、压缩混淆、图片转base64等。
-扩展性强，插件机制完善，特别是支持 React 热插拔的功能让人眼前一亮。
-下面简单介绍Webpack的基本使用。
+**webpack**是近期最火的一款模块加载器兼打包工具。  
+
+**webpack**是以 commonJS 的形式来书写脚本滴，但对 AMD/CMD 的支持也很全面，方便旧项目进行代码迁移。  
+开发便捷，能替代部分 grunt/gulp 的工作，比如打包、压缩混淆、图片转base64等。  
+扩展性强，插件机制完善，特别是支持 React 热插拔的功能让人眼前一亮。  
+下面简单介绍Webpack的基本使用。  
 
 ##### 5.2.6.2.1.	全局安装  
 ![](http://i.imgur.com/q3qEayM.png)  
@@ -235,7 +236,7 @@ gulp-rev-append 插件会通过正则(?:href|src)=”(.*)[?]rev=(.*)[“]查找�
 
 ##### 5.2.6.2.3.	Loader  
 
-Webpack 本身只能处理 JavaScript 模块，如果要处理其他类型的文件，就需要使用 loader 进行转换。
+Webpack 本身只能处理 JavaScript 模块，如果要处理其他类型的文件，就需要使用 loader 进行转换。  
 **Loader**可以理解为是模块和资源的转换器，它本身是一个函数，接受源文件作为参数，返回转换的结果。这样，我们就可以通过 require 来加载任何类型的模块或文件，比如 CoffeeScript、 JSX、 SASS 或图片。
 
 ![](http://i.imgur.com/nQK6t7y.png)  
