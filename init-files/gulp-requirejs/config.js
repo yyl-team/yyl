@@ -5,7 +5,7 @@ var
         localserver: { // 本地服务器配置
             root: './dist', // 服务器输出地址
             path: '/mobileYY/mobile_yy_rp', // 项目路径
-            commons: '../commons', // 公用目录
+            commons: '../../../../../code.yy.com/ent-FEteam/commons', // 公用目录
 
             revRoot: './dist', // rev-menifest 内容相对路径
             srcRoot: './src', // 开发代码 路径
@@ -13,8 +13,8 @@ var
             jslibDest: 'js/lib', // jslib 输出路径
             cssDest: 'css', // css 输出路径
             htmlDest: 'html', // html 输出路径
-            imageDest: 'images', // images 输出路径
-            revDest: 'assets/rev-manifest.json', // md5 映射表
+            imagesDest: 'images', // images 输出路径
+            revDest: 'assets', // md5 映射表
             port: 5000 // 服务器 port
         },
         // 提交之前回调函数
@@ -41,6 +41,7 @@ var
             globalcomponents: path.join(setting.localserver.commons, 'pc/components'),
             globallib: path.join(setting.localserver.commons, 'pc/lib'),
 
+
             // 输出目录中 到 html, js, css, image 层 的路径
             root: path.join(setting.localserver.root, setting.localserver.path),
 
@@ -48,6 +49,9 @@ var
             srcRoot: setting.localserver.srcRoot,
             // dest 地址
             destRoot: setting.localserver.root,
+            
+            // 项目根目录
+            dirname: './',
 
             // js 输出地址
             jsDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.jsDest),
@@ -58,8 +62,10 @@ var
             // css 输出地址
             cssDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.cssDest),
             // images 输出地址
-            imageDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.imageDest),
+            imagesDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.imagesDest),
 
+            // assets 输出地址
+            revDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.revDest),
             // rev-menifest 输出路径
             revPath: path.join(setting.localserver.root, setting.localserver.path, 'assets/rev-manifest.json')
         },
@@ -71,7 +77,7 @@ var
             '{$srcRoot}/js/vendors.js': [
                 '{$commons}/pc/lib/jQuery/jquery-1.11.1.min.js'
             ],
-            '{$destRoot}/js/vendors.js': [
+            '{$root}/js/vendors.js': [
                 '{$commons}/pc/lib/jQuery/jquery-1.11.1.min.js'
             ]
         },
