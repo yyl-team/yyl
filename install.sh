@@ -65,6 +65,8 @@ else
     npm link
 fi
 
+npm config set color always
+
 echo ------------------------------
 echo "command \033[44;37;5m yyl \033[0m installed!"
 echo have fun!
