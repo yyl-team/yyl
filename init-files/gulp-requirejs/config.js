@@ -1,14 +1,15 @@
 'use strict';
 var 
+    //+ yyl init 自动 匹配内容
+    commonPath = /*+commonPath*/'../../../../../code.yy.com/ent-FEteam/commons'/*-commonPath*/,
+    //- yyl init 自动 匹配内容
+    
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置
             root: './dist', // 服务器输出地址
             path: '/mobileYY/mobile_yy_rp', // 项目路径
-            commons: '../../../../../code.yy.com/ent-FEteam/commons', // 公用目录
-
             revRoot: './dist', // rev-menifest 内容相对路径
-            srcRoot: './src', // 开发代码 路径
             jsDest: 'js', // js 输出路径
             jslibDest: 'js/lib', // jslib 输出路径
             cssDest: 'css', // css 输出路径
@@ -35,20 +36,22 @@ var
             dev: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/'),
 
             // 公用组件地址
-            commons: setting.localserver.commons,
+            commons: commonPath,
 
             // 公用 components 目录
-            globalcomponents: path.join(setting.localserver.commons, 'pc/components'),
-            globallib: path.join(setting.localserver.commons, 'pc/lib'),
+            globalcomponents: path.join(commonPath, 'pc/components'),
+            globallib: path.join(commonPath, 'pc/lib'),
 
 
             // 输出目录中 到 html, js, css, image 层 的路径
             root: path.join(setting.localserver.root, setting.localserver.path),
 
-            // src 地址
-            srcRoot: setting.localserver.srcRoot,
+            
             // dest 地址
             destRoot: setting.localserver.root,
+
+            // src 地址
+            srcRoot: './src',
             
             // 项目根目录
             dirname: './',

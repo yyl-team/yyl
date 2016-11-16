@@ -25,7 +25,7 @@ var
                 options: {
                     '-h, --help': 'print usage information',
                     '-v, --version': 'print yyl version',
-                    '--p, --path': 'show the yyl command local path'
+                    '-p, --path': 'show the yyl command local path'
                 }
             });
         },
@@ -77,12 +77,12 @@ module.exports = function(ctx){
             break;
 
         case '--path':
-        case '--p':
+        case '-p':
             events.path();
             break;
 
         case 'init':
-            events.init();
+            events.init.apply(events, iArgv);
             break;
 
         case 'update':

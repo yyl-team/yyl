@@ -16,7 +16,7 @@ var
                 },
                 options: {
                     '-h, --help': 'print usage information',
-                    '--p, --path': 'show the yyl server local path'
+                    '-p, --path': 'show the yyl server local path'
                 }
             });
 
@@ -141,7 +141,6 @@ var
             }
 
             if(val !== undefined){ //set
-                console.log(path.dirname(iPath));
                 util.mkdirSync(path.dirname(iPath));
                 data[key] = val;
                 fs.writeFileSync(iPath, JSON.stringify(data, null, 4));
@@ -165,16 +164,23 @@ var
                 return done('config.js not found');
             }
 
+
             if(fs.existsSync(mineConfigPath)){
                 try{
-                    mineConfig = require(mineConfigPath);
+                    mineConfig = util.requireJs(mineConfigPath);
                 } catch(er){}
 
             }
+            if(fs.existsSync(configPath)){
+                try{
+                    config = require(configPath);
+                } catch(er){
+                    return done('read config.js with error: ' + er.message);
+                }
 
-            try{
-                config = require(configPath);
-            } catch(er){}
+            }
+
+            
 
             if(!config){
                 return done('nothing in config.js');
@@ -334,7 +340,7 @@ var
 
             switch(ctx){
                 case '--path':
-                case '--p':
+                case '-p':
                     events.path();
                     break;
 
