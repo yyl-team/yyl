@@ -61,10 +61,16 @@ var
 
                 if(!data.commonPath){
                     var iRoot = path.parse(vars.PROJECT_PATH).root;
+                    var ignoreReg = /node_modules|dist/g;
+
+                    if(!vars.IS_WINDOWS){
+                        iRoot = vars.PROJECT_PATH.split('/').slice(0, 3).join('/');
+                        ignoreReg = /node_modules|Application|dist|Library/g;
+                    }
 
                     util.msg.info('start find your local common path on disk -', iRoot);
 
-                    var list = util.findPathSync('commons/pc', iRoot, /node_modules|\.sass-cache|\.git|\.svn/g);
+                    var list = util.findPathSync('commons/pc', iRoot, ignoreReg, true);
 
                     util.msg.info('finish');
 
@@ -321,8 +327,7 @@ var
 
                         }).then(function(){
                             util.msg.success('init client', workflowName, 'success');
-                            util.openPath(path.join(vars.PROJECT_PATH,dirPath));
-                            done();
+                            done(null, path.join(vars.PROJECT_PATH,dirPath));
                         }).start();
                     };
 
@@ -332,15 +337,23 @@ var
                 }
 
                 var padding = 0,
-                    paddingCheck = function(err){
+                    iPaths = [],
+                    paddingCheck = function(err, currentPath){
                         if(err){
                             util.msg.error(err);
+                        } else {
+                            if(currentPath){
+                                iPaths.push(currentPath);
+                            }
                         }
                         padding--;
 
                         if(!padding){
                             util.msg.line().success(data.name + ' init complete');
                             util.runCMD('yyl');
+                            if(iPaths.length){
+                                util.openPath(iPaths[0]);
+                            }
 
                         }
 
