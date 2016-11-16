@@ -100,7 +100,7 @@ module.exports = function(ctx){
             break;
 
         case 'server':
-            events.server.apply(events, iArgv);
+            events.server.run.apply(events.server, iArgv);
             break;
 
         default:

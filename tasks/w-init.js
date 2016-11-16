@@ -3,6 +3,7 @@ var
     color = require('../lib/colors'),
     util = require('../lib/yyl-util'),
     vars = util.vars,
+    wServer = require('./w-server'),
     path = require('path'),
     fs = require('fs'),
     inquirer = require('inquirer');
@@ -10,8 +11,124 @@ var
 
 var 
     wInit = function(){
+
         // 信息收集
-        new util.Promise(function(next){
+        new util.Promise(function(next){ // 本地存储的 commonPath 数据 获取
+
+            util.msg.newline().info('start run init task');
+
+
+            var 
+                prompt = inquirer.createPromptModule(),
+                commonPath = wServer.profile('commonPath'),
+                questions = [];
+            if(commonPath){
+                questions.push({
+                    name: 'ok',
+                    message: 'is it your common path? ' + commonPath,
+                    type: 'confirm',
+                    default: true
+
+                });
+                prompt(questions, function(d){
+                    if(d.ok){
+                        next({commonPath: commonPath});
+                    } else {
+                        next({});
+                    }
+                });
+
+            } else {
+                util.msg.info('cannot find the common path in your local profile');
+                next({});
+
+            }
+
+        }).then(function(data, next){ // 自动查找本地目录下的 common 路径
+            var 
+                prompt = inquirer.createPromptModule(),
+                questions = [];
+
+            if(!data.commonPath){
+                var iRoot = path.parse(vars.PROJECT_PATH).root;
+
+                util.msg.info('start find your local common path on disk -', iRoot);
+
+                var list = util.findPathSync('commons/pc', iRoot, /node_modules|\.sass-cache|\.git|\.svn/g);
+
+                util.msg.info('finish');
+
+                util.msg.newline();
+                if(list.length){
+                    if(list.length > 1){
+                        questions.push({
+                            name: 'commonPath',
+                            message: 'which is your commons path ?',
+                            type: 'list',
+                            choices: list,
+                            default: list[0]
+                        });
+                        prompt(questions, function(d){
+                            if(!d.commonPath ){
+                                util.msg.error('init fail', 'common path not set');
+                            } else {
+                                wServer.profile('commonPath', d.commonPath);
+                                next(util.extend(data, d));
+                            }
+
+                        });
+
+                    } else {
+                        questions.push({
+                            name: 'ok',
+                            message: 'is it your common path? ' + list[0],
+                            type: 'confirm',
+                            default: true
+
+                        });
+                        prompt(questions, function(d){
+                            if(!d.ok){
+                                util.msg.error('init fail', 'common path not set');
+                            } else {
+                                var 
+                                    dd = {
+                                        commonPath: list[0]
+                                    };
+                                wServer.profile('commonPath', dd.commonPath);
+                                next(util.extend(data, dd));
+                            }
+
+                        });
+
+                    }
+
+                } else {
+                    util.msg.warn('cannot find your commons path');
+                    questions.push({
+                        name: 'commonPath',
+                        message: 'what is your commons path ?',
+                        type: 'input'
+                    });
+
+                    prompt(questions, function(d){
+                        if(!d.commonPath ){
+                            util.msg.error('init fail', 'common path not set');
+                        } else {
+                            wServer.profile('commonPath', d.commonPath);
+                            next(util.extend(data, d));
+                        }
+
+                    });
+
+                }
+                
+
+            } else {
+                next(data);
+
+            }
+
+        }).then(function(data, next){
             var 
                 prompt = inquirer.createPromptModule();
 
@@ -30,7 +147,9 @@ var
                     default: ['pc']
                 }
 
-            ], next);
+            ], function(d){
+                next(util.extend(data, d));
+            });
 
         }).then(function(data, next){
             var 
@@ -61,12 +180,8 @@ var
                 next(util.extend(data, d));
             });
         }).then(function(data, next){
-            console.log([
-                '',
-                '-------------------',
-                ' project ' + color.yellow(data.name) + ' path initial like this:',
-                ''
-            ].join('\n'));
+            util.msg.newline().line().info(' project ' + color.yellow(data.name) + ' path initial like this:');
+
             var printArr = [' '+ data.name];
 
             if(~data.platforms.indexOf('pc')){
@@ -153,71 +268,6 @@ var
                         null,
                         path.join(vars.PROJECT_PATH, frontPath)
                     );
-                },
-                initServerPackage = function(workflowName, done){
-                    var workflowPath = path.join(vars.SERVER_WORKFLOW_PATH, workflowName);
-
-                    new util.Promise(function(next){ // server init
-
-                        util.msg.info('init server', workflowName, 'start');
-
-                        util.mkdirSync(vars.SERVER_PATH);
-                        util.mkdirSync(workflowPath);
-
-                        // copy the lib to server
-                        util.copyFiles( path.join(vars.BASE_PATH, 'lib'), path.join(vars.SERVER_PATH, 'lib'), function(){
-                            util.msg.info('copy lib to serverpath pass');
-                            next();
-                        });
-
-                    }).then(function(next){ // copy files to server
-                        var files = [],
-                            fileParam = {};
-
-                        switch(workflowName){
-                            case 'gulp-requirejs':
-                            case 'webpack-vue':
-                                files = ['package.json', 'gulpfile.js'];
-                                break;
-
-                            default:
-                                files = ['package.json'];
-                                break;
-                        }
-                        files.forEach(function(filePath){
-                            fileParam[path.join(vars.BASE_PATH, 'init-files', workflowName, filePath)] = path.join(workflowPath, filePath);
-                        });
-
-                        util.copyFiles(fileParam, function(err){
-                            if(err){
-                                util.msg.error('copy', workflowName, 'files to serverpath fail', err);
-                                return;
-                            }
-                            util.msg.info('copy', workflowName, 'files to serverpath pass');
-                            next();
-                        });
-
-                    }).then(function(next){ // npm install 
-                        process.chdir(workflowPath);
-                        util.runCMD('npm install', function(err){
-                            if(err){
-                                util.msg.error('npm install fail on server!');
-                                return;
-                            }
-                            util.msg.info('npm install success');
-                            process.chdir(vars.PROJECT_PATH);
-                            next();
-
-                        }, workflowPath);
-
-
-                    }).then(function(next){ // back to dirPath
-                        util.msg.success('init server', workflowName, 'success');
-                        if(done){
-                            done();
-                        }
-                        next();
-                    }).start();
                 };
 
             if(parentDir !== data.name){ // 如项目名称与父级名称不一致, 创建顶级目录
@@ -242,12 +292,12 @@ var
             if(data.pcWorkflow){
                 padding += 2;
                 initClientFlow('pc', data.pcWorkflow, paddingCheck);
-                initServerPackage(data.pcWorkflow, paddingCheck);
+                wServer.init(data.pcWorkflow, paddingCheck);
             }
             if(data.mobileWorkflow){
                 padding += 2;
                 initClientFlow('mobile', data.mobileWorkflow, paddingCheck);
-                initServerPackage(data.mobileWorkflow, paddingCheck);
+                wServer.init(data.mobileWorkflow, paddingCheck);
             }
 
         }).start();
