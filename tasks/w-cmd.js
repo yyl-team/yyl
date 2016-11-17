@@ -12,6 +12,7 @@ var
         init: require('./w-init'),
         optimize: require('./w-optimize'),
         server: require('./w-server'),
+        test: require('./w-test'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -101,6 +102,10 @@ module.exports = function(ctx){
 
         case 'server':
             events.server.run.apply(events.server, iArgv);
+            break;
+
+        case 'test':
+            events.test();
             break;
 
         default:

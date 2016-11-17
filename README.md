@@ -1,6 +1,6 @@
 # yylive work flow 说明文档
 ## 环境说明
-项目基于 `node, gulp, ruby` 搭建, 需要在 `node >= 4.0.0` 环境下运行
+项目基于 `node, gulp` 搭建, 需要在 `node >= 4.0.0` 环境下运行
 
 ### windows 用户
 双击 `install.bat` 全局安装构建工具 - yyl
@@ -13,6 +13,8 @@
 ```
 # 项目初始化
 $ yyl init
+$ yyl init -f
+$ yyl init -h
 
 # 版本信息
 $ yyl -v
@@ -22,6 +24,23 @@ $ yyl --version
 $ yyl -h
 $ yyl --help
 $ yyl
+
+# 打开项目当前路径
+$ yyl -p
+$ yyl --path
+
+# 构建项目命令
+$ yyl html
+$ yyl images
+$ yyl css
+$ yyl js
+$ yyl all
+$ yyl watchAll
+
+# 服务器相关命令
+$ yyl server init
+$ yyl server -p
+$ yyl server -h
 ```
 
 ## todolist

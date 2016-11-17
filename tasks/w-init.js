@@ -192,53 +192,79 @@ var
                     });
 
                 }
+                questions.push({
+                    name: 'initType',
+                    message: 'select init type',
+                    type: 'list',
+                    choices: ['svn path (full svn)', 'git path (just project)']
+
+                });
                 prompt(questions, function(d){
                     next(util.extend(data, d));
                 });
             }).then(function(data, next){
                 util.msg.newline().line().info(' project ' + color.yellow(data.name) + ' path initial like this:');
 
-                var printArr = [' '+ data.name];
+                var buildPaths = [];
 
-                if(~data.platforms.indexOf('pc')){
-                    printArr = printArr.concat([
-                        ' |~ pc',
-                        ' |  |- dist',
-                        ' |  `~ src',
-                        ' |     |+ components',
-                        ' |     |+ js',
-                        ' |     |+ css',
-                        ' |     |+ sass',
-                        ' |     |+ images',
-                        ' |     |+ html',
-                        ' |     |- config.js',
-                        ' |     |- config.mine.js',
-                        ' |     `- README.md'
+                if(/svn/.test(data.initType)){ // svn full path
+                    var 
+                        branches = [ 'commit', 'develop', 'trunk' ],
+                        subDirs1 = ['global', 'plugin'],
+                        subDirs2 = [], //pc, mobile
+                        subDirs3 = ['dist', 'src'],
+                        subDirs4 = ['css', 'html', 'images', 'js'];
 
-                    ]);
+                    // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}/{$subDirs04}
+
+
+                    if(data.pcWorkflow){
+                        subDirs2.push('pc');
+                    }
+
+                    if(data.mobileWorkflow){
+                        subDirs2.push('mobile');
+                    }
+                    
+                    
+                    branches.forEach(function(branch){
+                        var iBranch = path.join(data.name, branch);
+
+                        subDirs1.forEach(function(subDir1){
+                            var iSubDir1 = path.join(iBranch, subDir1);
+
+                            subDirs2.forEach(function(subDir2){
+                                var iSubDir2 = path.join(iSubDir1, subDir2);
+
+                                subDirs3.forEach(function(subDir3){
+                                    var iSubDir3 = path.join(iSubDir2, subDir3);
+
+                                    subDirs4.forEach(function(subDir4){
+                                        var iSubDir4 = util.joinFormat(iSubDir3, subDir4);
+                                        buildPaths.push(iSubDir4);
+
+                                    });
+
+                                });
+
+                            });
+
+                        });
+
+                    });
+
+                    console.log(buildPaths)
+
+                    return;
+                    
+
+                } else { // just project
+
                 }
-                if(~data.platforms.indexOf('mobile')){
-                    printArr = printArr.concat([
-                        ' |~ mobile',
-                        ' |  |- dist',
-                        ' |  `~ src',
-                        ' |     |+ components',
-                        ' |     |+ js',
-                        ' |     |+ css',
-                        ' |     |+ sass',
-                        ' |     |+ images',
-                        ' |     |+ html',
-                        ' |     |- config.js',
-                        ' |     |- config.mine.js',
-                        ' |     `- README.md'
 
-                    ]);
-                }
-                printArr = printArr.concat([
-                        ' `~ ...'
-                ]);
 
-                console.log(printArr.join('\n'));
+
+                console.log(JSON.stringify(data, null, 4));
 
                 var 
                     prompt = inquirer.createPromptModule();

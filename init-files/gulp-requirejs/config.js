@@ -2,21 +2,23 @@
 var 
     //+ yyl init 自动 匹配内容
     commonPath = /*+commonPath*/'../../../../../code.yy.com/ent-FEteam/commons'/*-commonPath*/,
+    projectName = /*+name*/'name'/*-name*/,
     //- yyl init 自动 匹配内容
     
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置
             root: './dist', // 服务器输出地址
-            path: '/mobileYY/mobile_yy_rp', // 项目路径
-            revRoot: './dist', // rev-menifest 内容相对路径
-            jsDest: 'js', // js 输出路径
-            jslibDest: 'js/lib', // jslib 输出路径
-            cssDest: 'css', // css 输出路径
-            htmlDest: 'html', // html 输出路径
-            imagesDest: 'images', // images 输出路径
-            revDest: 'assets', // md5 映射表
             port: 5000 // 服务器 port
+        },
+        dest: {
+            basePath: '/path01/path02',
+            jsPath: 'js/name01',
+            jslibPath: 'js/name01/lib',
+            cssPath: 'css/name01',
+            htmlPath: 'html/name01',
+            imagesPath: 'images/name01',
+            revPath: 'assets/name01'
         },
         // 提交之前回调函数
         beforeCommit: function(){}
@@ -26,9 +28,9 @@ var
 var
     config = {
         workflow: 'gulp-requirejs',
-        localserver: setting.localserver,
-
+        dest: setting.dest,
         // +此部分 yyl server 端config 会进行替换
+        localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
             // svn trunk 地址
             trunk: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk'),
@@ -44,9 +46,8 @@ var
 
 
             // 输出目录中 到 html, js, css, image 层 的路径
-            root: path.join(setting.localserver.root, setting.localserver.path),
+            root: path.join(setting.localserver.root, setting.dest.basePath),
 
-            
             // dest 地址
             destRoot: setting.localserver.root,
 
@@ -57,20 +58,17 @@ var
             dirname: './',
 
             // js 输出地址
-            jsDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.jsDest),
+            jsDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),
             // js lib 输出地址
-            jslibDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.jslibDest),
+            jslibDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jslibPath),
             // html 输出地址
-            htmlDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.htmlDest),
+            htmlDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.htmlPath),
             // css 输出地址
-            cssDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.cssDest),
+            cssDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.cssPath),
             // images 输出地址
-            imagesDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.imagesDest),
-
+            imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
             // assets 输出地址
-            revDest: path.join(setting.localserver.root, setting.localserver.path, setting.localserver.revDest),
-            // rev-menifest 输出路径
-            revPath: path.join(setting.localserver.root, setting.localserver.path, 'assets/rev-manifest.json')
+            revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath)
         },
         // -此部分 yyl server 端config 会进行替换
 
