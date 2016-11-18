@@ -208,15 +208,15 @@ var
                 var buildPaths = [];
 
                 if(/svn/.test(data.initType)){ // svn full path
+                    // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}/{$subDirs04}
+                    var parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop();
                     var 
+                        name = parentDir == data.name? '': data.name,
                         branches = [ 'commit', 'develop', 'trunk' ],
                         subDirs1 = ['global', 'plugin'],
                         subDirs2 = [], //pc, mobile
                         subDirs3 = ['dist', 'src'],
                         subDirs4 = ['css', 'html', 'images', 'js'];
-
-                    // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}/{$subDirs04}
-
 
                     if(data.pcWorkflow){
                         subDirs2.push('pc');
@@ -225,10 +225,9 @@ var
                     if(data.mobileWorkflow){
                         subDirs2.push('mobile');
                     }
-                    
-                    
+
                     branches.forEach(function(branch){
-                        var iBranch = path.join(data.name, branch);
+                        var iBranch = path.join(name, branch);
 
                         subDirs1.forEach(function(subDir1){
                             var iSubDir1 = path.join(iBranch, subDir1);
@@ -253,13 +252,28 @@ var
 
                     });
 
-                    console.log(buildPaths)
+                    util.buildTree({
+                        path: name,
+                        dirList: buildPaths
+                    })
 
-                    return;
-                    
+                    data.buildPaths = buildPaths;
 
                 } else { // just project
-
+                    if(data.pcWorkflow){
+                        util.buildTree({
+                            frontPath: path.join(data.name, 'pc'),
+                            path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
+                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
+                        });
+                    }
+                    if(data.mobileWorkflow){
+                        util.buildTree({
+                            frontPath: path.join(data.name, 'mobile'),
+                            path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
+                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
+                        });
+                    }
                 }
 
 
