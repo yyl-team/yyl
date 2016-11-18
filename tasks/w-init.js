@@ -203,28 +203,42 @@ var
                     next(util.extend(data, d));
                 });
             }).then(function(data, next){
-                util.msg.newline().line().info(' project ' + color.yellow(data.name) + ' path initial like this:');
+
+
+                // 基本信息
+                console.log([
+                    '',
+                    ' project info',
+                    ' ----------------------------------------',
+                    ' name            : ' + data.name,
+                    ' platforms       : ' + data.platforms,
+                    ' pc workflow     : ' + (data.pcWorkflow || ''),
+                    ' mobile workflow : ' + (data.mobileWorkflow || ''),
+                    ' ----------------------------------------',
+                    ' project ' + color.yellow(data.name) + ' path initial like this:',
+                    ''
+                ].join('\n'));
 
                 var buildPaths = [];
 
                 if(/svn/.test(data.initType)){ // svn full path
-                    // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}/{$subDirs04}
+                    // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}
                     var parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop();
                     var 
                         name = parentDir == data.name? '': data.name,
                         branches = [ 'commit', 'develop', 'trunk' ],
-                        subDirs1 = ['global', 'plugin'],
-                        subDirs2 = [], //pc, mobile
-                        subDirs3 = ['dist', 'src'],
-                        subDirs4 = ['css', 'html', 'images', 'js'];
+                        subDirs1 = [], //pc, mobile
+                        subDirs2 = ['dist', 'src'],
+                        subDirs3 = ['css', 'html', 'images', 'js'];
 
                     if(data.pcWorkflow){
-                        subDirs2.push('pc');
+                        subDirs1.push('pc');
                     }
 
                     if(data.mobileWorkflow){
-                        subDirs2.push('mobile');
+                        subDirs1.push('mobile');
                     }
+
 
                     branches.forEach(function(branch){
                         var iBranch = path.join(name, branch);
@@ -233,16 +247,17 @@ var
                             var iSubDir1 = path.join(iBranch, subDir1);
 
                             subDirs2.forEach(function(subDir2){
-                                var iSubDir2 = path.join(iSubDir1, subDir2);
+                                var iSubDir2;
+                                if(branch == 'develop'){
+                                    iSubDir2 = path.join(iSubDir1, subDir2);
+                                } else {
+                                    iSubDir2 = iSubDir1;
+                                }
 
                                 subDirs3.forEach(function(subDir3){
                                     var iSubDir3 = path.join(iSubDir2, subDir3);
 
-                                    subDirs4.forEach(function(subDir4){
-                                        var iSubDir4 = util.joinFormat(iSubDir3, subDir4);
-                                        buildPaths.push(iSubDir4);
-
-                                    });
+                                    buildPaths.push(iSubDir3);
 
                                 });
 
@@ -255,30 +270,30 @@ var
                     util.buildTree({
                         path: name,
                         dirList: buildPaths
-                    })
+                    });
 
                     data.buildPaths = buildPaths;
 
                 } else { // just project
                     if(data.pcWorkflow){
+
                         util.buildTree({
                             frontPath: path.join(data.name, 'pc'),
                             path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
-                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
+                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules/,
+                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
+                            
                         });
+                        return;
                     }
                     if(data.mobileWorkflow){
                         util.buildTree({
                             frontPath: path.join(data.name, 'mobile'),
-                            path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
+                            path: path.join(vars.BASE_PATH, 'init-files', data.mobileWorkflow),
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
                         });
                     }
                 }
-
-
-
-                console.log(JSON.stringify(data, null, 4));
 
                 var 
                     prompt = inquirer.createPromptModule();
@@ -301,7 +316,17 @@ var
                     initClientFlow = function(dirname, workflowName, done){
                         util.msg.info('init client', workflowName, 'start');
 
-                        var dirPath = path.join(frontPath, dirname);
+                        var 
+                            dirPath;
+
+                        
+
+                        if(~data.initType.indexOf('svn')){
+                            dirPath = path.join(frontPath, 'develop', dirname);
+
+                        } else {
+                            dirPath = path.join(frontPath, dirname);
+                        }
 
                         new util.Promise(function(next){ // mk dir front path
                             util.msg.info('make dir...');
@@ -312,6 +337,13 @@ var
                                 done(dirname + ' directory is not empty, init fail');
                                 return;
                             }
+
+                            if(data.buildPaths){ // 构建其他文件夹(svn)
+                                data.buildPaths.forEach(function(iPath){
+                                    util.mkdirSync(iPath);
+                                });
+                            }
+
                             util.msg.info('done');
                             next();
 
