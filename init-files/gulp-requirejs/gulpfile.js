@@ -31,6 +31,8 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     clean = require('gulp-clean'),
 
+    connect = require('gulp-connect'),
+
     through = require('through2'),
     es = require('event-stream'),
 
@@ -626,31 +628,42 @@ gulp.task('watch', function() {
     }
     var vars = gulp.env.vars;
 
+
     // 看守所有.scss档
-    gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), ['css', 'html']);
+    gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
+        runSequence('css', 'html', 'concat', 'connect-reload');
+    });
 
     // 看守所有.js档
     gulp.watch([
         util.joinFormat(vars.srcRoot, 'components/**/*.js'),
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
-    ], ['js', 'html']);
+    ], function(){
+        runSequence('js', 'html', 'concat', 'connect-reload');
+    });
 
     // 看守所有图片档
     gulp.watch([
         util.joinFormat(vars.srcRoot, 'images/*.*'),
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
-    ], ['images', 'html']);
+    ], function(){
+        runSequence('images', 'html', 'connect-reload');
+
+    });
 
     // 看守所有jade 文件
     gulp.watch([
         util.joinFormat(vars.srcRoot, 'components/**/*.jade'),
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
-    ], ['html']);
+    ], function(){
+        runSequence('html', 'connect-reload');
+    });
 
 
+    runSequence('connect');
 });
 // - watch task
 
@@ -981,3 +994,25 @@ gulp.task('all-done', function(){
 
 gulp.task('watchAll', ['all', 'watch']);
 // - all
+// + connect
+gulp.task('connect', function(){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return;
+    }
+
+    connect.server({
+        root: iConfig.localserver.root,
+        port: iConfig.localserver.port,
+        livereload: true
+    });
+
+    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port);
+
+});
+
+gulp.task('connect-reload', function(){
+    return gulp.src('./package.json')
+        .pipe(connect.reload());
+});
+// - connect

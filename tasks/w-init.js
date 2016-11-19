@@ -70,7 +70,7 @@ var
 
                     util.msg.info('start find your local common path on disk -', iRoot);
 
-                    var list = util.findPathSync('commons/pc', iRoot, ignoreReg, true);
+                    var list = util.findPathSync(vars.COMMIN_PATH_LIKE, iRoot, ignoreReg, true);
 
                     util.msg.info('finish');
 
@@ -145,8 +145,10 @@ var
                 }
 
             }).then(function(data, next){
+                data.commonPath = data.commonPath.trim();
                 var 
                     prompt = inquirer.createPromptModule();
+
 
                 prompt([
                     {
@@ -373,24 +375,24 @@ var
                                 return;
                             }
 
-                            var configContent = fs.readFileSync(configPath).toString();
+                            var
+                                configContent = fs.readFileSync(configPath).toString(),
+                                replaceFn = function(str, $1, $2, $3, $4){
+                                    if(key == 'commonPath'){
+                                        return $2 + util.joinFormat(path.relative(path.join(vars.PROJECT_PATH, dirPath), data[key])) + $4;
+                                    } else {
+                                        return $2 + data[key] + $4;
+                                    }
+
+                                };
 
                             // 替换 commonPath
-                            configContent = configContent.replace(/(\/\*\+(\w+)\*\/.*['"])([^"']*)(["'].*\/\*\-(\w+)\*\/)/, function(str, $1, $2, $3, $4){
-                                var key = $2;
-
-                                if( key in data){
-                                    if(key == 'commonPath'){
-                                        return $1 + util.joinFormat(path.relative(path.join(vars.PROJECT_PATH, dirPath), data[key])) + $4;
-
-                                    } else {
-                                        return $1 + data[key] + $4;
-                                    }
-                                } else {
-                                    return str;
-                                }
-
-                            });
+                            for(var key in data){
+                                configContent = configContent.replace(
+                                    new RegExp('(\/\\*\\+'+ key + '\\*/)([\'\"])(.*)([\'\"])(\/\\*\\-'+ key + '\\*\/)', 'g'),
+                                    replaceFn
+                                );
+                            }
 
                             fs.writeFileSync(configPath, configContent);
 

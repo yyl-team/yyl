@@ -31,6 +31,10 @@ var
 
             util.openPath(vars.SERVER_PATH);
         },
+
+        start: function(){
+            wServer.start();
+        },
         init: function(workflowName){
             wServer.init(workflowName, function(err){
                 if(err){
@@ -332,6 +336,7 @@ var
             }).start();
 
         },
+        
         // yyl 脚本调用 入口
         run: function(){
             var
@@ -342,6 +347,10 @@ var
                 case '--path':
                 case '-p':
                     events.path();
+                    break;
+
+                case 'start':
+                    events.start();
                     break;
 
                 case 'clear':

@@ -32,10 +32,15 @@ var
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
-            // svn trunk 地址
-            trunk: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk'),
-            // svn dev 地址
-            dev: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/'),
+            
+            // svn dev 分支地址
+            dev: path.join('../dist'),
+
+            // svn commit 分支地址
+            commit: path.join('../commit'),
+
+            // svn trunk 分支地址
+            trunk: path.join('../trunk'),
 
             // 公用组件地址
             commons: commonPath,

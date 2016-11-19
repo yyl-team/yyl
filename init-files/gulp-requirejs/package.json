@@ -25,6 +25,7 @@
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.0",
+    "gulp-connect": "^5.0.0",
     "gulp-filter": "^2.0.2",
     "gulp-imagemin": "^2.2.1",
     "gulp-inline-source": "^2.1.0",
