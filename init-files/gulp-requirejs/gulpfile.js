@@ -47,7 +47,7 @@ var
     config = require('./config.js'),
     localConfig = fs.existsSync('./config.mine.js')? require('./config.mine.js'): {};
 
-config = util.extend(true, config, localConfig);
+config = util.initConfig(util.extend(true, config, localConfig));
 
 
 
@@ -135,110 +135,6 @@ var fn = {
     }
 };
 
-// + config 内变量替换
-(function(){
-    var 
-        ctxRender = function(ctx, vars){
-            vars = vars || {};
-            ctx = util.joinFormat(ctx.replace(/\{\$(\w+)\}/g, function(str, $1){
-                return vars[$1] || '';
-            }));
-            return ctx;
-        },
-        iForEach = function(arr, vars){
-            for(var i = 0, len = arr.length; i < len; i++){
-                switch(util.type(arr[i])){
-                    case 'array':
-                        arr[i] = iForEach(arr[i], vars);
-                        break;
-
-                    case 'string':
-                        arr[i] = ctxRender(arr[i], vars);
-                        break;
-
-                    case 'object':
-                        if(arr[i] !== null){
-                            arr[i] = deep(arr[i], vars);
-                        }
-                        break;
-                    case 'function':
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-            return arr;
-        },
-        deep = function(obj, vars){
-            var newKey;
-            for(var key in obj){
-                if(obj.hasOwnProperty(key)){
-                    switch(util.type(obj[key])){
-                        case 'array':
-                            newKey = ctxRender(key, vars);
-                            if(newKey != key){
-                                obj[newKey] = iForEach(obj[key], vars);
-                                delete obj[key];
-
-                            } else {
-                                obj[key] = iForEach(obj[key], vars);
-
-                            }
-                            break;
-
-                        case 'object':
-                            newKey = ctxRender(key, vars);
-                            if(newKey != key){
-                                obj[newKey] = deep(obj[key], vars);
-                                delete obj[key];
-
-                            } else {
-                                obj[key] = deep(obj[key], vars);
-
-                            }
-                            break;
-
-                        case 'string':
-                            obj[key] = ctxRender(obj[key], vars);
-                            break;
-
-                        case 'function':
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-            }
-            return obj;
-
-        };
-
-    // 判断是单个 config 还是 多项目 config
-    var useful = false; 
-    if(!config.alias && !config.localserver){
-        for(var key in config){
-            if(util.type(config[key]) == 'object' && config[key].alias && config[key].localserver){
-                config[key] = deep(config[key], config[key].alias);
-                useful = true;
-            }
-        }
-    } else if(config.alias && config.localserver){
-        config = deep(config, config.alias);
-        useful = true;
-    }
-
-
-    if(!useful){
-        util.msg.error('useness config file', 'please check');
-        process.exit();
-    }
-
-})();
-
-
-// - config 内变量替换
 
 // + html task
 gulp.task('html', function(done){
@@ -254,8 +150,6 @@ gulp.task('html-task', function(){
         return;
     }
 
-    console.log(44444444444444)
-    
     var 
         events = [],
         vars = gulp.env.vars,
@@ -292,7 +186,6 @@ gulp.task('html-task', function(){
                 var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig;
                 var dirname = util.joinFormat( iConfig.alias.srcRoot, 'html');
 
-                console.log('333333333333333333')
 
                 iCnt = iCnt
                     // 隔离 script 内容
@@ -303,16 +196,11 @@ gulp.task('html-task', function(){
                         var iPath = $3,
                             rPath = '';
 
-                        console.log('============================')
 
                         iPath = iPath.replace(/\{\$(\w+)\}/g, function(str, $1){
-                            console.log('match!');
-                            console.log($1)
-                            console.log(vars[$1])
-                            console.log(vars.dirname)
                             if(vars[$1]){
                                 
-                                return path.relative(path.join(vars.srcRoot, 'html'), vars[$1]);
+                                return path.relative( path.dirname(file.path), vars[$1]);
                             } else {
                                 return str;
                             }

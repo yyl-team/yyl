@@ -204,12 +204,18 @@ var
 
             var 
                 pathTrans = function(iPath){
-                    return util.joinFormat(
-                        path.relative(
-                            workFlowPath, 
-                            path.join(vars.PROJECT_PATH, iPath)
-                        )
-                    );
+                    if(path.isAbsolute(iPath)){
+                        return iPath;
+
+                    } else {
+                        return util.joinFormat(
+                            path.relative(
+                                workFlowPath,
+                                path.join(vars.PROJECT_PATH, iPath)
+                            )
+                        );
+
+                    }
 
                 },
                 relateHere = function(obj){
