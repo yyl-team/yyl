@@ -13,6 +13,7 @@ var
         optimize: require('./w-optimize'),
         server: require('./w-server'),
         test: require('./w-test'),
+        commit: require('./w-commit'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -103,6 +104,10 @@ module.exports = function(ctx){
 
         case 'server':
             events.server.run.apply(events.server, iArgv);
+            break;
+
+        case 'commit':
+            events.commit.run.apply(events.commit, iArgv);
             break;
 
         case 'test':

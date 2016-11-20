@@ -253,6 +253,9 @@ gulp.task('html-task', function(){
     if(!iConfig){
         return;
     }
+
+    console.log(44444444444444)
+    
     var 
         events = [],
         vars = gulp.env.vars,
@@ -289,6 +292,8 @@ gulp.task('html-task', function(){
                 var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig;
                 var dirname = util.joinFormat( iConfig.alias.srcRoot, 'html');
 
+                console.log('333333333333333333')
+
                 iCnt = iCnt
                     // 隔离 script 内容
                     .replace(scriptReg, function(str, $1, $2, $3){
@@ -297,6 +302,21 @@ gulp.task('html-task', function(){
                     .replace(pathReg, function(str, $1, $2, $3, $4){
                         var iPath = $3,
                             rPath = '';
+
+                        console.log('============================')
+
+                        iPath = iPath.replace(/\{\$(\w+)\}/g, function(str, $1){
+                            console.log('match!');
+                            console.log($1)
+                            console.log(vars[$1])
+                            console.log(vars.dirname)
+                            if(vars[$1]){
+                                
+                                return path.relative(path.join(vars.srcRoot, 'html'), vars[$1]);
+                            } else {
+                                return str;
+                            }
+                        });
 
                         if(iPath.match(/^(data:image|javascript:|#|http:|https:|\/)/) || !iPath){
                             return str;
@@ -329,6 +349,7 @@ gulp.task('html-task', function(){
 
     events.push(tmplStream);
 
+
     // html task
     var htmlStream = gulp.src( util.joinFormat(vars.srcRoot, 'html/*.html'))
         .pipe(plumber())
@@ -338,12 +359,12 @@ gulp.task('html-task', function(){
 
         // 替换全局 图片
         .pipe(replacePath(
-            relateHtml(path.join(__dirname, vars.globalcomponents)),
+            relateHtml(path.join(vars.globalcomponents)),
             util.joinFormat(remotePath, fn.relateDest(vars.imagesDest), 'globalcomponents')
         ))
         // 替换 common 下 lib
         .pipe(replacePath(
-            relateHtml(path.join(__dirname, vars.globallib)),
+            relateHtml(path.join(vars.globallib)),
             util.joinFormat(remotePath, fn.relateDest(vars.jslibDest), 'globallib')
         ))
         // 替换 jslib
@@ -990,8 +1011,19 @@ gulp.task('rev-update-task', function(){
 // - rev
 // + all
 gulp.task('all', function(done){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return;
+    }
+    var vars = gulp.env.vars;
+
     gulp.env.runAll = true;
-    runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', done);
+    util.msg.info('start clear dist file');
+
+    util.removeFiles(vars.destRoot, function(){
+        util.msg.info('clear dist file done');
+        runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', done);
+    });
 });
 
 gulp.task('all-done', function(){

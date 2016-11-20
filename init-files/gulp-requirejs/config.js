@@ -1,10 +1,11 @@
 'use strict';
 var 
+                    
     //+ yyl init 自动 匹配内容
     commonPath = /*+commonPath*/'../../../../../code.yy.com/ent-FEteam/commons'/*-commonPath*/,
     projectName = /*+name*/'name'/*-name*/,
     //- yyl init 自动 匹配内容
-    
+    //
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置

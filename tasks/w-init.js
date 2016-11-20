@@ -137,7 +137,6 @@ var
                         });
 
                     }
-                    
 
                 } else {
                     next(data);
@@ -321,7 +320,6 @@ var
                         var 
                             dirPath;
 
-                        
 
                         if(~data.initType.indexOf('svn')){
                             dirPath = path.join(frontPath, 'develop', dirname);
@@ -368,7 +366,7 @@ var
                         }).then(function(next){ // init configfile
                             util.msg.info('init config...');
                             var configPath = path.join(vars.PROJECT_PATH, dirPath, 'config.js');
-                            
+
                             if(!fs.existsSync(configPath)){
                                 util.msg.info('config.js not found');
                                 next();
