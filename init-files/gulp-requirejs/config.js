@@ -83,7 +83,7 @@ var
             '{$srcRoot}/js/vendors.js': [
                 '{$commons}/pc/lib/jQuery/jquery-1.11.1.min.js'
             ],
-            '{$root}/js/vendors.js': [
+            '{$jsDest}/vendors.js': [
                 '{$commons}/pc/lib/jQuery/jquery-1.11.1.min.js'
             ]
         },

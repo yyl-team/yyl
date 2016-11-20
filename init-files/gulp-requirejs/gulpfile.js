@@ -475,9 +475,15 @@ gulp.task('css-task', function() {
         ))
 
         // 替换图片
-        .pipe(replacePath('../images', util.joinFormat(remotePath, vars.imagesDest)))
+        .pipe(replacePath(
+            '../images',
+            util.joinFormat(remotePath, fn.relateDest(vars.imagesDest))
+        ))
         // 替换 components 内图片
-        .pipe(replacePath('../components', util.joinFormat( remotePath, vars.imagesDest, 'components')))
+        .pipe(replacePath(
+            '../components',
+            util.joinFormat( remotePath, fn.relateDest( path.join(vars.imagesDest, 'components')))
+        ))
         .pipe(iConfig.isCommit?minifycss({
             compatibility: 'ie7'
         }): fn.blankPipe())
@@ -1000,12 +1006,15 @@ gulp.task('connect', function(){
     if(!iConfig){
         return;
     }
+    var vars = gulp.env.vars;
 
     connect.server({
-        root: iConfig.localserver.root,
+        root: vars.destRoot,
         port: iConfig.localserver.port,
         livereload: true
     });
+    util.msg.info('start connect server on path:');
+    util.msg.info(util.joinFormat(__dirname, vars.destRoot));
 
     util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port);
 
