@@ -1,0 +1,5 @@
+@charset "utf-8";
+@import '../../sass/base/layout';
+
+@import "../../components/w-demo/w-demo";
+@include w-demo('../../components/w-demo');

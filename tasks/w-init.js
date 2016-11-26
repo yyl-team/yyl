@@ -276,20 +276,24 @@ var
                     data.buildPaths = buildPaths;
 
                 } else { // just project
+                    var isFullPath = false;
+                    if(data.pcWorkflow && data.mobileWorkflow){
+                        isFullPath = true;
+                    }
+
                     if(data.pcWorkflow){
 
                         util.buildTree({
-                            frontPath: path.join(data.name, 'pc'),
+                            frontPath: path.join(data.name, isFullPath? 'pc': ''),
                             path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
                             dirFilter: /\.svn|\.git|\.sass-cache|node_modules/,
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
                             
                         });
-                        return;
                     }
                     if(data.mobileWorkflow){
                         util.buildTree({
-                            frontPath: path.join(data.name, 'mobile'),
+                            frontPath: path.join(data.name, isFullPath? 'mobile': ''),
                             path: path.join(vars.BASE_PATH, 'init-files', data.mobileWorkflow),
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
                         });
@@ -318,14 +322,18 @@ var
                         util.msg.info('init client', workflowName, 'start');
 
                         var 
-                            dirPath;
+                            dirPath,
+                            isFullPath = false;
 
 
                         if(~data.initType.indexOf('svn')){
                             dirPath = path.join(frontPath, 'develop', dirname);
 
                         } else {
-                            dirPath = path.join(frontPath, dirname);
+                            if(data.pcWorkflow && data.mobileWorkflow){
+                                isFullPath = true;
+                            }
+                            dirPath = path.join(frontPath, isFullPath? dirname: '');
                         }
 
                         new util.Promise(function(next){ // mk dir front path
@@ -363,6 +371,10 @@ var
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
+                        }).then(function(next){ // create dist file
+                            fs.mkdirSync(path.join(vars.PROJECT_PATH, dirPath, 'dist'));
+                            next();
+
                         }).then(function(next){ // init configfile
                             util.msg.info('init config...');
                             var configPath = path.join(vars.PROJECT_PATH, dirPath, 'config.js');
@@ -430,6 +442,7 @@ var
                         }
 
                     };
+
                 if(data.pcWorkflow){
                     padding += 2;
                     initClientFlow('pc', data.pcWorkflow, paddingCheck);

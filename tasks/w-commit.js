@@ -66,18 +66,16 @@ var
 
             var cmd = 'gulp all ' + util.envStringify(iEnv);
 
-            cmd += ' --isCommit 1';
+            cmd += ' --isCommit';
             util.msg.info('optimize start..');
-            util.runCMD([
-                'cd ' + workFlowPath,
-                cmd,
-                'cd ' + vars.PROJECT_PATH
-            ], function(err){
+            process.chdir(workFlowPath);
+            util.runSpawn(cmd, function(err){
+                process.chdir(vars.PROJECT_PATH);
                 if(err){
                     return done(err);
                 }
 
-                util.msg.info('optimize done!');
+                util.msg.success('optimize done!');
                 done();
 
             }, workFlowPath);
@@ -98,8 +96,8 @@ var
                     svnConfig.update.forEach(function(iPath){
                         var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
                         iPromise.then(function(next){
-                            util.msg.info('svn update \n['+ mPath +']');
-                            util.runCMD('svn update', function(){
+                            util.msg.info('svn update path:', mPath);
+                            util.runSpawn('svn update', function(){
                                 util.msg.info('done');
                                 next();
                             }, mPath, true);
@@ -124,8 +122,8 @@ var
                     gitConfig.update.forEach(function(iPath){
                         var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
                         iPromise.then(function(next){
-                            util.msg.info('git pull \n['+ mPath +']');
-                            util.runCMD('git pull', function(){
+                            util.msg.info('git pull path' , mPath);
+                            util.runSpawn('git pull', function(){
                                 util.msg.info('done');
                                 next();
                             }, mPath, true);
@@ -177,7 +175,7 @@ var
                     iPromise.then(function(next){
                         util.msg.info('svn update ['+ iPath +']');
                         process.chdir(iPath);
-                        util.runCMD('svn update', function(){
+                        util.runSpawn('svn update', function(){
                             util.msg.info('done');
                             next();
                         }, util.joinFormat(iPath), true);
@@ -241,7 +239,7 @@ var
 
                 });
 
-            }).then(function(config, next){ // optimize
+            }).then(function(config, next){ // update
                 wCommit.step01(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task step01 error:', err);

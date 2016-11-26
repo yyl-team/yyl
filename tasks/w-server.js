@@ -266,7 +266,7 @@ var
 
         },
         // 服务器目录初始化
-        init: function(workflowName, done){
+        init: function(workflowName, done, nocmd){
 
             util.msg.info('init server', workflowName, 'start');
             if(!workflowName){
@@ -320,17 +320,24 @@ var
                 });
 
             }).then(function(next){ // npm install 
-                process.chdir(workflowPath);
-                util.runCMD('npm install', function(err){
-                    if(err){
-                        util.msg.error('npm install fail on server!');
-                        return;
-                    }
-                    util.msg.info('npm install success');
-                    process.chdir(vars.PROJECT_PATH);
+
+                if(nocmd){
                     next();
 
-                }, workflowPath);
+                } else {
+                    process.chdir(workflowPath);
+                    util.runCMD('npm install', function(err){
+                        if(err){
+                            util.msg.error('npm install fail on server!');
+                            return;
+                        }
+                        util.msg.info('npm install success');
+                        process.chdir(vars.PROJECT_PATH);
+                        next();
+
+                    }, workflowPath);
+
+                }
 
 
             }).then(function(next){ // back to dirPath

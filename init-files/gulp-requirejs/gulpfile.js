@@ -3,8 +3,7 @@
  * gulpfile.js for yym-FETeam
  *
  * @author: jackness Lau
- */
-
+ */ 
 
 
 var gulp = require('gulp'),
@@ -536,7 +535,7 @@ gulp.task('images-globalcomponents', function(){
 });
 // - images task
 // + watch task
-gulp.task('watch', function() {
+gulp.task('watch', ['all'], function() {
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
@@ -918,7 +917,7 @@ gulp.task('all-done', function(){
     gulp.env.runAll = false;
 });
 
-gulp.task('watchAll', ['all', 'watch']);
+gulp.task('watchAll', ['watch']);
 // - all
 // + connect
 gulp.task('connect', function(){
