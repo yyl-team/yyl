@@ -413,9 +413,9 @@ gulp.task('js-task', function () {
     /* requirejs 主模块列表 & 页面js [start] */
     var 
         rjsFilter = filter(function (file) {
-            var result = /([pj]\-[a-zA-Z0-9_]*)[\\\/]([pj]\-[a-zA-Z0-9_]*)\.js$/.test(file.path);
+            var result = /([pjr]\-[a-zA-Z0-9_]*)[\\\/]([pjr]\-[a-zA-Z0-9_]*)\.js$/.test(file.path);
             if(result){
-                file.base = util.joinFormat(file.path.replace(/([pj]\-[a-zA-Z0-9_]*)\.js$/, ''));
+                file.base = util.joinFormat(file.path.replace(/([pjr]\-[a-zA-Z0-9_]*)\.js$/, ''));
             }
             return result;
         });
@@ -437,7 +437,7 @@ gulp.task('js-task', function () {
             }))
             .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
             .pipe(rename(function(path){
-                path.basename = path.basename.replace(/^[pj]-/g,'');
+                path.basename = path.basename.replace(/^[pjr]-/g,'');
                 path.dirname = '';
             }))
             .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
@@ -481,20 +481,13 @@ gulp.task('images-components', function(){
         vars = gulp.env.vars;
 
     return gulp.src([
-            util.joinFormat( vars.srcRoot, 'components/**/*.*'),
-            '!**/*.tpl',
-            '!**/*.jade',
-            '!**/*.js',
-            '!**/*.scss',
-            '!**/*.html',
-            '!**/*.css',
-            '!**/*.md',
-            '!**/*.psd'
+            util.joinFormat( vars.srcRoot, 'components/**/*.*')
         ], {
             base: util.joinFormat( vars.srcRoot, 'components')
         })
         .pipe(plumber())
         .pipe(iConfig.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
+        .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif']))
         .pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')))
         ;
 });

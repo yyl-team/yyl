@@ -83,25 +83,32 @@ var
         step01: function(iEnv, config, done){
 
             var 
-                svnConfig = config.commit.svn,
+                svnConfig = config.commit.svn[iEnv.sub],
                 gitConfig = config.commit.git,
                 iBranch = iEnv.sub;
 
             util.msg.info('commit step 01 start');
             new util.Promise(function(NEXT){ // 删除动态文件
                 // update 文件
-                if(svnConfig.update){
+                if(svnConfig.update && svnConfig.update.length){
                     var iPromise = new util.Promise();
 
                     svnConfig.update.forEach(function(iPath){
                         var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
-                        iPromise.then(function(next){
-                            util.msg.info('svn update path:', mPath);
-                            util.runSpawn('svn update', function(){
-                                util.msg.info('done');
-                                next();
-                            }, mPath, true);
-                        });
+                        if(!fs.existsSync(mPath)){
+                            util.msg.warn('svn update path not exists:', mPath);
+
+                        } else {
+                            iPromise.then(function(next){
+                                util.msg.info('svn update path:', mPath);
+                                util.runSpawn('svn update', function(){
+                                    util.msg.info('done');
+                                    next();
+                                }, mPath, true);
+                            });
+
+                        }
+                        
                         
                     });
                     iPromise.then(function(){
@@ -116,19 +123,25 @@ var
                 }
             }).then(function(NEXT){ // update git
                 // update 文件
-                if(gitConfig.update){
+                if(gitConfig.update && gitConfig.update.length){
                     var iPromise = new util.Promise();
 
                     gitConfig.update.forEach(function(iPath){
                         var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
-                        iPromise.then(function(next){
-                            util.msg.info('git pull path' , mPath);
-                            util.runSpawn('git pull', function(){
-                                util.msg.info('done');
-                                next();
-                            }, mPath, true);
-                        });
-                        
+                        if(!fs.existsSync(mPath)){
+                            util.msg.warn('git pull path not exist:', mPath);
+
+                        } else {
+                            iPromise.then(function(next){
+                                util.msg.info('git pull path:' , mPath);
+                                util.runSpawn('git pull', function(){
+                                    util.msg.info('done');
+                                    next();
+
+                                }, mPath);
+
+                            });
+                        }
                     });
                     iPromise.then(function(){
                         util.msg.info('git config.udpate is done');
@@ -148,19 +161,24 @@ var
                 if(svnConfig.commit){
                     svnConfig.commit.forEach(function(iPath){
                         var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
-                        delPath.push(mPath);
+                        if(!fs.existsSync(mPath)){
+                            util.msg.warn('svn commit path not exist:', mPath);
+
+                        } else {
+                            delPath.push(mPath);
+                        }
                     });
                 }
 
                 util.removeFiles(delPath, function(){
-                    util.msg.error('svn.update, svn.commit files deleted');
+                    util.msg.success('svn.update, svn.commit files deleted');
                     next(delPath);
                 });
 
             }).then(function(delPath ,next){ // 添加 被删除的文件夹
                 delPath.forEach(function(iPath){
                     if(!path.extname(iPath) && !fs.existsSync(iPath)){
-                        fs.mkdirSync(iPath);
+                        util.mkdirSync(iPath);
                     }
                 });
                 util.msg.info('svn.update, svn.commit files doc added');
@@ -203,7 +221,27 @@ var
 
         },
         copy: function(iEnv, config, done){
-            // console.log(iEnv, config, done);
+            var 
+                svnConfig = config.commit.svn[iEnv.sub];
+
+            util.msg.info('commit copy start');
+
+            if(!svnConfig.copy){
+                util.msg.warn('svnConfig.copy is blank');
+                return done();
+            }
+
+
+
+            util.copyFiles(svnConfig.copy, function(err){
+                if(err){
+                    return done('copy file fail:', err);
+                }
+
+                util.msg.success('commit copy done');
+                done();
+
+            }, /\.sass-cache|\.DS_Store|node_modules/, null, vars.PROJECT_PATH);
 
         },
         step02: function(iEnv, config, done){
@@ -228,6 +266,17 @@ var
                     }
 
                 });
+            }).then(function(config, next){ // optimize
+
+                wServer.init(config.workflow, function(err){
+                    if(err){
+                        return util.msg.error('server init error', err);
+                    }
+
+                    util.msg.success('server init done');
+                    next(config);
+
+                }, fs.existsSync(path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, 'node_modules')? true: false));
 
             }).then(function(config, next){ // optimize
                 wCommit.optimize(iEnv, config, function(err){

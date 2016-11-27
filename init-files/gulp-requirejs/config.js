@@ -30,6 +30,7 @@ var
     config = {
         workflow: 'gulp-requirejs',
         dest: setting.dest,
+        name: projectName,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方

@@ -209,6 +209,7 @@ var
 
                     } else {
                         return util.joinFormat(
+                            workFlowPath,
                             path.relative(
                                 workFlowPath,
                                 path.join(vars.PROJECT_PATH, iPath)
@@ -288,7 +289,7 @@ var
 
                 // copy the lib to server
                 util.copyFiles( path.join(vars.BASE_PATH, 'lib'), path.join(vars.SERVER_PATH, 'lib'), function(){
-                    util.msg.info('copy lib to serverpath pass');
+                    util.msg.success('copy lib to serverpath done');
                     next();
                 });
 
@@ -315,7 +316,7 @@ var
                         util.msg.error('copy', workflowName, 'files to serverpath fail', err);
                         return;
                     }
-                    util.msg.info('copy', workflowName, 'files to serverpath pass');
+                    util.msg.success('copy', workflowName, 'files to serverpath success');
                     next();
                 });
 
@@ -331,7 +332,7 @@ var
                             util.msg.error('npm install fail on server!');
                             return;
                         }
-                        util.msg.info('npm install success');
+                        util.msg.success('npm install success');
                         process.chdir(vars.PROJECT_PATH);
                         next();
 

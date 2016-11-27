@@ -8,9 +8,7 @@ var require = {
         // for demo main (not cmd js)
         wDemoMain: '../../components/w-demo/main',
         // global
-        // util: '../../../../commons/pc/lib/util/1.0.0/util',
-        util: '../../../../../../../../code.yy.com/ent-FEteam/commons/pc/lib/util/1.0.0/util',
-        jquery: '../../../../../../../../code.yy.com/ent-FEteam/commons/pc/lib/jQuery/jquery-1.11.1'
+        jquery: '../../js/lib/jQuery/jquery-1.11.3.min'
     },
     shim: {
         // artTemplate: {

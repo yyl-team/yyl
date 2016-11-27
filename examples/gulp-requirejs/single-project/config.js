@@ -1,11 +1,9 @@
 'use strict';
 var 
-                    
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../../../../../../../../Volumes/sd128G/work/git/yy/code.yy.com/ent-FEteam/commons',
+    commonPath = '../../../../../../code.yy.com/ent-FEteam/commons',
     projectName = 'single-project',
     //- yyl init 自动 匹配内容
-    //
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置
@@ -15,7 +13,7 @@ var
         dest: {
             basePath: '/mobileYY/test',
             jsPath: 'js',
-            jslibPath: 'lib',
+            jslibPath: 'js/lib',
             cssPath: 'css',
             htmlPath: 'html',
             imagesPath: 'images',
@@ -29,11 +27,11 @@ var
 var
     config = {
         workflow: 'gulp-requirejs',
+        name: projectName,
         dest: setting.dest,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
-            
             // svn dev 分支地址
             dev: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
 
@@ -79,10 +77,10 @@ var
         // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
         concat: {
             '{$srcRoot}/js/vendors.js': [
-                '{$commons}/pc/lib/jQuery/jquery-1.11.1.min.js'
+                '{$srcRoot}/js/lib/jQuery/jquery-1.11.1.min.js'
             ],
             '{$jsDest}/vendors.js': [
-                '{$commons}/pc/lib/jQuery/jquery-1.11.1.min.js'
+                '{$srcRoot}/js/lib/jQuery/jquery-1.11.1.min.js'
             ]
         },
 

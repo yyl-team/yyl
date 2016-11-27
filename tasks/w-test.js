@@ -4,7 +4,12 @@ var util = require('../lib/yyl-util.js');
 
 var 
     wTest = function(){
-        util.runCMD('yyl');
+        util.runSpawn('git pull', function(err){
+            if(err){
+                console.log(err)
+            }
+
+        });
 
     };
 
