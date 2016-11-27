@@ -246,7 +246,137 @@ var
         },
         step02: function(iEnv, config, done){
             // console.log(iEnv, config, done);
+            //
+            var 
+                svnConfig = config.commit.svn[iEnv.sub],
+                assetsPath = [],
+                delFiles = [],
+                revRelate = path.relative(config.alias.revDest, config.alias.revRoot);
 
+            svnConfig.commit.forEach(function(item){
+                if(/assets/.test(item)){
+                    assetsPath.push(item);
+                }
+            });
+
+            if(assetsPath.length){
+                util.msg.info('commit step 02 start: rev svn Path clean');
+
+                assetsPath.forEach(function(src){
+                    var iPath = src;
+                    var files = fs.readdirSync(iPath);
+                    var oldRevs;
+                    var keepRevs;
+                    
+                    // 排序
+                    files.sort(function(a,b){
+                        if(a === 'rev-manifest.json'){
+                            return -1;
+                        } else if(b == 'rev-manifest.json'){
+                            return 1;
+                        } else {
+                            var 
+                                aVer = +a.replace(/rev-manifest-(\d+)\.json/, '$1'),
+                                bVer = +b.replace(/rev-manifest-(\d+)\.json/, '$1');
+
+
+                            return bVer - aVer;
+                        }
+
+                    });
+
+                    var keepCount = vars.REV_KEEP_COUNT + 1;
+
+                    if(files.length >= keepCount){ // 删除最新版本 往下 三个版本以后生成的文件 
+                        oldRevs = files.slice(keepCount);
+                        keepRevs = files.slice(0, keepCount);
+                        oldRevs.forEach(function(oldRev){
+                            var 
+                                revFile = util.joinFormat(iPath, oldRev),
+                                revData,
+                                delPath;
+
+                            try{
+                                revData = require(revFile);
+
+                            } catch(er){
+                                util.msg.warn('read rev file error, delete it:', revFile);
+                                return;
+                            }
+
+                            for(var key in revData){
+                                if(revData.hasOwnProperty(key) && key != 'version'){
+                                    delPath = util.joinFormat(iPath, revRelate, revData[key]);
+
+                                    if(!~delFiles.indexOf(delPath)){
+                                        delFiles.push(delPath);
+                                    }
+                                }
+                            }
+
+                            // 删除对应的 rev-manifest.json
+                            if(!~delFiles.indexOf(revFile)){
+                                delFiles.push(revFile);
+                            }
+                        });
+
+                        keepRevs.forEach(function(revPath){ // 保留 最新的 3 个 版本下生成的文件
+                            var 
+                                revData,
+                                keepPath;
+
+                            try{
+                                revData = require(path.join(iPath, revPath));
+
+                            } catch(er){
+                                util.msg.warn('path require error, ignore it:', path.join(iPath, revPath));
+                            }
+
+
+                            for(var key in revData){
+                                if(revData.hasOwnProperty(key) && key != 'version'){
+                                    keepPath = util.joinFormat(iPath, revRelate, revData[key]);
+                                    if(~delFiles.indexOf(keepPath)){
+                                        delFiles.splice(delFiles.indexOf(keepPath), 1);
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                });
+
+
+                var iPromise = new util.Promise();
+
+                delFiles.forEach(function(src){
+                    if(fs.existsSync(src)){
+                        iPromise.then(function(next){
+                            util.msg.del('file:', src);
+                            util.runSpawn('svn del ' + path.basename(src) + ' --force', function(){
+                                util.msg.success('done');
+                                if(fs.existsSync(src)){
+                                    fs.unlinkSync(src);
+                                }
+                                next();
+                            }, path.dirname(src));
+
+                        });
+                    }
+                });
+                iPromise.then(function(){
+                    util.msg.line();
+                    util.msg.success('del file done');
+                    util.msg.info('total ' + delFiles.length + ' files need delete');
+                    util.msg.success('commit step 02 done');
+                    return done();
+                });
+                iPromise.start();
+
+            } else {
+                console.log('commit step 02 done, no assetsPath in svn commit'.yellow);
+                return done();
+            }
         },
         step03: function(iEnv, config, done){
             // console.log(iEnv, config, done);

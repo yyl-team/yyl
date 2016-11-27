@@ -17,7 +17,7 @@ var
             cssPath: 'css',
             htmlPath: 'html',
             imagesPath: 'images',
-            revPath: 'assets'
+            revPath: 'assets',
         },
         // 提交之前回调函数
         beforeCommit: function(){}
@@ -48,6 +48,9 @@ var
 
             // 输出目录中 到 html, js, css, image 层 的路径
             root: path.join(setting.localserver.root, setting.dest.basePath),
+
+            // rev 输出内容的相对地址
+            revRoot: path.join(setting.localserver.root, setting.dest.basePath),
 
             // dest 地址
             destRoot: setting.localserver.root,

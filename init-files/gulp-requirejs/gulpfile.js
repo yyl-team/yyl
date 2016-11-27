@@ -695,7 +695,7 @@ gulp.task('rev-build', function(){
                 '!**/*.html', 
                 '!**/assets/**/*.*'
             ], { 
-                base: vars.destRoot
+                base: vars.revRoot
             })
             .pipe(rev())
             
