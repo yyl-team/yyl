@@ -87,14 +87,13 @@ var
                 gitConfig = config.commit.git,
                 iBranch = iEnv.sub;
 
-            util.msg.info('commit step 01 start');
             new util.Promise(function(NEXT){ // 删除动态文件
                 // update 文件
                 if(svnConfig.update && svnConfig.update.length){
                     var iPromise = new util.Promise();
 
                     svnConfig.update.forEach(function(iPath){
-                        var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
+                        var mPath = iPath;
                         if(!fs.existsSync(mPath)){
                             util.msg.warn('svn update path not exists:', mPath);
 
@@ -127,7 +126,7 @@ var
                     var iPromise = new util.Promise();
 
                     gitConfig.update.forEach(function(iPath){
-                        var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
+                        var mPath = iPath;
                         if(!fs.existsSync(mPath)){
                             util.msg.warn('git pull path not exist:', mPath);
 
@@ -160,7 +159,7 @@ var
                 // 删除 commit 设置下的文件
                 if(svnConfig.commit){
                     svnConfig.commit.forEach(function(iPath){
-                        var mPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, iPath);
+                        var mPath = iPath;
                         if(!fs.existsSync(mPath)){
                             util.msg.warn('svn commit path not exist:', mPath);
 
@@ -224,7 +223,6 @@ var
             var 
                 svnConfig = config.commit.svn[iEnv.sub];
 
-            util.msg.info('commit copy start');
 
             if(!svnConfig.copy){
                 util.msg.warn('svnConfig.copy is blank');
@@ -245,8 +243,6 @@ var
 
         },
         step02: function(iEnv, config, done){
-            // console.log(iEnv, config, done);
-            //
             var 
                 svnConfig = config.commit.svn[iEnv.sub],
                 assetsPath = [],
@@ -260,7 +256,7 @@ var
             });
 
             if(assetsPath.length){
-                util.msg.info('commit step 02 start: rev svn Path clean');
+                util.msg.info('rev svn Path clean start');
 
                 assetsPath.forEach(function(src){
                     var iPath = src;
@@ -374,20 +370,71 @@ var
                 iPromise.start();
 
             } else {
-                console.log('commit step 02 done, no assetsPath in svn commit'.yellow);
+                util.msg.warn('no assetsPath in svn commit');
                 return done();
             }
         },
         step03: function(iEnv, config, done){
-            // console.log(iEnv, config, done);
+            var 
+                svnConfig = config.commit.svn[iEnv.sub],
 
+                iPromise = new util.Promise();
+
+            svnConfig.commit.forEach(function(iPath){
+                if(!fs.existsSync(iPath)){
+                    util.msg.warn('commit path not exist, continue:', iPath);
+                    return;
+                }
+
+                iPromise.then(function(next){
+                    util.msg.info('start cleanup:', iPath);
+                    util.runSpawn('svn cleanup', function(){
+                        util.msg.success('done');
+                        next();
+                    }, iPath);
+                });
+
+                iPromise.then(function(next){
+                    var dirname = path.dirname(iPath);
+                    var idir = iPath.split(/[\\\/]/).pop();
+                    var cmd = 'svn add '+ idir +' --force';
+
+                    util.msg.info('start svn add path:', dirname);
+                    util.msg.info('cmd:', cmd);
+                    util.runSpawn( cmd, function(){
+
+                        next();
+                    }, dirname);
+                });
+
+
+                iPromise.then(function(next){
+                    util.msg.success('done');
+                    next();
+                });
+
+                iPromise.then(function(next){
+                    util.msg.info('start svn commit:', iPath);
+                    util.runSpawn('svn commit -m gulpAutoCommit', function(){
+                        util.msg.success('done');
+                        next();
+                    }, iPath);
+                });
+            });
+
+            iPromise.then(function(){
+                done();
+            });
+            iPromise.start();
 
         },
         run: function(){
             var 
-                iEnv = util.envPrase(arguments);
+                iEnv = util.envPrase(arguments),
+                start = new Date();
 
             new util.Promise(function(next){// initConfig
+                util.msg.info('commit task initConfig start');
                 wCommit.initConfig(iEnv, function(err, config){
                     if(err){
                         util.msg.error('commit task initConfig error:', err);
@@ -396,56 +443,69 @@ var
                     }
 
                 });
-            }).then(function(config, next){ // optimize
+            }).then(function(config, next){ // server init
 
+                util.msg.info('commit task server init start');
                 wServer.init(config.workflow, function(err){
                     if(err){
                         return util.msg.error('server init error', err);
                     }
 
-                    util.msg.success('server init done');
+                    util.msg.success('commit task server init done');
                     next(config);
 
                 }, fs.existsSync(path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, 'node_modules')? true: false));
 
             }).then(function(config, next){ // optimize
+                util.msg.info('commit task optimize start');
                 wCommit.optimize(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task optimize error:', err);
                     } else {
+
+                        util.msg.success('commit task optimize done');
                         next(config);
                     }
 
                 });
 
             }).then(function(config, next){ // update
+                util.msg.info('commit task step01 start');
                 wCommit.step01(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task step01 error:', err);
                     } else {
+                        util.msg.success('commit task step01 done');
                         next(config);
                     }
 
                 });
-            }).then(function(config, next){ // optimize
+            }).then(function(config, next){ // copy
+                util.msg.info('commit task copy start');
                 wCommit.copy(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task copy error:', err);
                     } else {
+                        util.msg.success('commit task copy done');
                         next(config);
                     }
 
                 });
-            }).then(function(config, next){ // optimize
+            }).then(function(config, next){ // step02
+                util.msg.info('commit task step02 start');
+
                 wCommit.step02(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task step02 error:', err);
                     } else {
+                        util.msg.success('commit task step02 done');
                         next(config);
                     }
 
                 });
             }).then(function(config, next){ // optimize
+                util.msg.info('commit task step03 start');
+
                 wCommit.step03(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task step03 error:', err);
@@ -456,6 +516,11 @@ var
                 });
             }).then(function(){ // optimize
                 util.msg.success('all is done');
+                var cost = new Date() -  start;
+                var min = Math.floor(cost / 1000 / 60);
+                var sec = Math.floor(cost / 1000) % 60;
+                var us = cost % 1000;
+                util.msg.info('total ' + min + ' m ' + sec + ' s ' + us + 'ms');
 
             }).start();
 
