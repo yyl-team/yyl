@@ -690,16 +690,16 @@ gulp.task('rev-build', function(){
 
     gulp.env.cssjsdate = util.makeCssJsDate();
 
-    return gulp.src( [
-            util.joinFormat( vars.root, '**/*.*'), 
-                '!**/*.html', 
-                '!**/assets/**/*.*'
+    return gulp.src([
+                path.join( vars.root, '**/*.*'), 
+                path.join('!', vars.root, '**/*.html'), 
+                path.join('!', vars.root, '**/assets/**/*.*')
             ], { 
                 base: vars.revRoot
             })
             .pipe(rev())
             
-            .pipe(gulp.dest(vars.destRoot))
+            .pipe(gulp.dest(vars.root))
             .pipe(rev.manifest())
             .pipe(through.obj(function(file, enc, next){
                 var iCnt = file.contents.toString();
