@@ -80,10 +80,10 @@ var
         // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
         concat: {
             '{$srcRoot}/js/vendors.js': [
-                '{$srcRoot}/js/lib/jQuery/jquery-1.11.1.min.js'
+                '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
             ],
             '{$jsDest}/vendors.js': [
-                '{$srcRoot}/js/lib/jQuery/jquery-1.11.1.min.js'
+                '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
             ]
         },
 

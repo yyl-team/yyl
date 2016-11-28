@@ -99,6 +99,7 @@ module.exports = function(ctx){
         case 'watchAll':
         case 'all':
         case 'connect':
+        case 'concat':
             events.optimize.apply(events, iArgv);
             break;
 

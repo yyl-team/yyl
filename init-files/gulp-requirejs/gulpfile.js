@@ -589,16 +589,23 @@ gulp.task('concat', function(){
         events = [],
         vars = gulp.env.vars,
         concatHandle = function(dist, list){
-            var iSrcs = [];
+            var iSrcs = [],
+                iDirname = path.dirname(dist),
+                iName = path.basename(dist);
 
             list.forEach(function(src){
+                if(!fs.existsSync(src)){
+                    util.msg.warn('concat src is not exist:', src);
+                }
                 iSrcs.push(util.joinFormat(src));
             });
-            var iStream = gulp.src(iSrcs);
+            util.msg.info('concat target:', dist);
+            util.msg.info('concat list:', iSrcs);
 
-            iStream
-                .pipe(concat(dist))
-                .pipe(gulp.dest(vars.dirname));
+
+            var iStream = gulp.src(iSrcs, {basePath: iDirname})
+                .pipe(concat(iName))
+                .pipe(gulp.dest(iDirname));
 
             events.push(iStream);
         };
