@@ -138,7 +138,7 @@ var fn = {
 // + html task
 gulp.task('html', function(done){
     gulp.env.nowTask = 'html';
-    runSequence('html-task', 'rev-update', done);
+    runSequence('html-task', 'html-task-step02', done);
 
 });
 gulp.task('html-task', function(){
@@ -150,26 +150,8 @@ gulp.task('html-task', function(){
     }
 
     var 
-        events = [],
         vars = gulp.env.vars,
-        relateHtml = function(iPath){
-            return util.joinFormat(
-                path.relative(
-                    path.join(gulp.env.vars.srcRoot, 'html'),
-                    iPath
-                )
-            );
-        },
-        relateDirname = function(iPath){
-            return util.joinFormat(
-                path.relative(
-                    path.join(gulp.env.vars.dirname),
-                    iPath
-                )
-            );
-
-        },
-        remotePath = gulp.env.remotePath,
+        
         // tmpl task
         tmplStream = gulp.src( util.joinFormat( iConfig.alias.srcRoot, 'components/@(p-)*/*.jade'))
             .pipe(plumber())
@@ -234,11 +216,43 @@ gulp.task('html-task', function(){
             .pipe(prettify({indent_size: 4}))
             .pipe(gulp.dest(util.joinFormat(vars.srcRoot, 'html')));
 
-    events.push(tmplStream);
+
+
+    return tmplStream;
+});
+
+gulp.task('html-task-step02', function(){
+    var 
+        iConfig = fn.taskInit();
+
+    if(!iConfig){
+        return;
+    }
+
+    var 
+        vars = gulp.env.vars,
+        relateHtml = function(iPath){
+            return util.joinFormat(
+                path.relative(
+                    path.join(gulp.env.vars.srcRoot, 'html'),
+                    iPath
+                )
+            );
+        },
+        relateDirname = function(iPath){
+            return util.joinFormat(
+                path.relative(
+                    path.join(gulp.env.vars.dirname),
+                    iPath
+                )
+            );
+
+        },
+        remotePath = gulp.env.remotePath;
 
 
     // html task
-    var htmlStream = gulp.src( util.joinFormat(vars.srcRoot, 'html/*.html'))
+    return gulp.src( util.joinFormat(vars.srcRoot, 'html/*.html'))
         .pipe(plumber())
         .pipe(inlinesource())
         // 删除requirejs的配置文件引用
@@ -293,10 +307,6 @@ gulp.task('html-task', function(){
 
         // .pipe(replacePath('../images', + assetsPath.images))
         .pipe(gulp.dest(vars.htmlDest));
-
-    events.push(htmlStream);
-
-    return es.concat.apply(es, events);
 });
 // - html task
 
@@ -351,12 +361,7 @@ gulp.task('css-task', function() {
 
                 } else {
 
-                    console.log(([
-                        '',
-                        '[error] css url replace error!',
-                        file.history,
-                        '[' + rPath + '] is not found!'].join("\n")
-                    ).yellow);
+                    util.msg.warn('css url replace error', 'path not found:', rPath);
                     return str;
                 }
 
@@ -587,7 +592,6 @@ gulp.task('concat', function(){
 
     var 
         events = [],
-        vars = gulp.env.vars,
         concatHandle = function(dist, list){
             var iSrcs = [],
                 iDirname = path.dirname(dist),
@@ -736,7 +740,7 @@ gulp.task('rev-remote-build', function(){
         }, {restore: true});
 
     if(!iConfig ||!cache.remoteRevData){
-        console.log('rev-remote-build done, no remoteRevData'.yellow);
+        util.msg.info('rev-remote-build done, no remoteRevData');
         return;
     }
     
@@ -837,72 +841,12 @@ gulp.task('rev-update', function(done){
     if(gulp.env.runAll){
         done();
     } else {
-        runSequence('rev-loadRemote', 'rev-update-task', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
+        runSequence('rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
     }
 });
 
 gulp.task('rev-update-task', function(){
-    var iConfig = fn.taskInit();
-    if(!iConfig){
-        return;
-    }
 
-    var 
-        vars = gulp.env.vars,
-        md5Filter = filter(function(file){
-            return !/-[a-zA-Z0-9]{10}\.?\w*\.\w+/.test(file.history);
-
-        }, {restore: true});
-
-    gulp.env.cssjsdate = util.makeCssJsDate();
-
-
-
-    var iPath;
-    switch(gulp.env.nowTask){
-        case 'css':
-            iPath = util.joinFormat(vars.cssDest, '**/*.css');
-            break;
-
-        case 'html':
-            iPath = util.joinFormat(vars.htmlDest, '**/*.html');
-            break;
-            
-        case 'js':
-            iPath = util.joinFormat(vars.jsDest, '**/*.js');
-            break;
-
-        case 'images':
-            iPath = util.joinFormat(vars.imagesDest, '**/*.+(jpg|jpeg|png|bmp|gif)');
-            break;
-
-        default:
-            break;
-    }
-
-    if(!iPath){
-        return;
-    }
-
-    return gulp.src(iPath, { 
-                base: vars.destRoot 
-            })
-            .pipe(md5Filter)
-            .pipe(rev())
-            .pipe(gulp.dest(vars.destRoot))
-            .pipe(rev.manifest({
-                merge: true
-            }))
-            .pipe(through.obj(function(file, enc, next){
-                var iCnt = file.contents.toString();
-
-                console.log(iCnt);
-
-                file.contents = new Buffer(iCnt, 'utf-8');
-                this.push(file);
-                next();
-            }))
-            .pipe(gulp.dest(vars.revDest));
 });
 // - rev
 // + all
