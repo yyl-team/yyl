@@ -36,10 +36,19 @@ var
 
         }).then(function(config){ // 运行命令
             util.msg.info('run cmd start');
+
             var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
-            process.chdir(workFlowPath);
-            util.runSpawn('gulp ' + iArgv.join(' '), function(err){
-                process.chdir(vars.PROJECT_PATH);
+            var cmd = 'gulp ' + iArgv.join(' ');
+            var handle;
+
+            util.msg.info('run cmd:', cmd);
+            if(util.vars.IS_WINDOWS){
+                handle = util.runCMD;
+            } else {
+                handle = util.runSpawn;
+            }
+
+            handle(cmd, function(err){
                 if(err){
                     return util.msg.error(iArgv[0], 'task run error', err);
                 }

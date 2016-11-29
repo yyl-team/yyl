@@ -65,11 +65,21 @@ var
             }
 
             var cmd = 'gulp all ' + util.envStringify(iEnv);
+            var handle;
 
             cmd += ' --isCommit';
             util.msg.info('optimize start..');
+            util.msg.info('run cmd:', cmd);
+
+
             process.chdir(workFlowPath);
-            util.runSpawn(cmd, function(err){
+            if(vars.IS_WINDOWS){
+                handle = util.runCMD;
+
+            } else {
+                handle = util.runSpawn;
+            }
+            handle(cmd, function(err){
                 process.chdir(vars.PROJECT_PATH);
                 if(err){
                     return done(err);

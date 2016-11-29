@@ -208,13 +208,20 @@ var
                         return iPath;
 
                     } else {
-                        return util.joinFormat(
-                            workFlowPath,
-                            path.relative(
+                        if(vars.PROJECT_PATH.substr(0,3) != workFlowPath.substr(0,3)){ // 不同盘
+                            return util.joinFormat(vars.PROJECT_PATH, iPath);
+
+                        } else {
+                            return util.joinFormat(
                                 workFlowPath,
-                                path.join(vars.PROJECT_PATH, iPath)
-                            )
-                        );
+                                path.relative(
+                                    workFlowPath,
+                                    path.join(vars.PROJECT_PATH, iPath)
+                                )
+                            );
+
+                        }
+                        
 
                     }
 

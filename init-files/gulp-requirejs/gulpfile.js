@@ -500,7 +500,7 @@ gulp.task('images-globalcomponents', function(){
         vars = gulp.env.vars;
 
 
-    var rConfig = util.requireJs(util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')),
+    var rConfig = util.requireJs(util.joinFormat(path.relative(__dirname, path.join(vars.srcRoot, 'js/rConfig/rConfig.js')))),
         copyPaths = [],
         fPath;
 
@@ -698,9 +698,9 @@ gulp.task('rev-build', function(){
     gulp.env.cssjsdate = util.makeCssJsDate();
 
     return gulp.src([
-                path.join( vars.root, '**/*.*'), 
-                path.join('!', vars.root, '**/*.html'), 
-                path.join('!', vars.root, '**/assets/**/*.*')
+                util.joinFormat( vars.root, '**/*.*'), 
+                '!' + util.joinFormat(vars.root, '**/*.html'), 
+                '!' + util.joinFormat(vars.root, '**/assets/**/*.*')
             ], { 
                 base: vars.revRoot
             })
@@ -741,9 +741,9 @@ gulp.task('rev-remote-build', function(){
     }
     
     return gulp.src([
-            util.joinFormat( vars.root, '**/*.*'), 
-                '!**/*.html', 
-                '!**/assets/**/*.*'
+                util.joinFormat( vars.root, '**/*.*'), 
+                '!' + util.joinFormat(vars.root, '**/*.html'), 
+                '!' + util.joinFormat(vars.root, '**/assets/**/*.*')
             ], { 
                 base: vars.destRoot
             })
@@ -774,7 +774,7 @@ gulp.task('rev-dataInit', function(done){
         revPath = util.joinFormat( vars.revDest, 'rev-manifest.json');
 
     if(!iConfig || !fs.existsSync(revPath)){
-        return;
+        return done();
     }
 
     
@@ -893,6 +893,15 @@ gulp.task('rev-update-task', function(){
             .pipe(rev.manifest({
                 merge: true
             }))
+            .pipe(through.obj(function(file, enc, next){
+                var iCnt = file.contents.toString();
+
+                console.log(iCnt);
+
+                file.contents = new Buffer(iCnt, 'utf-8');
+                this.push(file);
+                next();
+            }))
             .pipe(gulp.dest(vars.revDest));
 });
 // - rev
@@ -933,7 +942,7 @@ gulp.task('connect', function(){
         livereload: true
     });
     util.msg.info('start connect server on path:');
-    util.msg.info(util.joinFormat(__dirname, vars.destRoot));
+    util.msg.info(util.joinFormat(vars.destRoot));
 
     util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port);
 
