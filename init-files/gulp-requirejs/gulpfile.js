@@ -327,8 +327,8 @@ gulp.task('css-base-task', function(){
     var vars = gulp.env.vars;
 
     return gulp.src([
-            path.join(vars.srcRoot, 'sass/**/*.scss'),
-            '!' + path.join(vars.srcRoot, 'base/**')
+            util.joinFormat(vars.srcRoot, 'sass/**/*.scss'),
+            '!' + util.joinFormat(vars.srcRoot, 'sass/base/**/*.*')
         ])
         .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
         .pipe(gulp.dest(path.join(vars.srcRoot, 'css')));
