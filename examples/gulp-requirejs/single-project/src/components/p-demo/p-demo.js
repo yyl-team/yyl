@@ -1,4 +1,5 @@
-require(['wDemo'], function(wDemo){
-    wDemo.init();
+'use strict';
+require(['rDemo'], function(rDemo){
+    rDemo.init();
 
 });

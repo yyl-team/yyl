@@ -95,6 +95,7 @@ var fn = {
                 ''
             ];
         }
+        console.log(output.join('\n'))
     },
 
     /**
@@ -418,9 +419,9 @@ gulp.task('js-task', function () {
     /* requirejs 主模块列表 & 页面js [start] */
     var 
         rjsFilter = filter(function (file) {
-            var result = /([pjr]\-[a-zA-Z0-9_]*)[\\\/]([pjr]\-[a-zA-Z0-9_]*)\.js$/.test(file.path);
+            var result = /([pj]\-[a-zA-Z0-9_]*)[\\\/]([pj]\-[a-zA-Z0-9_]*)\.js$/.test(file.path);
             if(result){
-                file.base = util.joinFormat(file.path.replace(/([pjr]\-[a-zA-Z0-9_]*)\.js$/, ''));
+                file.base = util.joinFormat(file.path.replace(/([pj]\-[a-zA-Z0-9_]*)\.js$/, ''));
             }
             return result;
         });
@@ -442,7 +443,7 @@ gulp.task('js-task', function () {
             }))
             .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
             .pipe(rename(function(path){
-                path.basename = path.basename.replace(/^[pjr]-/g,'');
+                path.basename = path.basename.replace(/^[pj]-/g,'');
                 path.dirname = '';
             }))
             .pipe(gulp.dest(util.joinFormat(vars.jsDest)));

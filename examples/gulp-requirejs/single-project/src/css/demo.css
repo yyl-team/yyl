@@ -64,22 +64,33 @@ body {
     font-weight: normal; }
 
 .w-demo {
-  width: 400px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -151px 0 0 -151px;
+  width: 200px;
+  height: 200px;
   border: 1px solid #ccc;
   padding: 50px;
-  margin: 10px auto;
-  background: #fff; }
+  background: #fff;
+  border-radius: 10px; }
 
 .w-demo-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   display: block;
   width: 150px;
   height: 116px;
-  margin: 0 auto 10px;
-  background: url("../components/w-demo/images/logo.png?201609201140") no-repeat;
+  margin: -58px 0 0 -75px;
+  background: url("../components/r-demo/images/logo.png?201609201140") no-repeat;
   -webkit-transition: 400ms; }
 
 .w-demo-tl {
-  margin-top: 20px;
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  width: 100%;
   text-align: center;
   font-size: 14px; }
 

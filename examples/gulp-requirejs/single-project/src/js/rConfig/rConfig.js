@@ -4,9 +4,7 @@ var require = {
     paths: {
 
         // for demo
-        wDemo: '../../components/w-demo/w-demo',
-        // for demo main (not cmd js)
-        wDemoMain: '../../components/w-demo/main',
+        rDemo: '../../components/r-demo/r-demo',
         // global
         jquery: '../../js/lib/jQuery/jquery-1.11.3.min'
     },

@@ -8,12 +8,13 @@ var
 var 
     wOptimize = function(){
         var 
-            iArgv = util.makeArray(arguments);
+            iArgv = util.makeArray(arguments),
+            iEnv = util.envPrase(iArgv);
 
         new util.Promise(function(next){
 
             util.msg.info('build server config start');
-            wServer.buildConfig(function(err, config){ // 创建 server 端 config
+            wServer.buildConfig(iEnv.name, function(err, config){ // 创建 server 端 config
                 if(err){
                     return util.msg.error('build server config error:', err);
                 }
@@ -24,6 +25,7 @@ var
             });
         }).then(function(config, next){ // server init
             util.msg.info('server init start');
+            
             wServer.init(config.workflow, function(err){
                 if(err){
                     return util.msg.error('server init error', err);

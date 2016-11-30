@@ -1,0 +1,21 @@
+doctype html
+html
+    head
+        meta(charset="utf-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")
+        meta(name="renderer", content="webkit")
+        title
+            block title
+
+        script.
+            var stat = {start: new Date()};
+        
+        
+        block head
+    body
+        block body
+
+        block script
+            script(src="../../js/rConfig/rConfig.js", local-usage)
+            
+            

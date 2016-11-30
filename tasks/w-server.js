@@ -161,7 +161,14 @@ var
                 configPath = path.join(vars.PROJECT_PATH, 'config.js'),
                 mineConfigPath = path.join(vars.PROJECT_PATH, 'config.mine.js'),
                 config,
-                mineConfig;
+                mineConfig,
+                name = '';
+
+            if(arguments.length == 2){
+                name = done;
+                done = arguments[1];
+            }
+
 
             // 获取 config, config.mine 文件内容
             if(!fs.existsSync(configPath)){
@@ -184,8 +191,6 @@ var
 
             }
 
-            
-
             if(!config){
                 return done('nothing in config.js');
             }
@@ -196,11 +201,21 @@ var
                 iWorkFlows = fs.readdirSync(path.join(vars.BASE_PATH, 'init-files')),
                 workFlowPath;
 
-            if(!config.workflow || !~iWorkFlows.indexOf(config.workflow)){
-                return done('config.workflow is not exist');
+            if(name){
+                if(!config[name].workflow || !~iWorkFlows.indexOf(config[name].workflow)){
+                    return done('config['+ name +'].workflow is not exist');
+                }
+
+                workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config[name].workflow);
+
+            } else {
+                if(!config.workflow || !~iWorkFlows.indexOf(config.workflow)){
+                    return done('config.workflow is not exist');
+                }
+
+                workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
             }
 
-            workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
 
             var 
                 pathTrans = function(iPath){
@@ -270,7 +285,13 @@ var
 
             var fileStr = 'module.exports=' + JSON.stringify(config, null, 4);
             fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
-            done(null, config);
+
+            if(name){
+                done(null, config[name]);
+            } else {
+
+                done(null, config);
+            }
 
         },
         // 服务器目录初始化
