@@ -114,3 +114,29 @@ Options:
 
 #### 说明文档
 TODO
+
+## 版本信息
+```
+                  :                  
+    ``        :++o+-      ```        
+  :ooooooo++ooooooooo+sooooooo       
+  oooooooooooooooooooooooooooo       
+  oooooooooooooooooooooooooooo       
+   ooooo+:`-/oooooos:``/ooooos       
+   /oo+       -oos`      `ooo        
+   oo/                     oo/       
+  /oo                       oo       
+  -oo          --`         -oo       
+   +oo+-``-/oooooooos/-``-+oo`       
+    /ooooooooooooooooooooooo         
+       `soooooooooooooooooo` /+s+/-  
+       soooooooooooooooooooooooooooo 
+      ooooooooooooooooooooooooooooooo
+     oooooooooooooooooooooooooooooooo
+     -:/ooooooooooooooooooooooooooooo
+        oooooooooooooooooooooooooooo 
+        +ooooooooooooooooo/```-::`   
+         `sooossssoooo+:             
+
+              1.0.0
+```
