@@ -14,7 +14,7 @@
 ## 命令说明
 
 ### 整体说明
-```
+```shell
 Useage: yyl <command>
 
 Commands:
