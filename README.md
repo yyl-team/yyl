@@ -2,6 +2,8 @@
 ## 环境说明
 项目基于 `node, gulp` 搭建, 需要在 `node >= 4.0.0` 环境下运行
 
+## 安装
+
 ### windows 用户
 双击 `install.bat` 全局安装构建工具 - yyl
 
@@ -10,38 +12,105 @@
 * 方式二：用 终端 运行 `install.sh`
 
 ## 命令说明
+
+### 整体说明
 ```
-# 项目初始化
-$ yyl init
-$ yyl init -f
-$ yyl init -h
+Useage: yyl <command>
 
-# 版本信息
-$ yyl -v
-$ yyl --version
+Commands:
+    init    项目初始化
+    watch   执行打包并建立本地服务器监听
+    all     执行打包操作
+    server  yyl本地服务相关命令
+    update  更新 yyl 版本
 
-# 帮助信息
-$ yyl -h
-$ yyl --help
-$ yyl
 
-# 打开项目当前路径
-$ yyl -p
-$ yyl --path
-
-# 构建项目命令
-$ yyl html
-$ yyl images
-$ yyl css
-$ yyl js
-$ yyl all
-$ yyl watchAll
-
-# 服务器相关命令
-$ yyl server init
-$ yyl server -p
-$ yyl server -h
+Options:
+    -h, --help    帮助信息
+    -v, --version 版本信息
+    -p, --path    本程序目录
 ```
 
-## todolist
-需要搭建的环境有 gulp + requirejs、 webpack + vuejs
+### 项目初始化相关命令
+```
+Useage: yyl init
+
+Commands:
+
+Options:
+    -h, --help    帮助信息
+    -f,           不管当前目录下有没文件，直接覆盖
+```
+
+### 压缩相关命令
+```
+Useage: yyl <command>
+
+Commands:
+    watch     打包并建立本地服务器监听文件
+    watchAll  打包并建立本地服务器监听文件
+    all       打包文件
+
+Options:
+    --name <name>    用于存在个多项目的工程，
+                     name: 与config 里面的 配置保持一致
+
+    --ver <remote>   线上rev-manifest 版本
+                     remote: 版本信息 如直接拉取最新版 输入 'remote'
+```
+
+### 提交相关命令
+```
+Useage: yyl commit <command>
+
+Commands:
+
+Options:
+    --name <name>    用于存在个多项目的工程，
+                     与config 里面的 配置保持一致
+
+    --sub <branches> 分支信息用于 执行 commit 操作 或者 
+                     在 watch 时 生成和服务器 rev-manifest 一样资源文件
+```
+
+### 本地服务相关命令
+```
+Useage: yyl server <command>
+
+Commands:
+    init <workflow>  本地服务初始化
+                     workflow 需要初始化的工作流 gulp-requirejs|vue-webpack
+
+    clear            清空本地服务文件夹
+
+
+Options:
+    -h, --help    帮助信息
+    -p, --path    打开本地服务所在路径
+```
+## 程序工作机制说明
+1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在 一个存放本程序资源的地方 (~/.yyl) 里面创建对应架构类型的文件夹如(~/.yyl/init-file/gulp-requirejs/), 并在里面 根据架构依赖进行 npm install, 从而达到多个项目共用同一份 node_modlues 目的
+
+2. 在执行压缩(all)、提交操作(commit)时, 程序会根据当前项目中的 config.js, config.mine.js 中的内容 替换里面的路径(如 程序中的 ./src 会替换成 h:/work/proj01/src) 在 本程序资源目录中生成一份如(~/.yyl/init-file/gulp-requirejs/config.js), 压缩、 提交操作 实际上是通过 程序资源目录中的 gulp 来执行。 这样就可以实现在项目中保持目录简洁的需求。
+
+
+
+## workflow 说明
+
+### gulp-requirejs
+适用于 PC 端开发
+
+#### 说明文档
+* [说明文档](./init-files/gulp-requirejs/README.md)
+
+#### 例子
+* [hello world](./examples/gulp-requirejs/single-project)
+* [引入公用库资源](./examples/gulp-requirejs/with-global-component)
+* [一个项目集成多个子工程例子](./examples/gulp-requirejs/multi-project)
+* [非 components 模式开发例子](./examples/gulp-requirejs/no-components)
+
+### vue-webpack
+适用于 移动端开发
+
+#### 说明文档
+TODO
