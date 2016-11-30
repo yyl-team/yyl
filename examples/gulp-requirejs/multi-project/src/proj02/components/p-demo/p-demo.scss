@@ -1,5 +1,5 @@
 @charset "utf-8";
-@import '../../sass/base/layout';
+@import '../w-layout/w-layout';
 
 @import "../../components/r-demo/r-demo";
 @include w-demo('../../components/r-demo');

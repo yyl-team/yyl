@@ -95,7 +95,7 @@ var fn = {
                 ''
             ];
         }
-        console.log(output.join('\n'))
+        console.log(output.join('\n'));
     },
 
     /**
@@ -314,16 +314,33 @@ gulp.task('html-task-step02', function(){
 // + css task
 gulp.task('css', function(done) {
     gulp.env.nowTask = 'css';
-    runSequence('css-task', 'concat', 'rev-update', done);
+    runSequence('css-component-task', 'css-base-task', 'css-dist', 'concat', 'rev-update', done);
 
 });
 
-gulp.task('css-task', function() {
+gulp.task('css-base-task', function(){
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
     }
-    
+
+    var vars = gulp.env.vars;
+
+    return gulp.src([
+            path.join(vars.srcRoot, 'sass/**/*.scss'),
+            '!' + path.join(vars.srcRoot, 'base/**')
+        ])
+        .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
+        .pipe(gulp.dest(path.join(vars.srcRoot, 'css')));
+
+});
+
+gulp.task('css-dist', function(){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return;
+    }
+
     var vars = gulp.env.vars,
         remotePath = gulp.env.remotePath,
         relateCss = function(iPath){
@@ -335,6 +352,37 @@ gulp.task('css-task', function() {
             );
 
         };
+
+    return gulp.src(path.join(vars.srcRoot, 'css', '**/*.css'))
+        // 替换 commons components 里面的 图片
+        .pipe(replacePath(
+            relateCss(vars.globalcomponents),
+            util.joinFormat(remotePath, vars.imagesDest, 'globalcomponents')
+        ))
+
+        // 替换图片
+        .pipe(replacePath(
+            '../images',
+            util.joinFormat(remotePath, fn.relateDest(vars.imagesDest))
+        ))
+        // 替换 components 内图片
+        .pipe(replacePath(
+            '../components',
+            util.joinFormat( remotePath, fn.relateDest( path.join(vars.imagesDest, 'components')))
+        ))
+        .pipe(iConfig.isCommit?minifycss({
+            compatibility: 'ie7'
+        }): fn.blankPipe())
+        .pipe(gulp.dest( util.joinFormat(vars.cssDest)));
+});
+
+gulp.task('css-component-task', function() {
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return;
+    }
+    
+    var vars = gulp.env.vars;
     
     return gulp.src(path.join(vars.srcRoot,'components/@(p-)*/*.scss'), {base: path.join(vars.srcRoot)})
         .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
@@ -381,28 +429,8 @@ gulp.task('css-task', function() {
             path.dirname = '';
             path.basename = path.basename.replace(/^p-/,'');
         }))
-        .pipe(gulp.dest(path.join(vars.srcRoot, 'css')))
-        // 替换 commons components 里面的 图片
-        .pipe(replacePath(
-            relateCss(vars.globalcomponents),
-            util.joinFormat(remotePath, vars.imagesDest, 'globalcomponents')
-        ))
-
-        // 替换图片
-        .pipe(replacePath(
-            '../images',
-            util.joinFormat(remotePath, fn.relateDest(vars.imagesDest))
-        ))
-        // 替换 components 内图片
-        .pipe(replacePath(
-            '../components',
-            util.joinFormat( remotePath, fn.relateDest( path.join(vars.imagesDest, 'components')))
-        ))
-        .pipe(iConfig.isCommit?minifycss({
-            compatibility: 'ie7'
-        }): fn.blankPipe())
-
-        .pipe(gulp.dest( util.joinFormat(vars.cssDest)));
+        .pipe(gulp.dest(path.join(vars.srcRoot, 'css')));
+        
 });
 // - css task
 // + js task
@@ -455,7 +483,22 @@ gulp.task('js-task', function () {
             .pipe(iConfig.isCommit?uglify():fn.blankPipe())
             .pipe(gulp.dest( vars.jslibDest ));
 
-    return es.concat.apply(es, [jsStream, jsLibStream]);
+    var 
+        jsBaseStream = gulp.src([
+                util.joinFormat(vars.srcRoot, 'js/**/*.js'),
+                '!' + util.joinFormat(vars.srcRoot, 'js/lib/**'),
+                '!' + util.joinFormat(vars.srcRoot, 'js/widget/**')
+            ])
+        .pipe(plumber())
+        /* 合并主文件中通过 requirejs 引入的模块 [start] */
+        .pipe(requirejsOptimize({
+            optimize: 'none',
+            mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
+        }))
+        .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
+        .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
+
+    return es.concat.apply(es, [jsStream, jsLibStream, jsBaseStream]);
 });
 // - js task
 // + images task
