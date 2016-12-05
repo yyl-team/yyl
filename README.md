@@ -14,7 +14,7 @@
 ## 命令说明
 
 ### 整体说明
-```shell
+```
 Useage: yyl <command>
 
 Commands:
@@ -43,7 +43,7 @@ Options:
 ```
 
 ### 压缩相关命令
-```shell
+```
 Useage: yyl <command>
 
 Commands:
@@ -60,7 +60,7 @@ Options:
 ```
 
 ### 提交相关命令
-```shell
+```
 Useage: yyl commit <command>
 
 Commands:
@@ -74,7 +74,7 @@ Options:
 ```
 
 ### 本地服务相关命令
-```shell
+```
 Useage: yyl server <command>
 
 Commands:
