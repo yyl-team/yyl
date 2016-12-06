@@ -295,7 +295,9 @@ gulp.task('html-task-step02', function(){
             this.push(file);
 
             // 复制
+            util.msg.info('copy file start', copyPath);
             util.copyFiles(copyPath, function(){
+                util.msg.success('copy file done');
                 next();
             });
         }))
@@ -431,7 +433,9 @@ gulp.task('css-dist', function(){
             this.push(file);
 
             // 复制
+            util.msg.info('copy file start', copyPath);
             util.copyFiles(copyPath, function(){
+                util.msg.success('copy file done');
                 next();
             });
         }))
