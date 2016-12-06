@@ -42,7 +42,7 @@ var
             commons: commonPath,
 
             // 公用 components 目录
-            globalcomponents: path.join(commonPath, 'pc/components'),
+            globalcomponents: path.join(commonPath, 'mobile/components'),
             globallib: path.join(commonPath, 'pc/lib'),
 
 

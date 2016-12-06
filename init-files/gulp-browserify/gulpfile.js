@@ -23,6 +23,7 @@ var gulp = require('gulp'),
     inlinesource = require('gulp-inline-source'), // requirejs optimizer which can combine all modules into the main js file
     babel = require('gulp-babel'),
     filter = require('gulp-filter'), // filter the specified file(s) in file stream
+    browserify = require('gulp-browserify'),
     gulpJade = require('gulp-jade'),
     plumber = require('gulp-plumber'),
     runSequence = require('run-sequence').use(gulp),
@@ -465,7 +466,12 @@ gulp.task('js-task', function () {
             .pipe(rjsFilter)
             .pipe(jshint())
             .pipe(babel({
-                presets: ['babel-preset-es2015'].map(require.resolve)
+                presets: ['babel-preset-es2015'].map(require.resolve),
+                plugins: ['transform-runtime']
+            }))
+            .pipe(browserify({
+                insertGlobals : true,
+                debug: !gulp.env.isCommit
             }))
             .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
             .pipe(rename(function(path){
@@ -490,7 +496,8 @@ gulp.task('js-task', function () {
         .pipe(plumber())
         /* 合并主文件中通过 requirejs 引入的模块 [start] */
         .pipe(babel({
-            presets: ['babel-preset-es2015'].map(require.resolve)
+            presets: ['babel-preset-es2015'].map(require.resolve),
+            plugins: ['transform-runtime']
         }))
         .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
