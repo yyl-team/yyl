@@ -1,8 +1,6 @@
 @charset "utf-8";
 @import '../w-layout/w-layout';
 
-@import "../../components/r-demo/r-demo";
-@include w-demo('../../components/r-demo');
+@import "../../../../../../../public/plugin/pc/r-demo/r-demo";
+@include w-demo('../../../../../../../public/plugin/pc/r-demo');
 
-@import "../../../../../../../../../code.yy.com/ent-FEteam/commons/mobile/components/w-footer/1.0.0/w-footer";
-@include w-footer('../../../../../../../../../code.yy.com/ent-FEteam/commons/mobile/components/w-footer/1.0.0')

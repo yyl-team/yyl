@@ -83,7 +83,7 @@ body {
   width: 150px;
   height: 116px;
   margin: -58px 0 0 -75px;
-  background: url("../components/r-demo/images/logo.png?201609201140") no-repeat;
+  background: url("../../../../../../public/plugin/pc/r-demo/images/logo.png?201609201140") no-repeat;
   -webkit-transition: 400ms; }
 
 .w-demo-tl {
@@ -105,57 +105,3 @@ body {
 
 .w-demo-logo-3 {
   -webkit-transform: rotate(270deg); }
-
-.yy-footer {
-  display: block;
-  height: rem(53); }
-  .yy-footer .yy-footer-main {
-    position: fixed;
-    z-index: 50;
-    font-size: rem(6);
-    left: 0;
-    bottom: 0;
-    box-sizing: border-box;
-    height: rem(53);
-    width: 100%;
-    padding: rem(10) rem(11) rem(10) rem(7);
-    background: url("../../../../../../../../code.yy.com/ent-FEteam/commons/mobile/components/w-footer/1.0.0/images/footer-bg.jpg") center no-repeat;
-    background-size: cover; }
-  .yy-footer div {
-    display: inline-block;
-    vertical-align: middle; }
-  .yy-footer .yy-logo {
-    width: rem(38);
-    height: rem(38);
-    margin-right: rem(8);
-    background: url("../../../../../../../../code.yy.com/ent-FEteam/commons/mobile/components/w-footer/1.0.0/images/yy-logo.png") center no-repeat;
-    background-size: rem(38) rem(38); }
-  .yy-footer a {
-    float: right;
-    display: inline-block;
-    color: #ff8900;
-    font-size: rem(14);
-    text-align: center;
-    line-height: rem(28);
-    width: rem(78);
-    height: rem(28);
-    border: 1px solid #ff8900;
-    border-radius: rem(5);
-    margin-top: rem(5);
-    text-decoration: none; }
-  .yy-footer .txt1 {
-    color: #ffffff;
-    font-size: rem(13);
-    font-style: italic;
-    line-height: rem(17); }
-  .yy-footer .txt2 {
-    color: #ff8900;
-    font-size: rem(13);
-    font-style: italic;
-    line-height: rem(17); }
-  .yy-footer .txt3 {
-    color: #ff8900;
-    font-size: rem(15);
-    font-style: italic;
-    font-weight: bold;
-    line-height: rem(17); }

@@ -413,12 +413,18 @@ gulp.task('css-dist', function(){
                 }
 
 
+                // console.log('vvvvvvvvvvvvvv')
+                // console.log('111', iPath);
+                // console.log('111', gComponentPath);
+                // console.log('iiiiiiiiiiiiii')
+
                 if(iPath.substr(0, gComponentPath.length) != gComponentPath){
                     return str;
                 }
 
-                var dirname = iPath.substr(gComponentPath.length);
+                iPath = iPath.replace(/\?.*?$/g,'');
 
+                var dirname = iPath.substr(gComponentPath.length);
                 copyPath[util.joinFormat(vars.srcRoot, 'css', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
 
                 return str;
@@ -433,16 +439,15 @@ gulp.task('css-dist', function(){
             this.push(file);
 
             // 复制
-            util.msg.info('copy file start', copyPath);
             util.copyFiles(copyPath, function(){
                 util.msg.success('copy file done');
                 next();
-            });
+            }, null, null, vars.dirname);
         }))
         // 替换 commons components 里面的 图片
         .pipe(replacePath(
             relateCss(vars.globalcomponents),
-            util.joinFormat(remotePath, vars.imagesDest, 'globalcomponents')
+            util.joinFormat(remotePath, fn.relateDest(path.join(vars.imagesDest, 'globalcomponents')))
         ))
 
         // 替换图片

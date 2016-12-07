@@ -4,9 +4,9 @@ var require = {
     paths: {
 
         // for demo
-        rDemo: '../../components/r-demo/r-demo',
+        rDemo: '../../../../../../../public/plugin/pc/r-demo/r-demo',
         // global
-        jquery: '../../js/lib/jQuery/jquery-1.11.3.min'
+        jquery: '../../../../../../../public/global/lib/jQuery/jquery-1.11.1'
     },
     shim: {
         // artTemplate: {
