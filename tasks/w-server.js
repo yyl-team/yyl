@@ -7,6 +7,7 @@ var
     serveIndex = require('serve-index'),
     serveStatic = require('serve-static'),
     livereload = require('connect-livereload'),
+    tinylr = require('tiny-lr'),
     fs = require('fs'),
     path = require('path');
 
@@ -308,22 +309,27 @@ var
             if(!port){
                 port = 5000;
             }
+            var lrPort = 35729;
 
             var serverAddress = 'http://' + util.vars.LOCAL_SERVER + ':' + port;
 
             util.msg.info('local server start');
             util.msg.info('local path:', iPath);
-            util.msg.info('livereload port:', 35729);
+            util.msg.info('livereload port:', lrPort);
             util.msg.info('address:', serverAddress);
 
             connect()
-                .use(livereload({port: 35729}))
+                .use(livereload({port: lrPort}))
                 .use(serveIndex(iPath))
                 .use(serveStatic(iPath))
-                .listen(port)
-                ;
+                .listen(port, function(err){
+                    if(err){
+                        return util.msg.error(err);
+                    }
+                    tinylr().listen(lrPort);
+                    util.openBrowser(serverAddress);
 
-            util.openBrowser(serverAddress);
+                });
 
         },
         // 服务器目录初始化

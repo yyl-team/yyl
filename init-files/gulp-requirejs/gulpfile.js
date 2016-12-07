@@ -643,7 +643,7 @@ gulp.task('watch', ['all'], function() {
 
     // 看守所有.scss档
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
-        runSequence('css', 'html', 'concat');
+        runSequence('css', 'html', 'concat', 'connect-reload');
     });
 
     // 看守所有.js档
@@ -652,7 +652,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
     ], function(){
-        runSequence('js', 'html', 'concat');
+        runSequence('js', 'html', 'concat', 'connect-reload');
     });
 
     // 看守所有图片档
@@ -661,7 +661,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
     ], function(){
-        runSequence('images', 'html');
+        runSequence('images', 'html', 'connect-reload');
 
     });
 
@@ -671,10 +671,10 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
     ], function(){
-        runSequence('html');
+        runSequence('html', 'connect-reload');
     });
 
-
+    runSequence('connect-reload');
 });
 // - watch task
 
@@ -971,3 +971,6 @@ gulp.task('all-done', function(){
 
 gulp.task('watchAll', ['watch']);
 // - all
+gulp.task('connect-reload', function(){
+    return util.livereload();
+});

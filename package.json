@@ -19,6 +19,7 @@
     "connect-livereload": "^0.6.0",
     "inquirer": "^0.8.5",
     "serve-index": "^1.8.0",
-    "serve-static": "^1.11.1"
+    "serve-static": "^1.11.1",
+    "tiny-lr": "^1.0.3"
   }
 }
