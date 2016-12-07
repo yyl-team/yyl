@@ -294,88 +294,118 @@ var
             }
 
         },
+        start: function(){
+
+        },
         // 服务器目录初始化
         init: function(workflowName, done, nocmd){
 
             util.msg.info('init server', workflowName, 'start');
+            var workflows = [];
             if(!workflowName){
-                return done('workflow is empty');
+                workflows = fs.readdirSync(path.join(vars.BASE_PATH, 'init-files'));
+                // return done('workflow is empty');
+            } else {
+                workflows.push(workflowName);
             }
+
+
 
             var 
-                workflowPath = path.join(vars.SERVER_WORKFLOW_PATH, workflowName),
-                workflowBasePath = path.join(vars.BASE_PATH, 'init-files', workflowName);
-
-            if(!fs.existsSync(workflowBasePath)){
-                return done(workflowName + ' isnot the right command');
-            }
-
-            new util.Promise(function(next){ // server init
-
-                util.mkdirSync(vars.SERVER_PATH);
-                util.mkdirSync(workflowPath);
-
-                // copy the lib to server
-                util.copyFiles( path.join(vars.BASE_PATH, 'lib'), path.join(vars.SERVER_PATH, 'lib'), function(){
-                    util.msg.success('copy lib to serverpath done');
-                    next();
-                });
-
-            }).then(function(next){ // copy files to server
-                var files = [],
-                    fileParam = {};
-
-                switch(workflowName){
-                    case 'gulp-requirejs':
-                    case 'webpack-vue':
-                        files = ['package.json', 'gulpfile.js'];
-                        break;
-
-                    default:
-                        files = ['package.json'];
-                        break;
-                }
-                files.forEach(function(filePath){
-                    fileParam[path.join(vars.BASE_PATH, 'init-files', workflowName, filePath)] = path.join(workflowPath, filePath);
-                });
-
-                util.copyFiles(fileParam, function(err){
-                    if(err){
-                        util.msg.error('copy', workflowName, 'files to serverpath fail', err);
-                        return;
+                padding = workflows.length,
+                paddingCheck = function(){
+                    padding--;
+                    if(!padding){
+                        if(done){
+                            done();
+                        }
                     }
-                    util.msg.success('copy', workflowName, 'files to serverpath success');
-                    next();
-                });
 
-            }).then(function(next){ // npm install 
+                };
 
-                if(nocmd){
-                    next();
+            workflows.forEach(function(workflowName){
+                var 
+                    workflowPath = path.join(vars.SERVER_WORKFLOW_PATH, workflowName),
+                    workflowBasePath = path.join(vars.BASE_PATH, 'init-files', workflowName);
 
-                } else {
-                    process.chdir(workflowPath);
-                    util.runCMD('npm install', function(err){
+                if(!fs.existsSync(workflowBasePath)){
+                    return done(workflowName + ' isnot the right command');
+                }
+
+                new util.Promise(function(next){ // server init
+
+                    util.mkdirSync(vars.SERVER_PATH);
+                    util.mkdirSync(workflowPath);
+
+                    // copy the lib to server
+                    util.copyFiles( path.join(vars.BASE_PATH, 'lib'), path.join(vars.SERVER_PATH, 'lib'), function(){
+                        util.msg.success('copy lib to serverpath done');
+                        next();
+                    });
+
+                }).then(function(next){ // copy files to server
+                    var files = [],
+                        fileParam = {};
+
+                    switch(workflowName){
+                        case 'gulp-requirejs':
+                        case 'webpack-vue':
+                            files = ['package.json', 'gulpfile.js'];
+                            break;
+
+                        default:
+                            files = ['package.json'];
+                            break;
+                    }
+                    files.forEach(function(filePath){
+                        fileParam[path.join(vars.BASE_PATH, 'init-files', workflowName, filePath)] = path.join(workflowPath, filePath);
+                    });
+
+                    util.copyFiles(fileParam, function(err){
                         if(err){
-                            util.msg.error('npm install fail on server!');
+                            util.msg.error('copy', workflowName, 'files to serverpath fail', err);
                             return;
                         }
-                        util.msg.success('npm install success');
-                        process.chdir(vars.PROJECT_PATH);
+                        util.msg.success('copy', workflowName, 'files to serverpath success');
+                        next();
+                    });
+
+                }).then(function(next){ // npm install 
+
+                    if(nocmd){
                         next();
 
-                    }, workflowPath);
+                    } else {
+                        process.chdir(workflowPath);
+                        if(fs.existsSync(path.join(workflowPath, 'package.json'))){
+                            util.runCMD('npm install', function(err){
+                                if(err){
+                                    util.msg.error('npm install fail on server!');
+                                    return;
+                                }
+                                util.msg.success('npm install success');
+                                process.chdir(vars.PROJECT_PATH);
+                                next();
 
-                }
+                            }, workflowPath);
+
+                        } else {
+                            util.msg.warn('package.json not exist, continue:', workflowPath);
+                            next();
+                        }
+
+                    }
 
 
-            }).then(function(next){ // back to dirPath
-                util.msg.success('init server', workflowName, 'success');
-                if(done){
-                    done();
-                }
-                next();
-            }).start();
+                }).then(function(next){ // back to dirPath
+                    util.msg.success('init server', workflowName, 'success');
+                    paddingCheck();
+                    next();
+                }).start();
+
+            });
+
+            
 
         },
         
