@@ -3,6 +3,10 @@ var
     util = require('../lib/yyl-util'),
     vars = util.vars,
     color = require('../lib/colors'),
+    connect = require('connect'),
+    serveIndex = require('serve-index'),
+    serveStatic = require('serve-static'),
+    livereload = require('connect-livereload'),
     fs = require('fs'),
     path = require('path');
 
@@ -33,7 +37,8 @@ var
         },
 
         start: function(){
-            wServer.start();
+            var iEnv = util.envPrase(arguments);
+            wServer.start(iEnv.path);
         },
         init: function(workflowName){
             wServer.init(workflowName, function(err){
@@ -294,7 +299,31 @@ var
             }
 
         },
-        start: function(){
+        // 服务器启动
+        start: function(iPath, port){
+            if(!iPath || !fs.existsSync(iPath)){
+                iPath = vars.PROJECT_PATH;
+            }
+
+            if(!port){
+                port = 5000;
+            }
+
+            var serverAddress = 'http://' + util.vars.LOCAL_SERVER + ':' + port;
+
+            util.msg.info('local server start');
+            util.msg.info('local path:', iPath);
+            util.msg.info('livereload port:', 35729);
+            util.msg.info('address:', serverAddress);
+
+            connect()
+                .use(livereload({port: 35729}))
+                .use(serveIndex(iPath))
+                .use(serveStatic(iPath))
+                .listen(port)
+                ;
+
+            util.openBrowser(serverAddress);
 
         },
         // 服务器目录初始化
@@ -422,7 +451,7 @@ var
                     break;
 
                 case 'start':
-                    events.start();
+                    events.start.apply(events, iArgv.slice(2));
                     break;
 
                 case 'clear':

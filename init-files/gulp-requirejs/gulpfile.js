@@ -30,8 +30,6 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     clean = require('gulp-clean'),
 
-    connect = require('gulp-connect'),
-
     through = require('through2'),
     es = require('event-stream'),
 
@@ -645,7 +643,7 @@ gulp.task('watch', ['all'], function() {
 
     // 看守所有.scss档
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
-        runSequence('css', 'html', 'concat', 'connect-reload');
+        runSequence('css', 'html', 'concat');
     });
 
     // 看守所有.js档
@@ -654,7 +652,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
     ], function(){
-        runSequence('js', 'html', 'concat', 'connect-reload');
+        runSequence('js', 'html', 'concat');
     });
 
     // 看守所有图片档
@@ -663,7 +661,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
     ], function(){
-        runSequence('images', 'html', 'connect-reload');
+        runSequence('images', 'html');
 
     });
 
@@ -673,11 +671,10 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
     ], function(){
-        runSequence('html', 'connect-reload');
+        runSequence('html');
     });
 
 
-    runSequence('connect');
 });
 // - watch task
 
@@ -974,28 +971,3 @@ gulp.task('all-done', function(){
 
 gulp.task('watchAll', ['watch']);
 // - all
-// + connect
-gulp.task('connect', function(){
-    var iConfig = fn.taskInit();
-    if(!iConfig){
-        return;
-    }
-    var vars = gulp.env.vars;
-
-    connect.server({
-        root: vars.destRoot,
-        port: iConfig.localserver.port,
-        livereload: true
-    });
-    util.msg.info('start connect server on path:');
-    util.msg.info(util.joinFormat(vars.destRoot));
-
-    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port);
-
-});
-
-gulp.task('connect-reload', function(){
-    return gulp.src('./package.json')
-        .pipe(connect.reload());
-});
-// - connect

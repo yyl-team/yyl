@@ -43,6 +43,11 @@ var
             var cmd = 'gulp ' + iArgv.join(' ');
             var handle;
 
+            if(/watch/.test(iArgv[0])){
+                wServer.start(config.localserver.root, config.localserver.port);
+            }
+
+
             util.msg.info('run cmd:', cmd);
             if(util.vars.IS_WINDOWS){
                 handle = util.runCMD;
