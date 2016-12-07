@@ -1,7 +1,7 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../../../../code.yy.com/ent-FEteam/commons',
+    commonPath = '../../../public/global',
     projectName = 'single-project',
     //- yyl init 自动 匹配内容
     path = require('path'),
@@ -11,13 +11,13 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/mobileYY/test',
+            basePath: '/',
             jsPath: 'js',
             jslibPath: 'js/lib',
             cssPath: 'css',
             htmlPath: 'html',
             imagesPath: 'images',
-            revPath: 'assets',
+            revPath: 'assets'
         },
         // 提交之前回调函数
         beforeCommit: function(){}
@@ -26,24 +26,27 @@ var
 
 var
     config = {
-        workflow: 'gulp-requirejs',
+        workflow: 'browserify-babel',
         name: projectName,
         dest: setting.dest,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
-            // svn dev 分支地址
-            dev: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
 
+            // svn dev 分支地址
+            dev: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop'),
+            // svn commit 分支地址
+            commit: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit'),
             // svn trunk 分支地址
-            trunk: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release/mobileYY/test'),
+            trunk: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk'),
+
 
             // 公用组件地址
             commons: commonPath,
 
             // 公用 components 目录
-            globalcomponents: path.join(commonPath, 'pc/components'),
-            globallib: path.join(commonPath, 'pc/lib'),
+            globalcomponents: path.join(commonPath, '../plugin/pc'),
+            globallib: path.join(commonPath, 'lib'),
 
 
             // 输出目录中 到 html, js, css, image 层 的路径

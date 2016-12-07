@@ -1,7 +1,7 @@
 {
-  "name": "gulp-browserify-workflow",
+  "name": "browserify-babel-workflow",
   "version": "1.0.0",
-  "description": "gulp-browserify-workflow",
+  "description": "browserify-babel-workflow",
   "main": "gulpfile.js",
   "directories": {
     "doc": "doc"
@@ -12,10 +12,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://code.yy.com/ent-FEteam/yy.com.git"
+    "url": "http://git.yypm.com/YYLive/workflow.git"
   },
   "keywords": [
-    "yy.com"
+    "browserify-babel-workflow"
   ],
   "author": "ent-FEteam",
   "license": "ISC",

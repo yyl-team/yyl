@@ -1,8 +1,8 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../../../../code.yy.com/ent-FEteam/commons',
-    projectName = 'single-project',
+    commonPath = '../../../../public/global',
+    projectName = 'multi-project',
     //- yyl init 自动 匹配内容
     path = require('path'),
     setting01 = {
@@ -11,7 +11,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/mobileYY/test',
+            basePath: '/project/workflow_demo/pc',
             jsPath: 'js/proj01',
             jslibPath: 'js/proj01/lib',
             cssPath: 'css/proj01',
@@ -29,7 +29,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/mobileYY/test',
+            basePath: '/project/workflow_demo/pc',
             jsPath: 'js/proj02',
             jslibPath: 'js/proj02/lib',
             cssPath: 'css/proj02',
@@ -52,17 +52,19 @@ var
             localserver: setting01.localserver,
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
-                dev: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
-
+                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+                // svn commit 分支地址
+                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
                 // svn trunk 分支地址
-                trunk: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release/mobileYY/test'),
+                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
+
 
                 // 公用组件地址
                 commons: commonPath,
 
                 // 公用 components 目录
-                globalcomponents: path.join(commonPath, 'pc/components'),
-                globallib: path.join(commonPath, 'pc/lib'),
+                globalcomponents: path.join(commonPath, '../plugin/pc'),
+                globallib: path.join(commonPath, 'lib'),
 
 
                 // 输出目录中 到 html, js, css, image 层 的路径
@@ -98,22 +100,14 @@ var
             // + 此部分 不要用相对路径
             // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
             concat: {
-                // '{$srcRoot}/js/vendors.js': [
-                //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-                // ],
-                // '{$jsDest}/vendors.js': [
-                //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-                // ]
             },
 
             commit: {
                  // 上线配置
-                revAddr: 'http://s1.yy.com/website_static/mobileYY/test/assets/rev-manifest.json',
-                hostname: 'http://s1.yy.com/website_static/',
+                revAddr: 'http://web.yystatic.com/project/workflow_demo/pc/assets/proj01/rev-manifest.json',
+                hostname: 'http://web.yystatic.com/',
                 git: {
-                    update: [
-                        '{$commons}'
-                    ]
+                    update: []
                 },
                 svn: {
                     dev: {
@@ -121,18 +115,20 @@ var
                             '{$dev}'
                         ],
                         copy: {
-                            '{$root}/js': ['{$dev}/js'],
-                            '{$root}/css': ['{$dev}/css'],
-                            '{$root}/html': ['{$dev}/html'],
-                            '{$root}/images': ['{$dev}/images'],
-                            '{$root}/assets': ['{$dev}/assets']
+                            '{$root}/js/proj01': ['{$dev}/dist/js/proj01'],
+                            '{$root}/css/proj01': ['{$dev}/dist/css/proj01'],
+                            '{$root}/html/proj01': ['{$dev}/dist/html/proj01'],
+                            '{$root}/images/proj01': ['{$dev}/dist/images/proj01'],
+                            '{$root}/assets/proj01': ['{$dev}/dist/assets/proj01'],
+                            '{$srcRoot}': ['{$dev}/src']
                         },
                         commit: [
-                            '{$dev}/js',
-                            '{$dev}/css',
-                            '{$dev}/html',
-                            '{$dev}/images',
-                            '{$dev}/assets'
+                            '{$dev}/dist/js/proj01',
+                            '{$dev}/dist/css/proj01',
+                            '{$dev}/dist/html/proj01',
+                            '{$dev}/dist/images/proj01',
+                            '{$dev}/dist/assets/proj01',
+                            '{$dev}/src'
                         ]
 
                     },
@@ -141,18 +137,18 @@ var
                             '{$trunk}'
                         ],
                         copy: {
-                            '{$root}/js': ['{$trunk}/js'],
-                            '{$root}/css': ['{$trunk}/css'],
-                            '{$root}/html': ['{$trunk}/html'],
-                            '{$root}/images': ['{$trunk}/images'],
-                            '{$root}/assets': ['{$trunk}/assets']
+                            '{$root}/js/proj01': ['{$trunk}/js/proj01'],
+                            '{$root}/css/proj01': ['{$trunk}/css/proj01'],
+                            '{$root}/html/proj01': ['{$trunk}/html/proj01'],
+                            '{$root}/images/proj01': ['{$trunk}/images/proj01'],
+                            '{$root}/assets/proj01': ['{$trunk}/assets/proj01']
                         },
                         commit: [
-                            '{$trunk}/js',
-                            '{$trunk}/css',
-                            '{$trunk}/html',
-                            '{$trunk}/images',
-                            '{$trunk}/assets'
+                            '{$trunk}/js/proj01',
+                            '{$trunk}/css/proj01',
+                            '{$trunk}/html/proj01',
+                            '{$trunk}/images/proj01',
+                            '{$trunk}/assets/proj01'
                         ]
                     }
 
@@ -169,17 +165,18 @@ var
             localserver: setting02.localserver,
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
-                dev: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
-
+                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+                // svn commit 分支地址
+                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
                 // svn trunk 分支地址
-                trunk: path.join('../../../../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release/mobileYY/test'),
+                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
 
                 // 公用组件地址
                 commons: commonPath,
 
                 // 公用 components 目录
-                globalcomponents: path.join(commonPath, 'pc/components'),
-                globallib: path.join(commonPath, 'pc/lib'),
+                globalcomponents: path.join(commonPath, '../plugin/pc'),
+                globallib: path.join(commonPath, 'lib'),
 
 
                 // 输出目录中 到 html, js, css, image 层 的路径
@@ -215,22 +212,15 @@ var
             // + 此部分 不要用相对路径
             // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
             concat: {
-                // '{$srcRoot}/js/vendors.js': [
-                //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-                // ],
-                // '{$jsDest}/vendors.js': [
-                //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-                // ]
+                
             },
 
             commit: {
                  // 上线配置
-                revAddr: 'http://s1.yy.com/website_static/mobileYY/test/assets/rev-manifest.json',
-                hostname: 'http://s1.yy.com/website_static/',
+                revAddr: 'http://web.yystatic.com/project/workflow_demo/pc/assets/proj02/rev-manifest.json',
+                hostname: 'http://web.yystatic.com/',
                 git: {
-                    update: [
-                        '{$commons}'
-                    ]
+                    update: []
                 },
                 svn: {
                     dev: {
@@ -238,38 +228,59 @@ var
                             '{$dev}'
                         ],
                         copy: {
-                            '{$root}/js': ['{$dev}/js'],
-                            '{$root}/css': ['{$dev}/css'],
-                            '{$root}/html': ['{$dev}/html'],
-                            '{$root}/images': ['{$dev}/images'],
-                            '{$root}/assets': ['{$dev}/assets']
+                            '{$root}/js/proj02': ['{$dev}/dist/js/proj02'],
+                            '{$root}/css/proj02': ['{$dev}/dist/css/proj02'],
+                            '{$root}/html/proj02': ['{$dev}/dist/html/proj02'],
+                            '{$root}/images/proj02': ['{$dev}/dist/images/proj02'],
+                            '{$root}/assets/proj02': ['{$dev}/dist/assets/proj02'],
+                            '{$srcRoot}': ['{$dev}/src']
                         },
                         commit: [
-                            '{$dev}/js',
-                            '{$dev}/css',
-                            '{$dev}/html',
-                            '{$dev}/images',
-                            '{$dev}/assets'
+                            '{$dev}/dist/js/proj02',
+                            '{$dev}/dist/css/proj02',
+                            '{$dev}/dist/html/proj02',
+                            '{$dev}/dist/images/proj02',
+                            '{$dev}/dist/assets/proj02',
+                            '{$dev}/src'
                         ]
 
+                    },
+                    commit: {
+                        update: [
+                            '{$commit}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj02': ['{$commit}/js/proj02'],
+                            '{$root}/css/proj02': ['{$commit}/css/proj02'],
+                            '{$root}/html/proj02': ['{$commit}/html/proj02'],
+                            '{$root}/images/proj02': ['{$commit}/images/proj02'],
+                            '{$root}/assets/proj02': ['{$commit}/assets/proj02']
+                        },
+                        commit: [
+                            '{$commit}/js/proj02',
+                            '{$commit}/css/proj02',
+                            '{$commit}/html/proj02',
+                            '{$commit}/images/proj02',
+                            '{$commit}/assets/proj02'
+                        ]
                     },
                     trunk: {
                         update: [
                             '{$trunk}'
                         ],
                         copy: {
-                            '{$root}/js': ['{$trunk}/js'],
-                            '{$root}/css': ['{$trunk}/css'],
-                            '{$root}/html': ['{$trunk}/html'],
-                            '{$root}/images': ['{$trunk}/images'],
-                            '{$root}/assets': ['{$trunk}/assets']
+                            '{$root}/js/proj02': ['{$trunk}/js/proj02'],
+                            '{$root}/css/proj02': ['{$trunk}/css/proj02'],
+                            '{$root}/html/proj02': ['{$trunk}/html/proj02'],
+                            '{$root}/images/proj02': ['{$trunk}/images/proj02'],
+                            '{$root}/assets/proj02': ['{$trunk}/assets/proj02']
                         },
                         commit: [
-                            '{$trunk}/js',
-                            '{$trunk}/css',
-                            '{$trunk}/html',
-                            '{$trunk}/images',
-                            '{$trunk}/assets'
+                            '{$trunk}/js/proj02',
+                            '{$trunk}/css/proj02',
+                            '{$trunk}/html/proj02',
+                            '{$trunk}/images/proj02',
+                            '{$trunk}/assets/proj02'
                         ]
                     }
 

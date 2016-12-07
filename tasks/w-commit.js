@@ -18,7 +18,7 @@ var
                 next();
 
             }).then(function(next){ // parse config to server
-                wServer.buildConfig(function(err, config){ // 创建 server 端 config
+                wServer.buildConfig(iEnv.name, function(err, config){ // 创建 server 端 config
                     if(err){
                         return done(err);
                     }
@@ -28,14 +28,7 @@ var
 
                 });
             }).then(function(config){ // check config
-                var iConfig;
-                if(iEnv.name){
-                    iConfig = config[iEnv.name];
-
-                } else {
-                    iConfig = config;
-                }
-
+                var iConfig = config;
 
                 if(!iConfig || !iConfig.alias){
                     done('--name is not right or config.js format error');
@@ -117,8 +110,7 @@ var
                             });
 
                         }
-                        
-                        
+
                     });
                     iPromise.then(function(){
                         util.msg.info('svn config.udpate is done');
@@ -270,6 +262,12 @@ var
 
                 assetsPath.forEach(function(src){
                     var iPath = src;
+                    
+                    if(!fs.existsSync(iPath)){
+                        util.msg.warn('assets path not exist, break:', iPath);
+                        return;
+                    }
+
                     var files = fs.readdirSync(iPath);
                     var oldRevs;
                     var keepRevs;
