@@ -1,6 +1,9 @@
 # yylive work flow 说明文档
 ## 环境说明
-项目基于 `node, gulp` 搭建, 需要在 `node >= 4.0.0` 环境下运行
+项目基于 `node, gulp, svn, git` 搭建, 需要在 `node >= 4.0.0` 环境下运行
+* 需要 node  `>= 4.0.0`
+* 需要 svn `命令行安装` (在 cmd/终端 操作 输入 `svn` 有东西)
+* 需要 git `命令行安装` (在 cmd/终端 操作 输入 `git` 有东西)
 
 ## 安装
 

@@ -1,7 +1,7 @@
 {
-  "name": "yy.com",
+  "name": "gulp-requirejs-workflow",
   "version": "1.0.0",
-  "description": "yy.com website",
+  "description": "gulp-requirejs-workflow",
   "main": "gulpfile.js",
   "directories": {
     "doc": "doc"
@@ -12,10 +12,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://code.yy.com/ent-FEteam/yy.com.git"
+    "url": "http://git.yypm.com/YYLive/workflow.git"
   },
   "keywords": [
-    "yy.com"
+    "gulp-requirejs-workflow"
   ],
   "author": "ent-FEteam",
   "license": "ISC",
@@ -30,7 +30,6 @@
     "gulp-inline-source": "^2.1.0",
     "gulp-jade": "^1.1.0",
     "gulp-jshint": "^1.9.4",
-    "gulp-livereload": "^3.8.1",
     "gulp-minify-css": "^1.0.0",
     "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.1.0",

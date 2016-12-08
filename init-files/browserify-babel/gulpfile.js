@@ -31,8 +31,6 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     clean = require('gulp-clean'),
 
-    connect = require('gulp-connect'),
-
     through = require('through2'),
     es = require('event-stream'),
 
@@ -260,6 +258,49 @@ gulp.task('html-task-step02', function(){
         // 删除requirejs的配置文件引用
         .pipe(replacePath(/<script [^<]*local-usage\><\/script>/g, ''))
 
+        // 将用到的 commons 目录下的 images 资源引入到项目里面
+        .pipe(through.obj(function(file, enc, next){
+            var iCnt = file.contents.toString();
+            var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+            var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+            var gComponentPath = relateHtml(vars.globalcomponents);
+            var copyPath = {};
+
+            var filterHandle = function(str, $1, $2){
+                var iPath = $2;
+
+                if(iPath.match(/^(about:|data:)/)){
+                    return str;
+                }
+
+
+                if(iPath.substr(0, gComponentPath.length) != gComponentPath){
+                    return str;
+                }
+
+                var dirname = iPath.substr(gComponentPath.length);
+
+                copyPath[util.joinFormat(vars.srcRoot, 'html', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
+
+                return str;
+
+            };
+
+
+            iCnt
+                .replace(pathReg, filterHandle)
+                .replace(pathReg2, filterHandle);
+
+            this.push(file);
+
+            // 复制
+            util.msg.info('copy file start', copyPath);
+            util.copyFiles(copyPath, function(){
+                util.msg.success('copy file done');
+                next();
+            });
+        }))
+
         // 替换全局 图片
         .pipe(replacePath(
             relateHtml(path.join(vars.globalcomponents)),
@@ -306,7 +347,7 @@ gulp.task('html-task-step02', function(){
             this.push(file);
             next();
         }))
-
+        
         // .pipe(replacePath('../images', + assetsPath.images))
         .pipe(gulp.dest(vars.htmlDest));
 });
@@ -355,10 +396,57 @@ gulp.task('css-dist', function(){
         };
 
     return gulp.src(path.join(vars.srcRoot, 'css', '**/*.css'))
+        // 将commons components 目录下的 图片 引入到 globalcomponents 里面
+        .pipe(through.obj(function(file, enc, next){
+            var iCnt = file.contents.toString();
+            var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+            var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+            var gComponentPath = relateCss(vars.globalcomponents);
+            var copyPath = {};
+
+            var filterHandle = function(str, $1, $2){
+                var iPath = $2;
+
+                if(iPath.match(/^(about:|data:)/)){
+                    return str;
+                }
+
+
+                // console.log('vvvvvvvvvvvvvv')
+                // console.log('111', iPath);
+                // console.log('111', gComponentPath);
+                // console.log('iiiiiiiiiiiiii')
+
+                if(iPath.substr(0, gComponentPath.length) != gComponentPath){
+                    return str;
+                }
+
+                iPath = iPath.replace(/\?.*?$/g,'');
+
+                var dirname = iPath.substr(gComponentPath.length);
+                copyPath[util.joinFormat(vars.srcRoot, 'css', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
+
+                return str;
+
+            };
+
+
+            iCnt
+                .replace(pathReg, filterHandle)
+                .replace(pathReg2, filterHandle);
+
+            this.push(file);
+
+            // 复制
+            util.copyFiles(copyPath, function(){
+                util.msg.success('copy file done');
+                next();
+            }, null, null, vars.dirname);
+        }))
         // 替换 commons components 里面的 图片
         .pipe(replacePath(
             relateCss(vars.globalcomponents),
-            util.joinFormat(remotePath, vars.imagesDest, 'globalcomponents')
+            util.joinFormat(remotePath, fn.relateDest(path.join(vars.imagesDest, 'globalcomponents')))
         ))
 
         // 替换图片
@@ -374,6 +462,7 @@ gulp.task('css-dist', function(){
         .pipe(iConfig.isCommit?minifycss({
             compatibility: 'ie7'
         }): fn.blankPipe())
+        
         .pipe(gulp.dest( util.joinFormat(vars.cssDest)));
 });
 
@@ -401,11 +490,13 @@ gulp.task('css-component-task', function() {
                     return str;
                 }
 
+                
                 var fDirname = path.dirname(path.relative(dirname, file.path));
                 rPath = path.join(fDirname, iPath)
                     .replace(/\\+/g,'/')
                     .replace(/\/+/, '/')
                     ;
+
                 if(fs.existsSync(util.joinFormat(dirname, rPath).replace(/\?.*?$/g,''))){
                     return $1 + rPath + $3;
 
@@ -466,8 +557,7 @@ gulp.task('js-task', function () {
             .pipe(rjsFilter)
             .pipe(jshint())
             .pipe(babel({
-                presets: ['babel-preset-es2015'].map(require.resolve),
-                plugins: ['transform-runtime']
+                presets: ['babel-preset-es2015'].map(require.resolve)
             }))
             .pipe(browserify({
                 insertGlobals : true,
@@ -496,8 +586,7 @@ gulp.task('js-task', function () {
         .pipe(plumber())
         /* 合并主文件中通过 requirejs 引入的模块 [start] */
         .pipe(babel({
-            presets: ['babel-preset-es2015'].map(require.resolve),
-            plugins: ['transform-runtime']
+            presets: ['babel-preset-es2015'].map(require.resolve)
         }))
         .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
@@ -506,7 +595,7 @@ gulp.task('js-task', function () {
 });
 // - js task
 // + images task
-gulp.task('images',['images-img', 'images-components', 'images-globalcomponents'], function(done) {
+gulp.task('images',['images-img', 'images-components'], function(done) {
     gulp.env.nowTask = 'images';
     runSequence('rev-update', done);
 });
@@ -543,42 +632,6 @@ gulp.task('images-components', function(){
         .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif']))
         .pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')))
         ;
-});
-gulp.task('images-globalcomponents', function(){
-    return;
-    // var iConfig = fn.taskInit();
-    // if(!iConfig){
-    //     return;
-    // }
-    // var 
-    //     vars = gulp.env.vars;
-
-
-    // var rConfig = util.requireJs(util.joinFormat(path.relative(__dirname, path.join(vars.srcRoot, 'js/rConfig/rConfig.js')))),
-    //     copyPaths = [],
-    //     fPath;
-
-
-    // for(var key in rConfig.paths){
-    //     if(rConfig.paths.hasOwnProperty(key)){
-    //         fPath = util.joinFormat( vars.srcRoot, 'js/rConfig', path.dirname(rConfig.paths[key]));
-    //         if(new RegExp('^' + util.joinFormat( vars.globalcomponents )).test(fPath)){
-    //             copyPaths.push(util.joinFormat(fPath, '**/*.*'));
-    //         }
-    //     }
-    // }
-
-    // if(!copyPaths.length){
-    //     return util.msg.notice('no globalcomponents in this project');
-    // }
-
-
-    // return gulp.src(copyPaths, {
-    //         base: util.joinFormat( vars.globalcomponents )
-    //     })
-    //     .pipe(plumber())
-    //     .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif']))
-    //     .pipe(gulp.dest(util.joinFormat( vars.imagesDest, 'globalcomponents')));
 });
 // - images task
 // + watch task
@@ -623,8 +676,7 @@ gulp.task('watch', ['all'], function() {
         runSequence('html', 'connect-reload');
     });
 
-
-    runSequence('connect');
+    runSequence('connect-reload');
 });
 // - watch task
 
@@ -921,28 +973,6 @@ gulp.task('all-done', function(){
 
 gulp.task('watchAll', ['watch']);
 // - all
-// + connect
-gulp.task('connect', function(){
-    var iConfig = fn.taskInit();
-    if(!iConfig){
-        return;
-    }
-    var vars = gulp.env.vars;
-
-    connect.server({
-        root: vars.destRoot,
-        port: iConfig.localserver.port,
-        livereload: true
-    });
-    util.msg.info('start connect server on path:');
-    util.msg.info(util.joinFormat(vars.destRoot));
-
-    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port);
-
-});
-
 gulp.task('connect-reload', function(){
-    return gulp.src('./package.json')
-        .pipe(connect.reload());
+    return util.livereload();
 });
-// - connect

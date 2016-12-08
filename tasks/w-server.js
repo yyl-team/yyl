@@ -318,7 +318,7 @@ var
             util.msg.info('livereload port:', lrPort);
             util.msg.info('address:', serverAddress);
 
-            connect()
+            var server = connect()
                 .use(livereload({port: lrPort}))
                 .use(serveIndex(iPath))
                 .use(serveStatic(iPath))
@@ -327,9 +327,20 @@ var
                         return util.msg.error(err);
                     }
                     tinylr().listen(lrPort);
-                    util.openBrowser(serverAddress);
+                    setTimeout(function(){
+                        util.openBrowser(serverAddress);
+                    }, 3000);
 
                 });
+            server.on('error', function(err){
+                if(err.code == 'EADDRINUSE'){
+                    util.msg.error('local server start fail:', port ,'is occupied, please check');
+
+                } else {
+                    util.msg.error(err);
+                }
+
+            });
 
         },
         // 服务器目录初始化
@@ -385,6 +396,7 @@ var
                     switch(workflowName){
                         case 'gulp-requirejs':
                         case 'webpack-vue':
+                        case 'browserify-babel':
                             files = ['package.json', 'gulpfile.js'];
                             break;
 
