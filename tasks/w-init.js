@@ -53,13 +53,34 @@ var
                     next({});
 
                 }
+            }).then(function(data, next){ // 询问是否自动搜索本地目录
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [];
+
+                if(!data.commonPath){
+                    questions.push({
+                        name: 'autosearch',
+                        message: 'do u wanter auto search your common path?',
+                        type: 'confirm',
+                        default: true
+                    });
+                    prompt(questions, function(d){
+                        data.autosearch = d.autosearch;
+                        next(data);
+
+                    });
+
+                } else {
+                    next(data);
+                }
 
             }).then(function(data, next){ // 自动查找本地目录下的 common 路径
                 var 
                     prompt = inquirer.createPromptModule(),
                     questions = [];
 
-                if(!data.commonPath){
+                if(!data.commonPath && data.autosearch){
                     var iRoot = path.parse(vars.PROJECT_PATH).root;
                     var ignoreReg = /node_modules|dist/g;
 
@@ -128,7 +149,9 @@ var
 
                         prompt(questions, function(d){
                             if(!d.commonPath ){
-                                util.msg.error('init fail', 'common path not set');
+                                util.msg.warn('common path not set', 'use process.cmd()');
+                                next(util.extend(data, d));
+
                             } else {
                                 wServer.profile('commonPath', d.commonPath);
                                 next(util.extend(data, d));
@@ -144,6 +167,10 @@ var
                 }
 
             }).then(function(data, next){
+                if(!data.commonPath){
+                    data.commonPath = vars.PROJECT_PATH;
+                }
+
                 data.commonPath = data.commonPath.trim();
                 var 
                     prompt = inquirer.createPromptModule();
@@ -372,7 +399,10 @@ var
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
                         }).then(function(next){ // create dist file
-                            fs.mkdirSync(path.join(vars.PROJECT_PATH, dirPath, 'dist'));
+                            var iiPath = path.join(vars.PROJECT_PATH, dirPath, 'dist');
+                            if(!fs.existsSync(iiPath)){
+                                fs.mkdirSync(iiPath);
+                            }
                             next();
 
                         }).then(function(next){ // init configfile

@@ -1,8 +1,8 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../public/global',
-    projectName = 'single-project',
+    commonPath = /*+commonPath*/'../../../public/global'/*-commonPath*/,
+    projectName = /*+name*/'single-project'/*-name*/,
     //- yyl init 自动 匹配内容
     path = require('path'),
     setting = {
@@ -11,7 +11,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/workflow_demo/pc',
+            basePath: '/project/'+ projectName +'/pc',
             jsPath: 'js',
             jslibPath: 'js/lib',
             cssPath: 'css',
@@ -34,11 +34,11 @@ var
         alias: { // yyl server 路径替换地方
 
             // svn dev 分支地址
-            dev: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+            dev: path.join('./'),
             // svn commit 分支地址
-            commit: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
+            commit: path.join('../../commit/pc'),
             // svn trunk 分支地址
-            trunk: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
+            trunk: path.join('../../trunk/pc'),
 
 
             // 公用组件地址
@@ -92,7 +92,7 @@ var
 
         commit: {
              // 上线配置
-            revAddr: 'http://web.yystatic.com/project/workflow_demo/pc/assets/rev-manifest.json',
+            revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/rev-manifest.json',
             hostname: 'http://web.yystatic.com/',
             git: {
                 update: [
@@ -104,14 +104,7 @@ var
                     update: [
                         '{$dev}'
                     ],
-                    copy: {
-                        '{$root}/js': ['{$dev}/dist/js'],
-                        '{$root}/css': ['{$dev}/dist/css'],
-                        '{$root}/html': ['{$dev}/dist/html'],
-                        '{$root}/images': ['{$dev}/dist/images'],
-                        '{$root}/assets': ['{$dev}/dist/assets'],
-                        '{$srcRoot}': ['{$dev}/src']
-                    },
+                    copy: {},
                     commit: [
                         '{$dev}/dist/js',
                         '{$dev}/dist/css',
