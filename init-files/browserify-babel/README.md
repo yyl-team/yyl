@@ -1,4 +1,4 @@
-# gulp-requirejs workflow
+# browserify-babel workflow
 
 ## 命令说明
 ```
