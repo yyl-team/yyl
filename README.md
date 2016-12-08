@@ -86,6 +86,7 @@ Commands:
 
     clear            清空本地服务文件夹
 
+    start            在当前文件夹建立本地服务器
 
 Options:
     -h, --help    帮助信息
