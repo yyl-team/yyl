@@ -1,0 +1,35 @@
+$cssjsdate: 20151223!default;
+
+@mixin imgBg($url){
+    background-image: $url + '?' + $cssjsdate;
+}
+
+@mixin png24($url){
+    background-image: url($url + '?' + $cssjsdate);
+    *background-image: none;
+    *filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='#{$url + '?' + $cssjsdate}', sizingMethod='scale');
+}
+
+@mixin attr2all($cssAttr, $val...){
+    -webkit-#{$cssAttr}: $val;
+       -moz-#{$cssAttr}: $val;
+        -ms-#{$cssAttr}: $val;
+         -o-#{$cssAttr}: $val;
+            #{$cssAttr}: $val;
+}
+@mixin opacity($alpha){
+    opacity: $alpha;
+    filter: #{'alpha(opacity='+ ($alpha * 100) +')'};
+}
+
+@mixin clearfix {
+    zoom: 1;
+    &:after {
+        content: '';
+        display: block;
+        height: 0;
+        overflow: hidden;
+        clear: both;
+
+    }
+}

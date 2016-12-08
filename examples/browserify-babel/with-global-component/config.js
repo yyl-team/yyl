@@ -1,7 +1,7 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../public/global',
+    commonPath = '../../../../public/global',
     projectName = 'single-project',
     //- yyl init 自动 匹配内容
     path = require('path'),
@@ -32,13 +32,12 @@ var
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
-
             // svn dev 分支地址
-            dev: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+            dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
             // svn commit 分支地址
-            commit: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
+            commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
             // svn trunk 分支地址
-            trunk: path.join('../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
+            trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
 
 
             // 公用组件地址

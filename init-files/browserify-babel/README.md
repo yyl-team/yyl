@@ -12,7 +12,6 @@ Commands:
     css       单独打包 html 部分代码
     js        单独打包 js 部分代码
     images    单独打包 images 部分代码
-    connect   生成本地服务器
 
 Options:
     --name <name>    用于存在个多项目的工程，
@@ -140,6 +139,6 @@ components
 
 ### 更新记录
 
-#### 1.0.0 - 2016.12.01
+#### 1.0.0 - 2016.12.08
 * [ADD] 诞生
 

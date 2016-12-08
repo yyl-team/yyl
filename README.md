@@ -101,7 +101,7 @@ Options:
 ## workflow 说明
 
 ### gulp-requirejs
-适用于 PC 端开发
+requirejs 技术架构, 适用于 PC 端开发
 
 #### 说明文档
 * [说明文档](./init-files/gulp-requirejs/README.md)
@@ -112,6 +112,18 @@ Options:
 * [一个项目集成多个子工程例子](./examples/gulp-requirejs/multi-project)
 * [非 components 模式开发例子](./examples/gulp-requirejs/no-components)
 
+### browserify-babel
+es6 + browserify 技术架构, 适用于 PC 端开发
+
+#### 说明文档
+* [说明文档](./init-files/browserify-babel/README.md)
+
+#### 例子
+* [hello world](./examples/browserify-babel/single-project)
+* [引入公用库资源](./examples/browserify-babel/with-global-component)
+* [一个项目集成多个子工程例子](./examples/browserify-babel/multi-project)
+* [非 components 模式开发例子](./examples/browserify-babel/no-components)
+
 ### vue-webpack
 适用于 移动端开发
 
@@ -119,27 +131,9 @@ Options:
 TODO
 
 ## 版本信息
-```
-                  :                  
-    ``        :++o+-      ```        
-  :ooooooo++ooooooooo+sooooooo       
-  oooooooooooooooooooooooooooo       
-  oooooooooooooooooooooooooooo       
-   ooooo+:`-/oooooos:``/ooooos       
-   /oo+       -oos`      `ooo        
-   oo/                     oo/       
-  /oo                       oo       
-  -oo          --`         -oo       
-   +oo+-``-/oooooooos/-``-+oo`       
-    /ooooooooooooooooooooooo         
-       `soooooooooooooooooo` /+s+/-  
-       soooooooooooooooooooooooooooo 
-      ooooooooooooooooooooooooooooooo
-     oooooooooooooooooooooooooooooooo
-     -:/ooooooooooooooooooooooooooooo
-        oooooooooooooooooooooooooooo 
-        +ooooooooooooooooo/```-::`   
-         `sooossssoooo+:             
 
-              1.0.0
-```
+### 1.1.0
+* [ADD] 新增 browserify-babel pc用 es6 工作流
+
+### 1.0.0
+* [ADD] 诞生
