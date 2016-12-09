@@ -7,7 +7,7 @@ var
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置
-            root: './dist', // 服务器输出地址
+            root: path.join(__dirname, './dist'), // 服务器输出地址
             port: 5000 // 服务器 port
         },
         dest: {
@@ -59,10 +59,10 @@ var
             destRoot: setting.localserver.root,
 
             // src 地址
-            srcRoot: './src',
+            srcRoot: path.join(__dirname, './src'),
             
             // 项目根目录
-            dirname: './',
+            dirname: __dirname,
 
             // js 输出地址
             jsDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),

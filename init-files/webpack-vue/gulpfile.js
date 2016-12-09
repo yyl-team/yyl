@@ -97,7 +97,7 @@ gulp.task('rev', function(done){
             if(/(\.css|\.css\.map)$/.test(src)){
                 return util.joinFormat(path.relative( 
                     path.join(__dirname, config.alias.revRoot), 
-                    path.join(__dirname, config.path.jsDest, '../css', src)
+                    path.join(__dirname, config.alias.jsDest, '../css', src)
                 ));
 
             } else {
