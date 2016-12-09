@@ -290,6 +290,9 @@ var
             })(config);
 
             var fileStr = 'module.exports=' + JSON.stringify(config, null, 4);
+
+            util.mkdirSync(workFlowPath);
+
             fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
 
             if(name){
@@ -344,7 +347,7 @@ var
 
         },
         // 服务器目录初始化
-        init: function(workflowName, done, nocmd){
+        init: function(workflowName, done){
 
             util.msg.info('init server', workflowName, 'start');
             var workflows = [];
@@ -418,6 +421,28 @@ var
                     });
 
                 }).then(function(next){ // npm install 
+                    var nocmd = true,
+                        modulePath = path.join(workflowPath, 'node_modules');
+
+                    if(!fs.existsSync(modulePath)){
+                        nocmd = false;
+                    } else {
+                        var 
+                            dirs = fs.readdirSync(modulePath),
+                            pkg = util.requireJs(path.join(workflowPath, 'package.json')),
+                            devs = pkg.devDependencies;
+
+                        for(var key in devs){
+                            if(devs.hasOwnProperty(key)){
+                                if(!~dirs.indexOf(key)){
+                                    nocmd = false;
+                                    break;
+                                }
+
+                            }
+                        }
+
+                    }
 
                     if(nocmd){
                         next();

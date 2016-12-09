@@ -10,10 +10,8 @@
     "colors": "^1.1.2",
     "event-stream": "^3.3.3",
     "run-sequence": "^1.2.2",
-    "node.extend": "^1.1.5",
     "gulp": "^3.9.1",
-    "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1"
+    "webpack": "^1.13.1"
   },
   "devDependencies": {
     "babel-core": "^6.10.4",
@@ -26,7 +24,6 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
     "gulp-clean": "^0.3.2",
-    "gulp-connect": "^4.1.0",
     "gulp-util": "^3.0.7",
     "html-webpack-plugin": "^2.22.0",
     "imports-loader": "^0.6.5",
