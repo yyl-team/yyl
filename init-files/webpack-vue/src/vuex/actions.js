@@ -1,13 +1,4 @@
 'use strict';
-var
-    util = require('util'),
-    debugtoolVuex = require('debugtoolVuex'),
-    statVuex = require('statVuex');
+module.exports = {
 
-var actions = util.extend({}, debugtoolVuex.actions, statVuex.actions);
-
-actions = util.extend(actions, {
-
-});
-
-module.exports = actions;
+};

@@ -9,11 +9,9 @@ module.exports = Vue.extend({
     },
     template: require('./p-index.jade')(),
     components: {
-        debugtool: require('debugtool')
+        // vDemo: require('../../widget/v-demo/v-demo.js')
     },
     ready: function(){
-        this.trace('info', 'hello world');
-
     }
 });
 

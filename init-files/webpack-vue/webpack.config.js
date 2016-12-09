@@ -103,17 +103,7 @@ module.exports = {
             'actions': path.join(__dirname, './src/vuex/actions.js'),
             'getters': path.join(__dirname, './src/vuex/getters.js'),
 
-            // global lib
-            'zeptolib': path.join(__dirname, config.path.commons, 'mobile/lib/zepto/yymzepto.js'),
-            'zepto': path.join(__dirname, config.path.commons, 'mobile/lib/zepto/zepto-define.js'),
-            'flexlayout': path.join(__dirname, config.path.commons, 'mobile/lib/flexLayout/flexLayout-1.2.0.js'),
-            'util': path.join(__dirname, config.path.commons, 'mobile/lib/util/1.1.0/yymUtil.js'),
-            'yyBridge': path.join(__dirname, config.path.commons, 'mobile/lib/yyBridge/WAJavascriptBridge.js'),
-            
-
-            //global components
-            'debugtoolVuex': path.join(__dirname, config.path.commons, 'mobile/vueComponents/w-devtool/1.0.0/vuex.js'),
-            'debugtool': path.join(__dirname, config.path.commons, 'mobile/vueComponents/w-devtool/1.0.0/w-devtool.js')
+            'flexlayout': path.join(__dirname, '../../../public/global/lib/flexLayout/flexLayout-1.4.0.js')
         }
     },
     devtool: 'source-map',
