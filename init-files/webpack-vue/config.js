@@ -1,52 +1,130 @@
 'use strict';
 var 
+    //+ yyl init 自动 匹配内容
+    commonPath = /*+commonPath*/'../../../public/global'/*-commonPath*/,
+    projectName = /*+name*/'single-project'/*-name*/,
+    //- yyl init 自动 匹配内容
     path = require('path'),
     setting = {
-        localserver: {
-            root: './dist',
-            path: '/mobileYY/mobile_yy_rp',
-            commons: '../commons',
-	    revRoot: './dist'
+        localserver: { // 本地服务器配置
+            root: './dist', // 服务器输出地址
+            port: 5000 // 服务器 port
         },
-        remote: {
-            hostname: 'http://s1.yy.com/website_static/',
-        }
+        dest: {
+            basePath: '/project/'+ projectName +'/mobile',
+            jsPath: 'js',
+            jslibPath: 'js/lib',
+            cssPath: 'css',
+            htmlPath: 'html',
+            imagesPath: 'images',
+            revPath: 'assets'
+        },
+        // 提交之前回调函数
+        beforeCommit: function(){}
 
-    },
+    };
+
+var
     config = {
+        workflow: 'webpack-vue',
+        name: projectName,
+        dest: setting.dest,
+        // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
-        remote: setting.remote,
-        alias: {
-            trunk: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk', setting.localserver.path),
-            release: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release', setting.localserver.path),
-            root: path.join(setting.localserver.root, setting.localserver.path),
-            commons: setting.localserver.commons,
+        alias: { // yyl server 路径替换地方
 
+            // svn dev 分支地址
+            dev: path.join('./'),
+            // svn commit 分支地址
+            commit: path.join('../../commit/mobile'),
+            // svn trunk 分支地址
+            trunk: path.join('../../trunk/mobile'),
+
+
+            // 公用组件地址
+            commons: commonPath,
+
+            // 公用 components 目录
+            globalcomponents: path.join(commonPath, '../plugin/mobile'),
+            globallib: path.join(commonPath, 'lib'),
+
+
+            // 输出目录中 到 html, js, css, image 层 的路径
+            root: path.join(setting.localserver.root, setting.dest.basePath),
+
+            // rev 输出内容的相对地址
+            revRoot: path.join(setting.localserver.root, setting.dest.basePath),
+
+            // dest 地址
+            destRoot: setting.localserver.root,
+
+            // src 地址
+            srcRoot: './src',
+            
+            // 项目根目录
+            dirname: './',
+
+            // js 输出地址
+            jsDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),
+            // js lib 输出地址
+            jslibDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jslibPath),
+            // html 输出地址
+            htmlDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.htmlPath),
+            // css 输出地址
+            cssDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.cssPath),
+            // images 输出地址
+            imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
+            // assets 输出地址
+            revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath)
         },
-        path: {
-            commons: setting.localserver.commons,
-            root: path.join(setting.localserver.root, setting.localserver.path),
-            dest: path.join(setting.localserver.root, setting.localserver.path),
-            rev: path.join(setting.localserver.root, setting.localserver.path, 'assets/rev-manifest.json'),
-            jsDest: path.join(setting.localserver.root, setting.localserver.path, 'js')
+        // -此部分 yyl server 端config 会进行替换
+
+        // + 此部分 不要用相对路径
+        // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
+        concat: {
+            // '{$srcRoot}/js/vendors.js': [
+            //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
+            // ],
+            // '{$jsDest}/vendors.js': [
+            //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
+            // ]
         },
+
         commit: {
-            trunk: {
-                revAddr: 'http://s1.yy.com/website_static/mobileYY/mobile_yy_rp/assets/rev-manifest.json',
-                // versionFile: '{$trunk}/WEB-INF/views/h5/play_modules.jsp',
-                git: {
+             // 上线配置
+            revAddr: 'http://web.yystatic.com/project/'+ projectName +'/mobile/assets/rev-manifest.json',
+            hostname: 'http://web.yystatic.com/',
+            git: {
+                update: [
+                    '{$commons}'
+                ]
+            },
+            svn: {
+                dev: {
                     update: [
-                        '{$commons}'
+                        '{$dev}'
+                    ],
+                    copy: {},
+                    commit: [
+                        '{$dev}/dist/js',
+                        '{$dev}/dist/css',
+                        '{$dev}/dist/html',
+                        '{$dev}/dist/images',
+                        '{$dev}/dist/assets',
+                        '{$dev}/src'
                     ]
+
                 },
-                svn: {
+                trunk: {
                     update: [
                         '{$trunk}'
                     ],
                     copy: {
-                        '{$root}': [
-                            '{$trunk}'
-                        ]
+                        '{$root}/js': ['{$trunk}/js'],
+                        '{$root}/css': ['{$trunk}/css'],
+                        '{$root}/html': ['{$trunk}/html'],
+                        '{$root}/images': ['{$trunk}/images'],
+                        '{$root}/assets': ['{$trunk}/assets']
                     },
                     commit: [
                         '{$trunk}/js',
@@ -56,34 +134,10 @@ var
                         '{$trunk}/assets'
                     ]
                 }
-            },
-            release: {
-                revAddr: 'http://s1.yy.com/website_static/mobileYY/mobile_yy_rp/assets/rev-manifest.json',
-                // versionFile: '{$release}/WEB-INF/views/h5/play_modules.jsp',
-                git: {
-                    update: [
-                        '{$commons}'
-                    ]
-                },
-                svn: {
-                    update: [
-                        '{$release}'
-                    ],
-                    copy: {
-                        '{$root}': [
-                            '{$release}'
-                        ]
-                    },
-                    commit: [
-                        '{$release}/js',
-                        '{$release}/css',
-                        '{$release}/html',
-                        '{$release}/images',
-                        '{$release}/assets'
-                    ]
-                }
+
             }
         }
+        // - 此部分 不要用相对路径
     };
 
 module.exports = config;

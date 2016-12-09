@@ -3,66 +3,33 @@ var path = require('path'),
     ExtractTextPlugin = require("extract-text-webpack-plugin"),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     ManifestPlugin = require('webpack-manifest-plugin'),
-    extend = require('node.extend'),
+    util = require('../../lib/yyl-util.js'),
     fs = require('fs'),
     config = require('./config.js');
 
 
 if(fs.existsSync('./config.mine.js')){
-    config = extend(config, require('./config.mine.js'));
+    config = util.extend(true, config, require('./config.mine.js'));
 }
 
-path.joinFormat = function(){
-    var iArgv = Array.prototype.slice.call(arguments);
-    var r = path.join.apply(path, iArgv);
-    return r
-        .replace(/\\+/g, '/')
-        .replace(/(^http[s]?:)[\/]+/g, '$1//');
-};
 
 
 module.exports = {
-    
-    devServer:{
-        host: '127.0.0.1',
-        progress: true,
-        colors: true,
-        contentBase: config.localserver.root,
-        port: 5000,
-        // hot: true,
-        // inline: true
-
-    },
     entry: {
         'flexLayout': ['flexlayout'],
-        'boot': './src/boot/boot.js',
-        'vendors': ['flexlayout','zeptolib','yyBridge'],
+        'boot': path.join(config.alias.srcRoot, 'boot/boot.js'),
     },
     output: {
-        path: path.join(__dirname, config.path.jsDest),
-        publicPath: path.joinFormat(
-            config.localserver.path, 
+        path: config.alias.jsDest,
+        filename: '[name]-[chunkhash:8].js',
+        publicPath: util.joinFormat(
+            config.dest.basePath, 
             path.relative(
-                path.join(
-                    config.localserver.root, 
-                    config.localserver.path
-                ), 
-                config.path.jsDest
+                config.alias.root,
+                config.alias.jsDest
             ), 
             '/'
         ),
-        // publicPath: path.joinFormat(
-        //     config.remote.hostname, 
-        //     path.relative( 
-        //         path.join(
-        //             config.localserver.root, 
-        //             config.localserver.path
-        //         ), 
-        //         config.path.jsDest
-        //     ), 
-        //     '/'
-        // ),
-        filename: '[name]-[chunkhash:8].js'
     },
     module: {
         loaders: [{
@@ -81,46 +48,44 @@ module.exports = {
             loaders: ['jade-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
-            loader: 'url?limit=10000&name=../images/[name]-[hash:8].[ext]'
+            loader: 'url?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))
         }, {
             // shiming the module
-            test: path.join(__dirname, 'src/js/lib/'),
+            test: path.join(config.alias.srcRoot, 'js/lib/'),
             loader: 'imports?this=>window'
         }, {
             // shiming the global module
-            test: path.join(__dirname, config.path.commons, 'mobile/lib/'),
+            test: path.join(config.alias.commons, 'lib'),
             loader: 'imports?this=>window'
         }]
 
     },
     resolveLoader: { 
-        fallback: path.join(__dirname, "node_modules") 
+        fallback: path.join( config.alias.dirname, "node_modules") 
     },
     resolve: {
-        fallback: path.join(__dirname, "node_modules"),
+        fallback: path.join( config.alias.dirname, "node_modules"),
         root: './',
         alias: {
-            'actions': path.join(__dirname, './src/vuex/actions.js'),
-            'getters': path.join(__dirname, './src/vuex/getters.js'),
-
-            'flexlayout': path.join(__dirname, '../../../public/global/lib/flexLayout/flexLayout-1.4.0.js')
+            'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
+            'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
+            'flexlayout': path.join(config.alias.srcRoot, 'js/lib/flexLayout/flexLayout-1.4.0.js')
         }
     },
-    devtool: 'source-map',
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin("../css/boot-[chunkhash:8].css"),
-        
+        new ExtractTextPlugin(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css"))),
+
         // html输出插件
         new HtmlWebpackPlugin({
-            template: path.join(__dirname, 'src/boot/boot.jade'),
-            filename: '../html/boot.html',
+            template: path.join( config.alias.srcRoot, 'boot/boot.jade'),
+            filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, 'boot.html')),
             minify: false
         }),
+
         new ManifestPlugin({
-            fileName: '../assets/rev-manifest.json',
+            fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
             basePath: ''
-        
         })
     ]
 

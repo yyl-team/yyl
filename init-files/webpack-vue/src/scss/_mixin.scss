@@ -10,6 +10,48 @@ $cssjsdate: 201511061220!default;
     @return $val / $psdWidth * 10 * 1rem;
 }
 
+@function multiStr($str, $n){
+    @if type-of($str) == 'number' {
+        @return $str * $n;
+    }
+
+    @if type-of($str) == 'list' {
+        $newList: ();
+        @each $item in $str {
+            $newList: append($newList, multiStr($item, $n));
+        }
+        @return $newList;
+    }
+
+    @return $str;
+}
+
+@mixin dpr ($key, $val) {
+    [data-dpr="4"] & {
+        #{$key}: multiStr($val, 4 / 2);
+    }
+    [data-dpr="3.5"] & {
+        #{$key}: multiStr($val, 3.5 / 2);
+    }
+    [data-dpr="3"] & {
+        #{$key}: multiStr($val, 3 / 2);
+    }
+    [data-dpr="2.75"] & {
+        #{$key}: multiStr($val, 2.75 / 2);
+    }
+    [data-dpr="2.5"] & {
+        #{$key}: multiStr($val, 2.5 / 2);
+    }
+    [data-dpr="2"] & {
+        #{$key}: multiStr($val, 2 / 2);
+    }
+    [data-dpr="1"] & {
+        #{$key}: multiStr($val, 1 / 2);
+    }
+
+    #{$key}: multiStr($val, 1 / 2);
+}
+
 @mixin attr2all($cssAttr, $val...){
     -webkit-#{$cssAttr}: $val;
             #{$cssAttr}: $val;
@@ -98,11 +140,3 @@ $mqViewports: 320px 360px 375px 414px 480px;
     text-overflow: ellipsis;
     overflow : hidden;
 }
-
-
-
-/* page
- * ----------------------------------------*/
-
-
-

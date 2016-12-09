@@ -9,7 +9,7 @@ module.exports = Vue.extend({
     },
     template: require('./p-index.jade')(),
     components: {
-        // vDemo: require('../../widget/v-demo/v-demo.js')
+        vDemo: require('../../widget/v-demo/v-demo.js')
     },
     ready: function(){
     }
