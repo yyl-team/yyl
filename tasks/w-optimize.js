@@ -23,6 +23,7 @@ var
                 next(config);
 
             });
+
         }).then(function(config, next){ // server init
             util.msg.info('server init start');
             

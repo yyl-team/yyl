@@ -398,9 +398,13 @@ var
 
                     switch(workflowName){
                         case 'gulp-requirejs':
-                        case 'webpack-vue':
                         case 'browserify-babel':
                             files = ['package.json', 'gulpfile.js'];
+                            break;
+
+
+                        case 'webpack-vue':
+                            files = ['package.json', 'gulpfile.js', 'webpack.config.js'];
                             break;
 
                         default:

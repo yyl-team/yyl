@@ -66,11 +66,13 @@ module.exports = {
     resolve: {
         fallback: path.join( config.alias.dirname, "node_modules"),
         root: './',
-        alias: {
+        alias: util.extend({
             'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
             'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
             'flexlayout': path.join(config.alias.srcRoot, 'js/lib/flexLayout/flexLayout-1.4.0.js')
-        }
+
+        }, config.alias)
+
     },
     plugins: [
         // 样式分离插件
