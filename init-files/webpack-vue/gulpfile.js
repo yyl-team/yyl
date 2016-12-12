@@ -213,4 +213,5 @@ gulp.task('watch', ['all'], function(){
     gulp.watch(['./src/**/*.*'], function(){
         runSequence('all','connect-reload');
     });
+    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
 });

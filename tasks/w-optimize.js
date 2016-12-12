@@ -45,7 +45,7 @@ var
             var handle;
 
             if(/watch/.test(iArgv[0])){
-                wServer.start(config.localserver.root, config.localserver.port);
+                wServer.start(config.localserver.root, config.localserver.port, true);
             }
 
 

@@ -313,7 +313,7 @@ var
                         util.buildTree({
                             frontPath: path.join(data.name, isFullPath? 'pc': ''),
                             path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
-                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules/,
+                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js/,
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
                             
                         });
@@ -322,6 +322,7 @@ var
                         util.buildTree({
                             frontPath: path.join(data.name, isFullPath? 'mobile': ''),
                             path: path.join(vars.BASE_PATH, 'init-files', data.mobileWorkflow),
+                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js/,
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
                         });
                     }

@@ -17,7 +17,7 @@ if(fs.existsSync('./config.mine.js')){
 module.exports = {
     entry: {
         'flexLayout': ['flexlayout'],
-        'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
+        'boot': path.join(config.alias.srcRoot, 'boot/boot.js'),
     },
     output: {
         path: config.alias.jsDest,
@@ -61,14 +61,15 @@ module.exports = {
 
     },
     resolveLoader: { 
-        fallback: path.join( __dirname, "node_modules") 
+        fallback: path.join( config.alias.dirname, "node_modules") 
     },
     resolve: {
-        fallback: path.join( __dirname, "node_modules"),
+        fallback: path.join( config.alias.dirname, "node_modules"),
         root: './',
         alias: util.extend({
             'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
-            'getters': path.join(config.alias.srcRoot, 'vuex/getters.js')
+            'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
+            'flexlayout': path.join(config.alias.srcRoot, 'js/lib/flexLayout/flexLayout-1.4.0.js')
 
         }, config.alias)
 
