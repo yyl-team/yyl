@@ -304,7 +304,7 @@ var
 
         },
         // 服务器启动
-        start: function(iPath, port){
+        start: function(iPath, port, slient){
             if(!iPath || !fs.existsSync(iPath)){
                 iPath = vars.PROJECT_PATH;
             }
@@ -330,9 +330,9 @@ var
                         return util.msg.error(err);
                     }
                     tinylr().listen(lrPort);
-                    setTimeout(function(){
+                    if(!slient){
                         util.openBrowser(serverAddress);
-                    }, 3000);
+                    }
 
                 });
             server.on('error', function(err){
