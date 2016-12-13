@@ -125,7 +125,7 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [一个项目集成多个子工程例子](./examples/browserify-babel/multi-project)
 * [非 components 模式开发例子](./examples/browserify-babel/no-components)
 
-### vue-webpack
+### webpack-vue
 适用于 移动端开发
 
 #### 说明文档
