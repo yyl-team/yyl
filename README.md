@@ -129,9 +129,17 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 适用于 移动端开发
 
 #### 说明文档
-TODO
+* [说明文档](./init-files/webpack-vue/README.md)
+
+#### 例子
+* [hello world](./examples/webpack-vue/single-project)
+* [引入公用库资源](./examples/webpack-vue/with-global-component)
+* [es6 模式开发例子](./examples/webpack-vue/es6)
 
 ## 版本信息
+
+### 1.1.0
+* [ADD] 新增 webpack-vue mobile 用 工作流
 
 ### 1.1.0
 * [ADD] 新增 browserify-babel pc用 es6 工作流

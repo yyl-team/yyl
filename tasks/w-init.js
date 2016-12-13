@@ -395,7 +395,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist/g,
+                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );

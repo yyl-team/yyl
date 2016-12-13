@@ -677,6 +677,8 @@ gulp.task('watch', ['all'], function() {
     });
 
     runSequence('connect-reload');
+
+    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
 });
 // - watch task
 
@@ -965,6 +967,7 @@ gulp.task('all', function(done){
         util.msg.info('clear dist file done');
         runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', done);
     });
+
 });
 
 gulp.task('all-done', function(){

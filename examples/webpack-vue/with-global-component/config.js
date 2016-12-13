@@ -80,7 +80,11 @@ var
 
 
             // webpackconfig 中的 alias
-            flexlayout: path.join( __dirname, 'src/js/lib/flexLayout/flexLayout-1.4.0.js')
+            flexlayout: path.join(path.join(commonPath, 'lib'), 'flexLayout/flexLayout-1.4.0.js'),
+            util: path.join(path.join(commonPath, 'lib'), 'yymUtil/1.1.0/yymUtil.js'),
+
+            debugtool: path.join(path.join(commonPath, '../plugin'), 'mobile/v-devtool/1.0.0/v-devtool.js'),
+            debugtoolVuex: path.join(path.join(commonPath, '../plugin'), 'mobile/v-devtool/1.0.0/vuex.js')
         },
         // -此部分 yyl server 端config 会进行替换
 

@@ -675,6 +675,8 @@ gulp.task('watch', ['all'], function() {
     });
 
     runSequence('connect-reload');
+
+    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
 });
 // - watch task
 

@@ -35,7 +35,10 @@ module.exports = {
         loaders: [{
             test: /\.js$/,
             exclude: '/node_modules/',
-            loader: 'babel-loader'
+            loader: 'babel-loader',
+            query: {
+                presets: ['babel-preset-es2015'].map(require.resolve)
+            }
 
         }, {
             test: /\.vue$/,
@@ -75,7 +78,7 @@ module.exports = {
     },
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css"))),
+        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css")))),
 
         // html输出插件
         new HtmlWebpackPlugin({

@@ -3,7 +3,6 @@ var
     gulp = require('gulp'),
     gutil = require('gulp-util'),
     clean = require('gulp-clean'),
-    // webpack = require('gulp-webpack'),
     webpack = require('webpack'),
     runSequence = require('run-sequence'),
     fs = require('fs'),
@@ -71,7 +70,7 @@ gulp.task('webpack', function(done){
 
     if(gulp.env.ver == 'remote' || gulp.env.isCommit){
         iWebpackConfig.output.publicPath = util.joinFormat(config.commit.hostname, iWebpackConfig.output.publicPath);
-        console.log('[change] change webpack publicPath', '=>', iWebpackConfig.output.publicPath);
+        util.msg.info('change webpack publicPath =>', iWebpackConfig.output.publicPath);
     }
 
     webpack(iWebpackConfig, function(err, stats){
@@ -139,7 +138,7 @@ gulp.task('rev', function(done){
                             path.join(config.alias.revRoot, src), 
                             fs.readFileSync(fPath)
                         );
-                        console.log('[create] file:'.green, src);
+                        util.msg.create('file:', src);
                     }
                     
                 }
@@ -153,19 +152,18 @@ gulp.task('rev', function(done){
                 var 
                     iConfig = fn.configInit();
 
-                console.log('start get the revFile', iConfig.commit.revAddr.green);
+                util.msg.info('start get the revFile', iConfig.commit.revAddr.green);
 
                 util.get(iConfig.commit.revAddr + '?' + (+new Date()), function(data){
-                    console.log('================'.green);
-                    console.log(data.toString());
-                    console.log('================'.green);
+                    util.msg.success('get remote rev success');
+                    util.msg.info('rev data =>', data.toString());
                     try{
                         var 
                             remoteRevData = JSON.parse(data.toString()),
                             fPath = '';
 
                         outRev = util.extend({}, revData, remoteRevData);
-                        console.log('rev get!'.green);
+                        util.msg.success('rev get!');
 
                         for(var src in revData){
                             if(revData.hasOwnProperty(src)){
@@ -176,7 +174,7 @@ gulp.task('rev', function(done){
                                             path.join(__dirname, config.localserver.revRoot, outRev[src]), 
                                             fs.readFileSync(fPath)
                                         );
-                                        console.log('[create] file:'.green, revData[src]);
+                                        util.msg.create('file', revData[src]);
                                     }
                                     
                                 }
@@ -184,7 +182,7 @@ gulp.task('rev', function(done){
                         }
 
                     } catch(er){
-                        console.log('rev get fail'.red, er);
+                        util.msg.error('rev get fail', er);
                     }
                     next(outRev);
                 });
@@ -194,8 +192,8 @@ gulp.task('rev', function(done){
             }
         }).then(function(outRev){ // 写入原有文件
             fs.writeFileSync( path.join(config.alias.revDest, 'rev-manifest.json'), JSON.stringify(outRev, null, 4));
-            console.log('[UPD] update the rev file'.green, util.joinFormat(config.alias.revDest, 'rev-manifest.json'));
-            console.log(outRev);
+            util.msg.info('update the rev file', util.joinFormat(config.alias.revDest, 'rev-manifest.json'));
+            util.msg.info('=>', JSON.stringify(outRev, null, 4));
 
             done();
 
@@ -205,12 +203,18 @@ gulp.task('rev', function(done){
 
 
 gulp.task('all', function(done){
-    runSequence('webpack', 'rev', done);
+    runSequence('clean', 'webpack', 'rev', done);
+});
+
+gulp.task('clean', function(){
+    return gulp.src( util.joinFormat( config.alias.destRoot, '**/*.*'))
+            .pipe(clean({force: true}));
+
 });
 
 gulp.task('watch', ['all'], function(){
     
-    gulp.watch(['./src/**/*.*'], function(){
+    gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
         runSequence('all','connect-reload');
     });
     util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
