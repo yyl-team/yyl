@@ -1,42 +1,42 @@
 'use strict';
-// requires
-require('./v-demo.scss');
+import './v-demo.scss';
+import Vue from 'vue';
+import actions from 'actions';
+import getters from 'getters';
+import tpl from './v-demo.jade';
 
 // init
 var 
-    Vue = require('vue'),
-    actions = require('actions'),
-    getters = require('getters'),
     cache = {
 
     };
 
 module.exports = Vue.extend({
-    template: require('./v-demo.jade')(),
+    template: tpl(),
     vuex: {
-        actions: actions,
-        getters: getters
+        actions,
+        getters
     },
 
-    data: function(){
+    data(){
         return {
             rotate: 0
         };
     },
-    ready: function(){
+    ready(){
         var vm = this;
 
-        var i;
-        var iClass = [0, 1, 2, 3];
+        let i;
+        let iClass = [0, 1, 2, 3];
 
         cache.changeKey = setInterval(function(){
-            var here = iClass.concat([]);
+            let here = iClass.concat([]);
             here.splice(here.indexOf(i), 1);
 
             vm.$data.rotate = here[Math.round(Math.random() * (here.length - 1))];
         }, 2000);
     },
-    beforeDestroy: function(){
+    beforeDestroy(){
         clearInterval(cache.changeKey);
     }
 });
