@@ -215,7 +215,7 @@ gulp.task('clean', function(){
 gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('all','connect-reload');
+        runSequence('webpack', 'rev', 'connect-reload');
     });
     util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
 });
