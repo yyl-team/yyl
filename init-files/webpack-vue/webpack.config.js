@@ -15,10 +15,27 @@ if(fs.existsSync('./config.mine.js')){
 
 
 module.exports = {
-    entry: {
-        'flexLayout': ['flexlayout'],
-        'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
-    },
+    entry: (function(){ // 未完成
+        var 
+            r = {
+                'flexLayout': ['flexlayout'],
+                'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
+            };
+
+        var rtPath = path.join(config.alias.srcRoot, 'js/entry');
+        if(fs.existsSync(rtPath)){
+            var fileList = util.readFilesSync(rtPath);
+            fileList.forEach(function(str){
+                var key = path.basename(str).replace(/\.[^.]+$/, '');
+                if(key){
+                    r[key] = str;
+                }
+            });
+        }
+        console.log(r);
+        return r;
+
+    })(),
     output: {
         path: config.alias.jsDest,
         filename: '[name]-[chunkhash:8].js',
