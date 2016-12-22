@@ -1,10 +1,9 @@
 'use strict';
-require('./boot.scss');
+require('./sub.scss');
 var 
     Vue = require('vue'),
     VueRouter = require('vue-router'),
-    util = require('util'),
-    store = require('../vuex/store.js');
+    store = require('../../vuex/store.js');
 
 Vue.use(VueRouter);
 
@@ -21,7 +20,7 @@ var
 
 router.map({
     '/index': {
-        component: require('../components/page/p-index/p-index.js')
+        component: require('../../components/page/p-index/p-index.js')
     }
 });
 

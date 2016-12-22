@@ -13,18 +13,27 @@ if(fs.existsSync('./config.mine.js')){
 }
 
 
-
-module.exports = {
+var webpackconfig = {
     entry: (function(){ // 未完成
+
+        var iSrcRoot = path.isAbsolute(config.alias.srcRoot)? config.alias.srcRoot: path.join(__dirname, config.alias.srcRoot);
         var 
             r = {
-                'flexLayout': ['flexlayout'],
-                'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
+                'flexLayout': ['flexlayout']
+                // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
             };
 
-        var rtPath = path.join(config.alias.srcRoot, 'js/entry');
-        if(fs.existsSync(rtPath)){
-            var fileList = util.readFilesSync(rtPath);
+        // single entry
+        var bootPath = path.join(iSrcRoot, 'boot/boot.js');
+        if(fs.existsSync(bootPath)){
+            r.boot = bootPath;
+        }
+
+        // multi entry
+        var entryPath = path.join(iSrcRoot, 'entry');
+
+        if(fs.existsSync(entryPath)){
+            var fileList = util.readFilesSync(entryPath, /\.js$/);
             fileList.forEach(function(str){
                 var key = path.basename(str).replace(/\.[^.]+$/, '');
                 if(key){
@@ -32,7 +41,7 @@ module.exports = {
                 }
             });
         }
-        console.log(r);
+
         return r;
 
     })(),
@@ -97,17 +106,60 @@ module.exports = {
         // 样式分离插件
         new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css")))),
 
-        // html输出插件
-        new HtmlWebpackPlugin({
-            template: path.join( config.alias.srcRoot, 'boot/boot.jade'),
-            filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, 'boot.html')),
-            minify: false
-        }),
-
         new ManifestPlugin({
             fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
             basePath: ''
         })
     ]
-
 };
+
+webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
+    var 
+        bootPath = path.join(config.alias.srcRoot, 'boot/boot.jade'),
+        entryPath = path.join(config.alias.srcRoot, 'entry'),
+        outputPath = [],
+        r = [];
+
+    if(fs.existsSync(bootPath)){
+        outputPath.push(bootPath);
+    }
+
+    if(fs.existsSync(entryPath)){
+        outputPath = outputPath.concat(util.readFilesSync(entryPath, /\.jade$/));
+    }
+
+    var entrys = [];
+
+    for(var key in webpackconfig.entry){
+        if(webpackconfig.entry.hasOwnProperty(key)){
+            entrys.push(key);
+        }
+    }
+
+    outputPath.forEach(function(iPath){
+        var iBaseName = path.basename(iPath).replace(/\.jade$/, '');
+        var iExclude = [].concat(entrys);
+
+        for(var i = 0, len = iExclude.length; i < len;){
+            if(iExclude[i] == 'flexLayout' || iExclude[i] == iBaseName){
+                iExclude.splice(i, 1);
+            } else {
+                i++;
+            }
+        }
+
+
+        r.push(new HtmlWebpackPlugin({
+            template: iPath,
+            filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, iBaseName + '.html')),
+            excludeChunks: iExclude,
+            minify: false
+        }));
+    });
+
+
+    return r;
+
+})());
+
+module.exports = webpackconfig;

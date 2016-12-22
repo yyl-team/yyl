@@ -26,7 +26,7 @@ var
 
 var
     config = {
-        workflow: 'gulp-requirejs',
+        workflow: 'browserify-babel',
         name: projectName,
         dest: setting.dest,
         // +此部分 yyl server 端config 会进行替换

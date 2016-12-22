@@ -90,8 +90,13 @@ gulp.task('webpack', function(done){
 });
 
 gulp.task('rev', function(done){
+    runSequence('rev-standard', 'rev-update', done);
+});
 
-    var revPath = path.join(config.alias.revDest, 'rev-manifest.json'),
+gulp.task('rev-standard', function(done){
+
+    var 
+        revPath = path.join(config.alias.revDest, 'rev-manifest.json'),
         pathTrans = function(src){
             if(/(\.css|\.css\.map)$/.test(src)){
                 return util.joinFormat(path.relative( 
@@ -106,27 +111,44 @@ gulp.task('rev', function(done){
                 ));
 
             }
-            
-
         };
+
+    var revData = {};
+    var outRev = {};
+
+    if(fs.existsSync(revPath)){
+        revData = JSON.parse(fs.readFileSync(revPath));
+        // revData = require(revPath);
+    }
+
+    // 将连地址标准化
+    for(var src in revData){
+        if(revData.hasOwnProperty(src)){
+            outRev[pathTrans(src)] = pathTrans(revData[src]);
+        }
+    }
+
+    console.log(outRev);
+    fs.writeFileSync( path.join(config.alias.revDest, 'rev-manifest.json'), JSON.stringify(outRev, null, 4));
+    done();
+
+});
+
+
+
+gulp.task('rev-update', function(done){
+
+    var revPath = path.join(config.alias.revDest, 'rev-manifest.json');
 
         new util.Promise(function(next){
             var revData = {};
-            var outRev = {};
 
             if(fs.existsSync(revPath)){
                 revData = JSON.parse(fs.readFileSync(revPath));
-                // revData = require(revPath);
+
             }
 
-            // 将连地址标准化
-            for(var src in revData){
-                if(revData.hasOwnProperty(src)){
-                    outRev[pathTrans(src)] = pathTrans(revData[src]);
-                }
-            }
-
-            next(outRev);
+            next(revData);
         }).then(function(outRev, next){ // 生成原来的文件
             
             var fPath = '';
@@ -215,7 +237,7 @@ gulp.task('clean', function(){
 gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack', 'rev', 'connect-reload');
+        runSequence('webpack', 'rev-update', 'connect-reload');
     });
     util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
 });

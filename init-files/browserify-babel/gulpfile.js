@@ -588,6 +588,10 @@ gulp.task('js-task', function () {
         .pipe(babel({
             presets: ['babel-preset-es2015'].map(require.resolve)
         }))
+        .pipe(browserify({
+            insertGlobals : true,
+            debug: !gulp.env.isCommit
+        }))
         .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
 
