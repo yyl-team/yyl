@@ -135,6 +135,7 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue/single-project)
 * [引入公用库资源](./examples/webpack-vue/with-global-component)
 * [es6 模式开发例子](./examples/webpack-vue/es6)
+* [多入口例子](./examples/webpack-vue/multi-project)
 
 ## 版本信息
 
