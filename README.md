@@ -141,15 +141,22 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
-### 1.3.0
+### 1.4.0
+* [ADD] yyl init 命令 新增 可选 初始化 no-components, multi-project 等初始化 类型
+* [ADD] rev 生成映射表时 如只更新 images 图片， 其他相关 html, css 也会一同更新 hash
+
+
+
+### 1.3.0 (2016-12-22)
 * [ADD] 新增 webpack-vue mobile 可配置多个入口
 * [FIX] 修复 browserify-babel example 中 no-components 用例运行不了问题
 
-### 1.1.0
-* [ADD] 新增 webpack-vue mobile 用 工作流
+### 1.2.0 (2016-12-13)
+* [ADD] 新增 vue-webpack 移动端工作流
 
-### 1.1.0
+### 1.1.0 (2016-12-08)
+* [ADD] 新增 webpack-vue mobile 用 工作流
 * [ADD] 新增 browserify-babel pc用 es6 工作流
 
-### 1.0.0
+### 1.0.0 (2016-12-07)
 * [ADD] 诞生
