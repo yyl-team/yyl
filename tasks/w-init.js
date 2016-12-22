@@ -500,7 +500,7 @@ var
                             util.msg.info('copy readme to ', workflowName);
                             util.copyFiles(
                                 path.join(vars.BASE_PATH, 'init-files', workflowName),
-                                path.join(vars.PROJECT_PATH, dirPath, 'README.md'),
+                                path.join(vars.PROJECT_PATH, dirPath),
                                 function(err){
                                     if(err){
                                         return done('copy file error, init fail');
