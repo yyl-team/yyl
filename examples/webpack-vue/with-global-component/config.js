@@ -1,8 +1,8 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../../public/global',
-    projectName = 'workflow_demo',
+    commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
+    projectName = /*+name*/'workflow_demo'/*-name*/,
     //- yyl init 自动 匹配内容
     path = require('path'),
     setting = {
@@ -34,11 +34,11 @@ var
         alias: { // yyl server 路径替换地方
 
             // svn dev 分支地址
-            dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/mobile'),
+            dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/develop/mobile'),
             // svn commit 分支地址
-            commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/mobile'),
+            commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/commit/mobile'),
             // svn trunk 分支地址
-            trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/mobile'),
+            trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/trunk/mobile'),
 
 
             // 公用组件地址

@@ -4,6 +4,7 @@
 * 需要 node  `>= 4.0.0`
 * 需要 svn `命令行安装` (在 cmd/终端 操作 输入 `svn` 有东西)
 * 需要 git `命令行安装` (在 cmd/终端 操作 输入 `git` 有东西)
+* mac 用户 svn 提交需要注意 cmd svn 版本 和 软件 svn 版本是否一致
 
 ## 安装
 
@@ -144,7 +145,6 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 ### 1.4.0
 * [ADD] yyl init 命令 新增 可选 初始化 no-components, multi-project 等初始化 类型
 * [ADD] rev 生成映射表时 如只更新 images 图片， 其他相关 html, css 也会一同更新 hash
-
 
 
 ### 1.3.0 (2016-12-22)

@@ -681,7 +681,7 @@ gulp.task('watch', ['all'], function() {
     }
 
     var htmls = util.readFilesSync(vars.destRoot, /\.html$/),
-        addr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port;
+        addr = 'http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port;
 
     if(htmls.length){
         addr = util.joinFormat(addr, path.relative(vars.destRoot, htmls[0]));

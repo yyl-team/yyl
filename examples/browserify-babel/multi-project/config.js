@@ -1,8 +1,8 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = '../../../../public/global',
-    projectName = 'multi-project',
+    commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
+    projectName = /*+name*/'workflow_demo'/*-name*/,
     //- yyl init 自动 匹配内容
     path = require('path'),
     setting01 = {
@@ -11,7 +11,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/workflow_demo/pc',
+            basePath: '/project/'+ projectName +'/pc',
             jsPath: 'js/proj01',
             jslibPath: 'js/proj01/lib',
             cssPath: 'css/proj01',
@@ -29,7 +29,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/workflow_demo/pc',
+            basePath: '/project/'+ projectName +'/pc',
             jsPath: 'js/proj02',
             jslibPath: 'js/proj02/lib',
             cssPath: 'css/proj02',
@@ -52,11 +52,11 @@ var
             localserver: setting01.localserver,
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
-                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/develop/pc'),
                 // svn commit 分支地址
-                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
+                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/commit/pc'),
                 // svn trunk 分支地址
-                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
+                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/trunk/pc'),
 
 
                 // 公用组件地址
@@ -104,7 +104,7 @@ var
 
             commit: {
                  // 上线配置
-                revAddr: 'http://web.yystatic.com/project/workflow_demo/pc/assets/proj01/rev-manifest.json',
+                revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/proj01/rev-manifest.json',
                 hostname: 'http://web.yystatic.com/',
                 git: {
                     update: []
@@ -165,11 +165,11 @@ var
             localserver: setting02.localserver,
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
-                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/develop/pc'),
                 // svn commit 分支地址
-                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
+                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/commit/pc'),
                 // svn trunk 分支地址
-                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc'),
+                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/trunk/pc'),
 
                 // 公用组件地址
                 commons: commonPath,
@@ -217,7 +217,7 @@ var
 
             commit: {
                  // 上线配置
-                revAddr: 'http://web.yystatic.com/project/workflow_demo/pc/assets/proj02/rev-manifest.json',
+                revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/proj02/rev-manifest.json',
                 hostname: 'http://web.yystatic.com/',
                 git: {
                     update: []
