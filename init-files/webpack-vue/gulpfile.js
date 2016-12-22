@@ -239,5 +239,17 @@ gulp.task('watch', ['all'], function(){
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
         runSequence('webpack', 'rev-update', 'connect-reload');
     });
-    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
+
+    if(gulp.env.ver == 'remote'){
+        return;
+    }
+
+    var htmls = util.readFilesSync(config.alias.destRoot, /\.html$/),
+        addr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port;
+
+    if(htmls.length){
+        addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
+    }
+
+    util.openBrowser(addr);
 });

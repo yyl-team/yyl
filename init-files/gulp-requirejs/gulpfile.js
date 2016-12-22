@@ -676,7 +676,18 @@ gulp.task('watch', ['all'], function() {
 
     runSequence('connect-reload');
 
-    util.openBrowser('http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port);
+    if(gulp.env.ver == 'remote'){
+        return;
+    }
+
+    var htmls = util.readFilesSync(vars.destRoot, /\.html$/),
+        addr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port;
+
+    if(htmls.length){
+        addr = util.joinFormat(addr, path.relative(vars.destRoot, htmls[0]));
+    }
+
+    util.openBrowser(addr);
 });
 // - watch task
 

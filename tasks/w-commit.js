@@ -90,7 +90,12 @@ var
                 gitConfig = config.commit.git,
                 iBranch = iEnv.sub;
 
+            if(!svnConfig){
+                return done('--sub ' + iEnv.sub + ' is not exist');
+            }
+
             new util.Promise(function(NEXT){ // 删除动态文件
+                
                 // update 文件
                 if(svnConfig.update && svnConfig.update.length){
                     var iPromise = new util.Promise();
@@ -123,6 +128,7 @@ var
                     NEXT();
                 }
             }).then(function(NEXT){ // update git
+                
                 // update 文件
                 if(gitConfig.update && gitConfig.update.length){
                     var iPromise = new util.Promise();
@@ -357,17 +363,29 @@ var
                     if(fs.existsSync(src)){
                         iPromise.then(function(next){
                             util.msg.del('file:', src);
-                            util.runSpawn('svn del ' + path.basename(src) + ' --force', function(){
-                                util.msg.success('done');
-                                if(fs.existsSync(src)){
-                                    fs.unlinkSync(src);
-                                }
-                                next();
-                            }, path.dirname(src));
+                            var 
+                                handle = function(){
+                                    util.msg.success('done');
+                                    if(fs.existsSync(src)){
+                                        fs.unlinkSync(src);
+                                    }
+                                    next();
+
+                                };
+                            if(iEnv.nosvn){
+                                handle();
+
+                            } else {
+                                util.runSpawn('svn del ' + path.basename(src) + ' --force', function(){
+                                    handle();
+                                }, path.dirname(src));
+
+                            }
 
                         });
                     }
                 });
+
                 iPromise.then(function(){
                     util.msg.line();
                     util.msg.success('del file done');
@@ -478,6 +496,12 @@ var
                 });
 
             }).then(function(config, next){ // update
+
+                if(iEnv.nosvn){
+                    return next(config);
+                }
+
+
                 util.msg.info('commit task step01 start');
                 wCommit.step01(iEnv, config, function(err){
                     if(err){
@@ -500,6 +524,7 @@ var
 
                 });
             }).then(function(config, next){ // step02
+                
                 util.msg.info('commit task step02 start');
 
                 wCommit.step02(iEnv, config, function(err){
@@ -511,7 +536,10 @@ var
                     }
 
                 });
-            }).then(function(config, next){ // optimize
+            }).then(function(config, next){ // commit
+                if(iEnv.nosvn){
+                    return next(config);
+                }
                 util.msg.info('commit task step03 start');
 
                 wCommit.step03(iEnv, config, function(err){
