@@ -142,9 +142,11 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
-### 1.4.0
-* [ADD] yyl init 命令 新增 可选 初始化 no-components, multi-project 等初始化 类型
+### 1.5.0
 * [ADD] rev 生成映射表时 如只更新 images 图片， 其他相关 html, css 也会一同更新 hash
+
+### 1.4.0 (2016-12-23)
+* [ADD] yyl init 命令 新增 可选 初始化 no-components, multi-project 等初始化 类型
 
 
 ### 1.3.0 (2016-12-22)

@@ -195,11 +195,11 @@ var
                     next(util.extend(data, d));
                 });
 
-            }).then(function(data, next){
+            }).then(function(data, next){ // pc workflow
                 var 
                     prompt = inquirer.createPromptModule(),
                     questions = [],
-                    workflows = fs.readdirSync(path.join(__dirname, '../init-files'));
+                    workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
 
                 if(~data.platforms.indexOf('pc')){
                     questions.push({
@@ -209,7 +209,56 @@ var
                         choices: workflows,
                         default: 'gulp-requirejs'
                     });
+                    prompt(questions, function(d){
+                        next(util.extend(data, d));
+                    });
+
+                } else {
+                    next(data);
                 }
+
+            }).then(function(data, next){ // pc workflow resetFiles
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [];
+
+                if(data.pcWorkflow){
+                    var 
+                        workFlowExpPath = path.join(__dirname, '../examples', data.pcWorkflow),
+                        expType = [];
+                    if(fs.existsSync(workFlowExpPath)){
+                        expType = util.readdirSync(workFlowExpPath, /^\./);
+
+                        questions.push({
+                            name: 'pcWorkflowInitType',
+                            message: 'pc workflow init type',
+                            type: 'list',
+                            choices: expType,
+                            default: 'single-project'
+                        });
+
+                        prompt(questions, function(d){
+                            next(util.extend(data, d));
+                        });
+
+                    } else {
+                        util.msg.error('file not exist:', workFlowExpPath);
+                        next(data);
+
+                    }
+
+                } else {
+                    next(data);
+                }
+
+
+
+            }).then(function(data, next){ // mobile workflow
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [],
+                    workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
+
                 if(~data.platforms.indexOf('mobile')){
                     questions.push({
                         name: 'mobileWorkflow',
@@ -218,8 +267,53 @@ var
                         choices: workflows,
                         default: 'webpack-vue'
                     });
+                    prompt(questions, function(d){
+                        next(util.extend(data, d));
+                    });
 
+                } else {
+                    next(data);
                 }
+
+            }).then(function(data, next){ // pc workflow resetFiles
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [];
+
+                if(data.mobileWorkflow){
+                    var 
+                        workFlowExpPath = path.join(__dirname, '../examples', data.mobileWorkflow),
+                        expType = [];
+                    if(fs.existsSync(workFlowExpPath)){
+                        expType = util.readdirSync(workFlowExpPath, /^\./);
+
+                        questions.push({
+                            name: 'mobileWorkflowInitType',
+                            message: 'mobile workflow init type',
+                            type: 'list',
+                            choices: expType,
+                            default: 'single-project'
+                        });
+
+                        prompt(questions, function(d){
+                            next(util.extend(data, d));
+                        });
+
+                    } else {
+                        util.msg.error('file not exist:', workFlowExpPath);
+                        next(data);
+
+                    }
+
+                } else {
+                    next(data);
+                }
+
+            }).then(function(data, next){ // init type
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [];
+
                 questions.push({
                     name: 'initType',
                     message: 'select init type',
@@ -230,6 +324,7 @@ var
                 prompt(questions, function(d){
                     next(util.extend(data, d));
                 });
+
             }).then(function(data, next){
 
 
@@ -238,10 +333,12 @@ var
                     '',
                     ' project info',
                     ' ----------------------------------------',
-                    ' name            : ' + data.name,
-                    ' platforms       : ' + data.platforms,
-                    ' pc workflow     : ' + (data.pcWorkflow || ''),
-                    ' mobile workflow : ' + (data.mobileWorkflow || ''),
+                    ' name             : ' + data.name,
+                    ' platforms        : ' + data.platforms,
+                    ' pc workflow      : ' + (data.pcWorkflow || ''),
+                    ' pc init type     : ' + (data.pcWorkflowInitType || ''),
+                    ' mobile workflow  : ' + (data.mobileWorkflow || ''),
+                    ' mobile init type : ' + (data.mobileWorkflowInitType || ''),
                     ' ----------------------------------------',
                     ' project ' + color.yellow(data.name) + ' path initial like this:',
                     ''
@@ -312,8 +409,8 @@ var
 
                         util.buildTree({
                             frontPath: path.join(data.name, isFullPath? 'pc': ''),
-                            path: path.join(vars.BASE_PATH, 'init-files', data.pcWorkflow),
-                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js/,
+                            path: path.join(vars.BASE_PATH, 'examples', data.pcWorkflow, data.pcWorkflowInitType),
+                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
                             
                         });
@@ -321,8 +418,8 @@ var
                     if(data.mobileWorkflow){
                         util.buildTree({
                             frontPath: path.join(data.name, isFullPath? 'mobile': ''),
-                            path: path.join(vars.BASE_PATH, 'init-files', data.mobileWorkflow),
-                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js/,
+                            path: path.join(vars.BASE_PATH, 'examples', data.mobileWorkflow, data.mobileWorkflowInitType),
+                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
                             dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
                         });
                     }
@@ -346,7 +443,7 @@ var
                 var 
                     parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop(),
                     frontPath = '',
-                    initClientFlow = function(dirname, workflowName, done){
+                    initClientFlow = function(dirname, workflowName, initType, done){
                         util.msg.info('init client', workflowName, 'start');
 
                         var 
@@ -386,7 +483,7 @@ var
                         }).then(function(next){ // copy file to PROJECT_PATH
                             util.msg.info('copy file to ', workflowName);
                             util.copyFiles(
-                                path.join(vars.BASE_PATH, 'init-files', workflowName),
+                                path.join(vars.BASE_PATH, 'examples', workflowName, initType),
                                 path.join(vars.PROJECT_PATH, dirPath),
                                 function(err){
                                     if(err){
@@ -395,7 +492,23 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js/g,
+                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                null,
+                                path.join(vars.PROJECT_PATH, frontPath)
+                            );
+                        }).then(function(next){ // copy readme
+                            util.msg.info('copy readme to ', workflowName);
+                            util.copyFiles(
+                                path.join(vars.BASE_PATH, 'init-files', workflowName, 'README.md'),
+                                path.join(vars.PROJECT_PATH, dirPath, 'README.md'),
+                                function(err){
+                                    if(err){
+                                        return done('copy file error, init fail');
+                                    }
+                                    util.msg.info('done');
+                                    next();
+                                },
+                                null,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
@@ -476,12 +589,12 @@ var
 
                 if(data.pcWorkflow){
                     padding += 2;
-                    initClientFlow('pc', data.pcWorkflow, paddingCheck);
+                    initClientFlow('pc', data.pcWorkflow, data.pcWorkflowInitType, paddingCheck);
                     wServer.init(data.pcWorkflow, paddingCheck);
                 }
                 if(data.mobileWorkflow){
                     padding += 2;
-                    initClientFlow('mobile', data.mobileWorkflow, paddingCheck);
+                    initClientFlow('mobile', data.mobileWorkflow, data.mobileWorkflowInitType, paddingCheck);
                     wServer.init(data.mobileWorkflow, paddingCheck);
                 }
 
