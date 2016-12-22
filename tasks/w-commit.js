@@ -575,6 +575,7 @@ var
                 options: {
                     '--name': 'project name if it have',
                     '--sub': 'branch name',
+                    '--nosvn': 'commit without svn command',
                     '-h, --help': 'print usage information'
                 }
             });

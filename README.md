@@ -74,6 +74,8 @@ Options:
 
     --sub <branches> 分支信息用于 执行 commit 操作 或者 
                      在 watch 时 生成和服务器 rev-manifest 一样资源文件
+
+    --nosvn          不执行 svn 相关操作
 ```
 
 ### 本地服务相关命令

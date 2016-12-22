@@ -115,6 +115,26 @@ var
                     ]
 
                 },
+                commit: {
+                    update: [
+                        '{$commit}'
+                    ],
+                    copy: {
+                        '{$root}/js': ['{$commit}/js'],
+                        '{$root}/css': ['{$commit}/css'],
+                        '{$root}/html': ['{$commit}/html'],
+                        '{$root}/images': ['{$commit}/images'],
+                        '{$root}/assets': ['{$commit}/assets']
+                    },
+                    commit: [
+                        '{$commit}/js',
+                        '{$commit}/css',
+                        '{$commit}/html',
+                        '{$commit}/images',
+                        '{$commit}/assets'
+                    ]
+                },
+
                 trunk: {
                     update: [
                         '{$trunk}'
