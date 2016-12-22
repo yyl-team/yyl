@@ -499,7 +499,7 @@ var
                         }).then(function(next){ // copy readme
                             util.msg.info('copy readme to ', workflowName);
                             util.copyFiles(
-                                path.join(vars.BASE_PATH, 'init-files', workflowName, 'README.md'),
+                                path.join(vars.BASE_PATH, 'init-files', workflowName),
                                 path.join(vars.PROJECT_PATH, dirPath, 'README.md'),
                                 function(err){
                                     if(err){
@@ -508,10 +508,11 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                null,
+                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
+                        
                         }).then(function(next){ // create dist file
                             var iiPath = path.join(vars.PROJECT_PATH, dirPath, 'dist');
                             if(!fs.existsSync(iiPath)){
