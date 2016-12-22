@@ -138,6 +138,10 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 1.3.0
+* [ADD] 新增 webpack-vue mobile 可配置多个入口
+* [FIX] 修复 browserify-babel example 中 no-components 用例运行不了问题
+
 ### 1.1.0
 * [ADD] 新增 webpack-vue mobile 用 工作流
 
