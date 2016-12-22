@@ -33,12 +33,11 @@ var
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
             // svn dev 分支地址
-            dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/develop/pc'),
+            dev: path.join('./'),
             // svn commit 分支地址
-            commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/commit/pc'),
+            commit: path.join('../../commit/pc'),
             // svn trunk 分支地址
-            trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/trunk/pc'),
-
+            trunk: path.join('../../trunk/pc'),
 
             // 公用组件地址
             commons: commonPath,
