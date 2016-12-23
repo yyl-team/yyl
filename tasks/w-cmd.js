@@ -1,7 +1,6 @@
 'use strict';
 var 
     util = require('../lib/yyl-util'),
-    path = require('path'),
     color = require('../lib/colors'),
     vars = util.vars;
 
@@ -14,6 +13,7 @@ var
         server: require('./w-server'),
         test: require('./w-test'),
         commit: require('./w-commit'),
+        update: require('./w-update'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -30,30 +30,6 @@ var
                     '-p, --path': 'show the yyl command local path'
                 }
             });
-        },
-        update: function(){
-            var iEnv = util.envPrase(arguments),
-                iCmd = '';
-
-            if(iEnv.version){
-                iCmd = 'git checkout ' + iEnv.version;
-
-            } else {
-                iCmd = 'git pull';
-            }
-
-            if(iCmd){
-                util.runCMD('git pull', function(err){
-                    if(err){
-                        return util.msg.error('yyl update error', err);
-                    }
-
-                    util.msg.line().success('yyl update complete');
-
-                }, path.join(__dirname, '../'));
-
-            }
-
         },
         path: function(){
             console.log([
