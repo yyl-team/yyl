@@ -59,7 +59,7 @@ module.exports = function(){
                 }
 
                 util.msg.line().success('yyl update complete');
-            });
+            }, path.join(__dirname, '../'));
 
 
         }, path.join(__dirname, '../'));
