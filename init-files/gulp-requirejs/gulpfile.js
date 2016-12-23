@@ -28,6 +28,7 @@ var gulp = require('gulp'),
     runSequence = require('run-sequence').use(gulp),
     prettify = require('gulp-prettify'),
     rev = require('gulp-rev'),
+    override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
 
     through = require('through2'),
@@ -595,7 +596,7 @@ gulp.task('js-task', function () {
 // + images task
 gulp.task('images',['images-img', 'images-components'], function(done) {
     gulp.env.nowTask = 'images';
-    runSequence('rev-update', done);
+    runSequence('rev-update', 'rev-img-update', done);
 });
 
 gulp.task('images-img', function() {
@@ -821,7 +822,7 @@ gulp.task('rev-build', function(){
                 base: vars.revRoot
             })
             .pipe(rev())
-            
+            .pipe(override())
             .pipe(gulp.dest(vars.root))
             .pipe(rev.manifest())
             .pipe(through.obj(function(file, enc, next){
@@ -955,6 +956,25 @@ gulp.task('rev-update', function(done){
     } else {
         runSequence('rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
     }
+});
+
+gulp.task('rev-img-update', function(){
+    var 
+        iConfig = fn.taskInit(),
+        vars = gulp.env.vars;
+
+    if(!iConfig || !cache.localRevData){
+        return;
+    }
+
+    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg)'), { base: vars.revDest })
+            .pipe(plumber())
+            .pipe(rename(function(path){
+                console.log(path.basename);
+                // path.dirname = '';
+                // path.basename = path.basename.replace(/^p-/,'');
+            }))
+            .pipe(gulp.dest(vars.revDest));
 });
 
 gulp.task('rev-update-task', function(){
