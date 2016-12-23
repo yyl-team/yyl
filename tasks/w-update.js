@@ -45,12 +45,22 @@ module.exports = function(){
     }
 
     if(iCmd){
+        util.msg.info('run cmd:', iCmd);
         util.runCMD( iCmd, function(err){
             if(err){
                 return util.msg.error('yyl update error', err);
             }
 
-            util.msg.line().success('yyl update complete');
+            var nextCmd = 'git pull';
+            util.msg.info('run cmd:', nextCmd);
+            util.runCMD( nextCmd, function(er){
+                if(er){
+                    return util.msg.error('yyl update error', er);
+                }
+
+                util.msg.line().success('yyl update complete');
+            });
+
 
         }, path.join(__dirname, '../'));
 
