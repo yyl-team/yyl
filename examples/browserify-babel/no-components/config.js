@@ -3,6 +3,7 @@ var
     //+ yyl init 自动 匹配内容
     commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
     projectName = /*+name*/'workflow_demo'/*-name*/,
+    version = /*+version*/'1.0.0'/*-version*/,
     //- yyl init 自动 匹配内容
     path = require('path'),
     setting = {
@@ -29,6 +30,7 @@ var
         workflow: 'browserify-babel',
         name: projectName,
         dest: setting.dest,
+        version: version,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方

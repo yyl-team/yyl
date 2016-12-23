@@ -95,6 +95,17 @@ Options:
     -h, --help    帮助信息
     -p, --path    打开本地服务所在路径
 ```
+### 更新相关命令
+```
+Useage: yyl update <command>
+
+Commands:
+
+Options:
+    --version <版本号> 设置更新的特定版本号， 默认为更新到最新分支
+```
+
+
 ## 程序工作机制说明
 1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在 一个存放本程序资源的地方 (~/.yyl) 里面创建对应架构类型的文件夹如(~/.yyl/init-file/gulp-requirejs/), 并在里面 根据架构依赖进行 npm install, 从而达到多个项目共用同一份 node_modlues 目的
 
@@ -143,6 +154,8 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 ## 版本信息
 
 ### 1.5.0
+* [ADD] 新增执行 yyl init 后, config 中会带有 当前 yyl version, 方便之后如果更新出现问题能回滚到特定版本
+* [ADD] yyl update 支持更新到指定版本
 * [ADD] rev 生成映射表时 如只更新 images 图片， 其他相关 html, css 也会一同更新 hash
 
 ### 1.4.0 (2016-12-23)

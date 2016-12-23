@@ -3,7 +3,9 @@ var
     //+ yyl init 自动 匹配内容
     commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
     projectName = /*+name*/'workflow_demo'/*-name*/,
+    version = /*+version*/'1.0.0'/*-version*/,
     //- yyl init 自动 匹配内容
+
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置
@@ -28,6 +30,7 @@ var
     config = {
         workflow: 'gulp-requirejs',
         name: projectName,
+        version: version,
         dest: setting.dest,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,

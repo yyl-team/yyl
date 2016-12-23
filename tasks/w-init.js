@@ -327,6 +327,7 @@ var
 
             }).then(function(data, next){
 
+                data.version = util.requireJs(path.join(vars.BASE_PATH, 'package.json')).version;
 
                 // 基本信息
                 console.log([
@@ -339,6 +340,7 @@ var
                     ' pc init type     : ' + (data.pcWorkflowInitType || ''),
                     ' mobile workflow  : ' + (data.mobileWorkflow || ''),
                     ' mobile init type : ' + (data.mobileWorkflowInitType || ''),
+                    ' yyl version      : ' + data.version,
                     ' ----------------------------------------',
                     ' project ' + color.yellow(data.name) + ' path initial like this:',
                     ''
