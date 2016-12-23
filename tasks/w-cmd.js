@@ -32,20 +32,27 @@ var
             });
         },
         update: function(){
-            util.runCMD('git pull', function(err){
-                if(err){
-                    console.log([
-                    color.red('yyl update error!')
-                ].join('\n'));
-                    return;
-                }
+            var iEnv = util.envPrase(arguments),
+                iCmd = '';
 
-                console.log([
-                    '--------------------',
-                    'yyl update complete!'
-                ].join('\n'));
+            if(iEnv.version){
+                iCmd = 'git checkout ' + iEnv.version;
 
-            }, path.join(__dirname, '../'));
+            } else {
+                iCmd = 'git pull';
+            }
+
+            if(iCmd){
+                util.runCMD('git pull', function(err){
+                    if(err){
+                        return util.msg.error('yyl update error', err);
+                    }
+
+                    util.msg.line().success('yyl update complete');
+
+                }, path.join(__dirname, '../'));
+
+            }
 
         },
         path: function(){
@@ -88,7 +95,7 @@ module.exports = function(ctx){
             break;
 
         case 'update':
-            events.update();
+            events.update.apply(events, iArgv);
             break;
 
         case 'html':
