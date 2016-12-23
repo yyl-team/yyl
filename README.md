@@ -153,10 +153,11 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
-### 1.5.0
+### 1.5.0 (2016-12-24)
 * [ADD] 新增执行 yyl init 后, config 中会带有 当前 yyl version, 方便之后如果更新出现问题能回滚到特定版本
 * [ADD] yyl update 支持更新到指定版本
 * [ADD] rev 生成映射表时 如只更新 images 图片， 其他相关 html, css 也会一同更新 hash
+* [ADD] 新增 yyl watch 图片更新立即生效
 
 ### 1.4.0 (2016-12-23)
 * [ADD] yyl init 命令 新增 可选 初始化 no-components, multi-project 等初始化 类型
