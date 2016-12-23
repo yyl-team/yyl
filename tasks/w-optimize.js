@@ -35,7 +35,7 @@ var
                 util.msg.success('server init done');
                 next(config);
 
-            }, true);
+            });
 
         }).then(function(config){ // 运行命令
             util.msg.info('run cmd start');

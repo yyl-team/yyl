@@ -480,7 +480,7 @@ var
                     util.msg.success('commit task server init done');
                     next(config);
 
-                }, fs.existsSync(path.join(vars.SERVER_WORKFLOW_PATH, config.workflow, 'node_modules')? true: false));
+                });
 
             }).then(function(config, next){ // optimize
                 util.msg.info('commit task optimize start');

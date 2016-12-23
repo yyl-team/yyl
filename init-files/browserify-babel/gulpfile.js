@@ -29,6 +29,7 @@ var gulp = require('gulp'),
     runSequence = require('run-sequence').use(gulp),
     prettify = require('gulp-prettify'),
     rev = require('gulp-rev'),
+    override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
 
     through = require('through2'),
@@ -601,7 +602,7 @@ gulp.task('js-task', function () {
 // + images task
 gulp.task('images',['images-img', 'images-components'], function(done) {
     gulp.env.nowTask = 'images';
-    runSequence('rev-update', done);
+    runSequence('rev-update', 'rev-img-update', done);
 });
 
 gulp.task('images-img', function() {
@@ -827,7 +828,7 @@ gulp.task('rev-build', function(){
                 base: vars.revRoot
             })
             .pipe(rev())
-            
+            .pipe(override())
             .pipe(gulp.dest(vars.root))
             .pipe(rev.manifest())
             .pipe(through.obj(function(file, enc, next){
@@ -963,6 +964,27 @@ gulp.task('rev-update', function(done){
     }
 });
 
+gulp.task('rev-img-update', function(){
+    var 
+        iConfig = fn.taskInit(),
+        vars = gulp.env.vars;
+
+    if(!iConfig || !cache.localRevData){
+        return;
+    }
+
+    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg)'), { base: vars.revRoot })
+            .pipe(plumber())
+            .pipe(rename(function(p){
+                var iPath = util.joinFormat(p.dirname, p.basename + p.extname);
+
+                if(cache.localRevData && cache.localRevData[iPath]){
+                    p.basename = path.basename(cache.localRevData[iPath]).replace(p.extname, '');
+                }
+            }))
+            .pipe(gulp.dest(vars.revRoot));
+});
+
 gulp.task('rev-update-task', function(){
 
 });
@@ -982,7 +1004,6 @@ gulp.task('all', function(done){
         util.msg.info('clear dist file done');
         runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', done);
     });
-
 });
 
 gulp.task('all-done', function(){

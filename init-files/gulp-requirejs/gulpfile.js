@@ -518,6 +518,7 @@ gulp.task('css-component-task', function() {
             next();
         }))
         .pipe(rename(function(path){
+
             path.dirname = '';
             path.basename = path.basename.replace(/^p-/,'');
         }))
@@ -967,14 +968,16 @@ gulp.task('rev-img-update', function(){
         return;
     }
 
-    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg)'), { base: vars.revDest })
+    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg)'), { base: vars.revRoot })
             .pipe(plumber())
-            .pipe(rename(function(path){
-                console.log(path.basename);
-                // path.dirname = '';
-                // path.basename = path.basename.replace(/^p-/,'');
+            .pipe(rename(function(p){
+                var iPath = util.joinFormat(p.dirname, p.basename + p.extname);
+
+                if(cache.localRevData && cache.localRevData[iPath]){
+                    p.basename = path.basename(cache.localRevData[iPath]).replace(p.extname, '');
+                }
             }))
-            .pipe(gulp.dest(vars.revDest));
+            .pipe(gulp.dest(vars.revRoot));
 });
 
 gulp.task('rev-update-task', function(){
