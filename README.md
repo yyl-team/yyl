@@ -153,6 +153,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 1.5.1 (2016-12-25)
+* [FIX] 修复 util.buildTress 函数目录树展示问题
+
 ### 1.5.0 (2016-12-24)
 * [ADD] 新增执行 yyl init 后, config 中会带有 当前 yyl version, 方便之后如果更新出现问题能回滚到特定版本
 * [ADD] yyl update 支持更新到指定版本
