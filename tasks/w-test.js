@@ -4,11 +4,13 @@ var util = require('../lib/yyl-util.js');
 
 var 
     wTest = function(){
-        util.runSpawn('git pull', function(err){
-            if(err){
-                console.log(err)
-            }
-
+        
+        util.buildTree({
+            frontPath: 'tool.jackness.org',
+            path: process.cwd(),
+            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
+            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
+            
         });
 
     };
