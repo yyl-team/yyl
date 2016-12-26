@@ -39,7 +39,7 @@ var
             // svn commit 分支地址
             commit: path.join('../../commit/pc'),
             // svn trunk 分支地址
-            trunk: path.join('../../trunk/pc'),
+            trunk: path.join('../../../trunk/pc'),
 
             // 公用组件地址
             commons: commonPath,

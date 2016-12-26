@@ -49,6 +49,12 @@ module.exports = function(ctx){
     var 
         iArgv = util.makeArray(arguments);
 
+    var iVer = process.versions.node;
+    if(iVer.localeCompare('4.0.0') < 0){
+        return util.msg.error('please makesure your node >= 4.0.0');
+
+    }
+
     switch(ctx){
         case '-v': 
         case '--version':

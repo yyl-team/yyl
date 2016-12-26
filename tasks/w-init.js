@@ -353,7 +353,7 @@ var
                     var parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop();
                     var 
                         name = parentDir == data.name? '': data.name,
-                        branches = [ 'commit', 'develop', 'trunk' ],
+                        branches = [ 'branches/commit', 'branches/develop', 'trunk' ],
                         subDirs1 = [], //pc, mobile
                         subDirs2 = ['dist', 'src'],
                         subDirs3 = ['css', 'html', 'images', 'js'];
