@@ -27,6 +27,7 @@ var
                     next(config);
 
                 });
+
             }).then(function(config){ // check config
                 var iConfig = config;
 

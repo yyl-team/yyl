@@ -160,6 +160,23 @@ var
             }
 
         },
+        // // 构建 服务端 webpackconfig
+        // buildWebpackConfig: function(workflowName, done){
+        //     var
+        //         webpackConfigPath = path.join(vars.PROJECT_PATH, 'webpack.config.js'),
+        //         serverPath = path.join(vars.SERVER_WORKFLOW_PATH, workflowName);
+
+        //     if(!fs.existsSync(serverPath)){
+        //         return done('serverPath not exist, break', serverPath);
+        //     }
+
+        //     if(!fs.existsSync(webpackConfigPath)){
+        //         return done('no webpack.config.js, break', webpackConfigPath);
+        //     }
+
+
+
+        // },
         // 构建 服务端 config
         buildConfig: function(done){
             var
@@ -294,12 +311,40 @@ var
 
             fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
 
-            if(name){
-                done(null, config[name]);
-            } else {
+            new util.Promise(function(next){
+                if(name){
+                    next(config[name]);
+                } else {
 
-                done(null, config);
-            }
+                    next(config);
+                }
+
+            }).then(function(iConfig, next){
+                if(iConfig.plugins && iConfig.plugins.length){
+                    var cmd = 'npm install ' + iConfig.plugins.join(' ');
+                    util.msg.info('run cmd:', cmd);
+
+                    util.runCMD(cmd, function(err){
+                        if(err){
+                            return done(err, iConfig);
+                        }
+
+                        next(iConfig);
+
+                    }, path.join(vars.SERVER_WORKFLOW_PATH, iConfig.workflow));
+
+                } else {
+                    next(iConfig);
+                }
+
+            }).then(function(iConfig, next){
+                done(null, iConfig);
+                next();
+            
+
+            }).start();
+
+            
 
         },
         // 服务器启动

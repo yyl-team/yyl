@@ -54,7 +54,19 @@ gulp.task('connect-reload', function(){
 
 gulp.task('webpack', function(done){
     var 
-        iWebpackConfig = util.extend({}, webpackConfig);
+        iWebpackConfig = util.extend({}, webpackConfig),
+        localWebpackConfigPath = path.join(util.vars.PROJECT_PATH, 'webpack.config.js'),
+        localWebpackConfig;
+
+    if(fs.existsSync(localWebpackConfigPath)){ // webpack 与 webpack local 整合
+        localWebpackConfig = require(localWebpackConfigPath);
+
+        var fwConfig = util.extend(true, iWebpackConfig, localWebpackConfig);
+
+        // 处理 loader 部分
+        console.log(JSON.stringify(fwConfig.modules.loaders, null, 4))
+
+    }
 
 
     if(gulp.env.isCommit){
