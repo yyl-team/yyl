@@ -150,8 +150,13 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [引入公用库资源](./examples/webpack-vue/with-global-component)
 * [es6 模式开发例子](./examples/webpack-vue/es6)
 * [多入口例子](./examples/webpack-vue/multi-project)
+* [带自定义 webpack.config 例子](./examples/webpack-vue/local-webpackconfig)
 
 ## 版本信息
+
+### 1.6.0 (2016-12-30)
+* [ADD] yyl webpack-vue 模式下新增可支持 自定义 webpack.config
+* [ADD] yyl config 新增 plugins 字段 用于设置额外需要安装的 npm package
 
 ### 1.5.1 (2016-12-26)
 * [FIX] 修复 util.buildTress 函数目录树展示问题

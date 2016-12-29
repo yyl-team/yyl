@@ -321,17 +321,54 @@ var
 
             }).then(function(iConfig, next){
                 if(iConfig.plugins && iConfig.plugins.length){
-                    var cmd = 'npm install ' + iConfig.plugins.join(' ');
-                    util.msg.info('run cmd:', cmd);
+                    var installLists = [];
+                    iConfig.plugins.forEach(function(str){
+                        var iDir, iVer;
+                        if(~str.indexOf('@')){
+                            iDir = str.split('@')[0];
+                            iVer = str.split('@')[1];
 
-                    util.runCMD(cmd, function(err){
-                        if(err){
-                            return done(err, iConfig);
+                        } else {
+                            iDir = str;
+
+                        }
+                        var iPath = path.join(workFlowPath, 'node_modules', iDir);
+                        var iPkgPath = path.join(iPath, 'package.json');
+                        var iPkg;
+                        if(fs.existsSync(iPath) && fs.existsSync(iPkgPath)){
+                            if(iVer){
+                                iPkg = require(iPkgPath);
+                                if(iPkg.version != iVer){
+                                    installLists.push(str);
+                                }
+
+                            }
+
+                        } else {
+                            installLists.push(str);
+
                         }
 
-                        next(iConfig);
+                    });
 
-                    }, path.join(vars.SERVER_WORKFLOW_PATH, iConfig.workflow));
+                    if(installLists.length){
+                        var cmd = 'npm install ' + installLists.join(' ');
+                        util.msg.info('run cmd:', cmd);
+
+                        util.runCMD(cmd, function(err){
+                            if(err){
+                                return done(err, iConfig);
+                            }
+
+                            next(iConfig);
+
+                        }, path.join(vars.SERVER_WORKFLOW_PATH, iConfig.workflow));
+
+                    } else {
+                        next(iConfig);
+                    }
+
+                    
 
                 } else {
                     next(iConfig);

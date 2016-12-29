@@ -55,16 +55,40 @@ gulp.task('connect-reload', function(){
 gulp.task('webpack', function(done){
     var 
         iWebpackConfig = util.extend({}, webpackConfig),
-        localWebpackConfigPath = path.join(util.vars.PROJECT_PATH, 'webpack.config.js'),
+        localWebpackConfigPath = path.join(config.alias.dirname, 'webpack.config.js'),
         localWebpackConfig;
 
+
     if(fs.existsSync(localWebpackConfigPath)){ // webpack 与 webpack local 整合
+        util.msg.info('get local webpack.config.js:', localWebpackConfigPath);
         localWebpackConfig = require(localWebpackConfigPath);
 
-        var fwConfig = util.extend(true, iWebpackConfig, localWebpackConfig);
-
         // 处理 loader 部分
-        console.log(JSON.stringify(fwConfig.modules.loaders, null, 4))
+        var fwConfig = util.extend(true, {}, iWebpackConfig, localWebpackConfig);
+        var iLoaders = fwConfig.module.loaders = [].concat(iWebpackConfig.module.loaders);
+        var localLoaders = localWebpackConfig.module.loaders;
+
+
+        if(localLoaders && localLoaders.length){
+            
+            localLoaders.forEach(function(obj){
+                for(var i = 0, len = iLoaders.length; i < len; i++){
+                    if(iLoaders[i].test.toString() === obj.test.toString()){
+                        util.msg.info('change loader['+ i +']', iLoaders[i], '=>', obj);
+                        iLoaders.splice(i, 1, obj);
+                        return;
+                    }
+                }
+                util.msg.info('add loaders', obj);
+                iLoaders.push(obj);
+            });
+
+            util.msg.line();
+            util.msg.info('mix loaders:', iLoaders);
+            util.msg.line();
+        }
+        iWebpackConfig = fwConfig;
+
 
     }
 
