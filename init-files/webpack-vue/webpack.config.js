@@ -44,6 +44,24 @@ var webpackconfig = {
             });
         }
 
+        // js path
+        var jsPath = path.join(iSrcRoot, 'js');
+        if(fs.existsSync(jsPath)){
+            var jsfiles = fs.readdirSync(jsPath);
+            jsfiles.forEach(function(str){
+                var filepath = path.join(jsPath, str);
+                if(fs.statSync(filepath).isDirectory() || path.extname(filepath) != '.js'){
+                    return;
+                }
+
+                var key = path.basename(str).replace(/\.[^.]+$/, '');
+                if(key){
+                    r[key] = filepath;
+                }
+            });
+
+        }
+
         return r;
 
     })(),
@@ -141,12 +159,19 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     outputPath.forEach(function(iPath){
         var iBaseName = path.basename(iPath).replace(/\.jade$/, '');
         var iExclude = [].concat(entrys);
+        var jsPath = util.joinFormat(config.alias.srcRoot, 'js');
 
-        for(var i = 0, len = iExclude.length; i < len;){
-            if(iExclude[i] == 'flexLayout' || iExclude[i] == iBaseName){
-                iExclude.splice(i, 1);
-            } else {
+        for(var i = 0; i < iExclude.length;){
+            if(util.type(iExclude[i]) == 'array'){
                 i++;
+
+            } else {
+                if(iExclude[i] == iBaseName || util.joinFormat(iExclude[i]).substr(0, jsPath.length) != jsPath){
+                    iExclude.splice(i, 1);
+                } else {
+                    i++;
+                }
+
             }
         }
 

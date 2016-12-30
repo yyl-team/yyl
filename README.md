@@ -154,6 +154,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 1.7.0 (2016-12-30)
+* [ADD] yyl webpack-vue 下 js 目录下也支持 打包输出
+
 ### 1.6.0 (2016-12-30)
 * [ADD] yyl webpack-vue 模式下新增可支持 自定义 webpack.config
 * [ADD] yyl config 新增 plugins 字段 用于设置额外需要安装的 npm package
