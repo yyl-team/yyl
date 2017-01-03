@@ -479,6 +479,7 @@ var
 
                     switch(workflowName){
                         case 'gulp-requirejs':
+                        case 'rollup-babel':
                         case 'browserify-babel':
                             files = ['package.json', 'gulpfile.js'];
                             break;
@@ -489,7 +490,7 @@ var
                             break;
 
                         default:
-                            files = ['package.json'];
+                            files = ['package.json', 'gulpfile.js'];
                             break;
                     }
                     files.forEach(function(filePath){
