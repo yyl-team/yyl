@@ -1,0 +1,54 @@
+html{ -webkit-text-size-adjust:none;}
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td { margin:0; padding:0; }
+h1,h2,h3,h4,h5,h6,p,a{ font-size:100%;}
+ul,ol,li{ list-style:none;}
+table{ border-collapse:collapse; border-style:none;}
+button{ border:0 none; padding:0; cursor:pointer;}
+img{ border:0;}
+input,select,img{ vertical-align:middle;}
+textarea{ resize:vertical;}
+a{ outline:0; text-decoration:none;}
+
+%avoid_spacing{
+    font-size: 0;
+    letter-spacing: -5px;
+}
+
+%resume_avoid_spacing{
+    display: inline-block;
+    letter-spacing: normal;
+    // vertical-align: top;
+    *display:inline;
+    *zoom:1;
+}
+
+%fixed_width_content{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+%ie_inline_block{
+    display:inline-block;
+    *display:inline;
+    *zoom:1;
+}
+
+.hidden{
+    display: none !important;
+}
+
+.invisible{
+    visibility: hidden;
+}
+
+.clearfix, .cf {
+    zoom: 1;
+    &:after {
+	    content: "";
+	    display: block;
+	    height: 0;
+	    clear: both;
+	    visibility: hidden;
+	}
+}

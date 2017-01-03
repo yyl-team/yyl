@@ -1,0 +1,47 @@
+@mixin w-demo($path){
+    $cssjsdate: 201609201140;
+
+    .w-demo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin: -151px 0 0 -151px;
+        width: 200px;
+        height: 200px;
+        border: 1px solid #ccc;
+        padding: 50px;
+        background: #fff;
+        border-radius: 10px;
+    }
+    .w-demo-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: block;
+        width: 150px;
+        height: 116px;
+        margin: -58px 0 0 -75px;
+        background: url($path + '/images/logo.png?' + $cssjsdate) no-repeat;
+        -webkit-transition: 400ms;
+    }
+    .w-demo-tl {
+        position: absolute;
+        bottom: 40px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 14px;
+    }
+    .w-demo-logo-0 {
+        -webkit-transform: rotate(0deg);
+    }
+    .w-demo-logo-1 {
+        -webkit-transform: rotate(90deg);
+    }
+    .w-demo-logo-2 {
+        -webkit-transform: rotate(180deg);
+    }
+    .w-demo-logo-3 {
+        -webkit-transform: rotate(270deg);
+    }
+}
