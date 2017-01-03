@@ -740,6 +740,16 @@ gulp.task('concat', function(){
 // - concat task
 // + rev
 gulp.task('rev', function(done){
+    var 
+        iConfig = fn.taskInit();
+
+    if(!iConfig){
+        return done();
+    }
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev task not run');
+        return done();
+    }
     runSequence('rev-clean', 'rev-loadRemote', 'rev-build', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
 });
 
@@ -768,6 +778,11 @@ gulp.task('rev-loadRemote', function(done){
 
     if(!iConfig){
         return;
+    }
+
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-loadRemote task not run');
+        return done();
     }
 
     var
@@ -810,6 +825,12 @@ gulp.task('rev-build', function(){
     if(!iConfig){
         return;
     }
+
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-build task not run');
+        return;
+    }
+
     var 
         vars = gulp.env.vars;
 
@@ -857,6 +878,11 @@ gulp.task('rev-remote-build', function(){
         util.msg.info('rev-remote-build done, no remoteRevData');
         return;
     }
+
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-remote-build task not run');
+        return;
+    }
     
     return gulp.src([
                 util.joinFormat( vars.root, '**/*.*'), 
@@ -895,7 +921,10 @@ gulp.task('rev-dataInit', function(done){
         return done();
     }
 
-    
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-dataInit task not run');
+        return done();
+    }
 
     cache.localRevData = util.requireJs(revPath);
     if(cache.remoteRevData){
@@ -912,6 +941,11 @@ gulp.task('rev-replace', function(){
         vars = gulp.env.vars;
 
     if(!iConfig || !cache.localRevData){
+        return;
+    }
+
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-replace task not run');
         return;
     }
 
@@ -952,6 +986,18 @@ gulp.task('rev-replace', function(){
 });
 
 gulp.task('rev-update', function(done){
+    var 
+        iConfig = fn.taskInit();
+
+    if(!iConfig){
+        return done();
+    }
+
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-update task not run');
+        return done();
+    }
+
     if(gulp.env.runAll){
         done();
     } else {
@@ -965,6 +1011,11 @@ gulp.task('rev-img-update', function(){
         vars = gulp.env.vars;
 
     if(!iConfig || !cache.localRevData){
+        return;
+    }
+
+    if(!iConfig.commit.revAddr){
+        util.msg.warn('config.commit.revAddr not set, rev-img-update task not run');
         return;
     }
 
