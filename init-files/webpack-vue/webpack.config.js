@@ -124,14 +124,16 @@ var webpackconfig = {
     },
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css")))),
-
-        new ManifestPlugin({
-            fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
-            basePath: ''
-        })
+        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css"))))
     ]
 };
+
+if(config.commit.revAddr){
+    webpackconfig.plugins.push(new ManifestPlugin({
+        fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
+        basePath: ''
+    }));
+}
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     var 

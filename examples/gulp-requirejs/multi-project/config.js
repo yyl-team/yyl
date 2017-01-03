@@ -134,6 +134,25 @@ var
                         ]
 
                     },
+                    commit: {
+                        update: [
+                            '{$commit}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj01': ['{$commit}/js/proj01'],
+                            '{$root}/css/proj01': ['{$commit}/css/proj01'],
+                            '{$root}/html/proj01': ['{$commit}/html/proj01'],
+                            '{$root}/images/proj01': ['{$commit}/images/proj01'],
+                            '{$root}/assets/proj01': ['{$commit}/assets/proj01']
+                        },
+                        commit: [
+                            '{$commit}/js/proj01',
+                            '{$commit}/css/proj01',
+                            '{$commit}/html/proj01',
+                            '{$commit}/images/proj01',
+                            '{$commit}/assets/proj01'
+                        ]
+                    },
                     trunk: {
                         update: [
                             '{$trunk}'

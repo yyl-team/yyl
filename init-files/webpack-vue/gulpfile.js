@@ -126,10 +126,20 @@ gulp.task('webpack', function(done){
 });
 
 gulp.task('rev', function(done){
+    if(!config.commit.revAddr){
+        util.msg.warn('config.commit.revAddr is blank or  false, no run rev task');
+        return done();
+
+    }
     runSequence('rev-standard', 'rev-update', done);
 });
 
 gulp.task('rev-standard', function(done){
+    if(!config.commit.revAddr){
+        util.msg.warn('config.commit.revAddr is blank or  false, no run rev task');
+        return done();
+
+    }
 
     var 
         revPath = path.join(config.alias.revDest, 'rev-manifest.json'),
@@ -173,6 +183,11 @@ gulp.task('rev-standard', function(done){
 
 
 gulp.task('rev-update', function(done){
+    if(!config.commit.revAddr){
+        util.msg.warn('config.commit.revAddr is blank or  false, no run rev task');
+        return done();
+
+    }
 
     var revPath = path.join(config.alias.revDest, 'rev-manifest.json');
 
