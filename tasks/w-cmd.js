@@ -22,7 +22,8 @@ var
                     'watch': 'watch task',
                     'all': 'optimize task',
                     'server': 'local server commands',
-                    'update': 'update yyl workflow'
+                    'update': 'update yyl workflow',
+                    'examples': 'show yyl examples'
                 },
                 options: {
                     '-h, --help': 'print usage information',
@@ -41,6 +42,17 @@ var
 
             util.openPath(vars.BASE_PATH);
 
+        },
+        examples: function(){
+            var iPath = util.joinFormat(vars.BASE_PATH, 'examples');
+            console.log([
+                '',
+                'yyl examples:',
+                color.yellow(iPath),
+                ''
+            ].join('\n'));
+
+            util.openPath(iPath);
         }
     };
 
@@ -100,9 +112,17 @@ module.exports = function(ctx){
             events.commit.run.apply(events.commit, iArgv);
             break;
 
+        case 'examples':
+        case 'example':
+            events.examples();
+            break;
+
         case 'test':
             events.test();
             break;
+
+        
+
 
         default:
             events.help();

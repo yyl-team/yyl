@@ -93,11 +93,14 @@ var webpackconfig = {
             test: /\.vue$/,
             loaders: ['vue']
         }, {
+            test: /\.html$/,
+            loaders: ['html-loader']
+        }, {
             test: /\.scss$/,
             loader: ExtractTextPlugin.extract("style-loader", "css!sass")
         }, {
             test: /\.jade$/,
-            loaders: ['jade-loader']
+            loaders: ['html-loader','jade-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
             loader: 'url?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))

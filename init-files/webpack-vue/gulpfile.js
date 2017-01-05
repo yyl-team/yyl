@@ -175,7 +175,7 @@ gulp.task('rev-standard', function(done){
         }
     }
 
-    console.log(outRev);
+    util.msg.info(outRev);
     fs.writeFileSync( path.join(config.alias.revDest, 'rev-manifest.json'), JSON.stringify(outRev, null, 4));
     done();
 

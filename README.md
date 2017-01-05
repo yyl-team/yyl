@@ -105,6 +105,12 @@ Options:
     --version <版本号> 设置更新的特定版本号， 默认为更新到最新分支
 ```
 
+### 例子相关命令
+```
+Useage: yyl example <command>
+
+```
+
 
 ## 程序工作机制说明
 1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在 一个存放本程序资源的地方 (~/.yyl) 里面创建对应架构类型的文件夹如(~/.yyl/init-file/gulp-requirejs/), 并在里面 根据架构依赖进行 npm install, 从而达到多个项目共用同一份 node_modlues 目的
@@ -153,6 +159,11 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [带自定义 webpack.config 例子](./examples/webpack-vue/local-webpackconfig)
 
 ## 版本信息
+
+### 1.10.0 (2017-01-05)
+* [FIX] 修复程序在 node 5+ 上面 运行缺失部分 nodecomponents 的问题
+* [ADD] webpack-vue 下 html 文件 新增 可直接 用 img 标签引用 图片
+* [ADD] 新增 yyl example 命令
 
 ### 1.9.0 (2017-01-05)
 * [ADD] vue-webpack 类工作流 新增 no-components 模式
