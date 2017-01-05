@@ -154,6 +154,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 1.9.0 (2017-01-05)
+* [ADD] vue-webpack 类工作流 新增 no-components 模式
+
 ### 1.8.0 (2017-01-03)
 * [ADD] yyl config 下 如设置 config.commit.revAddr 为空 or false, 则不会生成 md5相关文件
 

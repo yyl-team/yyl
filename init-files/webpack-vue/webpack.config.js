@@ -21,9 +21,12 @@ var webpackconfig = {
         var iSrcRoot = path.isAbsolute(config.alias.srcRoot)? config.alias.srcRoot: path.join(__dirname, config.alias.srcRoot);
         var 
             r = {
-                'flexLayout': ['flexlayout']
                 // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
             };
+
+        if(config.alias.flexlayout){
+            r.flexLayout = ['flexlayout'];
+        }
 
         // single entry
         var bootPath = path.join(iSrcRoot, 'boot/boot.js');
@@ -147,7 +150,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     }
 
     if(fs.existsSync(entryPath)){
-        outputPath = outputPath.concat(util.readFilesSync(entryPath, /\.jade$/));
+        outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.html)$/));
     }
 
     var entrys = [];
@@ -159,7 +162,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     }
 
     outputPath.forEach(function(iPath){
-        var iBaseName = path.basename(iPath).replace(/\.jade$/, '');
+        var iBaseName = path.basename(iPath).replace(/(\.jade|\.html)$/, '');
         var iExclude = [].concat(entrys);
         var jsPath = util.joinFormat(config.alias.srcRoot, 'js');
 

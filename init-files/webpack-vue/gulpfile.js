@@ -9,6 +9,7 @@ var
     path = require('path'),
     config = require('./config.js'),
     util = require('../../lib/yyl-util.js'),
+    
     webpackConfig = require('./webpack.config.js');
 
 
@@ -285,10 +286,14 @@ gulp.task('clean', function(){
 
 });
 
+gulp.task('html', function(){
+    
+});
+
 gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack', 'rev-update', 'connect-reload');
+        runSequence('webpack', 'html', 'rev-update', 'connect-reload');
     });
 
     if(gulp.env.ver == 'remote'){
