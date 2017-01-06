@@ -7,13 +7,20 @@
 * mac 用户 svn 提交需要注意 cmd svn 版本 和 软件 svn 版本是否一致
 
 ## 安装
+用 命令行/终端 打开当前目录, 然后执行
 
-### windows 用户
-双击 `install.bat` 全局安装构建工具 - yyl
+```
+npm run yyl-install
+```
 
-### mac 用户
-* 方式一：拖动 `install.sh` 到终端 按回车运行 全局安装构建工具 -yyl
-* 方式二：用 终端 运行 `install.sh`
+## 卸载
+用 命令行/终端 打开当前目录, 然后执行
+
+```
+npm run yyl-uninstall
+```
+
+
 
 ## 命令说明
 
@@ -167,9 +174,10 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
-### 1.11.0 (2017-01-05)
+### 1.11.0 (2017-01-06)
 * [ADD] yyl rm 句柄，方便卸载 node_modules 文件
 * [ADD] 新增 软件卸载用 uninstall.bat, uninstall.sh 文件
+* [EDIT] 将组件 安装, 卸载 改用 命令行代替
 
 ### 1.10.0 (2017-01-05)
 * [FIX] 修复程序在 node 5+ 上面 运行缺失部分 nodecomponents 的问题
