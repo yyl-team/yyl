@@ -53,7 +53,9 @@ echo ok, let start init!
 nowUserId=`id -u`
 rootId="0"
 
-filepath=$(cd "$(dirname "$0")"; pwd)
+# 获取 当前目录的父级($0), 然后 执行 cd .. 然后 执行 pwd 将结果返回给 filepath
+filepath=$(cd "$(dirname "$0")"; cd ..; pwd)
+
 cd $filepath
 
 npm install
