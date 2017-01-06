@@ -111,6 +111,13 @@ Useage: yyl example <command>
 
 ```
 
+### 删除文件相关命令
+可以帮助快速删掉 node_modules 文件夹 `yyl rm node_modules`
+```
+Useage: yyl rm <dirname>
+
+```
+
 
 ## 程序工作机制说明
 1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在 一个存放本程序资源的地方 (~/.yyl) 里面创建对应架构类型的文件夹如(~/.yyl/init-file/gulp-requirejs/), 并在里面 根据架构依赖进行 npm install, 从而达到多个项目共用同一份 node_modlues 目的
@@ -159,6 +166,10 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [带自定义 webpack.config 例子](./examples/webpack-vue/local-webpackconfig)
 
 ## 版本信息
+
+### 1.11.0 (2017-01-05)
+* [ADD] yyl rm 句柄，方便卸载 node_modules 文件
+* [ADD] 新增 软件卸载用 uninstall.bat, uninstall.sh 文件
 
 ### 1.10.0 (2017-01-05)
 * [FIX] 修复程序在 node 5+ 上面 运行缺失部分 nodecomponents 的问题

@@ -7,6 +7,7 @@ var
     serveIndex = require('serve-index'),
     serveStatic = require('serve-static'),
     livereload = require('connect-livereload'),
+    wRemove = require('./w-remove.js'),
     tinylr = require('tiny-lr'),
     fs = require('fs'),
     path = require('path');
@@ -17,7 +18,9 @@ var
             util.help({
                 usage: 'yyl server',
                 commands: {
-                    '?': '...'
+                    'start': 'start local server',
+                    'init': 'init server ref',
+                    'clear': 'empty the server path'
                 },
                 options: {
                     '-h, --help': 'print usage information',
@@ -84,15 +87,11 @@ var
                         var 
                             iPath = util.joinFormat(vars.SERVER_WORKFLOW_PATH, str),
                             nodeModulePath = util.joinFormat(iPath, 'node_modules');
+
                         if(fs.existsSync(nodeModulePath)){
-                            fs.readdirSync(nodeModulePath).forEach(function(pkgName){
-                                if(/\.bin/.test(pkgName)){
-                                    return;
-                                }
-                                iPromise.then(function(next){
-                                    util.runCMD('npm uninstall ' + pkgName, function(){
-                                        next();
-                                    }, iPath);
+                            iPromise.then(function(next){
+                                wRemove(nodeModulePath, function(){
+                                    next();
                                 });
                             });
                         }
@@ -588,6 +587,7 @@ var
                     break;
 
                 case 'clear':
+                case 'clean':
                     events.clear();
                     break;
 

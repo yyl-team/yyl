@@ -14,6 +14,7 @@ var
         test: require('./w-test'),
         commit: require('./w-commit'),
         update: require('./w-update'),
+        remove: require('./w-remove'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -115,6 +116,10 @@ module.exports = function(ctx){
         case 'examples':
         case 'example':
             events.examples();
+            break;
+
+        case 'rm':
+            events.remove.apply(events, iArgv.slice(1));
             break;
 
         case 'test':
