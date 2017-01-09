@@ -151,13 +151,12 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
         r = [];
 
     if(fs.existsSync(bootPath)){
-        outputPath.push(util.readFilesSync(bootPath, /(\.jade|\.html)$/));
+        outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.html)$/));
     }
 
     if(fs.existsSync(entryPath)){
         outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.html)$/));
     }
-
 
 
     var entrys = [];
