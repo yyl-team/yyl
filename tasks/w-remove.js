@@ -38,14 +38,29 @@ var
                 }
 
                 iPromise.then(function(next){
-                    var iCmd = 'npm uninstall ' + pathname;
-                    util.msg.info('run cmd', iCmd);
-                    util.runCMD( iCmd, function(err){
+
+                    util.msg.info('clearing path:', tPath);
+                    util.removeFiles(tPath, function(err){
                         if(err){
-                            util.msg.warn( iCmd + ' run error:', err);
+                            util.msg.warn('remove files error', err);
+
+                            var iCmd = 'npm uninstall ' + pathname;
+                            util.msg.info('run cmd', iCmd);
+
+                            util.runCMD( iCmd, function(err){
+                                if(err){
+                                    util.msg.warn( iCmd + ' run error:', err);
+                                }
+                                next();
+                            });
+
+                        } else {
+                            util.msg.success('done');
+                            next();
                         }
-                        next();
+
                     });
+                    
                 });
             });
             iPromise.then(function(){

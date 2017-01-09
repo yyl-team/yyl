@@ -2,6 +2,7 @@
 var path = require('path'),
     ExtractTextPlugin = require("extract-text-webpack-plugin"),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
+    // HtmlWebpackExcludeAssetsPlugin = require('html-webpack-exclude-assets-plugin'),
     ManifestPlugin = require('webpack-manifest-plugin'),
     util = require('../../lib/yyl-util.js'),
     fs = require('fs'),
@@ -100,7 +101,7 @@ var webpackconfig = {
             loader: ExtractTextPlugin.extract("style-loader", "css!sass")
         }, {
             test: /\.jade$/,
-            loaders: ['html-loader','jade-loader']
+            loaders: ['pug-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
             loader: 'url?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))
@@ -130,7 +131,8 @@ var webpackconfig = {
     },
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "boot-[chunkhash:8].css"))))
+        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name]-[chunkhash:8].css"))))
+        // HtmlWebpackExcludeAssetsPlugin()
     ]
 };
 
@@ -143,18 +145,20 @@ if(config.commit.revAddr){
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     var 
-        bootPath = path.join(config.alias.srcRoot, 'boot/boot.jade'),
-        entryPath = path.join(config.alias.srcRoot, 'entry'),
+        bootPath = util.joinFormat(config.alias.srcRoot, 'boot'),
+        entryPath = util.joinFormat(config.alias.srcRoot, 'entry'),
         outputPath = [],
         r = [];
 
     if(fs.existsSync(bootPath)){
-        outputPath.push(bootPath);
+        outputPath.push(util.readFilesSync(bootPath, /(\.jade|\.html)$/));
     }
 
     if(fs.existsSync(entryPath)){
         outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.html)$/));
     }
+
+
 
     var entrys = [];
 
@@ -167,14 +171,24 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     outputPath.forEach(function(iPath){
         var iBaseName = path.basename(iPath).replace(/(\.jade|\.html)$/, '');
         var iExclude = [].concat(entrys);
-        var jsPath = util.joinFormat(config.alias.srcRoot, 'js');
+        var fPath;
+
 
         for(var i = 0; i < iExclude.length;){
             if(util.type(iExclude[i]) == 'array'){
                 i++;
 
             } else {
-                if(iExclude[i] == iBaseName || util.joinFormat(iExclude[i]).substr(0, jsPath.length) != jsPath){
+                fPath = webpackconfig.entry[iExclude[i]];
+                if(util.type(fPath) == 'array'){
+                    fPath = fPath[0];
+                }
+                if(webpackconfig.resolve.alias[fPath]){
+                    fPath = webpackconfig.resolve.alias[fPath];
+                }
+                fPath = util.joinFormat(fPath);
+                
+                if(iExclude[i] == iBaseName || (fPath.substr(0, entryPath.length) != entryPath && fPath.substr(0, bootPath.length) != bootPath)){
                     iExclude.splice(i, 1);
                 } else {
                     i++;
@@ -182,6 +196,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
 
             }
         }
+
 
 
         r.push(new HtmlWebpackPlugin({
