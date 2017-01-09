@@ -175,9 +175,10 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 ## 版本信息
 
 ### 1.11.2 (2017-01-09)
+* [ADD] vue-webpack 支持 多个entry 中 单独渲染 自己的 css 文件
 * [FIX] 修复 vuewebpack 里面 jade 模板渲染不了问题
 * [FIX] 修复 vuewebpack 里面 css 文件名称 不跟 entry 定义问题
-* [ADD] vue-webpack 支持 多个entry 中 单独渲染 自己的 css 文件
+* [FIX] 修复 vue-webpack demo 中 no-component 里面 head标签 缺少闭合问题
 
 ### 1.11.0 (2017-01-06)
 * [ADD] yyl rm 句柄，方便卸载 node_modules 文件
