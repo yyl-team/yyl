@@ -174,6 +174,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 1.12.0 (2017-01-11)
+* [EDIT] 将 yyl-util, yyl-color 提取到 npm 上面
+
 ### 1.11.2 (2017-01-09)
 * [ADD] vue-webpack 支持 多个entry 中 单独渲染 自己的 css 文件
 * [FIX] 修复 vuewebpack 里面 jade 模板渲染不了问题

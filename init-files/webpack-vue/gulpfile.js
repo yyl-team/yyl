@@ -8,7 +8,7 @@ var
     fs = require('fs'),
     path = require('path'),
     config = require('./config.js'),
-    util = require('../../lib/yyl-util.js'),
+    util = require('yyl-util'),
     
     webpackConfig = require('./webpack.config.js');
 

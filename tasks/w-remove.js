@@ -2,7 +2,7 @@
 
 var 
     fs = require('fs'),
-    util = require('../lib/yyl-util.js'),
+    util = require('yyl-util'),
     vars = util.vars,
     path = require('path');
 

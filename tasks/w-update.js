@@ -2,7 +2,7 @@
 var 
     path = require('path'),
     fs = require('fs'),
-    util = require('../lib/yyl-util'),
+    util = require('yyl-util'),
     vars = util.vars;
 
 module.exports = function(){

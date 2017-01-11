@@ -1,6 +1,6 @@
 'use strict';
 
-var util = require('../lib/yyl-util.js');
+var util = require('yyl-util');
 
 var 
     wTest = function(){

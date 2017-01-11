@@ -1,6 +1,6 @@
 'use strict';
 var 
-    color = require('../lib/colors');
+    color = require('yyl-color');
 
 var 
     wVersion = function(){

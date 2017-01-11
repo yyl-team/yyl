@@ -1,6 +1,6 @@
 'use strict';
 var 
-    util = require('../lib/yyl-util'),
+    util = require('yyl-util'),
     wServer = require('./w-server'),
     vars = util.vars,
     path = require('path');

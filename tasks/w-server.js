@@ -1,8 +1,8 @@
 'use strict';
 var 
-    util = require('../lib/yyl-util'),
+    util = require('yyl-util'),
+    color = require('yyl-color'),
     vars = util.vars,
-    color = require('../lib/colors'),
     connect = require('connect'),
     serveIndex = require('serve-index'),
     serveStatic = require('serve-static'),
@@ -66,18 +66,7 @@ var
                     util.msg.info('done');
                     next();
                 }
-            }).then(function(next){ // clear lib
-                util.msg.info('start clear server lib');
-                if(fs.existsSync(vars.SERVER_LIB_PATH)){
-                    util.removeFiles(vars.SERVER_LIB_PATH, function(){
-                        util.msg.info('done');
-                        next();
-
-                    });
-                } else {
-                    util.msg.info('done');
-                    next();
-                }
+            
 
             }).then(function(NEXT){ // clear workflowFile
                 util.msg.info('start clear server workflow path');
@@ -465,12 +454,7 @@ var
 
                     util.mkdirSync(vars.SERVER_PATH);
                     util.mkdirSync(workflowPath);
-
-                    // copy the lib to server
-                    util.copyFiles( path.join(vars.BASE_PATH, 'lib'), path.join(vars.SERVER_PATH, 'lib'), function(){
-                        util.msg.success('copy lib to serverpath done');
-                        next();
-                    });
+                    next();
 
                 }).then(function(next){ // copy files to server
                     var files = [],

@@ -10,7 +10,7 @@ var gulp = require('gulp'),
     fs = require('fs'),
     path = require('path'),
     querystring = require('querystring'),
-    util = require('../../lib/yyl-util'),
+    util = require('yyl-util'),
 
     sass = require('gulp-sass'), // sass compiler
     minifycss = require('gulp-minify-css'), // minify css files

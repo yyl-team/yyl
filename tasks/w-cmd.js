@@ -1,7 +1,7 @@
 'use strict';
 var 
-    util = require('../lib/yyl-util'),
-    color = require('../lib/colors'),
+    util = require('yyl-util'),
+    color = require('yyl-color'),
     vars = util.vars;
 
 
