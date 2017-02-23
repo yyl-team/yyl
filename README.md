@@ -174,6 +174,12 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 1.12.1 (2017-02-23)
+* [FIX]  去掉安装/ 卸载时对 yyl-util 的依赖
+
+### 1.12.0 (2017-01-11)
+* [EDIT] 将 yyl-util, yyl-color 提取到 npm 上面
+
 ### 1.12.0 (2017-01-11)
 * [EDIT] 将 yyl-util, yyl-color 提取到 npm 上面
 
