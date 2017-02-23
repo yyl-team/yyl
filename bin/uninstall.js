@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 'use strict';
-var 
-    util = require('../lib/yyl-util.js'),
-    vars = util.vars;
+var IS_WINDOWS = process.platform == 'win32';
 
 var iCMD;
-if(vars.IS_WINDOWS){
+if(IS_WINDOWS){
     iCMD = 'start uninstall.bat';
 
 } else {
     iCMD = 'sh uninstall.sh';
-
 }
-util.runCMD(iCMD, null, __dirname);
+
+var child = require('child_process').exec(iCMD,{
+    maxBuffer: 2000 * 1024,
+    cwd: __dirname
+});
+
+child.stdout.setEncoding('utf8');
+child.stdout.pipe(process.stdout);
+child.stderr.pipe(process.stderr);
