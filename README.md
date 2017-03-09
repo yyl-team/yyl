@@ -155,6 +155,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 ## 版本信息
 
 
+### 2.0.1 (2017-03-09)
+* [EDIT] 修改 package.json 组件依赖
+
 ### 2.0.0 (2017-03-09)
 * [EDIT] yyl 命令安装改为通过 npm install yyl 方式全局安装
 * [DEL]  去除 yyl update 方法

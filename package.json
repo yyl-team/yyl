@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -29,9 +29,7 @@
     "node": ">= 4.0.0"
   },
   "dependencies": {
-    "keypress": "*"
-  },
-  "devDependencies": {
+    "keypress": "*",
     "connect": "~3.5.0",
     "connect-livereload": "~0.6.0",
     "inquirer": "~0.8.5",
@@ -40,5 +38,7 @@
     "tiny-lr": "~1.0.3",
     "yyl-util": "*",
     "yyl-color": "*"
+  },
+  "devDependencies": {
   }
 }
