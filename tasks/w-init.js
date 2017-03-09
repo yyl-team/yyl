@@ -23,7 +23,32 @@ var
         init: function(isForce){
 
             // 信息收集
-            new util.Promise(function(next){ // 本地存储的 commonPath 数据 获取
+            new util.Promise(function(next){
+
+                var 
+                    data = {},
+                    prompt = inquirer.createPromptModule();
+
+                prompt([
+                    {
+                        name: 'name',
+                        message: 'name',
+                        type: 'input',
+                        default: vars.PROJECT_PATH.split('/').pop(),
+
+                    }, {
+                        name: 'platforms',
+                        message: 'platform',
+                        type: 'checkbox',
+                        choices: ['pc', 'mobile'],
+                        default: ['pc']
+                    }
+
+                ], function(d){
+                    next(util.extend(data, d));
+                });
+
+            }).then(function(data, next){  // 本地存储的 commonPath 数据 获取
 
                 util.msg.newline().info('start run init task');
 
@@ -42,15 +67,15 @@ var
                     });
                     prompt(questions, function(d){
                         if(d.ok){
-                            next({commonPath: commonPath});
+                            next(util.extend(data,{commonPath: commonPath}));
                         } else {
-                            next({});
+                            next(data);
                         }
                     });
 
                 } else {
                     util.msg.info('cannot find the common path in your local profile');
-                    next({});
+                    next(data);
 
                 }
             }).then(function(data, next){ // 询问是否自动搜索本地目录
@@ -172,28 +197,9 @@ var
                 }
 
                 data.commonPath = data.commonPath.trim();
-                var 
-                    prompt = inquirer.createPromptModule();
 
-
-                prompt([
-                    {
-                        name: 'name',
-                        message: 'name',
-                        type: 'input',
-                        default: vars.PROJECT_PATH.split('/').pop(),
-
-                    }, {
-                        name: 'platforms',
-                        message: 'platform',
-                        type: 'checkbox',
-                        choices: ['pc', 'mobile'],
-                        default: ['pc']
-                    }
-
-                ], function(d){
-                    next(util.extend(data, d));
-                });
+                next(data);
+                
 
             }).then(function(data, next){ // pc workflow
                 var 

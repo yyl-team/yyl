@@ -13,7 +13,6 @@ var
         server: require('./w-server'),
         test: require('./w-test'),
         commit: require('./w-commit'),
-        update: require('./w-update'),
         remove: require('./w-remove'),
         help: function(){
             util.help({
@@ -23,7 +22,6 @@ var
                     'watch': 'watch task',
                     'all': 'optimize task',
                     'server': 'local server commands',
-                    'update': 'update yyl workflow',
                     'examples': 'show yyl examples'
                 },
                 options: {
@@ -89,9 +87,6 @@ module.exports = function(ctx){
             events.init.apply(events, iArgv);
             break;
 
-        case 'update':
-            events.update.apply(events, iArgv);
-            break;
 
         case 'html':
         case 'js':

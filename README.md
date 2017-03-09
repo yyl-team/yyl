@@ -7,22 +7,12 @@
 * mac 用户 svn 提交需要注意 cmd svn 版本 和 软件 svn 版本是否一致
 
 ## 安装
-用 命令行/终端 打开当前目录, 然后执行
-
 ```
-npm run yyl-install
+npm install yyl -g
 ```
-
-## 卸载
-用 命令行/终端 打开当前目录, 然后执行
-
-```
-npm run yyl-uninstall
-```
-
-
 
 ## 命令说明
+
 
 ### 整体说明
 ```
@@ -33,7 +23,6 @@ Commands:
     watch   执行打包并建立本地服务器监听
     all     执行打包操作
     server  yyl本地服务相关命令
-    update  更新 yyl 版本
 
 
 Options:
@@ -102,15 +91,6 @@ Options:
     -h, --help    帮助信息
     -p, --path    打开本地服务所在路径
 ```
-### 更新相关命令
-```
-Useage: yyl update <command>
-
-Commands:
-
-Options:
-    --version <版本号> 设置更新的特定版本号， 默认为更新到最新分支
-```
 
 ### 例子相关命令
 ```
@@ -173,6 +153,11 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [带自定义 webpack.config 例子](./examples/webpack-vue/local-webpackconfig)
 
 ## 版本信息
+
+
+### 2.0.0 (2017-03-09)
+* [EDIT] yyl 命令安装改为通过 npm install yyl 方式全局安装
+* [DEL]  去除 yyl update 方法
 
 ### 1.12.1 (2017-02-23)
 * [FIX]  去掉安装/ 卸载时对 yyl-util 的依赖
