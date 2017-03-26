@@ -14,6 +14,7 @@ var
         test: require('./w-test'),
         commit: require('./w-commit'),
         remove: require('./w-remove'),
+        debug: require('./w-debug'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -121,7 +122,9 @@ module.exports = function(ctx){
             events.test();
             break;
 
-        
+        case 'debug':
+            events.debug.apply(events, iArgv.slice(1));
+            break;
 
 
         default:
