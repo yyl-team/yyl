@@ -3,7 +3,7 @@
 var 
     fs = require('fs'),
     util = require('yyl-util'),
-    vars = util.vars,
+    vars = require('./w-vars'),
     path = require('path');
 
 var 

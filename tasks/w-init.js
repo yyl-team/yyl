@@ -2,7 +2,7 @@
 var 
     color = require('yyl-color'),
     util = require('yyl-util'),
-    vars = util.vars,
+    vars = require('./w-vars'),
     wServer = require('./w-server'),
     path = require('path'),
     fs = require('fs'),
@@ -500,7 +500,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                /package\.json|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
@@ -516,7 +516,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|node_modules|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                /package\.json|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );

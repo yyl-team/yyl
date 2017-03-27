@@ -2,8 +2,7 @@
 var 
     util = require('yyl-util'),
     color = require('yyl-color'),
-    vars = util.vars;
-
+    vars = require('./w-vars.js');
 
 var 
     events = {

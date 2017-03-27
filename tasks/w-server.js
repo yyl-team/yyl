@@ -2,7 +2,7 @@
 var 
     util = require('yyl-util'),
     color = require('yyl-color'),
-    vars = util.vars,
+    vars = require('./w-vars'),
     connect = require('connect'),
     serveIndex = require('serve-index'),
     serveStatic = require('serve-static'),

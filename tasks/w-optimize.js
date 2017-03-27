@@ -2,7 +2,7 @@
 var 
     util = require('yyl-util'),
     wServer = require('./w-server'),
-    vars = util.vars,
+    vars = require('./w-vars'),
     path = require('path');
 
 var 

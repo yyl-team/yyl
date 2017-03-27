@@ -4,7 +4,7 @@ var path = require('path'),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
     // HtmlWebpackExcludeAssetsPlugin = require('html-webpack-exclude-assets-plugin'),
     ManifestPlugin = require('webpack-manifest-plugin'),
-    util = require('../../lib/yyl-util.js'),
+    util = require('yyl-util'),
     fs = require('fs'),
     config = require('./config.js');
 
@@ -104,7 +104,7 @@ var webpackconfig = {
             loaders: ['pug-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
-            loader: 'url?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))
+            loader: 'url-loader?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))
         }, {
             // shiming the module
             test: path.join(config.alias.srcRoot, 'js/lib/'),

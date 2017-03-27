@@ -1,7 +1,7 @@
 'use strict';
 var 
     util = require('yyl-util'),
-    vars = util.vars,
+    vars = require('./w-vars.js'),
     wServer = require('./w-server.js'),
     path = require('path'),
     fs = require('fs');
