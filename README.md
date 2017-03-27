@@ -152,12 +152,24 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 * [多入口例子](./examples/webpack-vue/multi-project)
 * [带自定义 webpack.config 例子](./examples/webpack-vue/local-webpackconfig)
 
+### webpack-vue2
+适用于 移动端开发
+
+#### 说明文档
+* [说明文档](./init-files/webpack-vue2/README.md)
+
+#### 例子
+* [hello world](./examples/webpack-vue2/single-project)
+
 ## 版本信息
 
-### 2.0.5 (2017-03-28)
+### 2.1.0 (2017-03-27)
+* [ADD] 新增 webpack-vue2 yyl 初始化工程
+
+### 2.0.5 (2017-03-27)
 * [FIX] 修复 yyl 初始化时 由于 yyl 全局安装是处在 node_modules 文件夹下， 而拷贝文件时又设置了 跳过 node_modules 文件夹的操作， 导致拷贝失败问题
 
-### 2.0.4 (2017-03-28)
+### 2.0.4 (2017-03-27)
 * [FIX] 修复 yyl 初始化组件时 只生成 dist 空文件问题
 
 ### 2.0.3 (2017-03-27)
