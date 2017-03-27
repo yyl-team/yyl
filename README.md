@@ -163,6 +163,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.1.1 (2017-03-27)
+* [ADD] webpack-vue2 example bug fix
+
 ### 2.1.0 (2017-03-27)
 * [ADD] 新增 webpack-vue2 yyl 初始化工程
 
