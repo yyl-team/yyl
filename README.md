@@ -163,6 +163,10 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+
+### 2.2.0 (2017-03-28)
+* [ADD] 新增 各工作流 optimize, watch task 时会出现 notify 提示
+
 ### 2.1.1 (2017-03-27)
 * [ADD] webpack-vue2 example bug fix
 

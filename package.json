@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -11,8 +11,7 @@
   "bin": {
     "yyl": "./bin/init.js"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "main": "index.js",
   "directories": {
     "example": "examples"
@@ -40,5 +39,6 @@
     "yyl-color": "*"
   },
   "devDependencies": {
+    "nw-notify": "^1.0.3"
   }
 }

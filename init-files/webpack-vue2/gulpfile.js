@@ -5,11 +5,12 @@ var
     clean = require('gulp-clean'),
     webpack = require('webpack'),
     runSequence = require('run-sequence'),
+    notifier = require('node-notifier'),
     fs = require('fs'),
     path = require('path'),
     config = require('./config.js'),
     util = require('yyl-util'),
-    
+    notifyTitle = 'webpack-vue2',
     webpackConfig = require('./webpack.config.js');
 
 
@@ -277,8 +278,15 @@ gulp.task('rev-update', function(done){
 
 
 gulp.task('all', function(done){
-    runSequence('clean', 'webpack', 'rev', done);
+    runSequence('clean', 'webpack', 'rev', function(){
+        notifier.notify({
+            title: notifyTitle,
+            message: 'optimize task done'
+        });
+        done();
+    });
 });
+
 
 gulp.task('clean', function(){
     return gulp.src( util.joinFormat( config.alias.destRoot, '**/*.*'))
@@ -293,7 +301,13 @@ gulp.task('html', function(){
 gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack', 'html', 'rev-update', 'connect-reload');
+        runSequence('webpack', 'html', 'rev-update', 'connect-reload', function(){
+            notifier.notify({
+                title: notifyTitle,
+                message: 'watch task done'
+            });
+
+        });
     });
 
     if(gulp.env.ver == 'remote'){

@@ -30,6 +30,7 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
+    notifier = require('node-notifier'),
 
     through = require('through2'),
     es = require('event-stream'),
@@ -645,7 +646,12 @@ gulp.task('watch', ['all'], function() {
 
     // 看守所有.scss档
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
-        runSequence('css', 'html', 'concat', 'connect-reload');
+        runSequence('css', 'html', 'concat', 'connect-reload', function(){
+            notifier.notify({
+                title: 'gulp-requirejs',
+                message: 'css task done'
+            });
+        });
     });
 
     // 看守所有.js档
@@ -654,7 +660,12 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
     ], function(){
-        runSequence('js', 'html', 'concat', 'connect-reload');
+        runSequence('js', 'html', 'concat', 'connect-reload', function(){
+            notifier.notify({
+                title: 'gulp-requirejs',
+                message: 'js task done'
+            });
+        });
     });
 
     // 看守所有图片档
@@ -663,7 +674,13 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
     ], function(){
-        runSequence('images', 'html', 'connect-reload');
+        runSequence('images', 'html', 'connect-reload', function(){
+            notifier.notify({
+                title: 'gulp-requirejs',
+                message: 'images task done'
+            });
+
+        });
 
     });
 
@@ -673,7 +690,12 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
     ], function(){
-        runSequence('html', 'connect-reload');
+        runSequence('html', 'connect-reload', function(){
+            notifier.notify({
+                title: 'gulp-requirejs',
+                message: 'jade task done'
+            });
+        });
     });
 
     runSequence('connect-reload');
@@ -1048,7 +1070,14 @@ gulp.task('all', function(done){
 
     util.removeFiles(vars.destRoot, function(){
         util.msg.info('clear dist file done');
-        runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', done);
+        runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function(){
+            notifier.notify({
+                title: 'gulp-requirejs',
+                message: 'all task done'
+            });
+
+            done();
+        });
     });
 });
 

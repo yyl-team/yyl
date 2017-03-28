@@ -1,4 +1,4 @@
-# gulp-requirejs workflow
+# webpack-vue2 workflow
 
 ## 命令说明
 ```

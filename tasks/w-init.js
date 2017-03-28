@@ -474,9 +474,20 @@ var
                             if(!fs.existsSync(dirPath)){
                                 util.mkdirSync(dirPath);
                             }
-                            if(fs.readdirSync(dirPath).length && !isForce){
-                                done(dirname + ' directory is not empty, init fail');
-                                return;
+
+                            var 
+                                dirs = fs.readdirSync(dirPath),
+                                noEmpty = false;
+                            if(dirs.length){
+                                dirs.forEach(function(str){
+                                    if(!/^\./.test(str)){
+                                        noEmpty = true;
+                                    }
+
+                                });
+                                if(noEmpty && !isForce){
+                                    return done(dirname + ' directory is not empty, init fail');
+                                }
                             }
 
                             if(data.buildPaths){ // 构建其他文件夹(svn)
