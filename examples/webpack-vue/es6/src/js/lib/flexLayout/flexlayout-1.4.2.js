@@ -1,11 +1,11 @@
 'use strict';
 (function(){
 
-
     var 
         iUA = navigator.userAgent,
         // 配置是否使用 缩放 viewport
         needScale = window.__flexlayoutConfig && window.__flexlayoutConfig.scale === true ? true : false,
+        // needScale = true,
         UA = {
             YY: /YY[\/ ][0-9.]+/.test(iUA),
             Android: /Android[\/ ](\d+\.\d+)/.test(iUA) ? RegExp.$1 : false,
@@ -39,7 +39,9 @@
     }
 
 
+
     metaEl.content = "width=device-width, initial-scale=1, maximum-scale=1";
+
 
     if(UA.IOS){
         if(needScale){
@@ -48,9 +50,16 @@
         }
 
     } else if(UA.Android){
+        // alert([
+        //     'docEl.clientWidth:' + docEl.clientWidth,
+        //     'docEl.offsetWidth:' + docEl.offsetWidth,
+        //     'scWidth:' + scWidth,
+
+        // ].join('\n'));
         // 修复部分机型内嵌页(oppo R8) 无论是 clientWidth、 offsetWidth、 screenWidth 都相等的情况（webview 已写死尺寸， 缩放不了）
         if(docEl.clientWidth == docEl.offsetWidth && docEl.offsetWidth == scWidth){
             needScale = false;
+            dpr = 1;
         }
 
 
@@ -70,6 +79,10 @@
                 scWidth = Math.floor(scWidth * dpr);
                 scHeight = Math.floor(scHeight * dpr);
             }
+
+        } else {
+            scWidth = docEl.clientWidth;
+            scHeight = docEl.clientHeight;
         }
         htmlEl.className += ' mobile-layout android-layout';
 
@@ -80,17 +93,18 @@
         htmlEl.className += ' pc-layout';
     }
 
+
     var 
-		clientWidth = scWidth > scHeight? scHeight: scWidth,
-		clientHeight = scWidth > scHeight? scWidth: scHeight,
+        clientWidth = scWidth > scHeight? scHeight: scWidth,
+        clientHeight = scWidth > scHeight? scWidth: scHeight,
         rem = clientWidth / 10, 
-		vrem = clientHeight / 10,
-		fontEl = document.createElement('style'), 
-		scale = 1 / dpr; // 设置viewport，进行缩放，达到高清效果 
+        vrem = clientHeight / 10,
+        fontEl = document.createElement('style'), 
+        scale = 1 / dpr; // 设置viewport，进行缩放，达到高清效果 
 
     var cnt = [
         'width=' + clientWidth,
-		'initial-scale=' + scale,
+        'initial-scale=' + scale,
         'maximum-scale='+ scale
     ];
 
@@ -100,11 +114,13 @@
     }
     if(needScale){
         metaEl.setAttribute('content', cnt.join(','));
+
+    } else {
+        dpr = 1;
     }
 
-	htmlEl.setAttribute('data-dpr', dpr); // 动态写入样式 
 
-	docEl.firstElementChild.appendChild(fontEl); 
+    docEl.firstElementChild.appendChild(fontEl); 
 
 
     var 
@@ -112,13 +128,28 @@
         cHeight = docEl.clientHeight,
         mediaWidth = cWidth > cHeight? cWidth: cHeight;
 
+    fontEl.innerHTML = [
+        'html{font-size:' + rem + 'px!important;}',
+        '@media screen and (min-width: '+ mediaWidth +'px){',
+            'html{font-size:'+ vrem +'px!important;}',
+        '}'
+    ].join('');
 
-	fontEl.innerHTML = [
-		'html{font-size:' + rem + 'px!important;}',
-		'@media screen and (min-width: '+ mediaWidth +'px){',
-			'html{font-size:'+ vrem +'px!important;}',
-		'}',
-	].join('');
 
+    if(dpr < 1.5){
+        dpr = 1;
+
+    } else if(dpr < 2){
+        dpr = 1.5;
+
+    } else if(dpr < 2.5){
+        dpr = 2;
+
+    } else if(dpr < 3){
+        dpr = 2.5;
+
+    } else {
+        dpr = 3;
+    }
+    htmlEl.setAttribute('data-dpr', dpr); // 动态写入样式 
 })();
-

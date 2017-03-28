@@ -2,7 +2,6 @@
 var 
     gulp = require('gulp'),
     gutil = require('gulp-util'),
-    clean = require('gulp-clean'),
     webpack = require('webpack'),
     runSequence = require('run-sequence'),
     notifier = require('node-notifier'),
@@ -251,7 +250,6 @@ gulp.task('rev-update', function(done){
                                         );
                                         util.msg.create('file', revData[src]);
                                     }
-                                    
                                 }
                             }
                         }
@@ -278,7 +276,7 @@ gulp.task('rev-update', function(done){
 
 
 gulp.task('all', function(done){
-    runSequence('clean', 'webpack', 'rev', function(){
+    runSequence('webpack', 'rev', function(){
         notifier.notify({
             title: notifyTitle,
             message: 'optimize task done'
@@ -287,12 +285,6 @@ gulp.task('all', function(done){
     });
 });
 
-
-gulp.task('clean', function(){
-    return gulp.src( util.joinFormat( config.alias.destRoot, '**/*.*'))
-            .pipe(clean({force: true}));
-
-});
 
 gulp.task('html', function(){
     

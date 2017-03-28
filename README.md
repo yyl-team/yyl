@@ -164,6 +164,11 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 ## 版本信息
 
 
+### 2.2.1 (2017-03-28)
+* [FIX] 修复 webpack-vue, webpack-vue2 组件clean 报错问题
+* [EDIT] 更新 每个 example 里面 对 flexlayout 组件引用 的版本
+* [ADD] yyl commit 时会自动清除 dest 文件夹内容
+
 ### 2.2.0 (2017-03-28)
 * [ADD] 新增 各工作流 optimize, watch task 时会出现 notify 提示
 

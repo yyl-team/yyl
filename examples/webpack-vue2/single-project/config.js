@@ -82,7 +82,7 @@ var
 
 
             // webpackconfig 中的 alias
-            flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.0.js')
+            flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js')
 
         },
         // -此部分 yyl server 端config 会进行替换

@@ -9,7 +9,6 @@ var
 var 
     wCommit = {
         initConfig: function(iEnv, done){
-
             new util.Promise(function(next){ // env check
                 if(!iEnv.sub){
                     events.help();
@@ -481,6 +480,16 @@ var
                     util.msg.success('commit task server init done');
                     next(config);
 
+                });
+            }).then(function(config, next){ // dest clean
+                util.msg.info('clean dest start');
+                util.removeFiles([config.alias.destRoot], function(err){
+                    if(err){
+                        return util.msg.error('clean dest fail', err);
+                    }
+
+                    util.msg.info('clean dest done');
+                    next(config);
                 });
 
             }).then(function(config, next){ // optimize
