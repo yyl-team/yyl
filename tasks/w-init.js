@@ -511,7 +511,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
@@ -527,7 +527,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|gulpfile\.js|\.DS_Store|.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
