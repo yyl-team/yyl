@@ -271,7 +271,7 @@ var
                         message: 'mobile workflow',
                         type: 'list',
                         choices: workflows,
-                        default: 'webpack-vue'
+                        default: 'webpack-vue2'
                     });
                     prompt(questions, function(d){
                         next(util.extend(data, d));
@@ -324,7 +324,7 @@ var
                     name: 'initType',
                     message: 'select init type',
                     type: 'list',
-                    choices: ['svn path (full svn)', 'git path (just project)']
+                    choices: ['git path (just project)', 'svn path (full svn)']
 
                 });
                 prompt(questions, function(d){
@@ -527,7 +527,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|\.babelrc/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );

@@ -2,7 +2,6 @@
 var path = require('path'),
     ExtractTextPlugin = require("extract-text-webpack-plugin"),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
-    // HtmlWebpackExcludeAssetsPlugin = require('html-webpack-exclude-assets-plugin'),
     ManifestPlugin = require('webpack-manifest-plugin'),
     util = require('yyl-util'),
     fs = require('fs'),
@@ -17,7 +16,7 @@ if(fs.existsSync('./config.mine.js')){
 
 
 var webpackconfig = {
-    entry: (function(){ // 未完成
+    entry: (function(){
 
         var iSrcRoot = path.isAbsolute(config.alias.srcRoot)? config.alias.srcRoot: path.join(__dirname, config.alias.srcRoot);
         var 
@@ -82,46 +81,70 @@ var webpackconfig = {
         ),
     },
     module: {
-        loaders: [{
+        rules: [{
             test: /\.js$/,
             exclude: '/node_modules/',
-            loader: 'babel-loader',
-            query: {
-                presets: ['babel-preset-es2015'].map(require.resolve)
-            }
+            loader: 'babel-loader'
+            // query: {
+            //     presets: ['babel-preset-es2015'].map(require.resolve)
+            // }
 
         }, {
             test: /\.vue$/,
-            loader: 'vue-loader'
+            loader: 'vue-loader',
+            // include: [
+            //     path.join(__dirname, 'node_modules')
+
+            // ],
+            options: {
+                loaders: {
+                    'scss': 'vue-style-loader!css-loader!sass-loader',
+                    'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+                }
+            }
         }, {
             test: /\.html$/,
             loaders: ['html-loader']
         }, {
             test: /\.scss$/,
-            loader: ExtractTextPlugin.extract("style-loader", "css!sass")
+            use: ExtractTextPlugin.extract({
+                fallback: 'style-loader',
+                use: ["css-loader", "sass-loader"]
+            })
         }, {
             test: /\.jade$/,
-            loaders: ['pug-loader']
+            use: ['pug-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
-            loader: 'url-loader?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))
+            loader: 'url-loader',
+            options: {
+                limit: 10000,
+                name: util.joinFormat(
+                    path.relative(
+                        config.alias.jsDest, 
+                        path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')
+                    )
+                )
+            }
         }, {
             // shiming the module
             test: path.join(config.alias.srcRoot, 'js/lib/'),
-            loader: 'imports?this=>window'
+            loader: 'imports-loader?this=>window'
         }, {
             // shiming the global module
             test: path.join(config.alias.commons, 'lib'),
-            loader: 'imports?this=>window'
+            loader: 'imports-loader?this=>window'
         }]
 
     },
     resolveLoader: { 
-        fallback: path.join( __dirname, "node_modules") 
+        modules: [path.join( __dirname, "node_modules")]
     },
     resolve: {
-        fallback: path.join( __dirname, "node_modules"),
-        root: './',
+        modules: [
+            __dirname,
+            path.join(__dirname, "node_modules")
+        ],
         alias: util.extend({
             'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
             'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
@@ -132,8 +155,14 @@ var webpackconfig = {
     },
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name]-[chunkhash:8].css"))))
-        // HtmlWebpackExcludeAssetsPlugin()
+        new ExtractTextPlugin({
+            filename: util.joinFormat(
+                path.relative(
+                    config.alias.jsDest, 
+                    path.join(config.alias.cssDest, "[name]-[chunkhash:8].css")
+                )
+            )
+        })
     ]
 };
 

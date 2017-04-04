@@ -1,15 +1,13 @@
 'use strict';
-
-var 
-    Vue = require('vue'),
-    Vuex = require('vuex');
+import Vue from 'vue';
+import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
 var state = {};
 var mutations = {};
 
-module.exports = new Vuex.Store({
+export default new Vuex.Store({
     state: state,
     mutations: mutations
 });
