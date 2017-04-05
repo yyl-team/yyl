@@ -163,6 +163,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.3.1 (2017-04-05)
+* [EDIT] 将 vue-loader sass 模块 也当做 scss 模块进行编译
+
 ### 2.3.0 (2017-04-05)
 * [EDIT] 将 webpack-vue2 改用为 webpack2
 
