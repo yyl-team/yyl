@@ -55,7 +55,7 @@ gulp.task('connect-reload', function(){
 
 gulp.task('webpack', function(done){
     var 
-        iWebpackConfig = util.extend({}, webpackConfig),
+        iWebpackConfig = util.extend(true, {}, webpackConfig),
         localWebpackConfigPath = path.join(config.alias.dirname, 'webpack.config.js'),
         localWebpackConfig;
 
@@ -293,7 +293,7 @@ gulp.task('html', function(){
 gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack', 'html', 'rev-update', 'connect-reload', function(){
+        runSequence('webpack', 'html', 'rev', 'rev-update', 'connect-reload', function(){
             notifier.notify({
                 title: notifyTitle,
                 message: 'watch task done'
