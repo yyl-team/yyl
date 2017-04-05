@@ -25,7 +25,7 @@ var
         configInit: function(){
             var 
                 iSub = gulp.env.sub,
-                iConfig = config.commit[iSub];
+                iConfig = config.commit.svn[iSub];
 
             return iConfig;
         }
@@ -226,9 +226,9 @@ gulp.task('rev-update', function(done){
                 var 
                     iConfig = fn.configInit();
 
-                util.msg.info('start get the revFile', iConfig.commit.revAddr.green);
+                util.msg.info('start get the revFile', config.commit.revAddr.green);
 
-                util.get(iConfig.commit.revAddr + '?' + (+new Date()), function(data){
+                util.get(config.commit.revAddr + '?' + (+new Date()), function(data){
                     util.msg.success('get remote rev success');
                     util.msg.info('rev data =>', data.toString());
                     try{
@@ -250,7 +250,6 @@ gulp.task('rev-update', function(done){
                                         );
                                         util.msg.create('file', revData[src]);
                                     }
-                                    
                                 }
                             }
                         }
