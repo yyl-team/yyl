@@ -473,7 +473,7 @@ var
                             break;
                             
                         case 'webpack-vue2':
-                            files = ['package.json', 'gulpfile.js', 'webpack.config.js', '.babelrc'];
+                            files = ['package.json', 'gulpfile.js', 'webpack.config.js'];
                             break;
 
                         default:

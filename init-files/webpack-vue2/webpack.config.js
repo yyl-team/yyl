@@ -81,28 +81,42 @@ var webpackconfig = {
         ),
     },
     module: {
+        
         rules: [{
             test: /\.js$/,
             exclude: '/node_modules/',
-            loader: 'babel-loader'
-            // query: {
-            //     presets: ['babel-preset-es2015'].map(require.resolve)
-            // }
+            loader: 'babel-loader',
+            query: {
+                babelrc: false,
+                presets: [
+                    'babel-preset-es2015',
+                    'babel-preset-stage-0'
+                ].map(require.resolve)
+                
+            }
 
         }, {
             test: /\.vue$/,
             loader: 'vue-loader',
-            // include: [
-            //     path.join(__dirname, 'node_modules')
-
-            // ],
             options: {
+                babel: {
+                    presets: [
+                        'babel-preset-es2015',
+                        'babel-preset-stage-0'
+                    ].map(require.resolve)
+
+                },
                 loaders: {
                     'scss': 'vue-style-loader!css-loader!sass-loader',
-                    'sass': 'vue-style-loader!css-loader!sass-loader'
-                    // 'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+                    'sass': 'vue-style-loader!css-loader!sass-loader',
+                    'js': 'babel-loader?babelrc=false&presets[]=' + [
+                        'babel-preset-es2015',
+                        'babel-preset-stage-0'
+                    ].map(require.resolve)
                 }
+
             }
+            
         }, {
             test: /\.html$/,
             loaders: ['html-loader']
@@ -114,27 +128,34 @@ var webpackconfig = {
             })
         }, {
             test: /\.jade$/,
-            use: ['pug-loader']
+            loaders: ['pug-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
-            loader: 'url-loader',
-            options: {
-                limit: 10000,
-                name: util.joinFormat(
-                    path.relative(
-                        config.alias.jsDest, 
-                        path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')
+            use: {
+                loader: 'url-loader',
+                options: {
+                    limit: 10000,
+                    name: util.joinFormat(
+                        path.relative(
+                            config.alias.jsDest, 
+                            path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')
+                        )
                     )
-                )
+                }
             }
+            
         }, {
             // shiming the module
             test: path.join(config.alias.srcRoot, 'js/lib/'),
-            loader: 'imports-loader?this=>window'
+            use: {
+                loader: 'imports-loader?this=>window'
+            }
         }, {
             // shiming the global module
             test: path.join(config.alias.commons, 'lib'),
-            loader: 'imports-loader?this=>window'
+            use: {
+                loader: 'imports-loader?this=>window'
+            }
         }]
 
     },

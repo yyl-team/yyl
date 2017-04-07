@@ -163,6 +163,8 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.3.4 (2017-04-07)
+* [FIX] 修复 vue 文件 es6 语法不编译问题
 
 ### 2.3.3 (2017-04-05)
 * [FIX] 修复 yyl watch --ver remote 时 再次更新 rev-manifest.json 文件显示不正常问题
