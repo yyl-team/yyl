@@ -89,8 +89,8 @@ var webpackconfig = {
             query: {
                 babelrc: false,
                 presets: [
-                    'babel-preset-es2015',
-                    'babel-preset-stage-0'
+                    'babel-preset-es2015'
+                    // 'babel-preset-stage-0'
                 ].map(require.resolve)
                 
             }
@@ -99,19 +99,12 @@ var webpackconfig = {
             test: /\.vue$/,
             loader: 'vue-loader',
             options: {
-                babel: {
-                    presets: [
-                        'babel-preset-es2015',
-                        'babel-preset-stage-0'
-                    ].map(require.resolve)
-
-                },
                 loaders: {
                     'scss': 'vue-style-loader!css-loader!sass-loader',
                     'sass': 'vue-style-loader!css-loader!sass-loader',
                     'js': 'babel-loader?babelrc=false&presets[]=' + [
                         'babel-preset-es2015',
-                        'babel-preset-stage-0'
+                        // 'babel-preset-stage-0'
                     ].map(require.resolve)
                 }
 
