@@ -1,4 +1,4 @@
 'use strict';
-import rDemo from '../r-demo/r-demo.js';
+import {rDemo} from '../r-alias/r-alias.js';
 rDemo.init();
 

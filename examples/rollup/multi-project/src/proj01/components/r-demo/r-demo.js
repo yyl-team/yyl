@@ -1,7 +1,7 @@
 'use strict';
 var 
     wDemo = {
-        init: function(){
+        init(){
             var logoEl = document.getElementById('logo');
             var i;
             var iClass = [0, 1, 2, 3];
