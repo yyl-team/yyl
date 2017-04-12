@@ -163,6 +163,11 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.4.0 (2017-04-11)
+* [ADD] 新增 rollup 工作流
+* [WARN] 发现 browserify 工作流中 模板 必须 使用 module.export = xx 方式结尾， 不能使用 export default 方式， 待修复
+* [EDIT] 完善 svnConfig.onBeforeCommit 功能
+
 ### 2.3.5 (2017-04-07)
 * [FIX] 去掉多余的代码
 

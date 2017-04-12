@@ -219,10 +219,11 @@ var
 
                 if(svnConfig.onBeforeCommit){
                     util.msg.info('onBeofreCommit task run');
-                    svnConfig.onBeforeCommit(iBranch);
+                    svnConfig.onBeforeCommit(iBranch, done);
+                } else {
+                    done();
                 }
 
-                done();
 
             }).start();
 
