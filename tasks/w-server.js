@@ -55,7 +55,7 @@ var
         // 服务器清空
         clear: function(){
             new util.Promise(function(next){ // clear data file
-                util.msg.info('start clear server data path');
+                util.msg.info('start clear server data path:', vars.SERVER_DATA_PATH);
                 if(fs.existsSync(vars.SERVER_DATA_PATH)){
                     util.removeFiles(vars.SERVER_DATA_PATH, function(){
                         util.msg.info('done');
@@ -69,7 +69,7 @@ var
             
 
             }).then(function(NEXT){ // clear workflowFile
-                util.msg.info('start clear server workflow path');
+                util.msg.info('start clear server workflow path', vars.SERVER_WORKFLOW_PATH);
                 if(fs.existsSync(vars.SERVER_WORKFLOW_PATH)){
                     var iPromise = new util.Promise();
                     fs.readdirSync(vars.SERVER_WORKFLOW_PATH).forEach(function(str){
@@ -85,19 +85,29 @@ var
                             });
                         }
 
+                        iPromise.then(function(next){
+                            wRemove(iPath, function(){
+                                next();
+                            });
+                        });
+
                     });
 
                     iPromise.then(function(){
-                        util.msg.info('done');
                         NEXT();
                     });
                     iPromise.start();
 
                 } else {
-                    util.msg.info('done');
                     NEXT();
 
                 }
+            }).then(function(next){
+                util.msg.info('start clear server path', vars.SERVER_PATH);
+                wRemove(vars.SERVER_PATH, function(){
+                    next();
+                });
+
             }).then(function(){
                 util.msg.success('clear task done');
 
@@ -309,7 +319,9 @@ var
 
             }).then(function(iConfig, next){
                 if(iConfig.plugins && iConfig.plugins.length){
+                    var iPkgPath = path.join(vars.SERVER_WORKFLOW_PATH, iConfig.workflow, 'package.json');
                     var installLists = [];
+
                     iConfig.plugins.forEach(function(str){
                         var iDir, iVer;
                         if(~str.indexOf('@')){
@@ -340,13 +352,20 @@ var
                     });
 
                     if(installLists.length){
+                        if(!fs.existsSync(iPkgPath)){
+                            fs.writeFileSync(iPkgPath, '{}');
+                        }
+
+
                         var cmd = 'npm install ' + installLists.join(' ');
                         util.msg.info('run cmd:', cmd);
+                        process.chdir(workFlowPath);
 
                         util.runCMD(cmd, function(err){
                             if(err){
                                 return done(err, iConfig);
                             }
+                            process.chdir(vars.PROJECT_PATH);
 
                             next(iConfig);
 
@@ -504,17 +523,33 @@ var
                             var 
                                 dirs = fs.readdirSync(modulePath),
                                 pkg = util.requireJs(path.join(workflowPath, 'package.json')),
-                                devs = pkg.devDependencies;
+                                devs = pkg.devDependencies,
+                                ds = pkg.dependencies,
+                                key;
 
-                            for(var key in devs){
-                                if(devs.hasOwnProperty(key)){
-                                    if(!~dirs.indexOf(key)){
-                                        nocmd = false;
-                                        break;
+                            if(nocmd){
+                                for(key in devs){
+                                    if(devs.hasOwnProperty(key)){
+                                        if(!~dirs.indexOf(key)){
+                                            nocmd = false;
+                                            break;
+                                        }
                                     }
-
                                 }
                             }
+
+                            if(nocmd){
+                                for(key in ds){
+                                    if(ds.hasOwnProperty(key)){
+                                        if(!~dirs.indexOf(key)){
+                                            nocmd = false;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                            }
+
 
                         }
 

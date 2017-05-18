@@ -153,7 +153,7 @@ var webpackconfig = {
 
     },
     resolveLoader: { 
-        modules: [path.join( __dirname, "node_modules")]
+        modules: [path.join( __dirname, "node_modules"), __dirname]
     },
     resolve: {
         modules: [

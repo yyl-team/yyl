@@ -1,5 +1,11 @@
 # browserify-babel workflow
 
+## 环境说明
+本项目基于 yyl 组件进行搭建， 运行前需全局安装:
+```
+npm install yyl -g
+```
+
 ## 命令说明
 ```
 Useage: yyl <command>

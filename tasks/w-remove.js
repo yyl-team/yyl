@@ -18,6 +18,12 @@ var
 
         var iBaseName = path.basename(tPath);
 
+        if(!fs.existsSync(tPath)){
+            var msg = tPath + ' is not exists';
+            util.trace.warn(msg);
+            return done && done(msg);
+        }
+
         if(iBaseName == 'node_modules'){
             var iPromise = new util.Promise();
             var dirList = fs.readdirSync(tPath);
@@ -55,7 +61,7 @@ var
                             });
 
                         } else {
-                            util.msg.success('done');
+                            util.msg.info('clear done:', tPath);
                             next();
                         }
 
@@ -64,12 +70,11 @@ var
                 });
             });
             iPromise.then(function(){
-                util.msg.success('done');
                 util.removeFiles(tPath, function(err){
                     if(err){
-                        util.msg.warn('remove files error', err);
+                        util.msg.warn('remove files error', err, tPath);
                     } else {
-                        util.msg.success('done');
+                        util.msg.info('remove file done:', tPath);
                     }
 
                     if(typeof done == 'function'){
@@ -84,9 +89,9 @@ var
         } else {
             util.removeFiles(tPath, function(err){
                 if(err){
-                    util.msg.warn('remove files error', err);
+                    util.msg.warn('remove files error:', err, tPath);
                 } else {
-                    util.msg.success('done');
+                    util.msg.info('remove files done:', tPath);
                 }
 
                 if(typeof done == 'function'){
