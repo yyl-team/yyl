@@ -163,6 +163,10 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.4.2 (2017-05-19)
+* [EDIT] 完善 readme 文档
+* [EDIT] 完善 config.js 说明
+
 ### 2.4.1 (2017-05-18)
 * [FIX] 修复在 node 4.x 运行 webpack-vue2 出现组件欠缺问题
 * [FIX] 修复 执行 yyl server clear 后, config.plugins npm install 路径不对问题

@@ -33,6 +33,7 @@ var
         dest: setting.dest,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
+        // 需要构建工具额外安装的 npm 组件放这里 如 axios
         plugins: [
             'clean-webpack-plugin'
         ],

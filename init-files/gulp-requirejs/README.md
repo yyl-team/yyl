@@ -19,6 +19,7 @@ Commands:
     js        单独打包 js 部分代码
     images    单独打包 images 部分代码
     connect   生成本地服务器
+    commit    打包并提及到服务器(config.js 中设置)
 
 Options:
     --name <name>    用于存在个多项目的工程，
@@ -26,6 +27,8 @@ Options:
 
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
+
+    --sub <branch>   发布的版本 dev|trunk
 ```
 
 ##  项目开发规范

@@ -17,6 +17,9 @@ var
             port: 5000 // 服务器 port
         },
 
+        // 需要构建工具额外安装的 npm 组件放这里 如 axios
+        plugins: [],
+
         dest: {
             basePath: '/project/'+ projectName +'/pc',
             jsPath: 'js',
