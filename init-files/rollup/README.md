@@ -30,6 +30,26 @@ Options:
     --sub <branch>   发布的版本 dev|trunk
 ```
 
+## 别名 alias 使用
+
+通过配置 config.js 中的 alias 可对路径进行 别名配置如:
+
+```
+// config.js
+module.exports = {
+    ...
+    alias: {
+        rDemo: './components/r-demo/r-demo.js'
+    }
+}
+```
+
+```
+// p-demo.js
+import rDemo from 'rDemo';
+```
+
+
 ##  项目开发规范
 本工作流采取 组件化开发流程， 所有 页面， 控件都基于 components 目录内 组件 的互相引入,调用， 最终生成对应页面的 html, js, css
 
