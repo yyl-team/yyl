@@ -7,10 +7,13 @@ Useage: yyl <command>
 Commands:
     watch     打包并建立本地服务器监听文件
     all       打包文件
+    commit    提交代码到 svn/git
 
 Options:
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
+
+    --sub <branch>   分支版本
 ```
 
 ## 工作流简介

@@ -11,7 +11,6 @@ var gulp = require('gulp'),
     path = require('path'),
     querystring = require('querystring'),
     util = require('yyl-util'),
-
     sass = require('gulp-sass'), // sass compiler
     minifycss = require('gulp-minify-css'), // minify css files
     jshint = require('gulp-jshint'), // check js syntac
@@ -26,7 +25,7 @@ var gulp = require('gulp'),
     rollupBabel = require('rollup-plugin-babel'),
 
     filter = require('gulp-filter'), // filter the specified file(s) in file stream
-    rollup = require('gulp-better-rollup'),
+    rollup = require('gulp-rollup-stream'),
     gulpJade = require('gulp-jade'),
     plumber = require('gulp-plumber'),
     runSequence = require('run-sequence').use(gulp),
@@ -35,6 +34,7 @@ var gulp = require('gulp'),
     override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
     notifier = require('node-notifier'),
+    rollupAlias = require('rollup-plugin-alias'),
 
     through = require('through2'),
     es = require('event-stream'),
@@ -570,7 +570,10 @@ gulp.task('js-task', function() {
         .pipe(rjsFilter)
         .pipe(jshint())
         .pipe(rollup({
-            plugins: [rollupBabel()],
+            plugins: [
+                rollupBabel(), 
+                rollupAlias(iConfig.alias)
+            ],
             format: 'umd'
         }))
         .pipe(babel({
@@ -599,7 +602,10 @@ gulp.task('js-task', function() {
         .pipe(plumber())
         /* 合并主文件中通过 requirejs 引入的模块 [start] */
         .pipe(rollup({
-            plugins: [rollupBabel()],
+            plugins: [
+                rollupBabel(),
+                rollupAlias(iConfig.alias)
+            ],
             format: 'umd'
         }))
         .pipe(babel({

@@ -22,7 +22,8 @@ var
                     'watch': 'watch task',
                     'all': 'optimize task',
                     'server': 'local server commands',
-                    'examples': 'show yyl examples'
+                    'examples': 'show yyl examples',
+                    'commit': 'commit code to svn/git server(need config)'
                 },
                 options: {
                     '-h, --help': 'print usage information',

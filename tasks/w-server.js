@@ -209,18 +209,45 @@ var
 
             var 
                 iWorkFlows = fs.readdirSync(path.join(vars.BASE_PATH, 'init-files')),
-                workFlowPath;
+                workFlowPath,
+                nameList = (function(){
+                    var r = [];
+                    if(config.workflow){
+                        return r;
+                    }
+
+                    for(var key in config){
+                        if(config.hasOwnProperty(key)){
+                            if('workflow' in config[key]){
+                                r.push(key);
+                            }
+                        }
+                    }
+                    return r;
+
+                })();
 
             if(name){
                 if(!config[name].workflow || !~iWorkFlows.indexOf(config[name].workflow)){
-                    return done('config['+ name +'].workflow is not exist');
+                    if(nameList.length){
+                        return done('you need to use --name ' + nameList.join(' or '));
+
+                    } else {
+                        return done('config['+ name +'].workflow is not exist');
+                    }
+
                 }
 
                 workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config[name].workflow);
 
             } else {
                 if(!config.workflow || !~iWorkFlows.indexOf(config.workflow)){
-                    return done('config.workflow is not exist');
+                    if(nameList.length){
+                        return done('add env: --name ' + nameList.join('|'));
+
+                    } else {
+                        return done('config.workflow is not exist');
+                    }
                 }
 
                 workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);

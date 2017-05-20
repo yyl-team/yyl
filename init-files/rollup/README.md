@@ -1,4 +1,4 @@
-# browserify-babel workflow
+# rollup-babel workflow
 
 ## 命令说明
 ```
@@ -12,6 +12,7 @@ Commands:
     css       单独打包 html 部分代码
     js        单独打包 js 部分代码
     images    单独打包 images 部分代码
+    commit    提交代码到 svn/git
 
 Options:
     --name <name>    用于存在个多项目的工程，
@@ -19,6 +20,8 @@ Options:
 
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
+
+    --sub <branch>   分支版本
 ```
 
 ##  项目开发规范
