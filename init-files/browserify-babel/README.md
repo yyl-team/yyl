@@ -1,5 +1,11 @@
 # browserify-babel workflow
 
+## 环境说明
+本项目基于 yyl 组件进行搭建， 运行前需全局安装:
+```
+npm install yyl -g
+```
+
 ## 命令说明
 ```
 Useage: yyl <command>
@@ -12,6 +18,7 @@ Commands:
     css       单独打包 html 部分代码
     js        单独打包 js 部分代码
     images    单独打包 images 部分代码
+    commit    打包并提及到服务器(config.js 中设置)
 
 Options:
     --name <name>    用于存在个多项目的工程，
@@ -19,6 +26,8 @@ Options:
 
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
+
+    --sub <branch>   发布的版本 dev|trunk
 ```
 
 ##  项目开发规范

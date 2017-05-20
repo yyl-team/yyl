@@ -1,7 +1,7 @@
 {
-  "name": "yy.com-h5",
+  "name": "webpack-vue-workflow",
   "version": "1.0.0",
-  "description": "h5 yy.com",
+  "description": "webpack vue workflow",
   "main": "gulpfile.js",
   "dependencies": {
     "vuex": "^1.0.0-rc.2",
@@ -45,10 +45,6 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "http://code.yy.com/ent-FEteam/yy.com-h5.git"
   },
   "author": "jackness",
   "license": "ISC"

@@ -1,5 +1,11 @@
 # webpack-vue workflow
 
+## 环境说明
+本项目基于 yyl 组件进行搭建， 运行前需全局安装:
+```
+npm install yyl -g
+```
+
 ## 命令说明
 ```
 Useage: yyl <command>
@@ -7,13 +13,13 @@ Useage: yyl <command>
 Commands:
     watch     打包并建立本地服务器监听文件
     all       打包文件
-    commit    提交代码到 svn/git
+    commit    打包并提及到服务器(config.js 中设置)
 
 Options:
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
 
-    --sub <branch>   分支版本
+    --sub <branch>   发布的版本 dev|trunk
 ```
 
 ## 工作流简介

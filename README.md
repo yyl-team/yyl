@@ -163,6 +163,19 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.5.0 (2017-05-20)
+* [EDIT] 完善 rollup 工作流
+
+### 2.4.2 (2017-05-19)
+* [EDIT] 完善 readme 文档
+* [EDIT] 完善 config.js 说明
+
+### 2.4.1 (2017-05-18)
+* [FIX] 修复在 node 4.x 运行 webpack-vue2 出现组件欠缺问题
+* [FIX] 修复 执行 yyl server clear 后, config.plugins npm install 路径不对问题
+* [EDIT] 初始化增加 扫描 package.json 里面的 dependencies 属性 来进行 npm install
+* [EDIT] 优化 yyl server clear 命令
+
 ### 2.4.0 (2017-04-11)
 * [ADD] 新增 rollup 工作流
 * [WARN] 发现 browserify 工作流中 模板 必须 使用 module.export = xx 方式结尾， 不能使用 export default 方式， 待修复
