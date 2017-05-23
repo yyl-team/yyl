@@ -2,6 +2,7 @@
 var 
     util = require('yyl-util'),
     wServer = require('./w-server'),
+    wProxy = require('./w-proxy'),
     vars = require('./w-vars'),
     path = require('path');
 
@@ -26,7 +27,6 @@ var
 
         }).then(function(config, next){ // server init
             util.msg.info('server init start');
-            
             wServer.init(config.workflow, function(err){
                 if(err){
                     return util.msg.error('server init error', err);
@@ -36,6 +36,19 @@ var
                 next(config);
 
             });
+        }).then(function(config, next){ // 代理服务初始化
+            if(iEnv.proxy && config.proxy){
+                wProxy.init(config.proxy, function(err){
+                    if(err){
+                        util.msg.warn('proxy init error', err);
+                    }
+                    next(config);
+                });
+
+            } else {
+                util.msg.info('no proxy, next');
+                next(config);
+            }
 
         }).then(function(config){ // 运行命令
             util.msg.info('run cmd start');

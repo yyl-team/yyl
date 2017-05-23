@@ -20,6 +20,13 @@ var
             imagesPath: 'images/proj01',
             revPath: 'assets/proj01',
         },
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
+        },
         // 提交之前回调函数
         beforeCommit: function(){}
 
@@ -38,6 +45,13 @@ var
             imagesPath: 'images/proj02',
             revPath: 'assets/proj02',
         },
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
+        },
         // 提交之前回调函数
         beforeCommit: function(){}
 
@@ -50,6 +64,7 @@ var
             name: projectName,
             version: version,
             dest: setting01.dest,
+            proxy: setting01.proxy,
             // +此部分 yyl server 端config 会进行替换
             localserver: setting01.localserver,
             alias: { // yyl server 路径替换地方
@@ -183,6 +198,7 @@ var
             name: projectName,
             version: version,
             dest: setting02.dest,
+            proxy: setting02.proxy,
             // +此部分 yyl server 端config 会进行替换
             localserver: setting02.localserver,
             alias: { // yyl server 路径替换地方

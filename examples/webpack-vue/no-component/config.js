@@ -20,6 +20,13 @@ var
             imagesPath: 'images',
             revPath: 'assets'
         },
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
+        },
         // 提交之前回调函数
         beforeCommit: function(){}
 
@@ -31,6 +38,7 @@ var
         name: projectName,
         version: version,
         dest: setting.dest,
+        proxy: setting.proxy,
         // 需要构建工具额外安装的 npm 组件放这里 如 axios
         plugins: [],
         // +此部分 yyl server 端config 会进行替换

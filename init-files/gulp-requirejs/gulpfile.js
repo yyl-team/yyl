@@ -705,7 +705,15 @@ gulp.task('watch', ['all'], function() {
     }
 
     var htmls = util.readFilesSync(vars.destRoot, /\.html$/),
+        addr;
+
+    if(gulp.env.proxy) {
+        addr = iConfig.commit.hostname;
+
+    } else {
         addr = 'http://' + util.vars.LOCAL_SERVER + ':' + iConfig.localserver.port;
+    }
+
 
     if(htmls.length){
         addr = util.joinFormat(addr, path.relative(vars.destRoot, htmls[0]));

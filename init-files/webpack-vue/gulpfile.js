@@ -20,17 +20,6 @@ if(fs.existsSync('./config.mine.js')){
 }
 
 
-var 
-    fn = {
-        configInit: function(){
-            var 
-                iSub = gulp.env.sub,
-                iConfig = config.commit.svn[iSub];
-
-            return iConfig;
-        }
-    };
-
 gulp.task('default', function(){
     console.log([
         '',
@@ -223,8 +212,6 @@ gulp.task('rev-update', function(done){
         }).then(function(revData, next){ // 拉去 remote 上的 和本地的 rev数据合并， 并生成一份文件
             var outRev = util.extend({}, revData);
             if(gulp.env.ver == 'remote' && gulp.env.sub){
-                var 
-                    iConfig = fn.configInit();
 
                 util.msg.info('start get the revFile', config.commit.revAddr.green);
 
@@ -307,7 +294,15 @@ gulp.task('watch', ['all'], function(){
     }
 
     var htmls = util.readFilesSync(config.alias.destRoot, /\.html$/),
+        addr;
+
+    if(gulp.env.proxy) {
+        addr = config.commit.hostname;
+
+    } else {
         addr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port;
+    }
+    
 
     if(htmls.length){
         addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));

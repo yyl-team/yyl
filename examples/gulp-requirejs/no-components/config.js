@@ -21,6 +21,13 @@ var
             imagesPath: 'images',
             revPath: 'assets'
         },
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
+        },
         // 提交之前回调函数
         beforeCommit: function(){}
 
@@ -32,6 +39,7 @@ var
         name: projectName,
         version: version,
         dest: setting.dest,
+        proxy: setting.proxy,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方

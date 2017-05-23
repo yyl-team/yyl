@@ -17,6 +17,14 @@ var
             port: 5000 // 服务器 port
         },
 
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
+        },
+
         // 需要构建工具额外安装的 npm 组件放这里 如 axios
         plugins: [],
 
@@ -145,6 +153,7 @@ function settingPrase(setting){
         name: setting.name,
         version: version,
         dest: setting.dest,
+        proxy: setting.proxy,
         localserver: setting.localserver,
         alias: extendit({
             // 公用组件地址

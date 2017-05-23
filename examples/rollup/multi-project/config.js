@@ -17,6 +17,14 @@ var
             port: 5000 // 服务器 port
         },
 
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
+        },
+
         dest: {
             basePath: '/project/'+ projectName +'/pc',
             jsPath: 'js/proj01',
@@ -133,6 +141,14 @@ var
         localserver: { // 本地服务器配置
             root: './dist', // 服务器输出地址
             port: 5000 // 服务器 port
+        },
+
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://web.yystatic.com/': './dist'
+            }
         },
 
         dest: {
@@ -262,6 +278,7 @@ function settingPrase(setting){
         version: version,
         dest: setting.dest,
         localserver: setting.localserver,
+        proxy: setting.proxy,
         alias: extendit({
             // 公用组件地址
             commons: commonPath,
