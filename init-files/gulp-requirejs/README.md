@@ -29,10 +29,31 @@ Options:
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
 
     --sub <branch>   发布的版本 dev|trunk
+    --proxy          开启本地代理服务(需要配置 config.proxy 参数)
 ```
+
+## 关于本地代理
+在 config.proxy 设置 相关参数后，即可通过本地代理的方式对代码进行本地映射到线上,
+构建工具默认会将 config.commit hostname 映射到啊 本地服务器根目录
+```
+{
+    proxy: {
+        port: 8887,
+        localRemote: {
+            'http://www.yy.com': './dist'
+        }
+
+    }
+}
+```
+
+设置完config 后需要 对 浏览器进行 代理设置，让浏览器通过构建工具提供的端口进行页面访问如 http://127.0.0.1:8887
+chrome 可以通过安装插件 SwitchySharp 来进行 代理设置， ie 可以通过 工具 -> internet 选项 -> 链接 -> 局域网设置 -> 代理服务器
+中进行设置
 
 ##  项目开发规范
 本工作流采取 组件化开发流程， 所有 页面， 控件都基于 components 目录内 组件 的互相引入,调用， 最终生成对应页面的 html, js, css
+
 
 
 

@@ -2,7 +2,7 @@
 var
     util = require('yyl-util'),
     http = require('http'),
-    path = require('path'),
+    net = require('net'),
     fs = require('fs'),
     url = require('url');
 
@@ -19,12 +19,12 @@ var
                     var 
                         reqUrl = req.url,
                         iAddrs = Object.keys(op.localRemote);
-                    
 
                     // 本地代理
                     var 
                         remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/\#.*$/, ''),
-                        localData;
+                        localData,
+                        httpRemoteUrl;
 
                     iAddrs.forEach(function(addr){
                         var localAddr = op.localRemote[addr];
@@ -33,8 +33,15 @@ var
                             return true;
                         }
 
+                        
+
                         if(addr === remoteUrl.substr(0, addr.length)){
-                            var subAddr = path.join(localAddr, remoteUrl.substr(addr.length));
+                            var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
+
+                            if(/^http(s)?:/.test(localAddr)){
+                                httpRemoteUrl = subAddr;
+                                return false;
+                            }
 
                             if(fs.existsSync(subAddr)){
                                 localData = fs.readFileSync(subAddr);
@@ -46,11 +53,16 @@ var
 
                     if(localData){ // 存在本地文件
                         // res.writeHead(200, req.headers);
+                        util.msg.success('proxy local:', req.url);
                         res.write(localData);
                         res.end();
 
-                    } else { // 透传
-                        var vOpts = url.parse(req.url);
+                    } else { // 透传 or 转发
+                        var iUrl = httpRemoteUrl || req.url;
+
+
+                        var vOpts = url.parse(iUrl);
+
                         vOpts.headers = req.headers;
 
                         var vRequest = http.request(vOpts, function(vRes){
@@ -69,6 +81,7 @@ var
                             vRequest.write(chunk, 'binary');
                         });
 
+
                         req.on('end', function(){
                             vRequest.end();
                         });
@@ -77,10 +90,30 @@ var
 
                 });
 
-            util.msg.info('proxy server start');
-            util.msg.info('proxy server port:', iPort);
+            util.msg.success('proxy server start');
+            util.msg.success('proxy server port:', iPort);
 
             server.listen(iPort);
+
+            // ws 监听, 转发
+            server.on('connect', function(req, socket){
+                var addr = req.url.split(':');
+                //creating TCP connection to remote server
+                var conn = net.connect(addr[1] || 443, addr[0], function() {
+                    // tell the client that the connection is established
+                    socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', function() {
+                        // creating pipes in both ends
+                        conn.pipe(socket);
+                        socket.pipe(conn);
+                    });
+                });
+
+                conn.on('error', function() {
+                    // util.msg.error("Server connection error: ", e);
+                    socket.end();
+                });
+
+            });
 
             server.on('error', function(err){
                 if(err.code == 'EADDRINUSE'){

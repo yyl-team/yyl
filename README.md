@@ -23,6 +23,7 @@ Commands:
     watch   执行打包并建立本地服务器监听
     all     执行打包操作
     server  yyl本地服务相关命令
+    commit  提交代码到 svn/git
 
 
 Options:
@@ -163,8 +164,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
-### 2.6.0 (2017-05-~)
-* [ADD] 新增本地代理功能
+### 2.6.0 (2017-05-24)
+* [ADD] 新增本地代理功能(告别 fillder)
+* [DEL] 去掉 yyl init 初始化时询问是否查找 common 目录的功能
 
 ### 2.5.0 (2017-05-20)
 * [EDIT] 完善 rollup 工作流

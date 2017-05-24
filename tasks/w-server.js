@@ -437,7 +437,10 @@ var
             util.msg.info('address:', serverAddress);
 
             var server = connect()
-                .use(livereload({port: lrPort}))
+                .use(livereload({
+                    port: lrPort,
+                    src: "http://localhost:35729/livereload.js?snipver=1"
+                }))
                 .use(serveIndex(iPath))
                 .use(serveStatic(iPath))
                 .listen(port, function(err){
