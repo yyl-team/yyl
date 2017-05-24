@@ -21,7 +21,7 @@ var
         proxy: {
             port: 8887,
             localRemote: {
-                'http://web.yystatic.com/': './dist'
+                'http://www.yy.com/': './dist/'
             }
         },
 
@@ -147,7 +147,7 @@ var
         proxy: {
             port: 8887,
             localRemote: {
-                'http://web.yystatic.com/': './dist'
+                'http://www.yy.com/': './dist/'
             }
         },
 

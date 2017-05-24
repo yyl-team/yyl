@@ -25,7 +25,7 @@ var
         proxy: {
             port: 8887,
             localRemote: {
-                'http://web.yystatic.com/': './dist'
+                'http://www.yy.com/': './dist/'
             }
         },
         // 提交之前回调函数

@@ -38,7 +38,17 @@ var
             });
         }).then(function(config, next){ // 代理服务初始化
             if(iEnv.proxy && config.proxy){
-                wProxy.init(config.proxy, function(err){
+                var iProxyConfig = util.extend(true, config.proxy);
+                if(config.commit.hostname){
+                    if(!iProxyConfig.localRemote){
+                        iProxyConfig.localRemote = {};
+                    }
+                    var key = config.commit.hostname.replace(/[\\/]$/, '');
+                    var val = util.joinFormat('http://127.0.0.1:' + config.localserver.port);
+                    iProxyConfig.localRemote[key] = val;
+                }
+                console.log(iProxyConfig);
+                wProxy.init(iProxyConfig, function(err){
                     if(err){
                         util.msg.warn('proxy init error', err);
                     }
