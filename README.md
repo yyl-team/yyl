@@ -58,6 +58,8 @@ Options:
 
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
+
+    --proxy          开启本地代理服务(需要配置 config.proxy 参数)
 ```
 
 ### 提交相关命令

@@ -20,6 +20,7 @@ Options:
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
 
     --sub <branch>   发布的版本 dev|trunk
+
     --proxy          开启本地代理服务(需要配置 config.proxy 参数)
 ```
 
