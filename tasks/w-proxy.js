@@ -52,7 +52,7 @@ var
                     });
 
                     if(localData){ // 存在本地文件
-                        // res.writeHead(200, req.headers);
+
                         util.msg.success('proxy local:', req.url);
                         res.write(localData);
                         res.end();
@@ -91,6 +91,7 @@ var
                 });
 
             util.msg.success('proxy server start');
+            util.msg.success('proxy config localRemote:', JSON.stringify(op.localRemote, null, 4));
             util.msg.success('proxy server port:', iPort);
 
             server.listen(iPort);

@@ -166,6 +166,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.6.1 (2017-05-25)
+* [EDIT] 调整 proxy 部分 log
+
 ### 2.6.0 (2017-05-24)
 * [ADD] 新增本地代理功能(告别 fillder)
 * [DEL] 去掉 yyl init 初始化时询问是否查找 common 目录的功能

@@ -47,7 +47,6 @@ var
                     var val = util.joinFormat('http://127.0.0.1:' + config.localserver.port);
                     iProxyConfig.localRemote[key] = val;
                 }
-                console.log(iProxyConfig);
                 wProxy.init(iProxyConfig, function(err){
                     if(err){
                         util.msg.warn('proxy init error', err);
