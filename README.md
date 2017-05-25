@@ -166,6 +166,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.6.2 (2017-05-25)
+* [EDIT] proxy server 增加在设置 localRemote 将 域名指向本地服务器时， 127.0.0.1 localserver 中找不到资源，会透传到线上 逻辑
+
 ### 2.6.1 (2017-05-25)
 * [EDIT] 调整 proxy 部分 log
 

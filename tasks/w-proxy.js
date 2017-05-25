@@ -58,34 +58,45 @@ var
                         res.end();
 
                     } else { // 透传 or 转发
-                        var iUrl = httpRemoteUrl || req.url;
+                        var 
+                            iUrl = httpRemoteUrl || req.url,
+                            iBuffer = new Buffer(''),
+                            linkit = function(iUrl, iBuffer){
+                                var vOpts = url.parse(iUrl);
+                                vOpts.headers = req.headers;
 
+                                var vRequest = http.request(vOpts, function(vRes){
+                                    if(vRes.statusCode == 404 && httpRemoteUrl == iUrl){
+                                        vRes.on('end', function(){
+                                            linkit(req.url, iBuffer);
+                                        });
 
-                        var vOpts = url.parse(iUrl);
+                                        return vRequest.abort();
+                                    }
 
-                        vOpts.headers = req.headers;
+                                    vRes.on('data', function(chunk){
+                                        res.write(chunk, 'binary');
+                                    });
 
-                        var vRequest = http.request(vOpts, function(vRes){
-                            vRes.on('data', function(chunk){
-                                res.write(chunk, 'binary');
-                            });
+                                    vRes.on('end', function(){
+                                        res.end();
+                                    });
 
-                            vRes.on('end', function(){
-                                res.end();
-                            });
+                                    res.writeHead(vRes.statusCode, vRes.headers);
+                                });
 
-                            res.writeHead(vRes.statusCode, vRes.headers);
-                        });
+                                vRequest.write(iBuffer, 'binary');
+                                vRequest.end();
+
+                            };
 
                         req.on('data', function(chunk){
-                            vRequest.write(chunk, 'binary');
+                            iBuffer.write(chunk.toString());
                         });
-
 
                         req.on('end', function(){
-                            vRequest.end();
+                            linkit(iUrl, iBuffer);
                         });
-
                     }
 
                 });
