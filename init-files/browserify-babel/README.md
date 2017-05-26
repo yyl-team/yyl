@@ -30,6 +30,7 @@ Options:
     --sub <branch>   发布的版本 dev|trunk
 
     --proxy          开启本地代理服务(需要配置 config.proxy 参数)
+    --silent         不显示右下角小气泡
 ```
 
 ##  项目开发规范

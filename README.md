@@ -166,6 +166,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.7.0 (2017-05-26)
+* [ADD] 新增 yyl watch 等打包操作时 新增 --silent 参数，用于配置 是否隐藏冒泡提示
+
 ### 2.6.2 (2017-05-25)
 * [EDIT] proxy server 增加在设置 localRemote 将 域名指向本地服务器时， 127.0.0.1 localserver 中找不到资源，会透传到线上 逻辑
 

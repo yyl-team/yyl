@@ -264,10 +264,13 @@ gulp.task('rev-update', function(done){
 
 gulp.task('all', function(done){
     runSequence('webpack', 'rev', function(){
-        notifier.notify({
-            title: notifyTitle,
-            message: 'optimize task done'
-        });
+        if(!gulp.env.silent){
+            notifier.notify({
+                title: notifyTitle,
+                message: 'optimize task done'
+            });
+        }
+        
         done();
     });
 });
@@ -281,10 +284,14 @@ gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
         runSequence('webpack', 'html', 'rev', 'rev-update', 'connect-reload', function(){
-            notifier.notify({
-                title: notifyTitle,
-                message: 'watch task done'
-            });
+            if(!gulp.env.silent){
+                notifier.notify({
+                    title: notifyTitle,
+                    message: 'watch task done'
+                });
+
+            }
+            
 
         });
     });

@@ -647,10 +647,12 @@ gulp.task('watch', ['all'], function() {
     // 看守所有.scss档
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
         runSequence('css', 'html', 'concat', 'connect-reload', function(){
-            notifier.notify({
-                title: 'gulp-requirejs',
-                message: 'css task done'
-            });
+            if(!gulp.env.silent){
+                notifier.notify({
+                    title: 'gulp-requirejs',
+                    message: 'css task done'
+                });
+            }
         });
     });
 
@@ -661,10 +663,12 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.commons, '**.*.js')
     ], function(){
         runSequence('js', 'html', 'concat', 'connect-reload', function(){
-            notifier.notify({
-                title: 'gulp-requirejs',
-                message: 'js task done'
-            });
+            if(!gulp.env.silent){
+                notifier.notify({
+                    title: 'gulp-requirejs',
+                    message: 'js task done'
+                });
+            }
         });
     });
 
@@ -675,11 +679,12 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.globalcomponents, '**/images/*.')
     ], function(){
         runSequence('images', 'html', 'connect-reload', function(){
-            notifier.notify({
-                title: 'gulp-requirejs',
-                message: 'images task done'
-            });
-
+            if(!gulp.env.silent){
+                notifier.notify({
+                    title: 'gulp-requirejs',
+                    message: 'images task done'
+                });
+            }
         });
 
     });
@@ -691,10 +696,12 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.globalcomponents, '**/*.jade')
     ], function(){
         runSequence('html', 'connect-reload', function(){
-            notifier.notify({
-                title: 'gulp-requirejs',
-                message: 'jade task done'
-            });
+            if(!gulp.env.silent){
+                notifier.notify({
+                    title: 'gulp-requirejs',
+                    message: 'jade task done'
+                });
+            }
         });
     });
 
@@ -1079,11 +1086,12 @@ gulp.task('all', function(done){
     util.removeFiles(vars.destRoot, function(){
         util.msg.info('clear dist file done');
         runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function(){
-            notifier.notify({
-                title: 'gulp-requirejs',
-                message: 'all task done'
-            });
-
+            if(!gulp.env.silent){
+                notifier.notify({
+                    title: 'gulp-requirejs',
+                    message: 'all task done'
+                });
+            }
             done();
         });
     });
