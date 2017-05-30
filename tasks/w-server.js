@@ -238,7 +238,7 @@ var
                 })();
 
             if(name){
-                if(!config[name].workflow || !~iWorkFlows.indexOf(config[name].workflow)){
+                if(!config[name] || !config[name].workflow || !~iWorkFlows.indexOf(config[name].workflow)){
                     if(nameList.length){
                         return done('you need to use --name ' + nameList.join(' or '));
 
