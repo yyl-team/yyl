@@ -23,6 +23,7 @@ var gulp = require('gulp'),
 
     babel = require('gulp-babel'),
     rollupBabel = require('rollup-plugin-babel'),
+    rollupCommonjs = require('rollup-plugin-commonjs'),
 
     filter = require('gulp-filter'), // filter the specified file(s) in file stream
     rollup = require('gulp-rollup-stream'),
@@ -571,6 +572,7 @@ gulp.task('js-task', function() {
         .pipe(jshint())
         .pipe(rollup({
             plugins: [
+                rollupCommonjs(),
                 rollupBabel(), 
                 rollupAlias(iConfig.alias)
             ],

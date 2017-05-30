@@ -166,6 +166,9 @@ es6 + browserify 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.7.1 (2017-05-26)
+* [EDIT] rollup 工作流支持 js 内部this 和 module.exports 方式
+
 ### 2.7.0 (2017-05-26)
 * [ADD] 新增 yyl watch 等打包操作时 新增 --silent 参数，用于配置 是否隐藏冒泡提示
 
