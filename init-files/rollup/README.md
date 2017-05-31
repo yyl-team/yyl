@@ -107,6 +107,28 @@ p-liveplayer-toolbar
     background: url('./images/logo.png');
 }
 ```
+而 jade 文件中的图片 则是基于被引入的 p-xx.jade 文件为准，如:
+
+```
+|- p-liveplayer-toolbar
+|  |- p-liveplayer-toolbar.jade
+|  `- ...
+`- w-demo
+   |- w-demo.jade
+   `- images
+      `- logo.png
+```
+
+若在 w-demo.jade 中想引入 当前目录下的 `images/logo.png`, 则需要 以 被引入的 p-xx.jade 为准：
+```
+// p-liveplayer-toolbar.jade 中
+@include ../w-demo.jade
+```
+
+```
+// w-demo.jade 中
+img(src="../w-demo/images/logo.png")
+```
 ### js 组件 j-xx 开发规范
 
 #### 构建流程介绍

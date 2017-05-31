@@ -23,7 +23,8 @@ var
         proxy: {
             port: 8887,
             localRemote: {
-                'http://www.yy.com/': './dist/'
+                //'http://www.yy.com/': './dist/',
+                'http://www.yy.com/': 'http://127.0.0.1:5000/'
             }
         },
         // 提交之前回调函数

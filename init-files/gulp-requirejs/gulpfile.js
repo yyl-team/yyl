@@ -317,13 +317,14 @@ gulp.task('html-task-step02', function(){
         // 替换 js
         .pipe(replacePath('../js', util.joinFormat(remotePath, fn.relateDest(vars.jsDest))))
         // 替换 components 中的js
-        .pipe(replacePath(/\.\.\/components\/p-\w+\/p-(\w+).js/g, util.joinFormat( remotePath, fn.relateDest(vars.jsDest), '/$1.js')))
+        .pipe(replacePath(/\.\.\/components\/p-[a-zA-Z0-9\-]+\/p-([a-zA-Z0-9\-]+).js/g, util.joinFormat( remotePath, fn.relateDest(vars.jsDest), '/$1.js')))
 
 
         .pipe(replacePath('../css', util.joinFormat( remotePath, fn.relateDest(vars.cssDest))))
 
+        // 替换公用图片
         .pipe(replacePath('../images', util.joinFormat( remotePath, vars.imagesDest)))
-        .pipe(replacePath(/\.\.\/(components\/[pw]-\w+\/images)/g, util.joinFormat( remotePath, fn.relateDest(vars.imagesDest), '$1')))
+        .pipe(replacePath(/\.\.\/(components\/[pwr]-[a-zA-Z0-9\-]+\/images)/g, util.joinFormat( remotePath, fn.relateDest(vars.imagesDest), '$1')))
 
         // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下
         .pipe(through.obj(function(file, enc, next){
