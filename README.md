@@ -177,6 +177,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.7.3 (2017-05-31)
+* [FIX] 修复 yyl watch 时如 localserver.root 不存在时会出现本地服务器创建目录不对问题
+
 ### 2.7.2 (2017-05-31)
 * [FIX] 修复 当 jade 文件中 存在 p-xx-xx 写法时， 图片路径替换不生效问题
 * [EDIT] 更新 gulp-requirejs, browserify-babel, rollup 中 jade 文件 引入图片的方法说明

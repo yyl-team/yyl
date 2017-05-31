@@ -4,7 +4,8 @@ var
     wServer = require('./w-server'),
     wProxy = require('./w-proxy'),
     vars = require('./w-vars'),
-    path = require('path');
+    path = require('path'),
+    fs = require('fs');
 
 var 
     wOptimize = function(){
@@ -24,6 +25,22 @@ var
                 next(config);
 
             });
+
+        }).then(function(config, next){ // 检测 localserver.root 是否存在
+            util.msg.info('check localserver.root exist:', config.localserver.root);
+
+            if(!config.localserver.root){
+                return util.msg.error('config.localserver.root is null! please check');
+            } else {
+                var rootPath = path.join(vars.PROJECT_PATH, config.localserver.root);
+
+                if(!fs.existsSync(rootPath)){
+                    util.mkdirSync(rootPath);
+                    util.msg.create(rootPath);
+                }
+
+                next(config);
+            }
 
         }).then(function(config, next){ // server init
             util.msg.info('server init start');
