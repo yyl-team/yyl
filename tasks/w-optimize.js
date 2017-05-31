@@ -32,11 +32,9 @@ var
             if(!config.localserver.root){
                 return util.msg.error('config.localserver.root is null! please check');
             } else {
-                var rootPath = path.join(vars.PROJECT_PATH, config.localserver.root);
-
-                if(!fs.existsSync(rootPath)){
-                    util.mkdirSync(rootPath);
-                    util.msg.create(rootPath);
+                if(!fs.existsSync(config.localserver.root)){
+                    util.mkdirSync(config.localserver.root);
+                    util.msg.create(config.localserver.root);
                 }
 
                 next(config);
