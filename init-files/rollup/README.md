@@ -191,6 +191,19 @@ components
 * w-xx.scss 文件开发范例[点击这里](./src/components/r-demo/r-demo.scss)
 * w-xx.js   文件开发范例[点击这里](./src/pc/components/w-demo/w-demo.js)
 
+### 关于测试数据
+
+测试数据(模拟接口返回)统一存放在 js/data/ 目录下的 json 文件
+```
+|+ dist
+`- src
+   `- js
+      `- data
+         `- test.json
+```
+
+工程将会把这测试数据同步到 dist 下 js 对应目录
+
 ### 更新记录
 
 #### 1.0.0 - 2016.12.08

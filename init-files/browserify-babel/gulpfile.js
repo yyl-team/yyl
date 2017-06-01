@@ -580,6 +580,12 @@ gulp.task('js-task', function () {
             .pipe(iConfig.isCommit?uglify():fn.blankPipe())
             .pipe(gulp.dest( vars.jslibDest ));
 
+    var
+        jsDataStream = gulp.src([util.joinFormat(vars.srcRoot, 'js/**/*.json')])
+            .pipe(plumber())
+            .pipe(iConfig.isCommit?uglify():fn.blankPipe())
+            .pipe(gulp.dest( vars.jsDest ));
+
     var 
         jsBaseStream = gulp.src([
                 util.joinFormat(vars.srcRoot, 'js/**/*.js'),
@@ -598,7 +604,7 @@ gulp.task('js-task', function () {
         .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
 
-    return es.concat.apply(es, [jsStream, jsLibStream, jsBaseStream]);
+    return es.concat.apply(es, [jsStream, jsLibStream, jsBaseStream, jsDataStream]);
 });
 // - js task
 // + images task
