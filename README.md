@@ -177,6 +177,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.8.1 (2017-06-02)
+* [FIX] 修复 `webpack-vue`, `webpack-vue2` 在执行 `yyl watch --ver remote` 时报错问题
+
 ### 2.8.0 (2017-06-01)
 * [ADD] `gulp-requirejs`, `rollup`, `browserify-babel` 模式下 测试数据(模拟接口返回)统一存放在 `js/data/` 目录下的 json 文件, 工程将会 同步到 `config.jsDest` 设置的目录下面
 
