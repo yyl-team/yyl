@@ -31,13 +31,20 @@ var gulp = require('gulp'),
     override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
     notifier = require('node-notifier'),
+    
 
     through = require('through2'),
     es = require('event-stream'),
 
     cache = {
         remoteRevData: '',
-        localRevData: ''
+        localRevData: '',
+        timer: 0,
+        popConfig: {
+            title: 'gulp-requirejs',
+            interval: 5000,
+            queues: []
+        }
     };
 
 require('colors');
@@ -132,6 +139,42 @@ var fn = {
             return iConfig;
         }
 
+    },
+    popit: function(content){
+        if(!content){
+            return;
+        }
+
+        util.msg.info('pop info', content);
+
+        var 
+            popConfig = cache.popConfig,
+            now = new Date(),
+            handler = function(){
+                clearTimeout(popConfig.intervalKey);
+                popConfig.intervalKey = 0;
+                notifier.notify({
+                    title: popConfig.title,
+                    message: popConfig.queues.join(',')
+                });
+                popConfig.queues = [];
+                popConfig.timer = now;
+
+            };
+
+        popConfig.queues.push(content);
+
+        if(now - popConfig.timer >= popConfig.interval){
+            handler();
+
+        } else if(!popConfig.intervalKey) {
+            popConfig.intervalKey = setTimeout(function(){
+                handler();
+            });
+
+        }
+
+        
     }
 };
 
@@ -254,7 +297,7 @@ gulp.task('html-task-step02', function(){
 
     // html task
     return gulp.src( util.joinFormat(vars.srcRoot, 'html/*.html'))
-        .pipe(plumber())
+        // .pipe(plumber())
         .pipe(inlinesource())
         // 删除requirejs的配置文件引用
         .pipe(replacePath(/<script [^<]*local-usage\><\/script>/g, ''))
@@ -266,6 +309,7 @@ gulp.task('html-task-step02', function(){
             var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
             var gComponentPath = relateHtml(vars.globalcomponents);
             var copyPath = {};
+
 
             var filterHandle = function(str, $1, $2){
                 var iPath = $2;
@@ -414,10 +458,6 @@ gulp.task('css-dist', function(){
                 }
 
 
-                // console.log('vvvvvvvvvvvvvv')
-                // console.log('111', iPath);
-                // console.log('111', gComponentPath);
-                // console.log('iiiiiiiiiiiiii')
 
                 if(iPath.substr(0, gComponentPath.length) != gComponentPath){
                     return str;
@@ -655,10 +695,7 @@ gulp.task('watch', ['all'], function() {
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
         runSequence('css', 'html', 'concat', 'connect-reload', function(){
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'gulp-requirejs',
-                    message: 'css task done'
-                });
+                fn.popit('css task done');
             }
         });
     });
@@ -671,10 +708,7 @@ gulp.task('watch', ['all'], function() {
     ], function(){
         runSequence('js', 'html', 'concat', 'connect-reload', function(){
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'gulp-requirejs',
-                    message: 'js task done'
-                });
+                fn.popit('js task done');
             }
         });
     });
@@ -687,10 +721,7 @@ gulp.task('watch', ['all'], function() {
     ], function(){
         runSequence('images', 'html', 'connect-reload', function(){
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'gulp-requirejs',
-                    message: 'images task done'
-                });
+                fn.popit('images task done');
             }
         });
 
@@ -704,10 +735,7 @@ gulp.task('watch', ['all'], function() {
     ], function(){
         runSequence('html', 'connect-reload', function(){
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'gulp-requirejs',
-                    message: 'jade task done'
-                });
+                fn.popit('jade task done');
             }
         });
     });
@@ -730,6 +758,21 @@ gulp.task('watch', ['all'], function() {
 
 
     if(htmls.length){
+        // 优先打开 index.html, default.html
+        htmls.sort(function(a, b){
+            var 
+                aTest = /(index|default)\.html$/.test(a),
+                bTest = /(index|default)\.html$/.test(b);
+
+            if(aTest && !bTest){
+                return -1;
+            } else if(!aTest && bTest){
+                return 1;
+            } else {
+                return a.localeCompare(b);
+            }
+
+        });
         addr = util.joinFormat(addr, path.relative(vars.destRoot, htmls[0]));
     }
 
@@ -801,7 +844,8 @@ gulp.task('rev-clean', function(){
     var 
         iConfig = fn.taskInit(),
         md5Filter = filter(function(file){
-            return /-[a-zA-Z0-9]{10}\.?\w*\.\w+/.test(file.history);
+            return /-[a-zA-Z0-9]{10}\.?\w*\.\w+$/.test(file.history) && 
+                fs.existsSync((file.history + '').replace(/-[a-zA-Z0-9]{10}(\.?\w*\.\w+$)/, '$1'));
 
         }, {restore: true}),
         vars = gulp.env.vars;
@@ -1094,10 +1138,7 @@ gulp.task('all', function(done){
         util.msg.info('clear dist file done');
         runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function(){
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'gulp-requirejs',
-                    message: 'all task done'
-                });
+                fn.popit('all task done');
             }
             done();
         });

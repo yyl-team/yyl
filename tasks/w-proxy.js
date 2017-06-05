@@ -81,6 +81,10 @@ var
                                     vRes.on('end', function(){
                                         res.end();
                                     });
+                                    vRes.on('error', function(){
+                                        res.end();
+                                        req.end();
+                                    });
 
                                     res.writeHead(vRes.statusCode, vRes.headers);
                                 });
@@ -118,11 +122,17 @@ var
                         conn.pipe(socket);
                         socket.pipe(conn);
                     });
+
+                    socket.on('error', function(){
+                        socket.end();
+                        conn.end();
+                    });
                 });
 
                 conn.on('error', function() {
                     // util.msg.error("Server connection error: ", e);
                     socket.end();
+                    conn.end();
                 });
 
             });

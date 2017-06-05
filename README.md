@@ -9,6 +9,7 @@
 
 ## 安装
 ```
+npm install gulp -g
 npm install yyl -g
 ```
 
@@ -176,6 +177,12 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+
+### 2.8.3 (2017-06-06)
+* [EDIT] yyl watch 如果有 index.html, default.html 会优先打开
+* [EDIT] 优化 `gulp-requirejs` 冒泡提示功能
+* [FIX] 修复 `gulp-requirejs`, `browserify-babel`, `rollup` 中 rev 过滤 md5 文件时会过滤掉一些正常文件的问题
+* [FIX] 修复 通过 proxy 代理访问其他页面容易出现 `socket hang up`, `connect ECONNREFUSED` 错误问题
 
 ### 2.8.2 (2017-06-05)
 * [FIX] 修复 `gulp-requirejs`, `browserify-babel`, `rollup` 中 压缩js 不会匹配 p-xx-xx.js 问题

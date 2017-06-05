@@ -842,7 +842,8 @@ gulp.task('rev-clean', function() {
     var
         iConfig = fn.taskInit(),
         md5Filter = filter(function(file) {
-            return /-[a-zA-Z0-9]{10}\.?\w*\.\w+/.test(file.history);
+            return /-[a-zA-Z0-9]{10}\.?\w*\.\w+$/.test(file.history) && 
+                fs.existsSync((file.history + '').replace(/-[a-zA-Z0-9]{10}(\.?\w*\.\w+$)/, '$1'));
 
         }, {
             restore: true
