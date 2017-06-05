@@ -177,6 +177,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.8.2 (2017-06-05)
+* [FIX] 修复 `gulp-requirejs`, `browserify-babel`, `rollup` 中 压缩js 不会匹配 p-xx-xx.js 问题
+
 ### 2.8.1 (2017-06-02)
 * [FIX] 修复 `webpack-vue`, `webpack-vue2` 在执行 `yyl watch --ver remote` 时报错问题
 

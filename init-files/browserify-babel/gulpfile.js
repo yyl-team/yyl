@@ -542,9 +542,9 @@ gulp.task('js-task', function () {
     /* requirejs 主模块列表 & 页面js [start] */
     var 
         rjsFilter = filter(function (file) {
-            var result = /([pj]\-[a-zA-Z0-9_]*)[\\\/]([pj]\-[a-zA-Z0-9_]*)\.js$/.test(file.path);
+            var result = /([pj]\-[a-zA-Z0-9_\-]*)[\\\/]([pj]\-[a-zA-Z0-9_\-]*)\.js$/.test(file.path);
             if(result){
-                file.base = util.joinFormat(file.path.replace(/([pj]\-[a-zA-Z0-9_]*)\.js$/, ''));
+                file.base = util.joinFormat(file.path.replace(/([pj]\-[a-zA-Z0-9_\-]*)\.js$/, ''));
             }
             return result;
         });
