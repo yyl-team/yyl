@@ -178,6 +178,10 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.8.4 (2017-06-06)
+* [FIX] 修复 proxy 环境下 post 请求一直 padding 问题
+* [EDIT] 完善 `gulp-requirejs`, `browserify-babel`, `rollup`, `webpack-vue`, `webpack-vue2` 中对本地代理部分的说明
+
 ### 2.8.3 (2017-06-06)
 * [EDIT] yyl watch 如果有 index.html, default.html 会优先打开
 * [EDIT] 优化 `gulp-requirejs` 冒泡提示功能
@@ -192,6 +196,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ### 2.8.0 (2017-06-01)
 * [ADD] `gulp-requirejs`, `rollup`, `browserify-babel` 模式下 测试数据(模拟接口返回)统一存放在 `js/data/` 目录下的 json 文件, 工程将会 同步到 `config.jsDest` 设置的目录下面
+
+### 2.7.4 (2017-05-31)
+* [FIX] bugfix
 
 ### 2.7.4 (2017-05-31)
 * [FIX] bugfix

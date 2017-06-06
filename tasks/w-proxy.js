@@ -60,13 +60,18 @@ var
                     } else { // 透传 or 转发
                         var 
                             iUrl = httpRemoteUrl || req.url,
-                            iBuffer = new Buffer(''),
+                            body = [],
                             linkit = function(iUrl, iBuffer){
                                 var vOpts = url.parse(iUrl);
+                                vOpts.method = req.method;
                                 vOpts.headers = req.headers;
+                                vOpts.body = body;
 
                                 var vRequest = http.request(vOpts, function(vRes){
-                                    if(vRes.statusCode == 404 && httpRemoteUrl == iUrl){
+                                    if(/qr/.test(iUrl)){
+                                        console.log(iUrl, '===', vRes.statusCode);
+                                    }
+                                    if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
                                         vRes.on('end', function(){
                                             linkit(req.url, iBuffer);
                                         });
@@ -83,23 +88,24 @@ var
                                     });
                                     vRes.on('error', function(){
                                         res.end();
-                                        req.end();
                                     });
 
                                     res.writeHead(vRes.statusCode, vRes.headers);
                                 });
 
-                                vRequest.write(iBuffer, 'binary');
+                                vRequest.write(body);
                                 vRequest.end();
 
                             };
 
                         req.on('data', function(chunk){
-                            iBuffer.write(chunk.toString());
+                            body.push(chunk)
                         });
 
+
                         req.on('end', function(){
-                            linkit(iUrl, iBuffer);
+                            body = Buffer.concat(body).toString();
+                            linkit(iUrl, body);
                         });
                     }
 

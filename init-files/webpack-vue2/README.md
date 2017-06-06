@@ -25,6 +25,25 @@ Options:
     --silent         不显示右下角小气泡
 ```
 
+## 关于本地代理
+在 `config.proxy` 设置 相关参数后，即可通过本地代理的方式对代码进行本地映射到线上,
+构建工具默认会将 `config.commit.hostname`  映射到啊 本地服务器根目录
+```
+{
+    proxy: {
+        port: 8887,
+        localRemote: {
+            'http://www.yy.com': './dist'
+        }
+
+    }
+}
+```
+
+设置完config 后需要 对 浏览器进行 代理设置，让浏览器通过构建工具提供的端口进行页面访问如 `http://127.0.0.1:8887`
+`chrome` 可以通过 安装插件 `SwitchySharp` 来进行 代理设置， ie 可以通过 `工具 -> internet 选项 -> 链接 -> 局域网设置 -> 代理服务器`
+中进行设置
+
 ## 工作流简介
 本前端工程采用 vue 2.x + vue-router + vuex 技术架构，通过 webpack 进行整合打包， 把 css 部分通过插件抽离成独立样式表， 并会针对输出的文件生成一份 rev-manifest 文件哈希映射表 给后端使用。适用于移动端 单页面应用场景。
 
