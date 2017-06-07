@@ -10,7 +10,8 @@ var
     wRemove = require('./w-remove.js'),
     tinylr = require('tiny-lr'),
     fs = require('fs'),
-    path = require('path');
+    path = require('path'),
+    url = require('url');
 
 var 
     events = {
@@ -441,8 +442,29 @@ var
                     port: lrPort,
                     src: "http://localhost:35729/livereload.js?snipver=1"
                 }))
+                // 执行 post 请求本地服务器时处理
+                .use(function(req, res, next){
+                    if(req.method == 'POST'){
+                        var filePath = path.join(iPath, url.parse(req.url).pathname);
+
+                        if(fs.existsSync(filePath)){
+                            res.write(fs.readFileSync(filePath));
+                        } else {
+                            res.statusCode = 404;
+                        }
+
+                        res.end();
+                        
+                    } else {
+                        next();
+                    }
+                })
+                .use(serveStatic(iPath, {
+                    'setHeaders': function(res){
+                        res.setHeader('Cache-Control', 'no-cache');
+                    }
+                }))
                 .use(serveIndex(iPath))
-                .use(serveStatic(iPath))
                 .listen(port, function(err){
                     if(err){
                         return util.msg.error(err);

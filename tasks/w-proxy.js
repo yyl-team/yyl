@@ -67,8 +67,10 @@ var
                                 vOpts.headers = req.headers;
                                 vOpts.body = body;
 
+
                                 var vRequest = http.request(vOpts, function(vRes){
                                     if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
+
                                         vRes.on('end', function(){
                                             linkit(req.url, iBuffer);
                                         });
@@ -89,10 +91,6 @@ var
 
                                     var iHeader = util.extend(true, {}, vRes.headers);
 
-                                    // 如果是访问本地服务器 则设置不缓存
-                                    if(httpRemoteUrl == iUrl){
-                                        iHeader['cache-control'] = 'no-cache';
-                                    }
 
                                     res.writeHead(vRes.statusCode, iHeader);
 
@@ -105,7 +103,7 @@ var
                             };
 
                         req.on('data', function(chunk){
-                            body.push(chunk)
+                            body.push(chunk);
                         });
 
 
