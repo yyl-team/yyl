@@ -178,6 +178,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+### 2.8.5 (2017-06-07)
+* [ADD] 如果 proxy 访问域名 映射回本地服务器， 则在 header 添加 cache-control: no-cache 禁掉缓存
+
 ### 2.8.4 (2017-06-06)
 * [FIX] 修复 proxy 环境下 post 请求一直 padding 问题
 * [EDIT] 完善 `gulp-requirejs`, `browserify-babel`, `rollup`, `webpack-vue`, `webpack-vue2` 中对本地代理部分的说明
