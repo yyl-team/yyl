@@ -35,13 +35,7 @@ var gulp = require('gulp'),
 
     cache = {
         remoteRevData: '',
-        localRevData: '',
-        timer: 0,
-        popConfig: {
-            title: 'gulp-requirejs',
-            interval: 5000,
-            queues: []
-        }
+        localRevData: ''
     };
 
 require('colors');
@@ -258,7 +252,7 @@ gulp.task('html-task-step02', function(){
 
     // html task
     return gulp.src( util.joinFormat(vars.srcRoot, 'html/*.html'))
-        // .pipe(plumber())
+        .pipe(plumber())
         .pipe(inlinesource())
         // 删除requirejs的配置文件引用
         .pipe(replacePath(/<script [^<]*local-usage\><\/script>/g, ''))
