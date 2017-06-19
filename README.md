@@ -177,6 +177,10 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.10.0 (2017-06-~)
+* [DEL] 去掉不完善的 `browserify-babel` 工作流
+* [EDIT] 调整 工作流中 `config.js` 的默认设置
+* [EDIT] 工作流跑起时新增组件 version 对比
 
 ### 2.9.0 (2017-06-07)
 * [ADD] 本地服务器内文件 支持 post 请求获取

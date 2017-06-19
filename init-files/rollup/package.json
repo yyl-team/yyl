@@ -49,8 +49,8 @@
     "rollup-plugin-commonjs": "^8.0.2",
     "run-sequence": "^1.1.5",
     "through2": "^2.0.1",
-    "yyl-color": "*",
-    "yyl-util": "*"
+    "yyl-color": "^1.0.0",
+    "yyl-util": "^1.1.0"
   },
   "dependencies": {
     "gulp": "^3.9.1"

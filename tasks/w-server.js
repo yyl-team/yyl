@@ -576,29 +576,43 @@ var
                                 pkg = util.requireJs(path.join(workflowPath, 'package.json')),
                                 devs = pkg.devDependencies,
                                 ds = pkg.dependencies,
-                                key;
+                                checkDev = function(devs){
+                                    var 
+                                        modulePkgPath, 
+                                        modulePkg,
+                                        moduleVer,
+                                        key;
 
-                            if(nocmd){
-                                for(key in devs){
-                                    if(devs.hasOwnProperty(key)){
-                                        if(!~dirs.indexOf(key)){
-                                            nocmd = false;
-                                            break;
+                                    for(key in devs){
+                                        if(devs.hasOwnProperty(key)){
+                                            if(!~dirs.indexOf(key)){
+                                                nocmd = false;
+                                                break;
+                                            } else {
+                                                modulePkgPath = path.join(modulePath, key, 'package.json');
+
+                                                if(fs.existsSync(modulePkgPath)){
+                                                    modulePkg = util.requireJs(modulePkgPath);
+                                                    moduleVer = modulePkg.version;
+                                                    if(util.compareVersion(devs[key], moduleVer) > 0){
+                                                        nocmd = false;
+                                                        break;
+                                                    }
+                                                }
+
+
+                                            }
                                         }
                                     }
-                                }
+
+                                };
+
+                            if(nocmd){
+                                checkDev(devs);
                             }
 
                             if(nocmd){
-                                for(key in ds){
-                                    if(ds.hasOwnProperty(key)){
-                                        if(!~dirs.indexOf(key)){
-                                            nocmd = false;
-                                            break;
-                                        }
-                                    }
-                                }
-
+                                checkDev(ds);
                             }
 
 
