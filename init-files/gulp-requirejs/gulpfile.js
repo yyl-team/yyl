@@ -30,9 +30,6 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
-    notifier = require('node-notifier'),
-    
-
     through = require('through2'),
     es = require('event-stream'),
 
@@ -139,42 +136,6 @@ var fn = {
             return iConfig;
         }
 
-    },
-    popit: function(content){
-        if(!content){
-            return;
-        }
-
-        util.msg.info('pop info', content);
-
-        var 
-            popConfig = cache.popConfig,
-            now = new Date(),
-            handler = function(){
-                clearTimeout(popConfig.intervalKey);
-                popConfig.intervalKey = 0;
-                notifier.notify({
-                    title: popConfig.title,
-                    message: popConfig.queues.join(',')
-                });
-                popConfig.queues = [];
-                popConfig.timer = now;
-
-            };
-
-        popConfig.queues.push(content);
-
-        if(now - popConfig.timer >= popConfig.interval){
-            handler();
-
-        } else if(!popConfig.intervalKey) {
-            popConfig.intervalKey = setTimeout(function(){
-                handler();
-            });
-
-        }
-
-        
     }
 };
 
@@ -695,7 +656,7 @@ gulp.task('watch', ['all'], function() {
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
         runSequence('css', 'html', 'concat', 'connect-reload', function(){
             if(!gulp.env.silent){
-                fn.popit('css task done');
+                util.pop('css task done');
             }
         });
     });
@@ -708,7 +669,7 @@ gulp.task('watch', ['all'], function() {
     ], function(){
         runSequence('js', 'html', 'concat', 'connect-reload', function(){
             if(!gulp.env.silent){
-                fn.popit('js task done');
+                util.pop('js task done');
             }
         });
     });
@@ -721,7 +682,7 @@ gulp.task('watch', ['all'], function() {
     ], function(){
         runSequence('images', 'html', 'connect-reload', function(){
             if(!gulp.env.silent){
-                fn.popit('images task done');
+                util.pop('images task done');
             }
         });
 
@@ -735,7 +696,7 @@ gulp.task('watch', ['all'], function() {
     ], function(){
         runSequence('html', 'connect-reload', function(){
             if(!gulp.env.silent){
-                fn.popit('jade task done');
+                util.pop('jade task done');
             }
         });
     });
@@ -1138,7 +1099,7 @@ gulp.task('all', function(done){
         util.msg.info('clear dist file done');
         runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function(){
             if(!gulp.env.silent){
-                fn.popit('all task done');
+                util.pop('all task done');
             }
             done();
         });

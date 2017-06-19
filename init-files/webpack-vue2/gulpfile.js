@@ -4,12 +4,10 @@ var
     gutil = require('gulp-util'),
     webpack = require('webpack'),
     runSequence = require('run-sequence'),
-    notifier = require('node-notifier'),
     fs = require('fs'),
     path = require('path'),
     config = require('./config.js'),
     util = require('yyl-util'),
-    notifyTitle = 'webpack-vue2',
     webpackConfig = require('./webpack.config.js');
 
 
@@ -265,10 +263,7 @@ gulp.task('rev-update', function(done){
 gulp.task('all', function(done){
     runSequence('webpack', 'rev', function(){
         if(!gulp.env.silent){
-            notifier.notify({
-                title: notifyTitle,
-                message: 'optimize task done'
-            });
+            util.pop('optimize task done');
         }
         done();
     });
@@ -284,10 +279,7 @@ gulp.task('watch', ['all'], function(){
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
         runSequence('webpack', 'html', 'rev', 'rev-update', 'connect-reload', function(){
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: notifyTitle,
-                    message: 'watch task done'
-                });
+                util.pop('watch task done');
             }
 
         });

@@ -34,7 +34,6 @@ var gulp = require('gulp'),
     rev = require('gulp-rev'),
     override = require('gulp-rev-css-url'),
     clean = require('gulp-clean'),
-    notifier = require('node-notifier'),
     rollupAlias = require('rollup-plugin-alias'),
 
     through = require('through2'),
@@ -687,10 +686,7 @@ gulp.task('watch', ['all'], function() {
     gulp.watch(util.joinFormat(vars.srcRoot, '**/*.scss'), function() {
         runSequence('css', 'html', 'concat', 'connect-reload', function() {
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'rollup',
-                    message: 'css task done'
-                });
+                util.pop('css task done');
 
             }
             
@@ -705,11 +701,7 @@ gulp.task('watch', ['all'], function() {
     ], function() {
         runSequence('js', 'html', 'concat', 'connect-reload', function() {
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'rollup',
-                    message: 'js task done'
-                });
-
+                util.pop('js task done');
             }
             
         });
@@ -723,10 +715,7 @@ gulp.task('watch', ['all'], function() {
     ], function() {
         runSequence('images', 'html', 'connect-reload', function() {
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'rollup',
-                    message: 'images task done'
-                });
+                util.pop('images task done');
 
             }
 
@@ -742,10 +731,7 @@ gulp.task('watch', ['all'], function() {
     ], function() {
         runSequence('html', 'connect-reload', function() {
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'rollup',
-                    message: 'jade task done'
-                });
+                util.pop('jade task done');
 
             }
             
@@ -1149,13 +1135,8 @@ gulp.task('all', function(done) {
         util.msg.info('clear dist file done');
         runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function() {
             if(!gulp.env.silent){
-                notifier.notify({
-                    title: 'rollup',
-                    message: 'all task done'
-                });
-
+                util.pop('all task done');
             }
-            
             done();
         });
     });
