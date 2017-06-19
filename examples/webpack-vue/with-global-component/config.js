@@ -1,8 +1,9 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
+    commonPath = /*+commonPath*/'../commons/mobile'/*-commonPath*/,
     projectName = /*+name*/'workflow_demo'/*-name*/,
+    version = /*+version*/'1.0.0'/*-version*/,
     //- yyl init 自动 匹配内容
     path = require('path'),
     setting = {
@@ -11,7 +12,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/'+ projectName +'/mobile',
+            basePath: '/website_static/mobileYY/test',
             jsPath: 'js',
             jslibPath: 'js/lib',
             cssPath: 'css',
@@ -24,7 +25,8 @@ var
             port: 8887,
             localRemote: {
                 //'http://www.yy.com/': './dist/',
-                'http://www.yy.com/': 'http://127.0.0.1:5000/'
+                'http://www.yy.com/': 'http://127.0.0.1:5000/',
+                'http://wap.yy.com/': 'http://127.0.0.1:5000/'
             }
         },
         // 提交之前回调函数
@@ -36,6 +38,7 @@ var
     config = {
         workflow: 'webpack-vue',
         name: projectName,
+        version: version,
         dest: setting.dest,
         proxy: setting.proxy,
         // 需要构建工具额外安装的 npm 组件放这里 如 axios
@@ -45,18 +48,17 @@ var
         alias: { // yyl server 路径替换地方
 
             // svn dev 分支地址
-            dev: path.join('./'),
-            // svn commit 分支地址
-            commit: path.join('../../commit/mobile'),
+            dev: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
+
             // svn trunk 分支地址
-            trunk: path.join('../../../trunk/mobile'),
+            trunk: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release/mobileYY/test'),
 
 
             // 公用组件地址
             commons: commonPath,
 
             // 公用 components 目录
-            globalcomponents: path.join(commonPath, '../plugin/mobile'),
+            globalcomponents: path.join(commonPath, 'components'),
             globallib: path.join(commonPath, 'lib'),
 
 
@@ -112,52 +114,32 @@ var
 
         commit: {
              // 上线配置
-            revAddr: 'http://web.yystatic.com/project/'+ projectName +'/mobile/assets/rev-manifest.json',
-            hostname: 'http://web.yystatic.com/',
+            revAddr: 'http://s1.yy.com/website_static/mobileYY/test/assets/rev-manifest.json',
+            hostname: 'http://s1.yy.com/',
             git: {
                 update: []
             },
             svn: {
                 dev: {
                     update: [
-                        '{$dev}'
+                        '{$dev}/assets',
+                        '{$dev}/mobileYY/test',
                     ],
                     copy: {
-                        '{$root}/js': ['{$dev}/dist/js'],
-                        '{$root}/css': ['{$dev}/dist/css'],
-                        '{$root}/html': ['{$dev}/dist/html'],
-                        '{$root}/images': ['{$dev}/dist/images'],
-                        '{$root}/assets': ['{$dev}/dist/assets'],
-                        '{$srcRoot}': ['{$dev}/src']
+                        '{$root}/js': ['{$dev}/js'],
+                        '{$root}/css': ['{$dev}/css'],
+                        '{$root}/html': ['{$dev}/html'],
+                        '{$root}/images': ['{$dev}/images'],
+                        '{$root}/assets': ['{$dev}/assets']
                     },
                     commit: [
-                        '{$dev}/dist/js',
-                        '{$dev}/dist/css',
-                        '{$dev}/dist/html',
-                        '{$dev}/dist/images',
-                        '{$dev}/dist/assets',
-                        '{$dev}/src'
+                        '{$dev}/js',
+                        '{$dev}/css',
+                        '{$dev}/html',
+                        '{$dev}/images',
+                        '{$dev}/assets'
                     ]
 
-                },
-                commit: {
-                    update: [
-                        '{$commit}'
-                    ],
-                    copy: {
-                        '{$root}/js': ['{$commit}/js'],
-                        '{$root}/css': ['{$commit}/css'],
-                        '{$root}/html': ['{$commit}/html'],
-                        '{$root}/images': ['{$commit}/images'],
-                        '{$root}/assets': ['{$commit}/assets']
-                    },
-                    commit: [
-                        '{$commit}/js',
-                        '{$commit}/css',
-                        '{$commit}/html',
-                        '{$commit}/images',
-                        '{$commit}/assets'
-                    ]
                 },
                 trunk: {
                     update: [

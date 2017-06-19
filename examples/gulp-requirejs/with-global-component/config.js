@@ -1,10 +1,11 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
+    commonPath = /*+commonPath*/'../commons/pc'/*-commonPath*/,
     projectName = /*+name*/'workflow_demo'/*-name*/,
     version = /*+version*/'1.0.0'/*-version*/,
     //- yyl init 自动 匹配内容
+
     path = require('path'),
     setting = {
         localserver: { // 本地服务器配置
@@ -12,7 +13,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/'+ projectName +'/pc',
+            basePath: '/pc',
             jsPath: 'js',
             jslibPath: 'js/lib',
             cssPath: 'css',
@@ -44,18 +45,17 @@ var
         localserver: setting.localserver,
         alias: { // yyl server 路径替换地方
             // svn dev 分支地址
-            dev: path.join('./'),
-            // svn commit 分支地址
-            commit: path.join('../../commit/pc'),
+            dev: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'),
+
             // svn trunk 分支地址
-            trunk: path.join('../../../trunk/pc'),
+            trunk: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/trunk'),
 
 
             // 公用组件地址
             commons: commonPath,
 
             // 公用 components 目录
-            globalcomponents: path.join(commonPath, '../plugin/pc'),
+            globalcomponents: path.join(commonPath, 'components'),
             globallib: path.join(commonPath, 'lib'),
 
 
@@ -102,12 +102,10 @@ var
 
         commit: {
              // 上线配置
-            revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/rev-manifest.json',
-            hostname: 'http://web.yystatic.com/',
+            revAddr: 'http://yyweb.yystatic.com/pc/assets/rev-manifest.json',
+            hostname: 'http://yyweb.yystatic.com/',
             git: {
-                update: [
-                    '{$commons}'
-                ]
+                update: []
             },
             svn: {
                 dev: {
@@ -115,59 +113,78 @@ var
                         '{$dev}'
                     ],
                     copy: {
-                        '{$root}/js': ['{$dev}/dist/js'],
-                        '{$root}/css': ['{$dev}/dist/css'],
-                        '{$root}/html': ['{$dev}/dist/html'],
-                        '{$root}/images': ['{$dev}/dist/images'],
-                        '{$root}/assets': ['{$dev}/dist/assets'],
-                        '{$srcRoot}': ['{$dev}/src']
+                        '{$root}/js': [
+                            '{$dev}/static/resource/pc/js',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/js'
+                        ],
+                        '{$root}/css': [
+                            '{$dev}/static/resource/pc/css',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/css'
+                        ],
+                        '{$root}/html': [
+                            '{$dev}/static/resource/pc/html',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/html'
+                        ],
+                        '{$root}/images': [
+                            '{$dev}/static/resource/pc/images',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/images'
+                        ],
+                        '{$root}/assets': [
+                            '{$dev}/static/resource/pc/assets',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/assets'
+                        ]
                     },
                     commit: [
-                        '{$dev}/dist/js',
-                        '{$dev}/dist/css',
-                        '{$dev}/dist/html',
-                        '{$dev}/dist/images',
-                        '{$dev}/dist/assets',
-                        '{$dev}/src'
+                        '{$dev}/static/resource/pc/js',
+                        '{$dev}/yyweb-web/src/main/webapp/static/pc/js',
+                        '{$dev}/static/resource/pc/css',
+                        '{$dev}/yyweb-web/src/main/webapp/static/pc/css',
+                        '{$dev}/static/resource/pc/html',
+                        '{$dev}/yyweb-web/src/main/webapp/static/pc/html',
+                        '{$dev}/static/resource/pc/images',
+                        '{$dev}/yyweb-web/src/main/webapp/static/pc/images',
+                        '{$dev}/static/resource/pc/assets',
+                        '{$dev}/yyweb-web/src/main/webapp/static/pc/assets'
                     ]
 
-                },
-                commit: {
-                    update: [
-                        '{$commit}'
-                    ],
-                    copy: {
-                        '{$root}/js': ['{$commit}/js'],
-                        '{$root}/css': ['{$commit}/css'],
-                        '{$root}/html': ['{$commit}/html'],
-                        '{$root}/images': ['{$commit}/images'],
-                        '{$root}/assets': ['{$commit}/assets']
-                    },
-                    commit: [
-                        '{$commit}/js',
-                        '{$commit}/css',
-                        '{$commit}/html',
-                        '{$commit}/images',
-                        '{$commit}/assets'
-                    ]
                 },
                 trunk: {
                     update: [
                         '{$trunk}'
                     ],
                     copy: {
-                        '{$root}/js': ['{$trunk}/js'],
-                        '{$root}/css': ['{$trunk}/css'],
-                        '{$root}/html': ['{$trunk}/html'],
-                        '{$root}/images': ['{$trunk}/images'],
-                        '{$root}/assets': ['{$trunk}/assets']
+                        '{$root}/js': [
+                            '{$trunk}/static/resource/pc/js',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/js'
+                        ],
+                        '{$root}/css': [
+                            '{$trunk}/static/resource/pc/css',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/css'
+                        ],
+                        '{$root}/html': [
+                            '{$trunk}/static/resource/pc/html',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/html'
+                        ],
+                        '{$root}/images': [
+                            '{$trunk}/static/resource/pc/images',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/images'
+                        ],
+                        '{$root}/assets': [
+                            '{$trunk}/static/resource/pc/assets',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets'
+                        ]
                     },
                     commit: [
-                        '{$trunk}/js',
-                        '{$trunk}/css',
-                        '{$trunk}/html',
-                        '{$trunk}/images',
-                        '{$trunk}/assets'
+                        '{$trunk}/static/resource/pc/js',
+                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/js',
+                        '{$trunk}/static/resource/pc/css',
+                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/css',
+                        '{$trunk}/static/resource/pc/html',
+                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/html',
+                        '{$trunk}/static/resource/pc/images',
+                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/images',
+                        '{$trunk}/static/resource/pc/assets',
+                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets'
                     ]
                 }
 

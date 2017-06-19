@@ -1,7 +1,7 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
+    commonPath = /*+commonPath*/'../commons/pc'/*-commonPath*/,
     projectName = /*+name*/'workflow_demo'/*-name*/,
     version = /*+version*/'1.0.0'/*-version*/,
     //- yyl init 自动 匹配内容
@@ -12,7 +12,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/'+ projectName +'/pc',
+            basePath: '/pc',
             jsPath: 'js/proj01',
             jslibPath: 'js/proj01/lib',
             cssPath: 'css/proj01',
@@ -38,7 +38,7 @@ var
             port: 5000 // 服务器 port
         },
         dest: {
-            basePath: '/project/'+ projectName +'/pc',
+            basePath: '/pc',
             jsPath: 'js/proj02',
             jslibPath: 'js/proj02/lib',
             cssPath: 'css/proj02',
@@ -70,18 +70,17 @@ var
             localserver: setting01.localserver,
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
-                dev: path.join('./'),
-                // svn commit 分支地址
-                commit: path.join('../../commit/pc'),
+                dev: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'),
+
                 // svn trunk 分支地址
-                trunk: path.join('../../../trunk/pc'),
+                trunk: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/trunk'),
 
 
                 // 公用组件地址
                 commons: commonPath,
 
                 // 公用 components 目录
-                globalcomponents: path.join(commonPath, '../plugin/pc'),
+                globalcomponents: path.join(commonPath, 'components'),
                 globallib: path.join(commonPath, 'lib'),
 
 
@@ -122,8 +121,8 @@ var
 
             commit: {
                  // 上线配置
-                revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/proj01/rev-manifest.json',
-                hostname: 'http://web.yystatic.com/',
+                revAddr: 'http://yyweb.yystatic.com/pc/assets/proj01/rev-manifest.json',
+                hostname: 'http://yyweb.yystatic.com/',
                 git: {
                     update: []
                 },
@@ -133,59 +132,79 @@ var
                             '{$dev}'
                         ],
                         copy: {
-                            '{$root}/js/proj01': ['{$dev}/dist/js/proj01'],
-                            '{$root}/css/proj01': ['{$dev}/dist/css/proj01'],
-                            '{$root}/html/proj01': ['{$dev}/dist/html/proj01'],
-                            '{$root}/images/proj01': ['{$dev}/dist/images/proj01'],
-                            '{$root}/assets/proj01': ['{$dev}/dist/assets/proj01'],
-                            '{$srcRoot}': ['{$dev}/src']
+                            '{$root}/js/proj01': [
+                                '{$dev}/static/resource/pc/js/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/js/proj01'
+                            ],
+                            '{$root}/css/proj01': [
+                                '{$dev}/static/resource/pc/css/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/css/proj01'
+                            ],
+                            '{$root}/html/proj01': [
+                                '{$dev}/static/resource/pc/html/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/html/proj01'
+
+                            ],
+                            '{$root}/images/proj01': [
+                                '{$dev}/static/resource/pc/images/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/images/proj01'
+                            ],
+                            '{$root}/assets/proj01': [
+                                '{$dev}/static/resource/pc/assets/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/assets/proj01'
+                            ]
                         },
                         commit: [
-                            '{$dev}/dist/js/proj01',
-                            '{$dev}/dist/css/proj01',
-                            '{$dev}/dist/html/proj01',
-                            '{$dev}/dist/images/proj01',
-                            '{$dev}/dist/assets/proj01',
-                            '{$dev}/src'
+                            '{$dev}/static/resource/pc/js/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/js/proj01',
+                            '{$dev}/static/resource/pc/css/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/css/proj01',
+                            '{$dev}/static/resource/pc/html/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/html/proj01',
+                            '{$dev}/static/resource/pc/images/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/images/proj01',
+                            '{$dev}/static/resource/pc/assets/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/assets/proj01'
                         ]
 
-                    },
-                    commit: {
-                        update: [
-                            '{$commit}'
-                        ],
-                        copy: {
-                            '{$root}/js/proj01': ['{$commit}/js/proj01'],
-                            '{$root}/css/proj01': ['{$commit}/css/proj01'],
-                            '{$root}/html/proj01': ['{$commit}/html/proj01'],
-                            '{$root}/images/proj01': ['{$commit}/images/proj01'],
-                            '{$root}/assets/proj01': ['{$commit}/assets/proj01']
-                        },
-                        commit: [
-                            '{$commit}/js/proj01',
-                            '{$commit}/css/proj01',
-                            '{$commit}/html/proj01',
-                            '{$commit}/images/proj01',
-                            '{$commit}/assets/proj01'
-                        ]
                     },
                     trunk: {
                         update: [
                             '{$trunk}'
                         ],
                         copy: {
-                            '{$root}/js/proj01': ['{$trunk}/js/proj01'],
-                            '{$root}/css/proj01': ['{$trunk}/css/proj01'],
-                            '{$root}/html/proj01': ['{$trunk}/html/proj01'],
-                            '{$root}/images/proj01': ['{$trunk}/images/proj01'],
-                            '{$root}/assets/proj01': ['{$trunk}/assets/proj01']
+                            '{$root}/js/proj02': [
+                                '{$trunk}/static/resource/pc/js/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/js/proj02'
+                            ],
+                            '{$root}/css/proj02': [
+                                '{$trunk}/static/resource/pc/css/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/css/proj02'
+                            ],
+                            '{$root}/html/proj02': [
+                                '{$trunk}/static/resource/pc/html/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/html/proj02'
+                            ],
+                            '{$root}/images/proj02': [
+                                '{$trunk}/static/resource/pc/images/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/images/proj02'
+                            ],
+                            '{$root}/assets/proj02': [
+                                '{$trunk}/static/resource/pc/assets/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets/proj02'
+                            ]
                         },
                         commit: [
-                            '{$trunk}/js/proj01',
-                            '{$trunk}/css/proj01',
-                            '{$trunk}/html/proj01',
-                            '{$trunk}/images/proj01',
-                            '{$trunk}/assets/proj01'
+                            '{$trunk}/static/resource/pc/js/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/js/proj02',
+                            '{$trunk}/static/resource/pc/css/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/css/proj02',
+                            '{$trunk}/static/resource/pc/html/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/html/proj02',
+                            '{$trunk}/static/resource/pc/images/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/images/proj02',
+                            '{$trunk}/static/resource/pc/assets/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets/proj02'
                         ]
                     }
 
