@@ -648,11 +648,17 @@ gulp.task('watch', ['all'], function() {
 
     // 看守所有.scss档
     gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
-        runSequence('css', 'html', 'concat', 'connect-reload', function(){
-            if(!gulp.env.silent){
-                util.pop('css task done');
-            }
-        });
+        
+        util.taskQueue.add('css', function(next){
+            runSequence('css', 'html', 'concat', 'connect-reload', function(){
+                if(!gulp.env.silent){
+                    util.pop('css task done');
+                }
+                next();
+            });
+
+        }, 200);
+        
     });
 
     // 看守所有.js档
@@ -661,11 +667,15 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
     ], function(){
-        runSequence('js', 'html', 'concat', 'connect-reload', function(){
-            if(!gulp.env.silent){
-                util.pop('js task done');
-            }
-        });
+        util.taskQueue.add('js', function(next){
+            runSequence('js', 'html', 'concat', 'connect-reload', function(){
+                if(!gulp.env.silent){
+                    util.pop('js task done');
+                }
+                next();
+            });
+
+        }, 200);
     });
 
     // 看守所有图片档
@@ -674,11 +684,14 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
     ], function(){
-        runSequence('images', 'html', 'connect-reload', function(){
-            if(!gulp.env.silent){
-                util.pop('images task done');
-            }
-        });
+        util.taskQueue.add('images', function(next){
+            runSequence('images', 'html', 'connect-reload', function(){
+                if(!gulp.env.silent){
+                    util.pop('images task done');
+                }
+                next();
+            });
+        }, 200);
 
     });
 
@@ -688,11 +701,15 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
     ], function(){
-        runSequence('html', 'connect-reload', function(){
-            if(!gulp.env.silent){
-                util.pop('jade task done');
-            }
-        });
+        util.taskQueue.add('html', function(next){
+            runSequence('html', 'connect-reload', function(){
+                if(!gulp.env.silent){
+                    util.pop('jade task done');
+                }
+                next();
+            });
+
+        }, 200);
     });
 
     runSequence('connect-reload');
