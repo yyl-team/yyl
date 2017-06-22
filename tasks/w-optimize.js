@@ -55,10 +55,18 @@ var
             if(iEnv.proxy && config.proxy){
                 var iProxyConfig = util.extend(true, config.proxy);
                 if(config.commit.hostname){
+                    
                     if(!iProxyConfig.localRemote){
                         iProxyConfig.localRemote = {};
                     }
+                    
                     var key = config.commit.hostname.replace(/[\\/]$/, '');
+
+                    // 处理 hostname 中 不带 协议的情况
+                    if(/^[\/]{2}\w/.test(key)){
+                        key = 'http:' + key;
+                    }
+
                     var val = util.joinFormat('http://127.0.0.1:' + config.localserver.port);
                     iProxyConfig.localRemote[key] = val;
                 }
