@@ -712,6 +712,28 @@ gulp.task('watch', ['all'], function() {
         }, 200);
     });
 
+    // 看守所有 resource 定义的文件
+    if(iConfig.resource){
+        gulp.watch(Object.keys(iConfig.resource).map(function(src){
+            return path.join(src, '**/*.*');
+
+        }), function(){
+            util.taskQueue.add('resource', function(next){
+                runSequence('resource', 'connect-reload', function(){
+                    if(!gulp.env.silent){
+                        util.pop('resource task done');
+                    }
+                    next();
+                });
+
+            }, 200);
+
+        });
+
+
+    }
+    
+
     runSequence('connect-reload');
 
     if(gulp.env.ver == 'remote'){
@@ -1095,6 +1117,28 @@ gulp.task('rev-update-task', function(){
 
 });
 // - rev
+// + resource
+gulp.task('resource', function(){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return;
+    }
+
+    if(iConfig.resource){
+        var streams = [],
+            i = 0;
+
+        for(var key in iConfig.resource){
+            if(iConfig.resource.hasOwnProperty(key) && fs.existsSync(key)){
+                streams[i++] = gulp.src(path.join(key, '**/*.*')).pipe(gulp.dest(iConfig.resource[key]));
+            }
+        }
+
+        return streams.length? es.concat.apply(es, streams): null;
+    }
+
+});
+// - resource
 // + all
 gulp.task('all', function(done){
     var iConfig = fn.taskInit();
@@ -1108,7 +1152,7 @@ gulp.task('all', function(done){
 
     util.removeFiles(vars.destRoot, function(){
         util.msg.info('clear dist file done');
-        runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function(){
+        runSequence(['js', 'css', 'images', 'html', 'resource'], 'concat', 'rev', 'all-done', function(){
             if(!gulp.env.silent){
                 util.pop('all task done');
             }

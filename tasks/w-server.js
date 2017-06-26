@@ -289,11 +289,21 @@ var
                     }
 
                 },
-                relateHere = function(obj){
+                relateHere = function(obj, changeKey){
+                    var iSrc;
                     for(var key in obj){
                         switch(util.type(obj[key])){
                             case 'string':
-                                obj[key] = pathTrans(obj[key]);
+                                if(changeKey){
+                                    iSrc = pathTrans(key);
+                                    obj[iSrc] = pathTrans(obj[key]);
+                                    if(iSrc != key){
+                                        delete obj[key];
+                                    }
+
+                                } else {
+                                    obj[key] = pathTrans(obj[key]);
+                                }
                                 break;
 
                             default:
@@ -306,6 +316,7 @@ var
 
             // 路径替换
             (function deep(obj){
+                var iSrc;
 
                 for( var key in obj ){
                     if(obj.hasOwnProperty(key)){
@@ -313,6 +324,8 @@ var
                             case 'object':
                                 if(key == 'alias'){ // 替换 val
                                     obj[key] = relateHere(obj[key]);
+                                } else if(key  == 'resource') {
+                                    obj[key] = relateHere(obj[key], true);
 
                                 } else {
                                     deep(obj[key]);

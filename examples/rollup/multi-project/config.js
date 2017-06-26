@@ -1,31 +1,16 @@
 'use strict';
 var 
     //+ yyl init 自动 匹配内容
-    commonPath = /*+commonPath*/'../../../../public/global'/*-commonPath*/,
+    commonPath = /*+commonPath*/'../commons/pc'/*-commonPath*/,
     projectName = /*+name*/'workflow_demo'/*-name*/,
     version = /*+version*/'1.0.0'/*-version*/,
     //- yyl init 自动 匹配内容
     path = require('path'),
-    settings = [{
-        // 若存在 多个 setting 此 name 属性会作为
-        name: 'proj01',
-        // 工作流类型
-        workflow: 'rollup',
-
+    setting01 = {
         localserver: { // 本地服务器配置
             root: './dist', // 服务器输出地址
             port: 5000 // 服务器 port
         },
-
-        // 代理服务器
-        proxy: {
-            port: 8887,
-            localRemote: {
-                //'http://www.yy.com/': './dist/',
-                'http://www.yy.com/': 'http://127.0.0.1:5000/'
-            }
-        },
-
         dest: {
             basePath: '/pc',
             jsPath: 'js/proj01',
@@ -35,144 +20,23 @@ var
             imagesPath: 'images/proj01',
             revPath: 'assets/proj01',
         },
-        // 别名配置
-        // +此部分 yyl server 端config 会进行替换
-        alias: {
-            // svn dev 分支地址
-            dev: path.join('./'),
-            // svn commit 分支地址
-            commit: path.join('../../commit/pc'),
-            // svn trunk 分支地址
-            trunk: path.join('../../../trunk/pc'),
-            // 公用 components 目录
-            globalcomponents: path.join(commonPath, '../plugin/pc'),
-            // 公用 lib 目录
-            globallib: path.join(commonPath, 'lib'),
-            // src 地址
-            srcRoot: 'src/proj01'
-        },
-        // -此部分 yyl server 端config 会进行替换
-
-        // + 此部分 不要用相对路径
-        // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
-        concat: {
-
-        },
-        commit: {
-            // 上线配置
-            revAddr: 'http://yyweb.yystatic.com/pc/assets/proj01/rev-manifest.json',
-            hostname: 'http://yyweb.yystatic.com/',
-            git: {
-                update: []
-            },
-            svn: {
-                dev: {
-                    update: [
-                        '{$dev}'
-                    ],
-                    copy: {
-                        '{$root}/js/proj01': [
-                            '{$dev}/static/resource/pc/js/proj01',
-                            '{$dev}/yyweb-web/src/main/webapp/static/pc/js/proj01'
-                        ],
-                        '{$root}/css/proj01': [
-                            '{$dev}/static/resource/pc/css/proj01',
-                            '{$dev}/yyweb-web/src/main/webapp/static/pc/css/proj01'
-                        ],
-                        '{$root}/html/proj01': [
-                            '{$dev}/static/resource/pc/html/proj01',
-                            '{$dev}/yyweb-web/src/main/webapp/static/pc/html/proj01'
-
-                        ],
-                        '{$root}/images/proj01': [
-                            '{$dev}/static/resource/pc/images/proj01',
-                            '{$dev}/yyweb-web/src/main/webapp/static/pc/images/proj01'
-                        ],
-                        '{$root}/assets/proj01': [
-                            '{$dev}/static/resource/pc/assets/proj01',
-                            '{$dev}/yyweb-web/src/main/webapp/static/pc/assets/proj01'
-                        ]
-                    },
-                    commit: [
-                        '{$dev}/static/resource/pc/js/proj01',
-                        '{$dev}/yyweb-web/src/main/webapp/static/pc/js/proj01',
-                        '{$dev}/static/resource/pc/css/proj01',
-                        '{$dev}/yyweb-web/src/main/webapp/static/pc/css/proj01',
-                        '{$dev}/static/resource/pc/html/proj01',
-                        '{$dev}/yyweb-web/src/main/webapp/static/pc/html/proj01',
-                        '{$dev}/static/resource/pc/images/proj01',
-                        '{$dev}/yyweb-web/src/main/webapp/static/pc/images/proj01',
-                        '{$dev}/static/resource/pc/assets/proj01',
-                        '{$dev}/yyweb-web/src/main/webapp/static/pc/assets/proj01'
-                    ]
-
-                },
-                trunk: {
-                    update: [
-                        '{$trunk}'
-                    ],
-                    copy: {
-                        '{$root}/js/proj02': [
-                            '{$trunk}/static/resource/pc/js/proj02',
-                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/js/proj02'
-                        ],
-                        '{$root}/css/proj02': [
-                            '{$trunk}/static/resource/pc/css/proj02',
-                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/css/proj02'
-                        ],
-                        '{$root}/html/proj02': [
-                            '{$trunk}/static/resource/pc/html/proj02',
-                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/html/proj02'
-                        ],
-                        '{$root}/images/proj02': [
-                            '{$trunk}/static/resource/pc/images/proj02',
-                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/images/proj02'
-                        ],
-                        '{$root}/assets/proj02': [
-                            '{$trunk}/static/resource/pc/assets/proj02',
-                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets/proj02'
-                        ]
-                    },
-                    commit: [
-                        '{$trunk}/static/resource/pc/js/proj02',
-                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/js/proj02',
-                        '{$trunk}/static/resource/pc/css/proj02',
-                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/css/proj02',
-                        '{$trunk}/static/resource/pc/html/proj02',
-                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/html/proj02',
-                        '{$trunk}/static/resource/pc/images/proj02',
-                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/images/proj02',
-                        '{$trunk}/static/resource/pc/assets/proj02',
-                        '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets/proj02'
-                    ]
-                }
-
-            }
-
-        },
-        // - 此部分 不要用相对路径
-        // 提交之前回调函数
-        beforeCommit: function(){}
-    }, {
-        // 若存在 多个 setting 此 name 属性会作为
-        name: 'proj02',
-        // 工作流类型
-        workflow: 'rollup',
-
-        localserver: { // 本地服务器配置
-            root: './dist', // 服务器输出地址
-            port: 5000 // 服务器 port
-        },
-
         // 代理服务器
         proxy: {
             port: 8887,
             localRemote: {
-                // 'http://www.yy.com/': './dist/',
+                //'http://www.yy.com/': './dist/',
                 'http://www.yy.com/': 'http://127.0.0.1:5000/'
             }
         },
+        // 提交之前回调函数
+        beforeCommit: function(){}
 
+    },
+    setting02 = {
+        localserver: { // 本地服务器配置
+            root: './dist', // 服务器输出地址
+            port: 5000 // 服务器 port
+        },
         dest: {
             basePath: '/pc',
             jsPath: 'js/proj02',
@@ -182,171 +46,326 @@ var
             imagesPath: 'images/proj02',
             revPath: 'assets/proj02',
         },
-        // 别名配置
-        // +此部分 yyl server 端config 会进行替换
-        alias: {
-            // svn dev 分支地址
-            dev: path.join('./'),
-            // svn commit 分支地址
-            commit: path.join('../../commit/pc'),
-            // svn trunk 分支地址
-            trunk: path.join('../../../trunk/pc'),
-            // 公用 components 目录
-            globalcomponents: path.join(commonPath, '../plugin/pc'),
-            // 公用 lib 目录
-            globallib: path.join(commonPath, 'lib'),
-            // src 地址
-            srcRoot: 'src/proj02'
-        },
-        // -此部分 yyl server 端config 会进行替换
-
-        // + 此部分 不要用相对路径
-        // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
-        concat: {
-
-        },
-        commit: {
-            // 上线配置
-            revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/proj02/rev-manifest.json',
-            hostname: 'http://web.yystatic.com/',
-            git: {
-                update: []
-            },
-            svn: {
-                dev: {
-                    update: [
-                        '{$dev}'
-                    ],
-                    copy: {
-                        '{$root}/js/proj02': ['{$dev}/dist/js/proj02'],
-                        '{$root}/css/proj02': ['{$dev}/dist/css/proj02'],
-                        '{$root}/html/proj02': ['{$dev}/dist/html/proj02'],
-                        '{$root}/images/proj02': ['{$dev}/dist/images/proj02'],
-                        '{$root}/assets/proj02': ['{$dev}/dist/assets/proj02'],
-                        '{$srcRoot}': ['{$dev}/src']
-                    },
-                    commit: [
-                        '{$dev}/dist/js/proj02',
-                        '{$dev}/dist/css/proj02',
-                        '{$dev}/dist/html/proj02',
-                        '{$dev}/dist/images/proj02',
-                        '{$dev}/dist/assets/proj02',
-                        '{$dev}/src'
-                    ]
-
-                },
-                commit: {
-                    update: [
-                        '{$commit}'
-                    ],
-                    copy: {
-                        '{$root}/js/proj02': ['{$commit}/js/proj02'],
-                        '{$root}/css/proj02': ['{$commit}/css/proj02'],
-                        '{$root}/html/proj02': ['{$commit}/html/proj02'],
-                        '{$root}/images/proj02': ['{$commit}/images/proj02'],
-                        '{$root}/assets/proj02': ['{$commit}/assets/proj02']
-                    },
-                    commit: [
-                        '{$commit}/js/proj02',
-                        '{$commit}/css/proj02',
-                        '{$commit}/html/proj02',
-                        '{$commit}/images/proj02',
-                        '{$commit}/assets/proj02'
-                    ]
-                },
-                trunk: {
-                    update: [
-                        '{$trunk}'
-                    ],
-                    copy: {
-                        '{$root}/js/proj02': ['{$trunk}/js/proj02'],
-                        '{$root}/css/proj02': ['{$trunk}/css/proj02'],
-                        '{$root}/html/proj02': ['{$trunk}/html/proj02'],
-                        '{$root}/images/proj02': ['{$trunk}/images/proj02'],
-                        '{$root}/assets/proj02': ['{$trunk}/assets/proj02']
-                    },
-                    commit: [
-                        '{$trunk}/js/proj02',
-                        '{$trunk}/css/proj02',
-                        '{$trunk}/html/proj02',
-                        '{$trunk}/images/proj02',
-                        '{$trunk}/assets/proj02'
-                    ]
-                }
-
+        // 代理服务器
+        proxy: {
+            port: 8887,
+            localRemote: {
+                'http://www.yy.com/': './dist/'
             }
-
         },
-        // - 此部分 不要用相对路径
         // 提交之前回调函数
         beforeCommit: function(){}
-    }];
 
-var config = {};
-
-function extendit(o1, o2){
-    for(var key in o2){
-        if(o2.hasOwnProperty(key)){
-            o1[key] = o2[key];
-        }
-    }
-    return o1;
-}
-
-function settingPrase(setting){
-    return {
-        workflow: setting.workflow,
-        name: setting.name,
-        version: version,
-        dest: setting.dest,
-        localserver: setting.localserver,
-        proxy: setting.proxy,
-        alias: extendit({
-            // 公用组件地址
-            commons: commonPath,
-
-            // 输出目录中 到 html, js, css, image 层 的路径
-            root: path.join(setting.localserver.root, setting.dest.basePath),
-
-            // rev 输出内容的相对地址
-            revRoot: path.join(setting.localserver.root, setting.dest.basePath),
-
-            // dest 地址
-            destRoot: setting.localserver.root,
-
-            // 项目根目录
-            dirname: './',
-
-            // js 输出地址
-            jsDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),
-            // js lib 输出地址
-            jslibDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jslibPath),
-            // html 输出地址
-            htmlDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.htmlPath),
-            // css 输出地址
-            cssDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.cssPath),
-            // images 输出地址
-            imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
-            // assets 输出地址
-            revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath)
-
-        }, setting.alias),
-        concat: setting.concat,
-        commit: setting.commit,
-        beforeCommit: setting.beforeCommit
     };
-}
 
-if(settings.length === 1){
-    config = settingPrase(settings[0]);
+var
+    config = {
+        proj01: {
+            workflow: 'rollup',
+            name: projectName,
+            version: version,
+            dest: setting01.dest,
+            proxy: setting01.proxy,
+            // +此部分 yyl server 端config 会进行替换
+            localserver: setting01.localserver,
+            resource: { // 自定义项目中其他需打包的文件夹
+                /*
+                'src/swf': path.join(setting01.localserver.root, setting01.dest.basePath, 'swf'),
+                'src/font': path.join(setting01.localserver.root, setting01.dest.basePath, 'font')
+                 */
 
-} else {
-    settings.forEach(function(setting){
-        if(setting.name){
-            config[setting.name] = settingPrase(setting);
+            },
+            alias: { // yyl server 路径替换地方
+                // svn dev 分支地址
+                dev: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'),
+
+                // svn trunk 分支地址
+                trunk: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/trunk'),
+
+
+                // 公用组件地址
+                commons: commonPath,
+
+                // 公用 components 目录
+                globalcomponents: path.join(commonPath, 'components'),
+                globallib: path.join(commonPath, 'lib'),
+
+
+                // 输出目录中 到 html, js, css, image 层 的路径
+                root: path.join(setting01.localserver.root, setting01.dest.basePath),
+
+                // rev 输出内容的相对地址
+                revRoot: path.join(setting01.localserver.root, setting01.dest.basePath),
+
+                // dest 地址
+                destRoot: setting01.localserver.root,
+
+                // src 地址
+                srcRoot: './src/proj01',
+                
+                // 项目根目录
+                dirname: './',
+
+                // js 输出地址
+                jsDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.jsPath),
+                // js lib 输出地址
+                jslibDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.jslibPath),
+                // html 输出地址
+                htmlDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.htmlPath),
+                // css 输出地址
+                cssDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.cssPath),
+                // images 输出地址
+                imagesDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.imagesPath),
+                // assets 输出地址
+                revDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.revPath),
+
+                rDemo: path.join('src/proj01/components/r-demo/r-demo.js')
+            },
+            // -此部分 yyl server 端config 会进行替换
+
+            // + 此部分 不要用相对路径
+            // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
+            concat: {
+            },
+
+            commit: {
+                 // 上线配置
+                revAddr: 'http://yyweb.yystatic.com/pc/assets/proj01/rev-manifest.json',
+                hostname: 'http://yyweb.yystatic.com/',
+                git: {
+                    update: []
+                },
+                svn: {
+                    dev: {
+                        update: [
+                            '{$dev}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj01': [
+                                '{$dev}/static/resource/pc/js/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/js/proj01'
+                            ],
+                            '{$root}/css/proj01': [
+                                '{$dev}/static/resource/pc/css/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/css/proj01'
+                            ],
+                            '{$root}/html/proj01': [
+                                '{$dev}/static/resource/pc/html/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/html/proj01'
+
+                            ],
+                            '{$root}/images/proj01': [
+                                '{$dev}/static/resource/pc/images/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/images/proj01'
+                            ],
+                            '{$root}/assets/proj01': [
+                                '{$dev}/static/resource/pc/assets/proj01',
+                                '{$dev}/yyweb-web/src/main/webapp/static/pc/assets/proj01'
+                            ]
+                        },
+                        commit: [
+                            '{$dev}/static/resource/pc/js/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/js/proj01',
+                            '{$dev}/static/resource/pc/css/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/css/proj01',
+                            '{$dev}/static/resource/pc/html/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/html/proj01',
+                            '{$dev}/static/resource/pc/images/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/images/proj01',
+                            '{$dev}/static/resource/pc/assets/proj01',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/assets/proj01'
+                        ]
+
+                    },
+                    trunk: {
+                        update: [
+                            '{$trunk}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj02': [
+                                '{$trunk}/static/resource/pc/js/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/js/proj02'
+                            ],
+                            '{$root}/css/proj02': [
+                                '{$trunk}/static/resource/pc/css/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/css/proj02'
+                            ],
+                            '{$root}/html/proj02': [
+                                '{$trunk}/static/resource/pc/html/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/html/proj02'
+                            ],
+                            '{$root}/images/proj02': [
+                                '{$trunk}/static/resource/pc/images/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/images/proj02'
+                            ],
+                            '{$root}/assets/proj02': [
+                                '{$trunk}/static/resource/pc/assets/proj02',
+                                '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets/proj02'
+                            ]
+                        },
+                        commit: [
+                            '{$trunk}/static/resource/pc/js/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/js/proj02',
+                            '{$trunk}/static/resource/pc/css/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/css/proj02',
+                            '{$trunk}/static/resource/pc/html/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/html/proj02',
+                            '{$trunk}/static/resource/pc/images/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/images/proj02',
+                            '{$trunk}/static/resource/pc/assets/proj02',
+                            '{$trunk}/yyweb-web/src/main/webapp/static/pc/assets/proj02'
+                        ]
+                    }
+
+                }
+            }
+            // - 此部分 不要用相对路径
+
+        },
+        proj02: {
+            workflow: 'gulp-requirejs',
+            name: projectName,
+            version: version,
+            dest: setting02.dest,
+            proxy: setting02.proxy,
+            // +此部分 yyl server 端config 会进行替换
+            localserver: setting02.localserver,
+            resource: { // 自定义项目中其他需打包的文件夹
+                /*
+                'src/swf': path.join(setting02.localserver.root, setting02.dest.basePath, 'swf'),
+                'src/font': path.join(setting02.localserver.root, setting02.dest.basePath, 'font')
+                 */
+
+            },
+            alias: { // yyl server 路径替换地方
+                // svn dev 分支地址
+                dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/develop/pc'),
+                // svn commit 分支地址
+                commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/commit/pc'),
+                // svn trunk 分支地址
+                trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/trunk/pc'),
+
+                // 公用组件地址
+                commons: commonPath,
+
+                // 公用 components 目录
+                globalcomponents: path.join(commonPath, '../plugin/pc'),
+                globallib: path.join(commonPath, 'lib'),
+
+
+                // 输出目录中 到 html, js, css, image 层 的路径
+                root: path.join(setting02.localserver.root, setting02.dest.basePath),
+
+                // rev 输出内容的相对地址
+                revRoot: path.join(setting02.localserver.root, setting02.dest.basePath),
+
+                // dest 地址
+                destRoot: setting02.localserver.root,
+
+                // src 地址
+                srcRoot: './src/proj02',
+                
+                // 项目根目录
+                dirname: './',
+
+                // js 输出地址
+                jsDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.jsPath),
+                // js lib 输出地址
+                jslibDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.jslibPath),
+                // html 输出地址
+                htmlDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.htmlPath),
+                // css 输出地址
+                cssDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.cssPath),
+                // images 输出地址
+                imagesDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.imagesPath),
+                // assets 输出地址
+                revDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.revPath),
+
+                rDemo: path.join('./src/proj02/components/r-demo/r-demo.js')
+            },
+            // -此部分 yyl server 端config 会进行替换
+
+            // + 此部分 不要用相对路径
+            // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
+            concat: {
+                
+            },
+
+            commit: {
+                 // 上线配置
+                revAddr: 'http://web.yystatic.com/project/'+ projectName +'/pc/assets/proj02/rev-manifest.json',
+                hostname: 'http://web.yystatic.com/',
+                git: {
+                    update: []
+                },
+                svn: {
+                    dev: {
+                        update: [
+                            '{$dev}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj02': ['{$dev}/dist/js/proj02'],
+                            '{$root}/css/proj02': ['{$dev}/dist/css/proj02'],
+                            '{$root}/html/proj02': ['{$dev}/dist/html/proj02'],
+                            '{$root}/images/proj02': ['{$dev}/dist/images/proj02'],
+                            '{$root}/assets/proj02': ['{$dev}/dist/assets/proj02'],
+                            '{$srcRoot}': ['{$dev}/src']
+                        },
+                        commit: [
+                            '{$dev}/dist/js/proj02',
+                            '{$dev}/dist/css/proj02',
+                            '{$dev}/dist/html/proj02',
+                            '{$dev}/dist/images/proj02',
+                            '{$dev}/dist/assets/proj02',
+                            '{$dev}/src'
+                        ]
+
+                    },
+                    commit: {
+                        update: [
+                            '{$commit}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj02': ['{$commit}/js/proj02'],
+                            '{$root}/css/proj02': ['{$commit}/css/proj02'],
+                            '{$root}/html/proj02': ['{$commit}/html/proj02'],
+                            '{$root}/images/proj02': ['{$commit}/images/proj02'],
+                            '{$root}/assets/proj02': ['{$commit}/assets/proj02']
+                        },
+                        commit: [
+                            '{$commit}/js/proj02',
+                            '{$commit}/css/proj02',
+                            '{$commit}/html/proj02',
+                            '{$commit}/images/proj02',
+                            '{$commit}/assets/proj02'
+                        ]
+                    },
+                    trunk: {
+                        update: [
+                            '{$trunk}'
+                        ],
+                        copy: {
+                            '{$root}/js/proj02': ['{$trunk}/js/proj02'],
+                            '{$root}/css/proj02': ['{$trunk}/css/proj02'],
+                            '{$root}/html/proj02': ['{$trunk}/html/proj02'],
+                            '{$root}/images/proj02': ['{$trunk}/images/proj02'],
+                            '{$root}/assets/proj02': ['{$trunk}/assets/proj02']
+                        },
+                        commit: [
+                            '{$trunk}/js/proj02',
+                            '{$trunk}/css/proj02',
+                            '{$trunk}/html/proj02',
+                            '{$trunk}/images/proj02',
+                            '{$trunk}/assets/proj02'
+                        ]
+                    }
+
+                }
+            }
+            // - 此部分 不要用相对路径
+
         }
-    });
-
-}
+        
+    };
 
 module.exports = config;

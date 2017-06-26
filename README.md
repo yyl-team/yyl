@@ -177,6 +177,11 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+
+### 2.11.0 (2017-06-26)
+* [ADD] 工作流 `gulp-requirejs`, `rollup` 的 `config.js` 中 新增 `resource` 属性用于自定义开发项目中需要一并打包同步到dist的文件夹
+* [EDIT] 工作流 `README.md` 中 新增 对 打包命令的 例子说明
+
 ### 2.10.1 (2017-06-22)
 * [FIX] 修复在config.commit.hostname 中填写 不带协议的 url如 `//www.yy.com` 时，路径替换出错问题
 

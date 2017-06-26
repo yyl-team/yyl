@@ -68,6 +68,13 @@ var
             proxy: setting01.proxy,
             // +此部分 yyl server 端config 会进行替换
             localserver: setting01.localserver,
+            resource: { // 自定义项目中其他需打包的文件夹
+                /*
+                'src/swf': path.join(setting01.localserver.root, setting01.dest.basePath, 'swf'),
+                'src/font': path.join(setting01.localserver.root, setting01.dest.basePath, 'font')
+                 */
+
+            },
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
                 dev: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'),
@@ -221,6 +228,13 @@ var
             proxy: setting02.proxy,
             // +此部分 yyl server 端config 会进行替换
             localserver: setting02.localserver,
+            resource: { // 自定义项目中其他需打包的文件夹
+                /*
+                'src/swf': path.join(setting02.localserver.root, setting02.dest.basePath, 'swf'),
+                'src/font': path.join(setting02.localserver.root, setting02.dest.basePath, 'font')
+                 */
+
+            },
             alias: { // yyl server 路径替换地方
                 // svn dev 分支地址
                 dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/'+ projectName +'/branches/develop/pc'),

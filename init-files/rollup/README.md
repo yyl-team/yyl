@@ -32,6 +32,21 @@ Options:
     --proxy          开启本地代理服务(需要配置 config.proxy 参数)
     --silent         不显示右下角小气泡
 ```
+### 构建例子
+```
+# 构建单个项目
+yyl watch --sub dev --proxy
+
+# 调试线上代码
+yyl watch --name pc --sub dev --ver remote --proxy
+
+# 提交到 dev
+yyl commit --sub dev
+
+# 提交到 trunk
+yyl commit --sub trunk
+```
+若包含多个子工程 请在 构建命令的最后加上 `--name <name>`
 
 ## 关于本地代理
 在 `config.proxy` 设置 相关参数后，即可通过本地代理的方式对代码进行本地映射到线上,

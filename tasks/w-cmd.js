@@ -99,6 +99,7 @@ module.exports = function(ctx){
         case 'connect':
         case 'concat':
         case 'rev':
+        case 'resource':
             events.optimize.apply(events, iArgv);
             break;
 

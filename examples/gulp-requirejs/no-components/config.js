@@ -43,6 +43,13 @@ var
         proxy: setting.proxy,
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
+        resource: { // 自定义项目中其他需打包的文件夹
+            /*
+            'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
+            'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
+             */
+
+        },
         alias: { // yyl server 路径替换地方
             // svn dev 分支地址
             dev: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'),
