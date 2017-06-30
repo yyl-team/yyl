@@ -24,9 +24,6 @@ var webpackconfig = {
                 // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
             };
 
-        if(config.alias.flexlayout){
-            r.flexLayout = ['flexlayout'];
-        }
 
         // single entry
         var bootPath = path.join(iSrcRoot, 'boot/boot.js');
@@ -63,6 +60,11 @@ var webpackconfig = {
                 }
             });
 
+        }
+
+        // 合并 config 中的 entry 字段
+        if(config.entry){
+            r = util.extend(true, r, config.entry);
         }
 
         return r;

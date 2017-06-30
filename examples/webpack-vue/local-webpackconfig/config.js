@@ -47,6 +47,10 @@ var
         plugins: [
             'clean-webpack-plugin'
         ],
+        // 对应 webpack.config 中 entry 字段
+        entry: {
+            vendors: ['flexlayout']
+        },
         alias: { // yyl server 路径替换地方
 
             // svn dev 分支地址

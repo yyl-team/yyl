@@ -45,6 +45,10 @@ var
         plugins: [],
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
+        // 对应 webpack.config 中 entry 字段
+        entry: {
+            vendors: ['flexlayout']
+        },
         alias: { // yyl server 路径替换地方
 
             // svn dev 分支地址

@@ -53,11 +53,12 @@ var
 
                     if(localData){ // 存在本地文件
 
-                        util.msg.success('proxy local:', req.url);
+                        util.msg.info('proxy local', req.url);
                         res.write(localData);
                         res.end();
 
                     } else { // 透传 or 转发
+                        util.msg.info('proxy remote =>', req.url);
                         var 
                             iUrl = httpRemoteUrl || req.url,
                             body = [],
@@ -72,6 +73,7 @@ var
                                     if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
 
                                         vRes.on('end', function(){
+                                            util.msg.info('proxy local server not found, to remote:', iUrl);
                                             linkit(req.url, iBuffer);
                                         });
 
@@ -83,6 +85,7 @@ var
                                     });
 
                                     vRes.on('end', function(){
+                                        util.msg.info('proxy end <=', vRes.statusCode, iUrl);
                                         res.end();
                                     });
                                     vRes.on('error', function(){

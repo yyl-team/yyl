@@ -178,6 +178,12 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 ## 版本信息
 
+
+### 2.12.0 (2017-06-30)
+* [ADD] 工作流 `webpack-vue`, `webpack-vue2` 的 `config.js` 中 新增 `entry`, 对应 webpack.config.js 中的 entry 字段
+* [ADD] 代理组件 中 新增 映射 log, 方便排查
+* [DEL] 删除 `webpack-vue` example 中的 `es6`, `with-global-component` 例子
+
 ### 2.11.0 (2017-06-26)
 * [ADD] 工作流 `gulp-requirejs`, `rollup` 的 `config.js` 中 新增 `resource` 属性用于自定义开发项目中需要一并打包同步到dist的文件夹
 * [EDIT] 工作流 `README.md` 中 新增 对 打包命令的 例子说明
