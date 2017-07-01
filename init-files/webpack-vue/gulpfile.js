@@ -293,13 +293,29 @@ gulp.task('watch', ['all'], function(){
     }
 
     var htmls = util.readFilesSync(config.alias.destRoot, /\.html$/),
-        addr;
+        addr,
+        localServerAddr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port,
+        localServerAddr2 = 'http://127.0.0.1:' + config.localserver.port,
+        iHost = config.commit.hostname.replace(/\/$/, '');
 
     if(gulp.env.proxy) {
-        addr = config.commit.hostname;
+        var iAddr = '';
+        if(config.proxy && config.proxy.localRemote){
+            for(var key in config.proxy.localRemote){
+                iAddr = config.proxy.localRemote[key].replace(/\/$/, '');
+                if((iAddr === localServerAddr || iAddr === localServerAddr2) && key.replace(/\/$/, '') !== iHost){
+                    addr = key;
+                    break;
+                }
+            }
+        }
+
+        if(!addr){
+            addr = config.commit.hostname;
+        }
 
     } else {
-        addr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port;
+        addr = localServerAddr;
     }
     
 

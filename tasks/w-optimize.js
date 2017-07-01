@@ -70,15 +70,26 @@ var
                     var val = util.joinFormat('http://127.0.0.1:' + config.localserver.port);
                     iProxyConfig.localRemote[key] = val;
                 }
+
                 wProxy.init(iProxyConfig, function(err){
                     if(err){
                         util.msg.warn('proxy init error', err);
                     }
                     next(config);
-                });
+                }, iEnv.debug);
 
             } else {
                 util.msg.info('no proxy, next');
+                next(config);
+            }
+        }).then(function(config, next){ // 清除 localserver 目录下原有文件
+            if(fs.existsSync(config.localserver.root)){
+                util.msg.info('clean Path start:', config.localserver.root);
+                util.removeFiles(config.localserver.root, function(){
+                    util.msg.success('clean Path done:', config.localserver.root);
+                    next(config);
+                });
+            } else {
                 next(config);
             }
 

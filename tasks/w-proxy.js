@@ -9,7 +9,7 @@ var
 
 var
     wProxy = {
-        init: function(op, done){
+        init: function(op, done, showlog){
             var 
                 iPort = op.port || 8887;
 
@@ -58,7 +58,9 @@ var
                         res.end();
 
                     } else { // 透传 or 转发
-                        util.msg.info('proxy remote =>', req.url);
+                        if(showlog){
+                            util.msg.info('proxy remote =>', req.url);
+                        }
                         var 
                             iUrl = httpRemoteUrl || req.url,
                             body = [],
@@ -73,7 +75,9 @@ var
                                     if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
 
                                         vRes.on('end', function(){
-                                            util.msg.info('proxy local server not found, to remote:', iUrl);
+                                            if(showlog){
+                                                util.msg.info('proxy local server not found, to remote:', iUrl);
+                                            }
                                             linkit(req.url, iBuffer);
                                         });
 
@@ -85,7 +89,9 @@ var
                                     });
 
                                     vRes.on('end', function(){
-                                        util.msg.info('proxy end <=', vRes.statusCode, iUrl);
+                                        if(showlog){
+                                            util.msg.info('proxy end <=', vRes.statusCode, iUrl);
+                                        }
                                         res.end();
                                     });
                                     vRes.on('error', function(){

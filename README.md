@@ -179,6 +179,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 ## 版本信息
 
 
+### 2.13.0 (2017-07-01)
+* [ADD] 工作流 如果设置了 `config.proxy.localRemote` 并指向本地域名(`127.0.0.1:port`), 在运行工作流时设置 `--proxy `, 会优先打开该域名底下的当前文件
+
 ### 2.12.0 (2017-06-30)
 * [ADD] 工作流 `webpack-vue`, `webpack-vue2` 的 `config.js` 中 新增 `entry`, 对应 webpack.config.js 中的 entry 字段
 * [ADD] 代理组件 中 新增 映射 log, 方便排查

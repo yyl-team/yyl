@@ -316,7 +316,6 @@ var
 
             // 路径替换
             (function deep(obj){
-                var iSrc;
 
                 for( var key in obj ){
                     if(obj.hasOwnProperty(key)){
@@ -455,6 +454,7 @@ var
                     port: lrPort,
                     src: "http://localhost:35729/livereload.js?snipver=1"
                 }))
+                
                 // 执行 post 请求本地服务器时处理
                 .use(function(req, res, next){
                     if(req.method == 'POST'){
@@ -478,6 +478,8 @@ var
                     }
                 }))
                 .use(serveIndex(iPath))
+
+                
                 .listen(port, function(err){
                     if(err){
                         return util.msg.error(err);
