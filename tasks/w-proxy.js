@@ -1,11 +1,47 @@
 'use strict';
 var
+    path = require('path'),
     util = require('yyl-util'),
     http = require('http'),
     net = require('net'),
     fs = require('fs'),
     url = require('url');
 
+var 
+    MIME_TYPE_MAP = {
+        'css': 'text/css',
+        'js': 'text/javascript',
+        'html': 'text/html',
+        'xml': 'text/xml',
+        'txt': 'text/plain',
+
+        'json': 'application/json',
+        'pdf': 'application/pdf',
+        'swf': 'application/x-shockwave-flash',
+
+        'woff': 'application/font-woff',
+        'ttf': 'application/font-ttf',
+        'eot': 'application/vnd.ms-fontobject',
+        'otf': 'application/font-otf',
+
+        'wav': 'audio/x-wav',
+        'wmv': 'video/x-ms-wmv',
+        'mp4': 'video/mp4',
+
+        'gif': 'image/gif'
+        ,
+        'ico': 'image/x-icon',
+        'jpeg': 'image/jpeg',
+        'jpg': 'image/jpeg',
+        'png': 'image/png',
+        'svg': 'image/svg+xml',
+        'tiff': 'image/tiff'
+
+    },
+    PROXY_INFO_HTML = [
+        '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
+        '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
+    ].join('');
 
 var
     wProxy = {
@@ -72,6 +108,7 @@ var
 
 
                                 var vRequest = http.request(vOpts, function(vRes){
+
                                     if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
 
                                         vRes.on('end', function(){
@@ -92,6 +129,10 @@ var
                                         if(showlog){
                                             util.msg.info('proxy end <=', vRes.statusCode, iUrl);
                                         }
+
+                                        if(/text\/html/.test(res.getHeader('content-type'))){
+                                            res.write(PROXY_INFO_HTML);
+                                        }
                                         res.end();
                                     });
                                     vRes.on('error', function(){
@@ -100,10 +141,19 @@ var
 
                                     var iHeader = util.extend(true, {}, vRes.headers);
 
+                                    // 设置 header
+                                    var iType = vRes.headers['content-type'];
+                                    if(iType){
+                                        res.setHeader('Content-Type', iType);
+                                    } else {
+                                        var iExt = path.extname(req.url).replace(/^\./, '');
+
+                                        if(MIME_TYPE_MAP[iExt]){
+                                            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+                                        }
+                                    }
 
                                     res.writeHead(vRes.statusCode, iHeader);
-
-                                    
                                 });
 
                                 vRequest.write(body);
@@ -166,7 +216,34 @@ var
             });
 
             done();
-        }
+        },
+        // // 往 html文件 最下方添加 html
+        // appendHTML: function(res, url){
+        //     var html;
+        //     if(!html){
+        //         html = PROXY_INFO_HTML;
+        //     }
+
+        //     // console.log('append check', res.getHeader('content-type'), url)
+        //     console.log(res.data);
+
+        //     if(!/text\/html/.test(res.getHeader('content-type'))){
+        //         if (res.data !== undefined && !res._header) {
+        //             res.setHeader('content-length', Buffer.byteLength(res.data));
+        //         }
+        //         return;
+        //     }
+        //     console.log('write it', url, res.getHeader('content-type'));
+
+            
+
+        //     res.write(new Buffer(html), 'binary');
+
+        //     if (res.data !== undefined && !res._header) {
+        //         res.setHeader('content-length', Buffer.byteLength(res.data));
+        //     }
+
+        // }
     };
 
 module.exports = wProxy;
