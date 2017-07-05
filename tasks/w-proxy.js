@@ -90,6 +90,12 @@ var
                     if(localData){ // 存在本地文件
 
                         util.msg.info('proxy local', req.url);
+
+                        var iExt = path.extname(req.url).replace(/^\./, '');
+                        if(MIME_TYPE_MAP[iExt]){
+                            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+                        }
+
                         res.write(localData);
                         res.end();
 
