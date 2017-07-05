@@ -69,7 +69,6 @@ var
                             return true;
                         }
 
-                        
 
                         if(addr === remoteUrl.substr(0, addr.length)){
                             var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
@@ -136,9 +135,9 @@ var
                                             util.msg.info('proxy end <=', vRes.statusCode, iUrl);
                                         }
 
-                                        if(/text\/html/.test(res.getHeader('content-type'))){
-                                            res.write(PROXY_INFO_HTML);
-                                        }
+                                        // if(/text\/html/.test(res.getHeader('content-type'))){
+                                        //     res.write(PROXY_INFO_HTML);
+                                        // }
                                         res.end();
                                     });
                                     vRes.on('error', function(){
@@ -222,34 +221,7 @@ var
             });
 
             done();
-        },
-        // // 往 html文件 最下方添加 html
-        // appendHTML: function(res, url){
-        //     var html;
-        //     if(!html){
-        //         html = PROXY_INFO_HTML;
-        //     }
-
-        //     // console.log('append check', res.getHeader('content-type'), url)
-        //     console.log(res.data);
-
-        //     if(!/text\/html/.test(res.getHeader('content-type'))){
-        //         if (res.data !== undefined && !res._header) {
-        //             res.setHeader('content-length', Buffer.byteLength(res.data));
-        //         }
-        //         return;
-        //     }
-        //     console.log('write it', url, res.getHeader('content-type'));
-
-            
-
-        //     res.write(new Buffer(html), 'binary');
-
-        //     if (res.data !== undefined && !res._header) {
-        //         res.setHeader('content-length', Buffer.byteLength(res.data));
-        //     }
-
-        // }
+        }
     };
 
 module.exports = wProxy;
