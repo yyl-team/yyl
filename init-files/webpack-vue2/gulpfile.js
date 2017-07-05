@@ -320,5 +320,8 @@ gulp.task('watch', ['all'], function(){
         addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
     }
 
+
+    util.msg.info('open addr:');
+    util.msg.info(addr);
     util.openBrowser(addr);
 });
