@@ -177,6 +177,8 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.13.4 (2017-07-13)
+* [FIX] 改善 `gulp-requirejs` 工作流 `run-sequence` 执行过多问题
 
 ### 2.13.3 (2017-07-05)
 * [FIX] 暂时屏蔽在 html 文件中加 proxy 提示的功能， 等完善后再上

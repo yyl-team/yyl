@@ -99,7 +99,7 @@ var
                         res.end();
 
                     } else { // 透传 or 转发
-                        if(showlog){
+                        if(showlog && /html$/.test(req.url)){
                             util.msg.info('proxy remote =>', req.url);
                         }
                         var 
@@ -131,7 +131,7 @@ var
                                     });
 
                                     vRes.on('end', function(){
-                                        if(showlog){
+                                        if(showlog  && /html$/.test(req.url)){
                                             util.msg.info('proxy end <=', vRes.statusCode, iUrl);
                                         }
 

@@ -294,6 +294,7 @@ gulp.task('watch', ['all'], function(){
 
     var htmls = util.readFilesSync(config.alias.destRoot, /\.html$/),
         addr,
+        addrDebug,
         localServerAddr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port,
         localServerAddr2 = 'http://127.0.0.1:' + config.localserver.port,
         iHost = config.commit.hostname.replace(/\/$/, '');
@@ -319,9 +320,22 @@ gulp.task('watch', ['all'], function(){
     }
     
 
-    if(htmls.length){
-        addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
-    }
+    if(!gulp.env.silent){
+        if(htmls.length){
+            addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
+            addrDebug = util.joinFormat(localServerAddr2, path.relative(config.alias.destRoot, htmls[0]));
+        }
 
-    util.openBrowser(addr);
+        util.msg.info('open addr:');
+        util.msg.info(addr);
+        util.openBrowser(addr);
+        
+        if(gulp.env.debug){
+            util.msg.info('open debug addr:');
+            util.msg.info(addrDebug);
+            util.openBrowser(addrDebug);
+        }
+
+
+    }
 });
