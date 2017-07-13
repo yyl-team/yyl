@@ -42,6 +42,42 @@ var gulp = require('gulp'),
     cache = {
         remoteRevData: '',
         localRevData: ''
+    },
+    TASK_MAP = {
+        'js': ['js-task', 'concat', 'rev-update'],
+        'html': ['html-task', 'html-task-step02'],
+        'css': ['css-component-task', 'css-base-task', 'css-dist', 'concat', 'rev-update'],
+        'images': ['images-img', 'images-components', 'rev-update', 'rev-img-update'],
+        'rev': ['rev-clean', 'rev-loadRemote', 'rev-build', 'rev-remote-build', 'rev-dataInit', 'rev-replace'],
+        'rev-update': ['rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace']
+    },
+    runQueue = function(){
+        var 
+            r = util.makeArray(arguments),
+            deep = true,
+            deepFn = function(){
+                deep = false;
+                var fr = [];
+                r.forEach(function(item){
+                    if(typeof item == 'string'){
+                        if(TASK_MAP[item] && util.type(TASK_MAP[item]) == 'array'){
+                            fr = fr.concat(TASK_MAP[item]);
+                            deep = true;
+                        } else {
+                            fr.push(item);
+                        }
+                    } else {
+                        fr.push(item);
+                    }
+                });
+                r = fr;
+            };
+        while(deep){
+            deepFn();
+        }
+        util.msg.info('runSequence', r);
+        runSequence.apply(runSequence, r);
+
     };
 
 require('colors');
@@ -145,7 +181,7 @@ var fn = {
 // + html task
 gulp.task('html', function(done) {
     gulp.env.nowTask = 'html';
-    runSequence('html-task', 'html-task-step02', done);
+    runQueue('html-task', 'html-task-step02', done);
 
 });
 gulp.task('html-task', function() {
@@ -365,7 +401,7 @@ gulp.task('html-task-step02', function() {
 // + css task
 gulp.task('css', function(done) {
     gulp.env.nowTask = 'css';
-    runSequence('css-component-task', 'css-base-task', 'css-dist', 'concat', 'rev-update', done);
+    runQueue('css-component-task', 'css-base-task', 'css-dist', 'concat', 'rev-update', done);
 
 });
 
@@ -542,7 +578,7 @@ gulp.task('css-component-task', function() {
 // + js task
 gulp.task('js', function(done) {
     gulp.env.nowTask = 'js';
-    runSequence('js-task', 'concat', 'rev-update', done);
+    runQueue('js-task', 'concat', 'rev-update', done);
 });
 gulp.task('js-task', function() {
     var iConfig = fn.taskInit();
@@ -628,7 +664,7 @@ gulp.task('js-task', function() {
 // + images task
 gulp.task('images', ['images-img', 'images-components'], function(done) {
     gulp.env.nowTask = 'images';
-    runSequence('rev-update', 'rev-img-update', done);
+    runQueue('rev-update', 'rev-img-update', done);
 });
 
 gulp.task('images-img', function() {
@@ -685,7 +721,7 @@ gulp.task('watch', ['all'], function() {
     // 看守所有.scss档
     gulp.watch(util.joinFormat(vars.srcRoot, '**/*.scss'), function() {
         util.taskQueue.add('css', function(next){
-            runSequence('css', 'html', 'concat', 'connect-reload', function() {
+            runQueue('css', 'html', 'concat', 'connect-reload', function(){
                 if(!gulp.env.silent){
                     util.pop('css task done');
                 }
@@ -702,7 +738,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.commons, '**.*.js')
     ], function() {
         util.taskQueue.add('js', function(next){
-            runSequence('js', 'html', 'concat', 'connect-reload', function() {
+            runQueue('js', 'html', 'concat', 'connect-reload', function() {
                 if(!gulp.env.silent){
                     util.pop('js task done');
                 }
@@ -718,7 +754,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.globalcomponents, '**/images/*.')
     ], function() {
         util.taskQueue.add('images', function(next){
-            runSequence('images', 'html', 'connect-reload', function() {
+            runQueue('images', 'html', 'connect-reload', function() {
                 if(!gulp.env.silent){
                     util.pop('images task done');
                 }
@@ -736,7 +772,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.globalcomponents, '**/*.jade')
     ], function() {
         util.taskQueue.add(function(next){
-            runSequence('html', 'connect-reload', function() {
+            runQueue('html', 'connect-reload', function() {
                 if(!gulp.env.silent){
                     util.pop('jade task done');
                 }
@@ -745,7 +781,7 @@ gulp.task('watch', ['all'], function() {
         }, 200);
     });
 
-    runSequence('connect-reload');
+    runQueue('connect-reload');
 
     if(gulp.env.ver == 'remote'){
         return;
@@ -859,7 +895,7 @@ gulp.task('rev', function(done) {
         util.msg.warn('config.commit.revAddr not set, rev task not run');
         return done();
     }
-    runSequence('rev-clean', 'rev-loadRemote', 'rev-build', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
+    runQueue('rev-clean', 'rev-loadRemote', 'rev-build', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
 });
 
 gulp.task('rev-clean', function() {
@@ -1122,7 +1158,7 @@ gulp.task('rev-update', function(done) {
     if (gulp.env.runAll) {
         done();
     } else {
-        runSequence('rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
+        runQueue('rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
     }
 });
 
@@ -1171,7 +1207,7 @@ gulp.task('all', function(done) {
 
     util.removeFiles(vars.destRoot, function() {
         util.msg.info('clear dist file done');
-        runSequence(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function() {
+        runQueue(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function() {
             if(!gulp.env.silent){
                 util.pop('all task done');
             }
