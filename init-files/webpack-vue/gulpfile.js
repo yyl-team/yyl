@@ -227,10 +227,10 @@ gulp.task('rev-update', function(done){
                         for(var src in revData){
                             if(revData.hasOwnProperty(src)){
                                 if(revData[src] != outRev[src]){
-                                    fPath = path.join(__dirname, config.alias.revRoot, revData[src]);
+                                    fPath = path.join(config.alias.revRoot, revData[src]);
                                     if(fs.existsSync(fPath)){
                                         fs.writeFileSync(
-                                            path.join(__dirname, config.alias.revRoot, outRev[src]), 
+                                            path.join(config.alias.revRoot, outRev[src]), 
                                             fs.readFileSync(fPath)
                                         );
                                         util.msg.create('file', revData[src]);

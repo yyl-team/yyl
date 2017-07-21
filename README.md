@@ -177,6 +177,10 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.13.7 (2017-07-21)
+* [FIX] 修复 `webpack-vue`, `webpack-vue2` 工作流 执行 `--ver remote --sub trunk` 时不能生成远程映射回来的文件问题
+* [FIX] 修复 `webpack-vue`, `webpack-vue2` 在 node 4.x 下运行报错问题
+
 ### 2.13.5 (2017-07-13)
 * [FIX] 改善 `gulp-requirejs` 工作流 `run-sequence` 执行过多问题
 
