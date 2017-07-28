@@ -18,7 +18,7 @@ npm install yyl -g
 
 ### 整体说明
 ```
-Useage: yyl <command>
+Usage: yyl <command>
 
 Commands:
     init    项目初始化
@@ -36,7 +36,7 @@ Options:
 
 ### 项目初始化相关命令
 ```shell
-Useage: yyl init
+Usage: yyl init
 
 Commands:
 
@@ -47,7 +47,7 @@ Options:
 
 ### 压缩相关命令
 ```
-Useage: yyl <command>
+Usage: yyl <command>
 
 Commands:
     watch     打包并建立本地服务器监听文件
@@ -66,7 +66,7 @@ Options:
 
 ### 提交相关命令
 ```
-Useage: yyl commit <command>
+Usage: yyl commit <command>
 
 Commands:
 
@@ -74,7 +74,7 @@ Options:
     --name <name>    用于存在个多项目的工程，
                      与config 里面的 配置保持一致
 
-    --sub <branches> 分支信息用于 执行 commit 操作 或者 
+    --sub <branches> 分支信息用于 执行 commit 操作 或者
                      在 watch 时 生成和服务器 rev-manifest 一样资源文件
 
     --nosvn          不执行 svn 相关操作
@@ -82,7 +82,7 @@ Options:
 
 ### 本地服务相关命令
 ```
-Useage: yyl server <command>
+Usage: yyl server <command>
 
 Commands:
     init <workflow>  本地服务初始化
@@ -99,14 +99,14 @@ Options:
 
 ### 例子相关命令
 ```
-Useage: yyl example <command>
+Usage: yyl example <command>
 
 ```
 
 ### 删除文件相关命令
 可以帮助快速删掉 node_modules 文件夹 `yyl rm node_modules`
 ```
-Useage: yyl rm <dirname>
+Usage: yyl rm <dirname>
 
 ```
 
