@@ -4,6 +4,7 @@
 本项目基于 yyl 组件进行搭建， 运行前需全局安装:
 ```
 npm install yyl -g
+npm install gulp -g
 ```
 
 ## 命令说明
@@ -67,6 +68,27 @@ yyl commit --sub trunk
 设置完config 后需要 对 浏览器进行 代理设置，让浏览器通过构建工具提供的端口进行页面访问如 `http://127.0.0.1:8887`
 `chrome` 可以通过 安装插件 `SwitchySharp` 来进行 代理设置， ie 可以通过 `工具 -> internet 选项 -> 链接 -> 局域网设置 -> 代理服务器`
 中进行设置
+
+## 自定义配置文件
+我们如果对 `config.js` 配置不符合本地的一些实际情况，如文件路径，可以建一个本地的配置文件`config.mine.js`来进行适配，而此文件并不会上传到git
+1. 在根目录 创建 `config.mine.js` 文件
+2. 把要 config.js 中需要自定义的 属性 存放在 config.mine.js 文件。 demo 如下
+
+```js
+'use strict';
+var path = require('path');
+
+module.exports = {
+    alias: {
+        // svn dev 分支地址
+        dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+        // svn commit 分支地址
+        commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
+        // svn trunk 分支地址
+        trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc')
+    }
+};
+```
 
 ##  项目开发规范
 本工作流采取 组件化开发流程， 所有 页面， 控件都基于 components 目录内 组件 的互相引入,调用， 最终生成对应页面的 html, js, css

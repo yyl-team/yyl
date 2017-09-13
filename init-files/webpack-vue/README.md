@@ -58,6 +58,27 @@ yyl commit --sub trunk
 `chrome` 可以通过 安装插件 `SwitchySharp` 来进行 代理设置， ie 可以通过 `工具 -> internet 选项 -> 链接 -> 局域网设置 -> 代理服务器`
 中进行设置
 
+## 自定义配置文件
+我们如果对 `config.js` 配置不符合本地的一些实际情况，如文件路径，可以建一个本地的配置文件`config.mine.js`来进行适配，而此文件并不会上传到git
+1. 在根目录 创建 `config.mine.js` 文件
+2. 把要 config.js 中需要自定义的 属性 存放在 config.mine.js 文件。 demo 如下
+
+```js
+'use strict';
+var path = require('path');
+
+module.exports = {
+    alias: {
+        // svn dev 分支地址
+        dev: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/develop/pc'),
+        // svn commit 分支地址
+        commit: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/branches/commit/pc'),
+        // svn trunk 分支地址
+        trunk: path.join('../../../../../../svn.yy.com/yy-music/static/project/workflow_demo/trunk/pc')
+    }
+};
+```
+
 ## 工作流简介
 本前端工程采用 vue 1.x + vue-router + vuex 技术架构，通过 webpack 进行整合打包， 把 css 部分通过插件抽离成独立样式表， 并会针对输出的文件生成一份 rev-manifest 文件哈希映射表 给后端使用。适用于移动端 单页面应用场景。
 
