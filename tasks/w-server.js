@@ -121,6 +121,9 @@ var
 
 var 
     wServer = {
+        clear: function(done){
+            events.clear(done);
+        },
         // 获取
         profile: function(key, val){
             var 

@@ -132,7 +132,7 @@ module.exports = function(ctx){
             break;
 
         case 'update':
-            events.supercall.run.apply(events.update, iArgv);
+            events.update.apply(events.update, iArgv);
             break;
 
 
