@@ -783,56 +783,18 @@ gulp.task('watch', ['all'], function() {
 
     runQueue('connect-reload');
 
-    if(gulp.env.ver == 'remote'){
-        return;
-    }
+    var iCmd = [
+        'yyl supercall watchDone',
+        util.envStringify({
+            ver: gulp.env.ver,
+            debug: gulp.env.debug,
+            slient: gulp.env.slient,
+            proxy: gulp.env.proxy
+        })
+    ].join(' ');
 
-    var htmls = util.readFilesSync(config.alias.destRoot, /\.html$/),
-        addr,
-        addrDebug,
-        localServerAddr = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port,
-        localServerAddr2 = 'http://127.0.0.1:' + config.localserver.port,
-        iHost = config.commit.hostname.replace(/\/$/, '');
-
-    if(gulp.env.proxy) {
-        var iAddr = '';
-        if(config.proxy && config.proxy.localRemote){
-            for(var key in config.proxy.localRemote){
-                iAddr = config.proxy.localRemote[key].replace(/\/$/, '');
-                if((iAddr === localServerAddr || iAddr === localServerAddr2) && key.replace(/\/$/, '') !== iHost){
-                    addr = key;
-                    break;
-                }
-            }
-        }
-
-        if(!addr){
-            addr = config.commit.hostname;
-        }
-
-    } else {
-        addr = localServerAddr;
-    }
-    
-
-    if(!gulp.env.silent){
-        if(htmls.length){
-            addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
-            addrDebug = util.joinFormat(localServerAddr2, path.relative(config.alias.destRoot, htmls[0]));
-        }
-
-        util.msg.info('open addr:');
-        util.msg.info(addr);
-        util.openBrowser(addr);
-        
-        if(gulp.env.debug){
-            util.msg.info('open debug addr:');
-            util.msg.info(addrDebug);
-            util.openBrowser(addrDebug);
-        }
-
-
-    }
+    util.msg.info('run cmd:', iCmd);
+    util.runCMD(iCmd);
 });
 // - watch task
 

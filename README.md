@@ -177,6 +177,11 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.14.0 (2017-09-13)
+* [EDIT] `yyl watch --proxy` 时默认打开的 html 如 遇到 default.html index.html 时 优先打开
+* [EDIT] 完善各项目构建时的 `README.md` 文档
+* [EDIT] 将 `yyl watch` 执行后的处理整合到同一个文件里面
+
 ### 2.13.7 (2017-07-21)
 * [FIX] 修复 `webpack-vue`, `webpack-vue2` 工作流 执行 `--ver remote --sub trunk` 时不能生成远程映射回来的文件问题
 * [FIX] 修复 `webpack-vue`, `webpack-vue2` 在 node 4.x 下运行报错问题

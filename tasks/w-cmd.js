@@ -14,6 +14,7 @@ var
         commit: require('./w-commit'),
         remove: require('./w-remove'),
         debug: require('./w-debug'),
+        supercall: require('./w-supercall'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -122,6 +123,10 @@ module.exports = function(ctx){
 
         case 'test':
             events.test();
+            break;
+
+        case 'supercall':
+            events.supercall.run.apply(events.supercall, iArgv);
             break;
 
         case 'debug':
