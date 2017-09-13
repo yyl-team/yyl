@@ -132,7 +132,7 @@ module.exports = function(ctx){
             break;
 
         case 'update':
-            events.update.apply(events.update, iArgv);
+            events.update.apply(events.update, iArgv.slice(1));
             break;
 
 
