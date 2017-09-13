@@ -9,8 +9,8 @@ var
             if(version){
                 iCmd = 'npm install yyl@' + version + ' -g';
             }
-            util.msg.info('run cmd:', iCmd);
-            util.runCMD(iCmd);
+            util.msg.info('clear done please input cmd:');
+            util.msg.info(iCmd);
         });
 
     };
