@@ -54,7 +54,7 @@ var
         },
 
         // 服务器清空
-        clear: function(){
+        clear: function(done){
             new util.Promise(function(next){ // clear data file
                 util.msg.info('start clear server data path:', vars.SERVER_DATA_PATH);
                 if(fs.existsSync(vars.SERVER_DATA_PATH)){
@@ -111,6 +111,7 @@ var
 
             }).then(function(){
                 util.msg.success('clear task done');
+                return done && done();
 
 
             }).start();

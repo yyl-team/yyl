@@ -15,6 +15,7 @@ var
         remove: require('./w-remove'),
         debug: require('./w-debug'),
         supercall: require('./w-supercall'),
+        update: require('./w-update'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -24,7 +25,8 @@ var
                     'all': 'optimize task',
                     'server': 'local server commands',
                     'examples': 'show yyl examples',
-                    'commit': 'commit code to svn/git server(need config)'
+                    'commit': 'commit code to svn/git server(need config)',
+                    'update': 'update yyl from npm'
                 },
                 options: {
                     '-h, --help': 'print usage information',
@@ -128,6 +130,11 @@ module.exports = function(ctx){
         case 'supercall':
             events.supercall.run.apply(events.supercall, iArgv);
             break;
+
+        case 'update':
+            events.supercall.run.apply(events.update, iArgv);
+            break;
+
 
         case 'debug':
             events.debug.apply(events, iArgv.slice(1));

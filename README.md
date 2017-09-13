@@ -26,6 +26,7 @@ Commands:
     all     执行打包操作
     server  yyl本地服务相关命令
     commit  提交代码到 svn/git
+    update  更新
 
 
 Options:
@@ -110,6 +111,13 @@ Usage: yyl rm <dirname>
 
 ```
 
+### 更新控件
+version 选填，不填则默认最新
+```
+Usage: yyl update <version>
+
+```
+
 
 ## 程序工作机制说明
 1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在 一个存放本程序资源的地方 (~/.yyl) 里面创建对应架构类型的文件夹如(~/.yyl/init-file/gulp-requirejs/), 并在里面 根据架构依赖进行 npm install, 从而达到多个项目共用同一份 node_modlues 目的
@@ -177,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.14.1 (2017-09-13)
+* [ADD] 新增 `yyl update` 自动更新
+
 ### 2.14.0 (2017-09-13)
 * [EDIT] `yyl watch --proxy` 时默认打开的 html 如 遇到 default.html index.html 时 优先打开
 * [EDIT] 完善各项目构建时的 `README.md` 文档
