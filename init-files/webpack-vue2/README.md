@@ -58,6 +58,182 @@ yyl commit --sub trunk
 `chrome` 可以通过 安装插件 `SwitchySharp` 来进行 代理设置， ie 可以通过 `工具 -> internet 选项 -> 链接 -> 局域网设置 -> 代理服务器`
 中进行设置
 
+## 项目配置文件 config.js 
+config 配置文件用于配置 `yyl` 工作流 的 打包规则, 提交路径等相关信息, 配置解析如下:
+```js
+var 
+    config = {
+
+        // 打包方式配置
+        workflow: 'gulp-requirejs',
+
+        // 项目名称
+        name: 'yy.com',
+
+        // 项目版本
+        version: '1.0.0',
+
+        // 打包生成相关配置
+        dest: {
+            // 基础目录 
+            // - 如需要输出的 js 目录为 /pc/js/a.js, css 目录为 pc/css/a.css
+            // - 那我们就可以把 basePath 设置为 /pc
+            basePath: '/pc',
+
+            // js 输出路径. 此配置会加上 basePath 作为前缀
+            jsPath: 'js',
+
+            // jslib 输出路径. 此配置会加上 basePath 作为前缀
+            jslibPath: 'js/lib',
+
+            // css 输出路径. 此配置会加上 basePath 作为前缀
+            cssPath: 'css',
+
+            // html 输出路径. 此配置会加上 basePath 作为前缀
+            htmlPath: 'html',
+
+            // images 输出路径. 此配置会加上 basePath 作为前缀
+            imagesPath: 'images',
+
+            // rev-manifest 映射表 输出路径. 此配置会加上 basePath 作为前缀
+            revPath: 'assets'
+        },
+        // 本地代理相关配置
+        proxy: {
+            // 代理端口
+            port: 8887,
+            // 映射规则
+            localRemote: {
+                // 可以相对路径
+                'http://www.yy.com/': './dist/',
+                // 也可以绝对路径
+                'http://www.yy.com/': 'http://127.0.0.1:5000/'
+            }
+        },
+        // + 此部分 yyl server 端config 会进行替换
+        // 本地服务器配置
+        localserver: {
+            // 服务器输出地址
+            root: './dist', 
+            // 服务器 port
+            port: 5000
+        },
+        // 自定义项目中其他需打包的文件夹
+        resource: {
+            'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
+            'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
+        },
+        // 对应 webpack.config 中 entry 字段
+        entry: {
+            vendors: ['flexlayout']
+        },
+        // yyl server 路径替换地方能对应各自的自定义变量 如 alias.dev => {$dev}
+        // 也对应 webpack config 中的 alias
+        alias: {
+            // svn dev 分支地址
+            dev: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'),
+            ..
+        },
+        // - 此部分 yyl server 端config 会进行替换
+        // + 此部分 不要用相对路径
+        // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
+        // 文件合并规则设置
+        concat: {
+            '{$jsDest}/headfoot.mix.js': [
+                '{$srcRoot}/js/lib/duowan/duowan.min.js',
+                '{$srcRoot}/js/lib/websdk/websdk.js',
+                '{$srcRoot}/js/headfoot.js'
+
+            ]
+        },
+
+        // 提交操作相关配置
+        commit: {
+            // 线上 rev-manifest 路径设置
+            revAddr: 'http://yyweb.yystatic.com/pc/assets/rev-manifest.json',
+            // 静态资源 域名设置
+            hostname: 'http://yyweb.yystatic.com/',
+            // svn 相关配置
+            svn: {
+                // 对应 dev 分支
+                dev: {
+                    // 执行 svn update 的路径
+                    update: [
+                        '{$dev}/static',
+                        '{$dev}/yyweb-web/src/main/webapp/WEB-INF/jsp-tmpl'
+                        ...
+                    ],
+                    // 拷贝规则
+                    copy: {
+                        '{$root}/js': [
+                            '{$dev}/static/resource/pc/js',
+                            '{$dev}/yyweb-web/src/main/webapp/static/pc/js'
+                        ],
+                        ...
+                    },
+                    // 执行 svn commit 的路径
+                    commit: [
+                        '{$dev}/static/resource/pc/js',
+                        ...
+                    ],
+                    /** 
+                     * 提交之前回调函数
+                     * @param {String}   type 当前提交的分支 dev|trunk
+                     * @param {Function} next 处理完执行的 next 让程序继续往下跑
+                     */
+                    onBeforeCommit: function(type, next){
+                        var 
+                            iConfig = config,
+                            localAssetPath = path.join(iConfig.alias.revDest, 'rev-manifest.json'),
+                            serverAssetPath = path.join(iConfig.alias[type], '../assets/rev-manifest.json');
+
+                        if(fs.existsSync(localAssetPath) && fs.existsSync(serverAssetPath)){
+                            try {
+                                var 
+                                    localData = JSON.parse(fs.readFileSync(localAssetPath)),
+                                    serverData = JSON.parse(fs.readFileSync(serverAssetPath));
+
+                                for(var key in localData){
+                                    if(localData.hasOwnProperty(key)){
+                                        serverData[key] = localData[key];
+                                    }
+                                }
+
+                                fs.writeFileSync(serverAssetPath, JSON.stringify(serverData, null, 4));
+
+                                console.log('==================');
+                                console.info('update assets file done');
+                                console.log(serverAssetPath);
+                                console.log(JSON.stringify(serverData, null, 4));
+                                console.log('==================');
+                                next();
+
+                            } catch(er){
+                                console.error('write assets file fail', er);
+                            }
+
+                        }
+
+                    }
+
+                },
+                // 对应 trunk 分支
+                trunk: {
+                    ...
+                }
+
+            }
+
+        }
+        // - 此部分 不要用相对路径
+
+        
+
+
+    };
+
+```
+
 ## 自定义配置文件
 我们如果对 `config.js` 配置不符合本地的一些实际情况，如文件路径，可以建一个本地的配置文件`config.mine.js`来进行适配，而此文件并不会上传到git
 1. 在根目录 创建 `config.mine.js` 文件
