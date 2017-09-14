@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "2.14.2",
+  "version": "2.14.3",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -37,6 +37,6 @@
     "serve-static": "~1.11.1",
     "tiny-lr": "~1.0.3",
     "yyl-color": "^1.0.0",
-    "yyl-util": "^1.4.0"
+    "yyl-util": "^1.4.3"
   }
 }

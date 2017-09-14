@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.14.3 (2017-09-14)
+* [EDIT] `yyl-util` 版本更新以修复 `yyl watch --proxy` 时不能跳到正确地址问题
+
 ### 2.14.2 (2017-09-13)
 * [ADD] 新增 `yyl update` 自动更新
 
