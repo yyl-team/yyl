@@ -46,13 +46,13 @@ var
 
             if(op.name){
                 if(iConfig[op.name]){
-                    return iConfig[op.name];
+                    return util.initConfig(iConfig[op.name]);
                 } else {
                     util.msg.warn('supercall getConfig fail', 'config['+ op.name +'] is no content');
                     return false;
                 }
             } else {
-                return iConfig;
+                return util.initConfig(iConfig);
             }
 
         },
@@ -64,13 +64,9 @@ var
                 return util.msg.warn('concat run fail');
             }
 
-
-            console.log(config.concat);
-            return;
-
             var 
                 relativeIt = function(iPath){
-                    return path.relative(vars.PROJECT_PATH, iPath);
+                    return util.joinFormat(path.relative(config.alias.dirname, iPath));
                 },
                 concatIt = function(dest, srcs){
                     var concat = new Concat(false, dest, '\n');
