@@ -17,7 +17,6 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'), // uglify js files
     imagemin = require('gulp-imagemin'), // minify images
     rename = require('gulp-rename'), // rename the files
-    concat = require('gulp-concat'), // concat the files into single file
     replacePath = require('gulp-replace-path'), // replace the assets path
     inlinesource = require('gulp-inline-source'), // requirejs optimizer which can combine all modules into the main js file
 
@@ -810,39 +809,21 @@ gulp.task('concat', function() {
     }
 
 
-    var
-        events = [],
-        concatHandle = function(dist, list) {
-            var iSrcs = [],
-                iDirname = path.dirname(dist),
-                iName = path.basename(dist);
+    var iCmd = [
+        'yyl supercall concat',
+        util.envStringify({
+            name: gulp.env.name,
+            ver: gulp.env.ver,
+            debug: gulp.env.debug,
+            slient: gulp.env.slient,
+            proxy: gulp.env.proxy
+        })
+    ].join(' ');
 
-            list.forEach(function(src) {
-                if (!fs.existsSync(src)) {
-                    util.msg.warn('concat src is not exist:', src);
-                }
-                iSrcs.push(util.joinFormat(src));
-            });
-            util.msg.info('concat target:', dist);
-            util.msg.info('concat list:', iSrcs);
-
-
-            var iStream = gulp.src(iSrcs, {
-                    basePath: iDirname
-                })
-                .pipe(concat(iName))
-                .pipe(gulp.dest(iDirname));
-
-            events.push(iStream);
-        };
-
-    for (var dist in iConfig.concat) {
-        if (iConfig.concat.hasOwnProperty(dist)) {
-            concatHandle(dist, iConfig.concat[dist]);
-        }
-    }
-
-    return es.concat.apply(es, events);
+    util.msg.info('run cmd:', iCmd);
+    util.runCMD(iCmd, function(){
+        done();
+    });
 
 });
 // - concat task
