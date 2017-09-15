@@ -786,6 +786,7 @@ gulp.task('watch', ['all'], function() {
     var iCmd = [
         'yyl supercall watchDone',
         util.envStringify({
+            name: gulp.env.name,
             ver: gulp.env.ver,
             debug: gulp.env.debug,
             slient: gulp.env.slient,

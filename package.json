@@ -28,9 +28,9 @@
     "node": ">= 4.0.0"
   },
   "dependencies": {
+    "concat-with-sourcemaps": "^1.0.4",
     "connect": "~3.5.0",
     "connect-livereload": "~0.6.0",
-    "http-proxy": "^1.16.2",
     "inquirer": "~0.8.5",
     "keypress": "*",
     "serve-index": "~1.8.0",
@@ -38,5 +38,7 @@
     "tiny-lr": "~1.0.3",
     "yyl-color": "^1.0.0",
     "yyl-util": "^1.4.3"
+  },
+  "devDependencies": {
   }
 }

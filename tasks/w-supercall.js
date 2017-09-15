@@ -3,46 +3,123 @@ var util = require('yyl-util');
 var vars = require('./w-vars');
 var path = require('path');
 var fs = require('fs');
+var Concat = require('concat-with-sourcemaps');
 
 var 
     supercall = {
-        getConfigSync: function(){
+        getConfigSync: function(op){
             var 
                 userConfigPath = vars.USER_CONFIG_FILE,
-                userConfig;
+                userConfig,
+                iConfig;
             if(!fs.existsSync(userConfigPath)){
                 return false;
             }
             try{
                 userConfig = require(userConfigPath);
             } catch(er){
+                util.msg.warn('supercall getConfig fail', 'require('+ userConfigPath +') parse fail');
                 return false;
             }
 
+            if(op.name){
+                userConfig = userConfig[op.name];
+                if(!userConfig){
+                    util.msg.warn('supercall getConfig fail', 'userConfig['+ op.name +'] is null');
+                    return false;
+                }
+            }
+
             if(!userConfig.workflow){
+                util.msg.warn('supercall getConfig fail', 'config.workflow is not exists', serverConfigPath);
                 return false;
             }
 
             var serverConfigPath = path.join(vars.SERVER_WORKFLOW_PATH, userConfig.workflow, 'config.js');
 
             if(!fs.existsSync(serverConfigPath)){
+                util.msg.warn('supercall getConfig fail', 'serverConfigPath is not exists:', serverConfigPath);
                 return false;
             }
 
-            return require(serverConfigPath);
+            iConfig = require(serverConfigPath);
+
+            if(op.name){
+                if(iConfig[op.name]){
+                    return iConfig[op.name];
+                } else {
+                    util.msg.warn('supercall getConfig fail', 'config['+ op.name +'] is no content');
+                    return false;
+                }
+            } else {
+                return iConfig;
+            }
 
         },
+        // 执行 concat 操作
+        concat: function(op){
+            var config = supercall.getConfigSync(op);
+            
+            if(!config){
+                return util.msg.warn('concat run fail');
+            }
+
+
+            console.log(config.concat);
+            return;
+
+            var 
+                relativeIt = function(iPath){
+                    return path.relative(vars.PROJECT_PATH, iPath);
+                },
+                concatIt = function(dest, srcs){
+                    var concat = new Concat(false, dest, '\n');
+                    srcs.forEach(function(item){
+                        if(!fs.existsSync(item)){
+                            util.msg.warn(relativeIt(item), 'is not exist', 'break');
+                            return;
+                        }
+                        concat.add(null, '/* ' + path.basename(item) + ' */');
+                        concat.add(item, fs.readFileSync(item));
+                    });
+
+                    util.mkdirSync(path.dirname(dest));
+                    fs.writeFileSync(dest, concat.content);
+                    util.msg.info(
+                        'concat file:', 
+                        relativeIt(dest), 
+                        '<=', 
+                        srcs.map(function(p){ 
+                            return relativeIt(p); 
+                        })
+                    );
+                };
+
+            if(config.concat){
+                for(var dist in config.concat){
+                    if(config.concat.hasOwnProperty(dist)){
+                        concatIt(dist, config.concat[dist]);
+                    }
+                }
+                util.msg.success('concat done');
+            } else {
+                util.msg.success('concat done', 'config.concat is null');
+            }
+
+        },
+
         // 执行完 watch 后
         watchDone: function(op){
             if(op.ver == 'remote'){
                 return;
             }
 
-            var config = supercall.getConfigSync();
+            var config = supercall.getConfigSync(op);
             
             if(!config){
-                return util.msg.warn('watchDone run fail', 'no config');
+                return util.msg.warn('watchDone run fail');
             }
+
 
             var htmls = util.readFilesSync(config.alias.destRoot, /\.html$/),
                 addr,
@@ -120,6 +197,10 @@ var
             switch(ctx){
                 case 'watchDone':
                     supercall.watchDone(op);
+                    break;
+
+                case 'concat':
+                    supercall.concat(op);
                     break;
 
                 default:
