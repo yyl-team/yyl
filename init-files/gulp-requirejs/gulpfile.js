@@ -221,7 +221,7 @@ gulp.task('html-task', function(){
                             }
                         });
 
-                        if(iPath.match(/^(data:image|javascript:|#|http:|https:|\/)/) || !iPath){
+                        if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || !iPath){
                             return str;
                         }
 
@@ -646,7 +646,7 @@ gulp.task('images-img', function() {
     var vars = gulp.env.vars;
 
     return gulp.src([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {base: util.joinFormat( vars.srcRoot, 'images')})
-        .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif']))
+        .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
         .pipe(iConfig.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
         .pipe(gulp.dest( util.joinFormat(vars.imagesDest)))
         ;
@@ -667,7 +667,7 @@ gulp.task('images-components', function(){
         })
         .pipe(plumber())
         .pipe(iConfig.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
-        .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif']))
+        .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
         .pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')))
         ;
 });
@@ -1098,7 +1098,7 @@ gulp.task('rev-img-update', function(){
         return;
     }
 
-    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg)'), { base: vars.revRoot })
+    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg|webp)'), { base: vars.revRoot })
             .pipe(plumber())
             .pipe(rename(function(p){
                 var iPath = util.joinFormat(p.dirname, p.basename + p.extname);
