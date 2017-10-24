@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.14.5 (2017-10-24)
+* [FIX] 修复 `gulp-requirejs` 工作流中 watch 操作一次文件变更会触发几次 livereload 的问题
+
 ### 2.14.3 (2017-09-16)
 * [ADD] 工作流 新增 对 `webp` 格式图片 支持
 

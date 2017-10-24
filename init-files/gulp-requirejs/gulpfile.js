@@ -31,6 +31,7 @@ var gulp = require('gulp'),
     clean = require('gulp-clean'),
     through = require('through2'),
     es = require('event-stream'),
+    watch = require('gulp-watch'),
 
     cache = {
         remoteRevData: '',
@@ -682,10 +683,11 @@ gulp.task('watch', ['all'], function() {
 
 
     // 看守所有.scss档
-    gulp.watch( util.joinFormat( vars.srcRoot, '**/*.scss'), function(){
-        
+    watch( util.joinFormat( vars.srcRoot, '**/*.scss'), util.debounce(function(){
         util.taskQueue.add('css', function(next){
-            runQueue('css', 'html', 'concat', 'connect-reload', function(){
+            runQueue('css', 'html', 'concat', function(){
+                util.livereload();
+                util.msg.success('css task done');
                 if(!gulp.env.silent){
                     util.pop('css task done');
                 }
@@ -693,17 +695,18 @@ gulp.task('watch', ['all'], function() {
             });
 
         }, 200);
-        
-    });
+    }, 500));
 
     // 看守所有.js档
-    gulp.watch([
+    watch([
         util.joinFormat(vars.srcRoot, 'components/**/*.js'),
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
-    ], function(){
+    ], util.debounce(function(){
         util.taskQueue.add('js', function(next){
-            runQueue('js-task', 'html-task', 'html-task-step02', 'concat', 'connect-reload', function(){
+            runQueue('js-task', 'html-task', 'html-task-step02', 'concat', function(){
+                util.livereload();
+                util.msg.success('js task done');
                 if(!gulp.env.silent){
                     util.pop('js task done');
                 }
@@ -711,16 +714,18 @@ gulp.task('watch', ['all'], function() {
             });
 
         }, 200);
-    });
+    }, 500));
 
     // 看守所有图片档
-    gulp.watch([
+    watch([
         util.joinFormat(vars.srcRoot, 'images/*.*'),
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
-    ], function(){
+    ], util.debounce(function(){
         util.taskQueue.add('images', function(next){
-            runQueue('images', 'html', 'connect-reload', function(){
+            runQueue('images', 'html', function(){
+                util.livereload();
+                util.msg.success('images task done');
                 if(!gulp.env.silent){
                     util.pop('images task done');
                 }
@@ -728,16 +733,18 @@ gulp.task('watch', ['all'], function() {
             });
         }, 200);
 
-    });
+    }, 500));
 
     // 看守所有jade 文件
-    gulp.watch([
+    watch([
         util.joinFormat(vars.srcRoot, 'components/**/*.jade'),
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
-    ], function(){
+    ], util.debounce(function(){
         util.taskQueue.add('html', function(next){
-            runQueue('html', 'connect-reload', function(){
+            runQueue('html', function(){
+                util.livereload();
+                util.msg.success('jade task done');
                 if(!gulp.env.silent){
                     util.pop('jade task done');
                 }
@@ -745,16 +752,18 @@ gulp.task('watch', ['all'], function() {
             });
 
         }, 200);
-    });
+    }, 500));
 
     // 看守所有 resource 定义的文件
     if(iConfig.resource){
-        gulp.watch(Object.keys(iConfig.resource).map(function(src){
+        watch(Object.keys(iConfig.resource).map(function(src){
             return path.join(src, '**/*.*');
 
-        }), function(){
+        }), util.debounce(function(){
             util.taskQueue.add('resource', function(next){
-                runQueue('resource', 'connect-reload', function(){
+                runQueue('resource', function(){
+                    util.livereload();
+                    util.msg.success('resource task done');
                     if(!gulp.env.silent){
                         util.pop('resource task done');
                     }
@@ -763,13 +772,12 @@ gulp.task('watch', ['all'], function() {
 
             }, 200);
 
-        });
+        }, 500));
 
 
     }
-    
 
-    runQueue('connect-reload');
+    util.livereload();
 
     var iCmd = [
         'yyl supercall watchDone',
@@ -1164,6 +1172,3 @@ gulp.task('all-done', function(){
 
 gulp.task('watchAll', ['watch']);
 // - all
-gulp.task('connect-reload', function(){
-    return util.livereload();
-});
