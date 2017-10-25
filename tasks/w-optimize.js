@@ -97,7 +97,8 @@ var
             util.msg.info('run cmd start');
 
             var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
-            var cmd = 'gulp ' + iArgv.join(' ');
+            // var cmd = 'gulp ' + iArgv.join(' ');
+            var cmd = util.joinFormat(workFlowPath, 'node_modules', '.bin', util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp') + ' ' + iArgv.join(' ');
             var handle;
 
             if(/watch/.test(iArgv[0])){
@@ -106,11 +107,8 @@ var
 
 
             util.msg.info('run cmd:', cmd);
-            if(util.vars.IS_WINDOWS){
-                handle = util.runCMD;
-            } else {
-                handle = util.runSpawn;
-            }
+            
+            handle = util.runSpawn;
 
             handle(cmd, function(err){
                 if(err){

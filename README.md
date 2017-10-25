@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.14.6 (2017-10-25)
+* [FIX] 修复 `yyl watch` 时运行 buffer 超过 200k 时会出现 maxbuffer 的问题, 改用 `spawn` 运行
+
 ### 2.14.5 (2017-10-24)
 * [FIX] 修复 `gulp-requirejs` 工作流中 watch 操作一次文件变更会触发几次 livereload 的问题
 
