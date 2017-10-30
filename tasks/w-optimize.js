@@ -16,7 +16,7 @@ var
         new util.Promise(function(next){
 
             util.msg.info('build server config start');
-            wServer.buildConfig(iEnv.name, function(err, config){ // 创建 server 端 config
+            wServer.buildConfig(iEnv.name, iEnv, function(err, config){ // 创建 server 端 config
                 if(err){
                     return util.msg.error('build server config error:', err);
                 }

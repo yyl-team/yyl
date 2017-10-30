@@ -181,18 +181,13 @@ var
 
         // },
         // 构建 服务端 config
-        buildConfig: function(done){
+        buildConfig: function(name, env, done){
             var
                 configPath = path.join(vars.PROJECT_PATH, 'config.js'),
                 mineConfigPath = path.join(vars.PROJECT_PATH, 'config.mine.js'),
                 config,
                 mineConfig,
                 name = '';
-
-            if(arguments.length == 2){
-                name = done;
-                done = arguments[1];
-            }
 
 
             // 获取 config, config.mine 文件内容
@@ -421,6 +416,13 @@ var
 
                     
 
+                } else {
+                    next(iConfig);
+                }
+            }).then(function(iConfig, next){
+                if(typeof iConfig.onInitConfig == 'function'){
+                    util.msg.info('run config.onConfig fn');
+                    iConfig.onInitConfig(iConfig, env, next);
                 } else {
                     next(iConfig);
                 }

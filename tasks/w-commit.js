@@ -17,7 +17,7 @@ var
                 next();
 
             }).then(function(next){ // parse config to server
-                wServer.buildConfig(iEnv.name, function(err, config){ // 创建 server 端 config
+                wServer.buildConfig(iEnv.name, iEnv, function(err, config){ // 创建 server 端 config
                     if(err){
                         return done(err);
                     }

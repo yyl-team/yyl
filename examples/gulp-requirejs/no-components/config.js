@@ -29,8 +29,25 @@ var
                 'http://www.yy.com/': 'http://127.0.0.1:5000/'
             }
         },
-        // 提交之前回调函数
-        beforeCommit: function(){}
+        /**
+         * 触发提交 svn 前中间件函数
+         * @param {String}   sub    命令行 --sub 变量
+         * @param {Function} next() 下一步
+         */
+        onBeforeCommit: function(sub, next){
+            next();
+        },
+
+        /**
+         * 初始化 config 时 对config的二次操作
+         * @param {object}   config          服务器初始化完成的 config 对象
+         * @param {object}   env             命令行接收到的 参数
+         * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
+         * @param {object}   newconfig       处理后的 config
+         */
+        onInitConfig: function(config, env, next){
+            next(config);
+        }
 
     };
 
@@ -41,6 +58,10 @@ var
         version: version,
         dest: setting.dest,
         proxy: setting.proxy,
+
+        onInitConfig: setting.onInitConfig,
+        onBeforeCommit: setting.onBeforeCommit,
+
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         resource: { // 自定义项目中其他需打包的文件夹
