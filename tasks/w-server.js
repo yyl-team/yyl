@@ -186,8 +186,7 @@ var
                 configPath = path.join(vars.PROJECT_PATH, 'config.js'),
                 mineConfigPath = path.join(vars.PROJECT_PATH, 'config.mine.js'),
                 config,
-                mineConfig,
-                name = '';
+                mineConfig;
 
 
             // 获取 config, config.mine 文件内容
@@ -421,7 +420,7 @@ var
                 }
             }).then(function(iConfig, next){
                 if(typeof iConfig.onInitConfig == 'function'){
-                    util.msg.info('run config.onConfig fn');
+                    util.msg.info('run config.onInitConfig function');
                     iConfig.onInitConfig(iConfig, env, next);
                 } else {
                     next(iConfig);
