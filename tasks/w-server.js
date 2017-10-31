@@ -341,11 +341,7 @@ var
 
             })(config);
 
-            var fileStr = 'module.exports=' + JSON.stringify(config, null, 4);
-
-            util.mkdirSync(workFlowPath);
-
-            fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
+            
 
             new util.Promise(function(next){
                 if(name){
@@ -354,8 +350,30 @@ var
 
                     next(config);
                 }
+            }).then(function(iConfig, next){ // 自定义 config
+                if(typeof iConfig.onInitConfig == 'function'){
+                    util.msg.info('run config.onInitConfig function');
+                    iConfig.onInitConfig(iConfig, env, next);
 
-            }).then(function(iConfig, next){
+                } else {
+                    next(iConfig);
+
+                }
+            }).then(function(iConfig, next){ // 更新 config 文件
+                if(name){
+                    config[name] = iConfig;
+                } else {
+                    config = iConfig;
+                }
+
+                var fileStr = 'module.exports=' + JSON.stringify(config, null, 4);
+
+                util.mkdirSync(workFlowPath);
+                fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
+                next(iConfig);
+
+
+            }).then(function(iConfig, next){ // 更新 config 内 插件
                 if(iConfig.plugins && iConfig.plugins.length){
                     var iPkgPath = path.join(vars.SERVER_WORKFLOW_PATH, iConfig.workflow, 'package.json');
                     var installLists = [];
@@ -418,13 +436,7 @@ var
                 } else {
                     next(iConfig);
                 }
-            }).then(function(iConfig, next){
-                if(typeof iConfig.onInitConfig == 'function'){
-                    util.msg.info('run config.onInitConfig function');
-                    iConfig.onInitConfig(iConfig, env, next);
-                } else {
-                    next(iConfig);
-                }
+            
 
             }).then(function(iConfig, next){
                 done(null, iConfig);

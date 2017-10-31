@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.2 (2017-10-31)
+* [FIX] 修复 `onInitConfig` 不生效问题
+
 ### 2.15.0 (2017-10-30)
 * [ADD] `config.js` 新增  `onInitConfig` 属性
 
