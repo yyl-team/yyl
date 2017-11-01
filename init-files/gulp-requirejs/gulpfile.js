@@ -839,7 +839,6 @@ gulp.task('rev', function(done){
     if(!iConfig){
         return done();
     }
-    console.log('===', iConfig.commit)
     if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev task not run');
         return done();
