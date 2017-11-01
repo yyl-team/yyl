@@ -37,6 +37,7 @@ var gulp = require('gulp'),
 
     through = require('through2'),
     es = require('event-stream'),
+    watch = require('gulp-watch'),
 
     cache = {
         remoteRevData: '',
@@ -81,9 +82,9 @@ var gulp = require('gulp'),
 
 require('colors');
 
-var
+var 
     config = require('./config.js'),
-    localConfig = fs.existsSync('./config.mine.js') ? require('./config.mine.js') : {};
+    localConfig = fs.existsSync('./config.mine.js')? require('./config.mine.js'): {};
 
 config = util.initConfig(util.extend(true, config, localConfig));
 
@@ -102,9 +103,9 @@ var fn = {
 
         var dirs = [];
         var output;
-        if (!config.alias) {
-            for (var key in config) {
-                if (config.hasOwnProperty(key)) {
+        if(!config.alias){
+            for(var key in config){
+                if(config.hasOwnProperty(key)){
                     dirs.push(key);
                 }
             }
@@ -116,9 +117,9 @@ var fn = {
                 '  yyl ' + commands + ' --name <Project>',
                 '',
                 '  Project:'.yellow,
-                (function() {
+                (function(){
                     var r = [];
-                    dirs.forEach(function(item) {
+                    dirs.forEach(function(item){
                         r.push('  ' + item.gray);
                     });
                     return r.join('\n');
@@ -132,7 +133,7 @@ var fn = {
                 '',
                 '',
                 '  Ustage:'.yellow,
-                '  yyl ' + commands + ' not work',
+                '  yyl '+ commands +' not work',
                 ''
             ];
         }
@@ -142,34 +143,34 @@ var fn = {
     /**
      * task 执行前初始化函数
      */
-    taskInit: function() {
-        var
+    taskInit: function(){
+        var 
             commands = process.argv[2],
             iConfig;
 
-        if (gulp.env.ver) {
+        if(gulp.env.ver){
             gulp.env.version = gulp.env.ver;
         }
 
-        if (gulp.env.sub) {
+        if(gulp.env.sub){
             gulp.env.subname = gulp.env.sub;
 
         }
-        if (gulp.env.name) {
+        if(gulp.env.name){
             iConfig = config[gulp.env.name];
 
         } else {
             iConfig = config;
         }
 
-        if (!iConfig || !iConfig.alias) {
+        if(!iConfig || !iConfig.alias){
             fn.taskHelper(commands);
             process.exit();
             return;
 
         } else {
             gulp.env.vars = iConfig.alias;
-            gulp.env.remotePath = gulp.env.ver == 'remote' || gulp.env.isCommit ? iConfig.commit.hostname : '/';
+            gulp.env.remotePath = gulp.env.ver == 'remote' || gulp.env.isCommit? iConfig.commit.hostname: '/';
             return iConfig;
         }
 
@@ -178,103 +179,102 @@ var fn = {
 
 
 // + html task
-gulp.task('html', function(done) {
+gulp.task('html', function(done){
     gulp.env.nowTask = 'html';
     runQueue('html-task', 'html-task-step02', done);
 
 });
-gulp.task('html-task', function() {
-    var
+gulp.task('html-task', function(){
+    var 
         iConfig = fn.taskInit();
 
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
-    var
+    var 
         vars = gulp.env.vars,
-
+        
         // tmpl task
-        tmplStream = gulp.src(util.joinFormat(iConfig.alias.srcRoot, 'components/@(p-)*/*.jade'))
-        .pipe(plumber())
-        .pipe(gulpJade({
-            pretty: true,
-            client: false
-        }))
-        .pipe(through.obj(function(file, enc, next) {
-            var iCnt = file.contents.toString();
-            var pathReg = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
+        tmplStream = gulp.src( util.joinFormat( iConfig.alias.srcRoot, 'components/@(p-)*/*.jade'))
+            .pipe(plumber())
+            .pipe(gulpJade({
+                pretty: true,
+                client: false
+            }))
+            .pipe(through.obj(function(file, enc, next){
+                var iCnt = file.contents.toString();
+                var pathReg = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
 
-            // script 匹配
-            var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig;
-            var dirname = util.joinFormat(iConfig.alias.srcRoot, 'html');
-
-
-            iCnt = iCnt
-                // 隔离 script 内容
-                .replace(scriptReg, function(str, $1, $2, $3) {
-                    return $1 + querystring.escape($2) + $3;
-                })
-                .replace(pathReg, function(str, $1, $2, $3, $4) {
-                    var iPath = $3,
-                        rPath = '';
+                // script 匹配
+                var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig;
+                var dirname = util.joinFormat( iConfig.alias.srcRoot, 'html');
 
 
-                    iPath = iPath.replace(/\{\$(\w+)\}/g, function(str, $1) {
-                        if (vars[$1]) {
+                iCnt = iCnt
+                    // 隔离 script 内容
+                    .replace(scriptReg, function(str, $1, $2, $3){
+                        return $1 + querystring.escape($2) + $3;
+                    })
+                    .replace(pathReg, function(str, $1, $2, $3, $4){
+                        var iPath = $3,
+                            rPath = '';
 
-                            return path.relative(path.dirname(file.path), vars[$1]);
-                        } else {
+
+                        iPath = iPath.replace(/\{\$(\w+)\}/g, function(str, $1){
+                            if(vars[$1]){
+                                
+                                return path.relative( path.dirname(file.path), vars[$1]);
+                            } else {
+                                return str;
+                            }
+                        });
+
+                        if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || !iPath){
                             return str;
                         }
+
+
+                        var fDirname = path.dirname(path.relative(dirname, file.path));
+                        rPath = util.joinFormat(fDirname, iPath)
+                            .replace(/\\+/g,'/')
+                            .replace(/\/+/, '/')
+                            ;
+
+                        return $1 + '=' + $2 + rPath + $4;
+                    })
+                    // 取消隔离 script 内容
+                    .replace(scriptReg, function(str, $1, $2, $3){
+                        return $1 + querystring.unescape($2) + $3;
                     });
 
-                    if (iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || !iPath) {
-                        return str;
-                    }
-
-
-                    var fDirname = path.dirname(path.relative(dirname, file.path));
-                    rPath = util.joinFormat(fDirname, iPath)
-                        .replace(/\\+/g, '/')
-                        .replace(/\/+/, '/');
-
-                    return $1 + '=' + $2 + rPath + $4;
-                })
-                // 取消隔离 script 内容
-                .replace(scriptReg, function(str, $1, $2, $3) {
-                    return $1 + querystring.unescape($2) + $3;
-                });
-
-            file.contents = new Buffer(iCnt, 'utf-8');
-            this.push(file);
-            next();
-        }))
-        .pipe(rename(function(path) {
-            path.basename = path.basename.replace(/^p-/g, '');
-            path.dirname = '';
-        }))
-        .pipe(prettify({
-            indent_size: 4
-        }))
-        .pipe(gulp.dest(util.joinFormat(vars.srcRoot, 'html')));
+                file.contents = new Buffer(iCnt, 'utf-8');
+                this.push(file);
+                next();
+            }))
+            .pipe(rename(function(path){
+                path.basename = path.basename.replace(/^p-/g,'');
+                path.dirname = '';
+            }))
+            .pipe(prettify({indent_size: 4}))
+            .pipe(gulp.dest(util.joinFormat(vars.srcRoot, 'html')));
 
 
 
     return tmplStream;
 });
 
-gulp.task('html-task-step02', function() {
-    var
+gulp.task('html-task-step02', function(){
+    var 
         iConfig = fn.taskInit();
 
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
-    var
+    var 
         vars = gulp.env.vars,
-        relateHtml = function(iPath) {
+        relateHtml = function(iPath){
             return util.joinFormat(
                 path.relative(
                     path.join(gulp.env.vars.srcRoot, 'html'),
@@ -282,7 +282,7 @@ gulp.task('html-task-step02', function() {
                 )
             );
         },
-        relateDirname = function(iPath) {
+        relateDirname = function(iPath){
             return util.joinFormat(
                 path.relative(
                     path.join(gulp.env.vars.dirname),
@@ -295,57 +295,58 @@ gulp.task('html-task-step02', function() {
 
 
     // html task
-    return gulp.src(util.joinFormat(vars.srcRoot, 'html/*.html'))
+    return gulp.src( util.joinFormat(vars.srcRoot, 'html/*.html'))
         .pipe(plumber())
         .pipe(inlinesource())
         // 删除requirejs的配置文件引用
         .pipe(replacePath(/<script [^<]*local-usage\><\/script>/g, ''))
 
-    // 将用到的 commons 目录下的 images 资源引入到项目里面
-    .pipe(through.obj(function(file, enc, next) {
-        var iCnt = file.contents.toString();
-        var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
-        var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
-        var gComponentPath = relateHtml(vars.globalcomponents);
-        var copyPath = {};
+        // 将用到的 commons 目录下的 images 资源引入到项目里面
+        .pipe(through.obj(function(file, enc, next){
+            var iCnt = file.contents.toString();
+            var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+            var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+            var gComponentPath = relateHtml(vars.globalcomponents);
+            var copyPath = {};
 
-        var filterHandle = function(str, $1, $2) {
-            var iPath = $2;
 
-            if (iPath.match(/^(about:|data:)/)) {
+            var filterHandle = function(str, $1, $2){
+                var iPath = $2;
+
+                if(iPath.match(/^(about:|data:)/)){
+                    return str;
+                }
+
+
+                if(iPath.substr(0, gComponentPath.length) != gComponentPath){
+                    return str;
+                }
+
+                var dirname = iPath.substr(gComponentPath.length);
+
+                copyPath[util.joinFormat(vars.srcRoot, 'html', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
+
                 return str;
-            }
+
+            };
 
 
-            if (iPath.substr(0, gComponentPath.length) != gComponentPath) {
-                return str;
-            }
+            iCnt
+                .replace(pathReg, filterHandle)
+                .replace(pathReg2, filterHandle);
 
-            var dirname = iPath.substr(gComponentPath.length);
+            this.push(file);
 
-            copyPath[util.joinFormat(vars.srcRoot, 'html', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
+            // 复制
+            util.msg.info('copy file start', copyPath);
+            util.copyFiles(copyPath, function(){
+                util.msg.success('copy file done');
+                next();
+            });
+        }))
 
-            return str;
-
-        };
-
-
-        iCnt
-            .replace(pathReg, filterHandle)
-            .replace(pathReg2, filterHandle);
-
-        this.push(file);
-
-        // 复制
-        util.msg.info('copy file start', copyPath);
-        util.copyFiles(copyPath, function() {
-            util.msg.success('copy file done');
-            next();
-        });
-    }))
-
-    // 替换全局 图片
-    .pipe(replacePath(
+        // 替换全局 图片
+        .pipe(replacePath(
             relateHtml(path.join(vars.globalcomponents)),
             util.joinFormat(remotePath, fn.relateDest(vars.imagesDest), 'globalcomponents')
         ))
@@ -362,38 +363,38 @@ gulp.task('html-task-step02', function() {
         .pipe(replacePath(/\.\.\/components\/p-[a-zA-Z0-9\-]+\/p-([a-zA-Z0-9\-]+).js/g, util.joinFormat( remotePath, fn.relateDest(vars.jsDest), '/$1.js')))
 
 
-    .pipe(replacePath('../css', util.joinFormat(remotePath, fn.relateDest(vars.cssDest))))
+        .pipe(replacePath('../css', util.joinFormat( remotePath, fn.relateDest(vars.cssDest))))
 
         // 替换公用图片
         .pipe(replacePath('../images', util.joinFormat( remotePath, vars.imagesDest)))
         .pipe(replacePath(/\.\.\/(components\/[pwr]-[a-zA-Z0-9\-]+\/images)/g, util.joinFormat( remotePath, fn.relateDest(vars.imagesDest), '$1')))
 
-    // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下
-    .pipe(through.obj(function(file, enc, next) {
-        var iCnt = file.contents.toString();
+        // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下
+        .pipe(through.obj(function(file, enc, next){
+            var iCnt = file.contents.toString();
 
-        iCnt = iCnt
-            .replace(new RegExp('[\'\"]' + util.joinFormat(remotePath, fn.relateDest(vars.jslibDest), 'globallib') + '([^\'\"]*)[\"\']', 'g'), function(str, $1) {
-                var sourcePath = util.joinFormat(vars.globallib, $1);
-                var toPath = util.joinFormat(vars.jslibDest, 'globallib', $1);
-                util.copyFiles(
-                    sourcePath,
-                    toPath,
-                    function(err) {
-                        if (!err) {
-                            util.msg.create(relateDirname(toPath));
+            iCnt = iCnt
+                .replace(new RegExp('[\'\"]'+ util.joinFormat(remotePath, fn.relateDest(vars.jslibDest), 'globallib') +'([^\'\"]*)[\"\']', 'g'), function(str, $1){
+                    var sourcePath = util.joinFormat(vars.globallib, $1);
+                    var toPath = util.joinFormat(vars.jslibDest, 'globallib', $1);
+                    util.copyFiles(
+                        sourcePath,
+                        toPath,
+                        function(err){
+                            if(!err){
+                                util.msg.create(relateDirname(toPath));
+                            }
                         }
-                    }
-                );
-                return str;
-            });
+                    );
+                    return str;
+                });
 
-        this.push(file);
-        next();
-    }))
-
-    // .pipe(replacePath('../images', + assetsPath.images))
-    .pipe(gulp.dest(vars.htmlDest));
+            this.push(file);
+            next();
+        }))
+        
+        // .pipe(replacePath('../images', + assetsPath.images))
+        .pipe(gulp.dest(vars.htmlDest));
 });
 // - html task
 
@@ -404,9 +405,9 @@ gulp.task('css', function(done) {
 
 });
 
-gulp.task('css-base-task', function() {
+gulp.task('css-base-task', function(){
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
@@ -416,22 +417,20 @@ gulp.task('css-base-task', function() {
             util.joinFormat(vars.srcRoot, 'sass/**/*.scss'),
             '!' + util.joinFormat(vars.srcRoot, 'sass/base/**/*.*')
         ])
-        .pipe(sass({
-            outputStyle: 'nested'
-        }).on('error', sass.logError))
+        .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
         .pipe(gulp.dest(path.join(vars.srcRoot, 'css')));
 
 });
 
-gulp.task('css-dist', function() {
+gulp.task('css-dist', function(){
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
     var vars = gulp.env.vars,
         remotePath = gulp.env.remotePath,
-        relateCss = function(iPath) {
+        relateCss = function(iPath){
             return util.joinFormat(
                 path.relative(
                     path.join(vars.srcRoot, 'css'),
@@ -443,31 +442,27 @@ gulp.task('css-dist', function() {
 
     return gulp.src(path.join(vars.srcRoot, 'css', '**/*.css'))
         // 将commons components 目录下的 图片 引入到 globalcomponents 里面
-        .pipe(through.obj(function(file, enc, next) {
+        .pipe(through.obj(function(file, enc, next){
             var iCnt = file.contents.toString();
             var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
             var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
             var gComponentPath = relateCss(vars.globalcomponents);
             var copyPath = {};
 
-            var filterHandle = function(str, $1, $2) {
+            var filterHandle = function(str, $1, $2){
                 var iPath = $2;
 
-                if (iPath.match(/^(about:|data:)/)) {
+                if(iPath.match(/^(about:|data:)/)){
                     return str;
                 }
 
 
-                // console.log('vvvvvvvvvvvvvv')
-                // console.log('111', iPath);
-                // console.log('111', gComponentPath);
-                // console.log('iiiiiiiiiiiiii')
 
-                if (iPath.substr(0, gComponentPath.length) != gComponentPath) {
+                if(iPath.substr(0, gComponentPath.length) != gComponentPath){
                     return str;
                 }
 
-                iPath = iPath.replace(/\?.*?$/g, '');
+                iPath = iPath.replace(/\?.*?$/g,'');
 
                 var dirname = iPath.substr(gComponentPath.length);
                 copyPath[util.joinFormat(vars.srcRoot, 'css', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
@@ -484,7 +479,7 @@ gulp.task('css-dist', function() {
             this.push(file);
 
             // 复制
-            util.copyFiles(copyPath, function() {
+            util.copyFiles(copyPath, function(){
                 util.msg.success('copy file done');
                 next();
             }, null, null, vars.dirname);
@@ -495,58 +490,60 @@ gulp.task('css-dist', function() {
             util.joinFormat(remotePath, fn.relateDest(path.join(vars.imagesDest, 'globalcomponents')))
         ))
 
-    // 替换图片
-    .pipe(replacePath(
+        // 替换图片
+        .pipe(replacePath(
             '../images',
             util.joinFormat(remotePath, fn.relateDest(vars.imagesDest))
         ))
         // 替换 components 内图片
         .pipe(replacePath(
             '../components',
-            util.joinFormat(remotePath, fn.relateDest(path.join(vars.imagesDest, 'components')))
+            util.joinFormat( remotePath, fn.relateDest( path.join(vars.imagesDest, 'components')))
         ))
-        .pipe(iConfig.isCommit ? minifycss({
+        .pipe(gulp.env.isCommit?minifycss({
             compatibility: 'ie7'
-        }) : fn.blankPipe())
-
-    .pipe(gulp.dest(util.joinFormat(vars.cssDest)));
+        }): fn.blankPipe())
+        
+        .pipe(gulp.dest( util.joinFormat(vars.cssDest)));
 });
 
 gulp.task('css-component-task', function() {
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
-
+    
     var vars = gulp.env.vars;
-
-    return gulp.src(path.join(vars.srcRoot, 'components/@(p-)*/*.scss'), {
-            base: path.join(vars.srcRoot)
-        })
-        .pipe(sass({
-            outputStyle: 'nested'
-        }).on('error', sass.logError))
-        .pipe(through.obj(function(file, enc, next) {
+    
+    return gulp.src(path.join(vars.srcRoot,'components/@(p-)*/*.scss'), {base: path.join(vars.srcRoot)})
+        .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
+        .pipe(through.obj(function(file, enc, next){
             var iCnt = file.contents.toString();
             var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
             var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
             var dirname = util.joinFormat(vars.srcRoot, 'css');
 
-            var replaceHandle = function(str, $1, $2, $3) {
+            var replaceHandle = function(str, $1, $2, $3){
                 var iPath = $2,
                     rPath = '';
 
-                if (iPath.match(/^(about:|data:)/)) {
+                if(iPath.match(/^(about:|data:)/)){
                     return str;
                 }
 
+                if(iPath.match(/^http[s]?\:/)){
+                    return str;
+                }
 
+                
                 var fDirname = path.dirname(path.relative(dirname, file.path));
                 rPath = path.join(fDirname, iPath)
-                    .replace(/\\+/g, '/')
-                    .replace(/\/+/, '/');
+                    .replace(/\\+/g,'/')
+                    .replace(/\/+/, '/')
+                    .replace(/\?.*?$/g,'')
+                    ;
 
-                if (fs.existsSync(util.joinFormat(dirname, rPath).replace(/\?.*?$/g, ''))) {
+                if(fs.existsSync(util.joinFormat(dirname, rPath))){
                     return $1 + rPath + $3;
 
                 } else {
@@ -566,30 +563,31 @@ gulp.task('css-component-task', function() {
             this.push(file);
             next();
         }))
-        .pipe(rename(function(path) {
+        .pipe(rename(function(path){
+
             path.dirname = '';
-            path.basename = path.basename.replace(/^p-/, '');
+            path.basename = path.basename.replace(/^p-/,'');
         }))
         .pipe(gulp.dest(path.join(vars.srcRoot, 'css')));
-
+        
 });
 // - css task
 // + js task
-gulp.task('js', function(done) {
+gulp.task('js', function (done) {
     gulp.env.nowTask = 'js';
     runQueue('js-task', 'concat', 'rev-update', done);
 });
-gulp.task('js-task', function() {
+gulp.task('js-task', function () {
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
     /* requirejs 主模块列表 & 页面js [start] */
-    var
-        rjsFilter = filter(function(file) {
+    var 
+        rjsFilter = filter(function (file) {
             var result = /([pj]\-[a-zA-Z0-9\-_]*)[\\\/]([pj]\-[a-zA-Z0-9\-_]*)\.js$/.test(file.path);
-            if (result) {
+            if(result){
                 file.base = util.joinFormat(file.path.replace(/([pj]\-[a-zA-Z0-9\-_]*)\.js$/, ''));
             }
             return result;
@@ -601,126 +599,114 @@ gulp.task('js-task', function() {
     // jsTask
     var
         jsStream = gulp.src(path.join(vars.srcRoot, 'components/**/*.js'))
-        .pipe(plumber())
-        .pipe(jshint.reporter('default'))
-        .pipe(rjsFilter)
-        .pipe(jshint())
-        .pipe(rollup({
-            plugins: [
-                rollupCommonjs(),
-                rollupBabel(), 
-                rollupAlias(iConfig.alias)
-            ],
-            format: 'umd'
-        }))
-        .pipe(babel({
-            presets: ['babel-preset-es2015'].map(require.resolve)
-        }))
-        .pipe(iConfig.isCommit ? uglify() : fn.blankPipe())
-        .pipe(rename(function(path) {
-            path.basename = path.basename.replace(/^[pj]-/g, '');
-            path.dirname = '';
-        }))
-        .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
+            .pipe(plumber())
+            .pipe(jshint.reporter('default'))
+            .pipe(rjsFilter)
+            .pipe(jshint())
+            .pipe(rollup({
+                plugins: [
+                    rollupCommonjs(),
+                    rollupBabel(), 
+                    rollupAlias(iConfig.alias)
+                ],
+                format: 'umd'
+            }))
+            .pipe(babel({
+                presets: ['babel-preset-es2015'].map(require.resolve)
+            }))
+            .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
+            .pipe(rename(function(path) {
+                path.basename = path.basename.replace(/^[pj]-/g, '');
+                path.dirname = '';
+            }))
+            .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
 
     // js lib Task
-    var
-        jsLibStream = gulp.src(util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'))
-        .pipe(plumber())
-        .pipe(iConfig.isCommit ? uglify() : fn.blankPipe())
-        .pipe(gulp.dest(vars.jslibDest));
+    var 
+        jsLibStream = gulp.src(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js'))
+            .pipe(plumber())
+            .pipe(gulp.env.isCommit?uglify():fn.blankPipe())
+            .pipe(gulp.dest( vars.jslibDest ));
 
     var
         jsDataStream = gulp.src([util.joinFormat(vars.srcRoot, 'js/**/*.json')])
             .pipe(plumber())
-            .pipe(iConfig.isCommit?uglify():fn.blankPipe())
+            .pipe(gulp.env.isCommit?uglify():fn.blankPipe())
             .pipe(gulp.dest( vars.jsDest ));
 
     var 
         jsBaseStream = gulp.src([
-            util.joinFormat(vars.srcRoot, 'js/**/*.js'),
-            '!' + util.joinFormat(vars.srcRoot, 'js/lib/**'),
-            '!' + util.joinFormat(vars.srcRoot, 'js/widget/**')
-        ])
+                util.joinFormat(vars.srcRoot, 'js/**/*.js'),
+                '!' + util.joinFormat(vars.srcRoot, 'js/lib/**'),
+                '!' + util.joinFormat(vars.srcRoot, 'js/widget/**')
+            ])
         .pipe(plumber())
         /* 合并主文件中通过 requirejs 引入的模块 [start] */
-        .pipe(rollup({
-            plugins: [
-                rollupBabel(),
-                rollupAlias(iConfig.alias)
-            ],
-            format: 'umd'
+        .pipe(requirejsOptimize({
+            optimize: 'none',
+            mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
         }))
-        .pipe(babel({
-            presets: ['babel-preset-es2015'].map(require.resolve)
-        }))
-        .pipe(iConfig.isCommit ? uglify() : fn.blankPipe())
+        .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
 
     return es.concat.apply(es, [jsStream, jsLibStream, jsBaseStream, jsDataStream]);
 });
 // - js task
 // + images task
-gulp.task('images', ['images-img', 'images-components'], function(done) {
+gulp.task('images',['images-img', 'images-components'], function(done) {
     gulp.env.nowTask = 'images';
     runQueue('rev-update', 'rev-img-update', done);
 });
 
 gulp.task('images-img', function() {
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
     var vars = gulp.env.vars;
 
-    return gulp.src([util.joinFormat(vars.srcRoot, 'images/**/*.*')], {
-            base: util.joinFormat(vars.srcRoot, 'images')
-        })
+    return gulp.src([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {base: util.joinFormat( vars.srcRoot, 'images')})
         .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
-        .pipe(iConfig.isCommit ? imagemin({
-            optimizationLevel: 3,
-            progressive: true,
-            interlaced: true
-        }) : fn.blankPipe())
-        .pipe(gulp.dest(util.joinFormat(vars.imagesDest)));
+        .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
+        .pipe(gulp.dest( util.joinFormat(vars.imagesDest)))
+        ;
 });
-gulp.task('images-components', function() {
+gulp.task('images-components', function(){
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
-    var
+    var 
         vars = gulp.env.vars;
 
     return gulp.src([
-            util.joinFormat(vars.srcRoot, 'components/**/*.*')
+            util.joinFormat( vars.srcRoot, 'components/**/*.*')
         ], {
-            base: util.joinFormat(vars.srcRoot, 'components')
+            base: util.joinFormat( vars.srcRoot, 'components')
         })
         .pipe(plumber())
-        .pipe(iConfig.isCommit ? imagemin({
-            optimizationLevel: 3,
-            progressive: true,
-            interlaced: true
-        }) : fn.blankPipe())
+        .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
         .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
-        .pipe(gulp.dest(util.joinFormat(vars.imagesDest, 'components')));
+        .pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')))
+        ;
 });
 // - images task
 // + watch task
 gulp.task('watch', ['all'], function() {
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
     var vars = gulp.env.vars;
 
 
     // 看守所有.scss档
-    gulp.watch(util.joinFormat(vars.srcRoot, '**/*.scss'), function() {
+    watch( util.joinFormat( vars.srcRoot, '**/*.scss'), util.debounce(function(){
         util.taskQueue.add('css', function(next){
-            runQueue('css', 'html', 'concat', 'connect-reload', function(){
+            runQueue('css', 'html', 'concat', function(){
+                util.livereload();
+                util.msg.success('css task done');
                 if(!gulp.env.silent){
                     util.pop('css task done');
                 }
@@ -728,59 +714,89 @@ gulp.task('watch', ['all'], function() {
             });
 
         }, 200);
-    });
+    }, 500));
 
     // 看守所有.js档
-    gulp.watch([
+    watch([
         util.joinFormat(vars.srcRoot, 'components/**/*.js'),
         util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
         util.joinFormat(vars.commons, '**.*.js')
-    ], function() {
+    ], util.debounce(function(){
         util.taskQueue.add('js', function(next){
-            runQueue('js', 'html', 'concat', 'connect-reload', function() {
+            runQueue('js-task', 'html-task', 'html-task-step02', 'concat', function(){
+                util.livereload();
+                util.msg.success('js task done');
                 if(!gulp.env.silent){
                     util.pop('js task done');
                 }
+                next();
             });
-            next();
+
         }, 200);
-    });
+    }, 500));
 
     // 看守所有图片档
-    gulp.watch([
+    watch([
         util.joinFormat(vars.srcRoot, 'images/*.*'),
         util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
         util.joinFormat(vars.globalcomponents, '**/images/*.')
-    ], function() {
+    ], util.debounce(function(){
         util.taskQueue.add('images', function(next){
-            runQueue('images', 'html', 'connect-reload', function() {
+            runQueue('images', 'html', function(){
+                util.livereload();
+                util.msg.success('images task done');
                 if(!gulp.env.silent){
                     util.pop('images task done');
                 }
                 next();
             });
-
         }, 200);
 
-    });
+    }, 500));
 
     // 看守所有jade 文件
-    gulp.watch([
+    watch([
         util.joinFormat(vars.srcRoot, 'components/**/*.jade'),
         util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
         util.joinFormat(vars.globalcomponents, '**/*.jade')
-    ], function() {
-        util.taskQueue.add(function(next){
-            runQueue('html', 'connect-reload', function() {
+    ], util.debounce(function(){
+        util.taskQueue.add('html', function(next){
+            runQueue('html', function(){
+                util.livereload();
+                util.msg.success('jade task done');
                 if(!gulp.env.silent){
                     util.pop('jade task done');
                 }
                 next();
             });
-        }, 200);
-    });
 
-    runQueue('connect-reload');
+        }, 200);
+    }, 500));
+
+    // 看守所有 resource 定义的文件
+    if(iConfig.resource){
+        watch(Object.keys(iConfig.resource).map(function(src){
+            return path.join(src, '**/*.*');
+
+        }), util.debounce(function(){
+            util.taskQueue.add('resource', function(next){
+                runQueue('resource', function(){
+                    util.livereload();
+                    util.msg.success('resource task done');
+                    if(!gulp.env.silent){
+                        util.pop('resource task done');
+                    }
+                    next();
+                });
+
+            }, 200);
+
+        }, 500));
+
+
+    }
+
+    util.livereload();
 
     var iCmd = [
         'yyl supercall watchDone',
@@ -799,15 +815,15 @@ gulp.task('watch', ['all'], function() {
 // - watch task
 
 // + concat task
-gulp.task('concat', function(done) {
+gulp.task('concat', function(done){
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
-    if (!iConfig.concat) {
+    if(!iConfig.concat){
         return;
     }
-
+    
 
     var iCmd = [
         'yyl supercall concat',
@@ -828,55 +844,49 @@ gulp.task('concat', function(done) {
 });
 // - concat task
 // + rev
-gulp.task('rev', function(done) {
-    var
+gulp.task('rev', function(done){
+    var 
         iConfig = fn.taskInit();
 
-    if (!iConfig) {
+    if(!iConfig){
         return done();
     }
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev task not run');
         return done();
     }
     runQueue('rev-clean', 'rev-loadRemote', 'rev-build', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
 });
 
-gulp.task('rev-clean', function() {
-    var
+gulp.task('rev-clean', function(){
+    var 
         iConfig = fn.taskInit(),
-        md5Filter = filter(function(file) {
+        md5Filter = filter(function(file){
             return /-[a-zA-Z0-9]{10}\.?\w*\.\w+$/.test(file.history) && 
                 fs.existsSync((file.history + '').replace(/-[a-zA-Z0-9]{10}(\.?\w*\.\w+$)/, '$1'));
 
-        }, {
-            restore: true
-        }),
+        }, {restore: true}),
         vars = gulp.env.vars;
 
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
-
-    return gulp.src(util.joinFormat(vars.root, '**/*.*'), {
-            base: util.joinFormat(vars.destRoot)
-        })
-        .pipe(plumber())
-        .pipe(md5Filter)
-        .pipe(clean({
-            force: true
-        }));
+     
+    return gulp.src( util.joinFormat( vars.root, '**/*.*'), { base: util.joinFormat(vars.destRoot) })
+            .pipe(plumber())
+            .pipe(md5Filter)
+            .pipe(clean({force: true}));
 });
 
-gulp.task('rev-loadRemote', function(done) {
-    var
+gulp.task('rev-loadRemote', function(done){
+    var 
         iConfig = fn.taskInit();
 
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-loadRemote task not run');
         return done();
     }
@@ -885,27 +895,27 @@ gulp.task('rev-loadRemote', function(done) {
         iVer = gulp.env.version,
         revAddr;
 
-    if (!iVer) {
+    if(!iVer){
         util.msg.info('rev-loadRemote finish, no version');
         return done();
 
-    } else if (!iConfig.dest.revAddr) {
+    } else if(!iConfig.dest.revAddr){
         util.msg.info('rev-loadRemote finish, no config.commit.revAddr');
         return done();
 
     } else {
-        if (iVer == 'remote') {
+        if(iVer == 'remote'){
             revAddr = iConfig.commit.revAddr + '?' + (+new Date());
 
         } else {
             revAddr = iConfig.commit.revAddr.split('.json').join('-' + iVer + '.json');
         }
 
-        fn.get(revAddr, function(data) {
-            try {
+        fn.get(revAddr, function(data){
+            try{
                 cache.remoteRevData = JSON.parse(data);
 
-            } catch (er) {
+            } catch(er){
                 util.msg.warn('rev get fail');
             }
 
@@ -914,120 +924,116 @@ gulp.task('rev-loadRemote', function(done) {
     }
 });
 
-gulp.task('rev-build', function() {
-    var
+gulp.task('rev-build', function(){
+    var 
         iConfig = fn.taskInit();
 
-    if (!iConfig) {
+    if(!iConfig){
         return;
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-build task not run');
         return;
     }
 
-    var
+    var 
         vars = gulp.env.vars;
 
     gulp.env.cssjsdate = util.makeCssJsDate();
 
     return gulp.src([
-            util.joinFormat(vars.root, '**/*.*'),
-            '!' + util.joinFormat(vars.root, '**/*.html'),
-            '!' + util.joinFormat(vars.root, '**/assets/**/*.*')
-        ], {
-            base: vars.revRoot
-        })
-        .pipe(rev())
-        .pipe(override())
-        .pipe(gulp.dest(vars.root))
-        .pipe(rev.manifest())
-        .pipe(through.obj(function(file, enc, next) {
-            var iCnt = file.contents.toString();
-            try {
-                var
-                    iJson = JSON.parse(iCnt);
-                iJson.version = gulp.env.cssjsdate;
-                iCnt = JSON.stringify(iJson, null, 4);
-            } catch (er) {}
+                util.joinFormat( vars.root, '**/*.*'), 
+                '!' + util.joinFormat(vars.root, '**/*.html'), 
+                '!' + util.joinFormat(vars.root, '**/assets/**/*.*')
+            ], { 
+                base: vars.revRoot
+            })
+            .pipe(rev())
+            .pipe(override())
+            .pipe(gulp.dest(vars.root))
+            .pipe(rev.manifest())
+            .pipe(through.obj(function(file, enc, next){
+                var iCnt = file.contents.toString();
+                try{
+                    var 
+                        iJson = JSON.parse(iCnt);
+                    iJson.version = gulp.env.cssjsdate;
+                    iCnt = JSON.stringify(iJson, null, 4);
+                } catch(er){}
 
-            file.contents = new Buffer(iCnt, 'utf-8');
-            this.push(file);
-            next();
-        }))
-        .pipe(gulp.dest(vars.revDest))
-        .pipe(rename({
-            suffix: '-' + gulp.env.cssjsdate
-        }))
-        .pipe(gulp.dest(vars.revDest));
+                file.contents = new Buffer(iCnt, 'utf-8');
+                this.push(file);
+                next();
+            }))
+            .pipe(gulp.dest(vars.revDest))
+            .pipe(rename({suffix: '-' + gulp.env.cssjsdate}))
+            .pipe(gulp.dest(vars.revDest));
 });
 
-gulp.task('rev-remote-build', function() {
-    var
+gulp.task('rev-remote-build', function(){
+    var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars,
-        md5Filter = filter(function(file) {
+        md5Filter = filter(function(file){
             return !/-[a-zA-Z0-9]{10}\.?\w*\.\w+/.test(file.history);
 
-        }, {
-            restore: true
-        });
+        }, {restore: true});
 
-    if (!iConfig || !cache.remoteRevData) {
+    if(!iConfig ||!cache.remoteRevData){
         util.msg.info('rev-remote-build done, no remoteRevData');
         return;
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-remote-build task not run');
         return;
     }
-
+    
     return gulp.src([
-            util.joinFormat(vars.root, '**/*.*'),
-            '!' + util.joinFormat(vars.root, '**/*.html'),
-            '!' + util.joinFormat(vars.root, '**/assets/**/*.*')
-        ], {
-            base: vars.destRoot
-        })
-        .pipe(md5Filter)
-        .pipe(
-            through.obj(function(file, enc, next) {
-                if (cache.remoteRevData) {
-                    var iPath = cache.remoteRevData[util.joinFormat(path.relative(vars.destRoot, file.path))];
-
-                    if (iPath) {
-                        file.path = util.joinFormat(vars.destRoot, iPath);
-                    }
-                    this.push(file);
-
-                }
-
-                next();
+                util.joinFormat( vars.root, '**/*.*'), 
+                '!' + util.joinFormat(vars.root, '**/*.html'), 
+                '!' + util.joinFormat(vars.root, '**/assets/**/*.*')
+            ], { 
+                base: vars.destRoot
             })
-        )
-        .pipe(gulp.dest(vars.destRoot));
+            .pipe(md5Filter)
+            .pipe(
+                through.obj(function(file, enc, next){
+                    if(cache.remoteRevData){
+                        var iPath = cache.remoteRevData[util.joinFormat(path.relative( vars.destRoot, file.path)) ];
 
+                        if(iPath){
+                            file.path = util.joinFormat( vars.destRoot, iPath) ;
+                        }
+                        this.push(file);
+
+                    }
+
+                    next();
+                })
+             )
+            .pipe(gulp.dest(vars.destRoot));
+            
 });
 
-gulp.task('rev-dataInit', function(done) {
-    var
+gulp.task('rev-dataInit', function(done){
+    var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars,
-        revPath = util.joinFormat(vars.revDest, 'rev-manifest.json');
+        revPath = util.joinFormat( vars.revDest, 'rev-manifest.json');
 
-    if (!iConfig || !fs.existsSync(revPath)) {
+    if(!iConfig || !fs.existsSync(revPath)){
         return done();
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-dataInit task not run');
         return done();
     }
 
     cache.localRevData = util.requireJs(revPath);
-    if (cache.remoteRevData) {
+    if(cache.remoteRevData){
         cache.localRevData = util.extend(cache.localRevData, cache.remoteRevData);
     }
 
@@ -1035,113 +1041,132 @@ gulp.task('rev-dataInit', function(done) {
 
 });
 
-gulp.task('rev-replace', function() {
-    var
+gulp.task('rev-replace', function(){
+    var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars;
 
-    if (!iConfig || !cache.localRevData) {
+    if(!iConfig || !cache.localRevData){
         return;
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-replace task not run');
         return;
     }
 
-    return gulp.src(util.joinFormat(vars.root, '**/*.+(html|js|css)'), {
-            base: vars.destRoot
-        })
-        .pipe(plumber())
-        .pipe(through.obj(function(file, enc, next) {
-            var iCnt = file.contents.toString();
+    return gulp.src( util.joinFormat( vars.root, '**/*.+(html|js|css)'), { base: vars.destRoot })
+            .pipe(plumber())
+            .pipe(through.obj(function(file, enc, next){
+                var iCnt = file.contents.toString();
 
-            for (var key in cache.localRevData) {
-                if (cache.localRevData.hasOwnProperty(key) && key != 'version') {
-                    iCnt = iCnt.replace(new RegExp(key, 'g'), cache.localRevData[key]);
+                for(var key in cache.localRevData){
+                    if(cache.localRevData.hasOwnProperty(key) && key != 'version'){
+                        iCnt = iCnt.replace(new RegExp(key, 'g'), cache.localRevData[key]);
+                    }
                 }
-            }
 
 
-            file.contents = new Buffer(iCnt, 'utf-8');
-            this.push(file);
-            next();
-        }))
-        .pipe(gulp.dest(vars.destRoot))
-        .pipe(rev.manifest())
-        .pipe(through.obj(function(file, enc, next) {
-            var iCnt = file.contents.toString();
-            try {
-                var
-                    iJson = JSON.parse(iCnt);
-                iJson.version = gulp.env.cssjsdate;
-                iCnt = JSON.stringify(iJson, null, 4);
-            } catch (er) {}
+                file.contents = new Buffer(iCnt, 'utf-8');
+                this.push(file);
+                next();
+            }))
+            .pipe(gulp.dest(vars.destRoot))
+            .pipe(rev.manifest())
+            .pipe(through.obj(function(file, enc, next){
+                var iCnt = file.contents.toString();
+                try{
+                    var 
+                        iJson = JSON.parse(iCnt);
+                    iJson.version = gulp.env.cssjsdate;
+                    iCnt = JSON.stringify(iJson, null, 4);
+                } catch(er){}
 
-            file.contents = new Buffer(iCnt, 'utf-8');
-            this.push(file);
-            next();
-        }))
-        .pipe(gulp.dest(vars.revDest));
+                file.contents = new Buffer(iCnt, 'utf-8');
+                this.push(file);
+                next();
+            }))
+            .pipe(gulp.dest(vars.revDest))
+            ;
 
 });
 
-gulp.task('rev-update', function(done) {
-    var
+gulp.task('rev-update', function(done){
+    var 
         iConfig = fn.taskInit();
 
-    if (!iConfig) {
+    if(!iConfig){
         return done();
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-update task not run');
         return done();
     }
 
-    if (gulp.env.runAll) {
+    if(gulp.env.runAll){
         done();
     } else {
         runQueue('rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace', done);
     }
 });
 
-gulp.task('rev-img-update', function() {
-    var
+gulp.task('rev-img-update', function(){
+    var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars;
 
-    if (!iConfig || !cache.localRevData) {
+    if(!iConfig || !cache.localRevData){
         return;
     }
 
-    if (!iConfig.commit.revAddr) {
+    if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev-img-update task not run');
         return;
     }
 
-    return gulp.src(util.joinFormat(vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg|webp)'), {
-            base: vars.revRoot
-        })
-        .pipe(plumber())
-        .pipe(rename(function(p) {
-            var iPath = util.joinFormat(p.dirname, p.basename + p.extname);
+    return gulp.src( util.joinFormat( vars.imagesDest, '**/*.+(jpg|png|bmp|gif|jpeg|webp)'), { base: vars.revRoot })
+            .pipe(plumber())
+            .pipe(rename(function(p){
+                var iPath = util.joinFormat(p.dirname, p.basename + p.extname);
 
-            if (cache.localRevData && cache.localRevData[iPath]) {
-                p.basename = path.basename(cache.localRevData[iPath]).replace(p.extname, '');
-            }
-        }))
-        .pipe(gulp.dest(vars.revRoot));
+                if(cache.localRevData && cache.localRevData[iPath]){
+                    p.basename = path.basename(cache.localRevData[iPath]).replace(p.extname, '');
+                }
+            }))
+            .pipe(gulp.dest(vars.revRoot));
 });
 
-gulp.task('rev-update-task', function() {
+gulp.task('rev-update-task', function(){
 
 });
 // - rev
-// + all
-gulp.task('all', function(done) {
+// + resource
+gulp.task('resource', function(){
     var iConfig = fn.taskInit();
-    if (!iConfig) {
+    if(!iConfig){
+        return;
+    }
+
+    if(iConfig.resource){
+        var streams = [],
+            i = 0;
+
+        for(var key in iConfig.resource){
+            if(iConfig.resource.hasOwnProperty(key) && fs.existsSync(key)){
+                streams[i++] = gulp.src(path.join(key, '**/*.*')).pipe(gulp.dest(iConfig.resource[key]));
+            }
+        }
+
+        return streams.length? es.concat.apply(es, streams): null;
+    }
+
+});
+// - resource
+// + all
+gulp.task('all', function(done){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
         return;
     }
     var vars = gulp.env.vars;
@@ -1149,9 +1174,9 @@ gulp.task('all', function(done) {
     gulp.env.runAll = true;
     util.msg.info('start clear dist file');
 
-    util.removeFiles(vars.destRoot, function() {
+    util.removeFiles(vars.destRoot, function(){
         util.msg.info('clear dist file done');
-        runQueue(['js', 'css', 'images', 'html'], 'concat', 'rev', 'all-done', function() {
+        runQueue(['js', 'css', 'images', 'html', 'resource'], 'concat', 'rev', 'all-done', function(){
             if(!gulp.env.silent){
                 util.pop('all task done');
             }
@@ -1160,12 +1185,9 @@ gulp.task('all', function(done) {
     });
 });
 
-gulp.task('all-done', function() {
+gulp.task('all-done', function(){
     gulp.env.runAll = false;
 });
 
 gulp.task('watchAll', ['watch']);
 // - all
-gulp.task('connect-reload', function() {
-    return util.livereload();
-});

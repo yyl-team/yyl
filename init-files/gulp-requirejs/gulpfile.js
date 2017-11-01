@@ -85,13 +85,15 @@ config = util.initConfig(util.extend(true, config, localConfig));
 
 
 var fn = {
-    blankPipe: function(){
-        return through.obj(function(file, enc, next){next(null, file);});
+    blankPipe: function() {
+        return through.obj(function(file, enc, next) {
+            next(null, file);
+        });
     },
-    relateDest: function(iPath){
-        return util.joinFormat( path.relative(gulp.env.vars.destRoot, iPath) );
+    relateDest: function(iPath) {
+        return util.joinFormat(path.relative(gulp.env.vars.destRoot, iPath));
     },
-    taskHelper: function(commands){
+    taskHelper: function(commands) {
 
         var dirs = [];
         var output;
@@ -106,7 +108,7 @@ var fn = {
                 '',
                 '',
                 '  Ustage:'.yellow,
-                '  yyl '+ commands +' --name <Project>',
+                '  yyl ' + commands + ' --name <Project>',
                 '',
                 '  Project:'.yellow,
                 (function(){
@@ -492,7 +494,7 @@ gulp.task('css-dist', function(){
             '../components',
             util.joinFormat( remotePath, fn.relateDest( path.join(vars.imagesDest, 'components')))
         ))
-        .pipe(iConfig.isCommit?minifycss({
+        .pipe(gulp.env.isCommit?minifycss({
             compatibility: 'ie7'
         }): fn.blankPipe())
         
@@ -523,14 +525,19 @@ gulp.task('css-component-task', function() {
                     return str;
                 }
 
+                if(iPath.match(/^http[s]?\:/)){
+                    return str;
+                }
+
                 
                 var fDirname = path.dirname(path.relative(dirname, file.path));
                 rPath = path.join(fDirname, iPath)
                     .replace(/\\+/g,'/')
                     .replace(/\/+/, '/')
+                    .replace(/\?.*?$/g,'')
                     ;
 
-                if(fs.existsSync(util.joinFormat(dirname, rPath).replace(/\?.*?$/g,''))){
+                if(fs.existsSync(util.joinFormat(dirname, rPath))){
                     return $1 + rPath + $3;
 
                 } else {
@@ -584,8 +591,8 @@ gulp.task('js-task', function () {
         vars = gulp.env.vars;
 
     // jsTask
-    var 
-        jsStream = gulp.src(path.join( vars.srcRoot, 'components/**/*.js'))
+    var
+        jsStream = gulp.src(path.join(vars.srcRoot, 'components/**/*.js'))
             .pipe(plumber())
             .pipe(jshint.reporter('default'))
             .pipe(rjsFilter)
@@ -595,9 +602,9 @@ gulp.task('js-task', function () {
                 optimize: 'none',
                 mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
             }))
-            .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
-            .pipe(rename(function(path){
-                path.basename = path.basename.replace(/^[pj]-/g,'');
+            .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
+            .pipe(rename(function(path) {
+                path.basename = path.basename.replace(/^[pj]-/g, '');
                 path.dirname = '';
             }))
             .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
@@ -606,13 +613,13 @@ gulp.task('js-task', function () {
     var 
         jsLibStream = gulp.src(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js'))
             .pipe(plumber())
-            .pipe(iConfig.isCommit?uglify():fn.blankPipe())
+            .pipe(gulp.env.isCommit?uglify():fn.blankPipe())
             .pipe(gulp.dest( vars.jslibDest ));
 
     var
         jsDataStream = gulp.src([util.joinFormat(vars.srcRoot, 'js/**/*.json')])
             .pipe(plumber())
-            .pipe(iConfig.isCommit?uglify():fn.blankPipe())
+            .pipe(gulp.env.isCommit?uglify():fn.blankPipe())
             .pipe(gulp.dest( vars.jsDest ));
 
     var 
@@ -627,7 +634,7 @@ gulp.task('js-task', function () {
             optimize: 'none',
             mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
         }))
-        .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
+        .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
 
     return es.concat.apply(es, [jsStream, jsLibStream, jsBaseStream, jsDataStream]);
@@ -648,7 +655,7 @@ gulp.task('images-img', function() {
 
     return gulp.src([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {base: util.joinFormat( vars.srcRoot, 'images')})
         .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
-        .pipe(iConfig.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
+        .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
         .pipe(gulp.dest( util.joinFormat(vars.imagesDest)))
         ;
 });
@@ -667,7 +674,7 @@ gulp.task('images-components', function(){
             base: util.joinFormat( vars.srcRoot, 'components')
         })
         .pipe(plumber())
-        .pipe(iConfig.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
+        .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe())
         .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
         .pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')))
         ;
