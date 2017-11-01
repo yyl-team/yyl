@@ -839,6 +839,7 @@ gulp.task('rev', function(done){
     if(!iConfig){
         return done();
     }
+    console.log('===', iConfig.commit)
     if(!iConfig.commit.revAddr){
         util.msg.warn('config.commit.revAddr not set, rev task not run');
         return done();
@@ -874,11 +875,6 @@ gulp.task('rev-loadRemote', function(done){
         return;
     }
 
-    if(!iConfig.commit.revAddr){
-        util.msg.warn('config.commit.revAddr not set, rev-loadRemote task not run');
-        return done();
-    }
-
     var
         iVer = gulp.env.version,
         revAddr;
@@ -887,7 +883,7 @@ gulp.task('rev-loadRemote', function(done){
         util.msg.info('rev-loadRemote finish, no version');
         return done();
 
-    } else if(!iConfig.dest.revAddr){
+    } else if(!iConfig.commit.revAddr){
         util.msg.info('rev-loadRemote finish, no config.commit.revAddr');
         return done();
 
@@ -899,9 +895,10 @@ gulp.task('rev-loadRemote', function(done){
             revAddr = iConfig.commit.revAddr.split('.json').join('-' + iVer + '.json');
         }
 
-        fn.get(revAddr, function(data){
+        util.get(revAddr, function(data){
             try{
                 cache.remoteRevData = JSON.parse(data);
+                util.msg.success('rev get success');
 
             } catch(er){
                 util.msg.warn('rev get fail');

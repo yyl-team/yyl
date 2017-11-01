@@ -441,6 +441,7 @@ gulp.task('css-dist', function(){
         };
 
     return gulp.src(path.join(vars.srcRoot, 'css', '**/*.css'))
+        .pipe(plumber())
         // 将commons components 目录下的 图片 引入到 globalcomponents 里面
         .pipe(through.obj(function(file, enc, next){
             var iCnt = file.contents.toString();
