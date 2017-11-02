@@ -549,7 +549,8 @@ gulp.task('css-component-task', function() {
 
                 } else {
 
-                    util.msg.warn('css url replace error', 'path not found:', rPath);
+                    util.msg.warn('css url replace error', path.basename(file.history.toString()));
+                    util.msg.warn('    path not found', rPath);
                     return str;
                 }
 
@@ -900,7 +901,7 @@ gulp.task('rev-loadRemote', function(done){
         util.msg.info('rev-loadRemote finish, no version');
         return done();
 
-    } else if(!iConfig.dest.revAddr){
+    } else if(!iConfig.commit.revAddr){
         util.msg.info('rev-loadRemote finish, no config.commit.revAddr');
         return done();
 
@@ -912,9 +913,10 @@ gulp.task('rev-loadRemote', function(done){
             revAddr = iConfig.commit.revAddr.split('.json').join('-' + iVer + '.json');
         }
 
-        fn.get(revAddr, function(data){
+        util.get(revAddr, function(data){
             try{
                 cache.remoteRevData = JSON.parse(data);
+                util.msg.success('rev get success');
 
             } catch(er){
                 util.msg.warn('rev get fail');
@@ -952,7 +954,7 @@ gulp.task('rev-build', function(){
             })
             .pipe(rev())
             .pipe(override())
-            .pipe(gulp.dest(vars.root))
+            .pipe(gulp.dest(vars.revRoot))
             .pipe(rev.manifest())
             .pipe(through.obj(function(file, enc, next){
                 var iCnt = file.contents.toString();
