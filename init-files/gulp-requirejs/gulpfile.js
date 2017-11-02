@@ -542,7 +542,8 @@ gulp.task('css-component-task', function() {
 
                 } else {
 
-                    util.msg.warn('css url replace error', 'path not found:', rPath);
+                    util.msg.warn('css url replace error', path.basename(file.history.toString()));
+                    util.msg.warn('    path not found', rPath);
                     return str;
                 }
 
@@ -935,7 +936,7 @@ gulp.task('rev-build', function(){
             })
             .pipe(rev())
             .pipe(override())
-            .pipe(gulp.dest(vars.root))
+            .pipe(gulp.dest(vars.revRoot))
             .pipe(rev.manifest())
             .pipe(through.obj(function(file, enc, next){
                 var iCnt = file.contents.toString();
