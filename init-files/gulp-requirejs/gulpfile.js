@@ -3,7 +3,7 @@
  * gulpfile.js for yym-FETeam
  *
  * @author: jackness Lau
- */ 
+ */
 
 
 var gulp = require('gulp'),
@@ -332,11 +332,17 @@ gulp.task('html-task-step02', function(){
             this.push(file);
 
             // 复制
-            util.msg.info('copy file start', copyPath);
-            util.copyFiles(copyPath, function(){
-                util.msg.success('copy file done');
+            if(Object.keys(copyPath).length){
+                util.msg.info('copy file start', copyPath);
+                util.copyFiles(copyPath, function(){
+                    util.msg.success('copy file done');
+                    next();
+                });
+
+            } else {
                 next();
-            });
+            }
+            
         }))
 
         // 替换全局 图片
@@ -435,6 +441,7 @@ gulp.task('css-dist', function(){
         };
 
     return gulp.src(path.join(vars.srcRoot, 'css', '**/*.css'))
+        .pipe(plumber())
         // 将commons components 目录下的 图片 引入到 globalcomponents 里面
         .pipe(through.obj(function(file, enc, next){
             var iCnt = file.contents.toString();
@@ -473,10 +480,16 @@ gulp.task('css-dist', function(){
             this.push(file);
 
             // 复制
-            util.copyFiles(copyPath, function(){
-                util.msg.success('copy file done');
+            if(Object.keys(copyPath).length){
+                util.copyFiles(copyPath, function(){
+                    util.msg.success('copy file done');
+                    next();
+                }, null, null, vars.dirname);
+
+            } else {
                 next();
-            }, null, null, vars.dirname);
+            }
+            
         }))
         // 替换 commons components 里面的 图片
         .pipe(replacePath(
@@ -528,22 +541,32 @@ gulp.task('css-component-task', function() {
                 if(iPath.match(/^http[s]?\:/)){
                     return str;
                 }
+                if(iPath.match(/^\/\/\w/)){
+                    return str;
+                }
 
                 
                 var fDirname = path.dirname(path.relative(dirname, file.path));
                 rPath = path.join(fDirname, iPath)
                     .replace(/\\+/g,'/')
                     .replace(/\/+/, '/')
-                    .replace(/\?.*?$/g,'')
-                    ;
+                    .replace(/\?.*?$/g,'');
 
-                if(fs.existsSync(util.joinFormat(dirname, rPath))){
+                var rPath2 = path.join(dirname, iPath)
+                    .replace(/\\+/g,'/')
+                    .replace(/\/+/, '/')
+                    .replace(/\?.*?$/g,'');
+
+                if(fs.existsSync(util.joinFormat(dirname, rPath))){ // 以当前文件所在目录为 根目录查找文件
                     return $1 + rPath + $3;
+
+                }else if(fs.existsSync(rPath2)){ // 如果直接是根据生成的 css 目录去匹配 也允许
+                    return str;
 
                 } else {
 
                     util.msg.warn('css url replace error', path.basename(file.history.toString()));
-                    util.msg.warn('    path not found', rPath);
+                    util.msg.warn('    path not found', util.joinFormat(dirname, rPath));
                     return str;
                 }
 
