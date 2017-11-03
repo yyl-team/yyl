@@ -655,7 +655,6 @@ gulp.task('js-task', function () {
     var
         jsDataStream = gulp.src([util.joinFormat(vars.srcRoot, 'js/**/*.json')])
             .pipe(plumber())
-            .pipe(gulp.env.isCommit?uglify():fn.blankPipe())
             .pipe(gulp.dest( vars.jsDest ));
 
     var 
