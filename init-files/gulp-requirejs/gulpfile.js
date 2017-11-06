@@ -20,6 +20,7 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'), // rename the files
     replacePath = require('gulp-replace-path'), // replace the assets path
     // requirejsOptimize = require('gulp-requirejs-optimize'), // requirejs optimizer which can combine all modules into the main js file
+    requirejs = require('requirejs'),
     inlinesource = require('gulp-inline-source'), // requirejs optimizer which can combine all modules into the main js file
     filter = require('gulp-filter'), // filter the specified file(s) in file stream
     gulpJade = require('gulp-jade'),
@@ -592,24 +593,31 @@ var
                     .pipe(jshint())
                     .pipe(through.obj(function(file, enc, cb){
                         var 
+                            self = this,
                             optimizeOptions = {
                                 mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js'),
                                 logLevel: 2,
                                 baseUrl: util.joinFormat(vars.srcRoot, 'js/rConfig'),
                                 generateSourceMaps: false,
-                                out: function(){
-
-                                },
-                                include: '',
-
+                                optimize: 'none',
+                                include: util.joinFormat(vars.srcRoot, file.relative),
+                                out: function(text){
+                                    file.contents = new Buffer(text, 'utf-8');
+                                    self.push(file);
+                                    next();
+                                }
                             };
 
+                        util.msg.info('optimizing js file', file.relative);
+                        // next();
+
+                        requirejs.optimize(optimizeOptions, null, function(err) {
+                            util.msg.error('optimize js error', file.relative);
+                            util.msg.error(err);
+                            cb();
+                        });
+
                     }))
-                    /* 合并主文件中通过 requirejs 引入的模块 [start] */
-                    // .pipe(requirejsOptimize({
-                    //     optimize: 'none',
-                    //     mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
-                    // }))
                     .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
                     .pipe(rename(function(path){
                         path.basename = path.basename.replace(/^[pj]-/g,'');
@@ -831,7 +839,7 @@ gulp.task('requirejs-task', function(done) {
             '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/lib/**'),
             '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/**'),
             '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/widget/**')
-        ]), next);
+        ], {base: util.joinFormat(iConfig.alias.srcRoot)}), next);
 
     }).then(function(stream){
         stream.pipe(gulp.dest(util.joinFormat(vars.jsDest)));
@@ -839,66 +847,6 @@ gulp.task('requirejs-task', function(done) {
 
     }).start();
 
-    // /* requirejs 主模块列表 & 页面js [start] */
-    // var 
-    //     rjsFilter = filter(function (file) {
-    //         var result = /([pj]\-[a-zA-Z0-9\-_]*)[\\\/]([pj]\-[a-zA-Z0-9\-_]*)\.js$/.test(file.path);
-    //         if(result){
-    //             file.base = util.joinFormat(file.path.replace(/([pj]\-[a-zA-Z0-9\-_]*)\.js$/, ''));
-    //         }
-    //         return result;
-    //     });
-    // /* requirejs 主模块列表 & 页面js [end] */
-    // var
-    //     vars = gulp.env.vars;
-
-    // // jsTask
-    // var
-    //     jsStream = gulp.src(path.join(vars.srcRoot, 'components/**/*.js'))
-    //         .pipe(plumber())
-    //         .pipe(jshint.reporter('default'))
-    //         .pipe(rjsFilter)
-    //         .pipe(jshint())
-    //         /* 合并主文件中通过 requirejs 引入的模块 [start] */
-    //         .pipe(requirejsOptimize({
-    //             optimize: 'none',
-    //             mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
-    //         }))
-    //         .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
-    //         .pipe(rename(function(path) {
-    //             path.basename = path.basename.replace(/^[pj]-/g, '');
-    //             path.dirname = '';
-    //         }))
-    //         .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
-
-    // // js lib Task
-    // var 
-    //     jsLibStream = gulp.src(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js'))
-    //         .pipe(plumber())
-    //         .pipe(gulp.env.isCommit?uglify():fn.blankPipe())
-    //         .pipe(gulp.dest( vars.jslibDest ));
-
-    // var
-    //     jsDataStream = gulp.src([util.joinFormat(vars.srcRoot, 'js/**/*.json')])
-    //         .pipe(plumber())
-    //         .pipe(gulp.dest( vars.jsDest ));
-
-    // var 
-    //     jsBaseStream = gulp.src([
-    //             util.joinFormat(vars.srcRoot, 'js/**/*.js'),
-    //             '!' + util.joinFormat(vars.srcRoot, 'js/lib/**'),
-    //             '!' + util.joinFormat(vars.srcRoot, 'js/widget/**')
-    //         ])
-    //     .pipe(plumber())
-    //     /* 合并主文件中通过 requirejs 引入的模块 [start] */
-    //     .pipe(requirejsOptimize({
-    //         optimize: 'none',
-    //         mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
-    //     }))
-    //     .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
-    //     .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
-
-    // return es.concat.apply(es, [jsStream, jsLibStream, jsBaseStream, jsDataStream]);
 });
 
 gulp.task('jslib-task', function(done) {
