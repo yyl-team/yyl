@@ -39,10 +39,6 @@ var gulp = require('gulp'),
         localRevData: ''
     },
     TASK_MAP = {
-        'js': ['js-task', 'concat', 'rev-update'],
-        'html': ['html-task', 'html-task-step02'],
-        'css': ['css-component-task', 'css-base-task', 'css-dist', 'concat', 'rev-update'],
-        'images': ['images-img', 'images-components', 'rev-update', 'rev-img-update'],
         'rev': ['rev-clean', 'rev-loadRemote', 'rev-build', 'rev-remote-build', 'rev-dataInit', 'rev-replace'],
         'rev-update': ['rev-loadRemote', 'rev-remote-build', 'rev-dataInit', 'rev-replace']
     },
@@ -600,7 +596,7 @@ var
                                 baseUrl: util.joinFormat(vars.srcRoot, 'js/rConfig'),
                                 generateSourceMaps: false,
                                 optimize: 'none',
-                                include: util.joinFormat(vars.srcRoot, file.relative),
+                                include: util.joinFormat(path.relative(util.joinFormat(vars.srcRoot, 'js/rConfig'), util.joinFormat(vars.srcRoot, file.relative))),
                                 out: function(text){
                                     file.contents = new Buffer(text, 'utf-8');
                                     self.push(file);
