@@ -19,7 +19,6 @@ var gulp = require('gulp'),
     imagemin = require('gulp-imagemin'), // minify images
     rename = require('gulp-rename'), // rename the files
     replacePath = require('gulp-replace-path'), // replace the assets path
-    // requirejsOptimize = require('gulp-requirejs-optimize'), // requirejs optimizer which can combine all modules into the main js file
     requirejs = require('requirejs'),
     inlinesource = require('gulp-inline-source'), // requirejs optimizer which can combine all modules into the main js file
     filter = require('gulp-filter'), // filter the specified file(s) in file stream
@@ -171,7 +170,7 @@ var fn = {
 var 
     iStream = {
         // + html task
-        jade2html: function(stream, next){
+        jade2html: function(stream){
             var 
                 iConfig = fn.taskInit(),
                 vars = gulp.env.vars;
@@ -242,10 +241,10 @@ var
                 .pipe(prettify({indent_size: 4}));
                 // .pipe(gulp.dest(util.joinFormat(vars.srcRoot, 'html')))
             
-            next(rStream);
+            return rStream;
 
         },
-        html2dest: function(stream, next){
+        html2dest: function(stream){
             var 
                 iConfig = fn.taskInit();
 
@@ -381,20 +380,20 @@ var
                 }));
                 // .pipe(gulp.dest(vars.htmlDest));
 
-            next(rStream);
+            return rStream;
 
         },
         // - html task
         // + css task
-        sassBase2css: function(stream, next){
+        sassBase2css: function(stream){
             var 
                 rStream = stream
                     .pipe(plumber())
                     .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError));
-            next(rStream);
+            return rStream;
 
         },
-        sassComponent2css: function(stream, next){
+        sassComponent2css: function(stream){
             var iConfig = fn.taskInit();
             if(!iConfig){
                 return;
@@ -467,9 +466,9 @@ var
                         path.basename = path.basename.replace(/^p-/,'');
                     }));
 
-            next(rStream);
+            return rStream;
         },
-        css2dest: function(stream, next){
+        css2dest: function(stream){
             var iConfig = fn.taskInit();
             if(!iConfig){
                 return;
@@ -559,23 +558,22 @@ var
                         compatibility: 'ie7'
                     }): fn.blankPipe());
                     
-
-            next(rStream);
+            return rStream;
         },
         // - css task
         // + image task
-        image2dest: function(stream, next){
+        image2dest: function(stream){
             var 
                 rStream = stream
                     .pipe(plumber())
                     .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
                     .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe());
 
-            next(rStream);
+            return rStream;
         },
         // - image task
         // + js task
-        requirejs2dest: function(stream, next){
+        requirejs2dest: function(stream){
             var iConfig = fn.taskInit();
             if(!iConfig){
                 return;
@@ -593,23 +591,24 @@ var
                             optimizeOptions = {
                                 mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js'),
                                 logLevel: 2,
-                                baseUrl: util.joinFormat(vars.srcRoot, 'js/rConfig'),
+                                baseUrl: path.dirname(util.joinFormat(vars.srcRoot, file.relative)),
                                 generateSourceMaps: false,
                                 optimize: 'none',
                                 include: util.joinFormat(path.relative(util.joinFormat(vars.srcRoot, 'js/rConfig'), util.joinFormat(vars.srcRoot, file.relative))),
                                 out: function(text){
                                     file.contents = new Buffer(text, 'utf-8');
                                     self.push(file);
-                                    next();
+                                    cb();
                                 }
                             };
 
-                        util.msg.info('optimizing js file', file.relative);
-                        // next();
+                        util.msg.info('Optimizing js', file.relative);
 
                         requirejs.optimize(optimizeOptions, null, function(err) {
-                            util.msg.error('optimize js error', file.relative);
-                            util.msg.error(err);
+                            if(err){
+                                util.msg.error('Optimize js error', file.relative);
+                                util.msg.error(err);
+                            }
                             cb();
                         });
 
@@ -619,15 +618,15 @@ var
                         path.basename = path.basename.replace(/^[pj]-/g,'');
                         path.dirname = '';
                     }));
-            next(rStream);
+            return rStream;
         },
-        js2dest: function(stream, next){
+        js2dest: function(stream){
             var 
                 rStream = stream
                     .pipe(plumber())
                     .pipe(gulp.env.isCommit?uglify():fn.blankPipe());
 
-            next(rStream);
+            return rStream;
 
         }
         // - js task
@@ -641,7 +640,7 @@ gulp.task('html', ['jade-to-dest-task', 'html-to-dest-task'], function(done){
 
 });
 
-gulp.task('jade-to-dest-task', function(done){
+gulp.task('jade-to-dest-task', function(){
     var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars;
@@ -649,27 +648,18 @@ gulp.task('jade-to-dest-task', function(done){
     if(!iConfig){
         return;
     }
-    
-    new util.Promise(function(next){
-        iStream.jade2html(
-            gulp.src( 
-                util.joinFormat(iConfig.alias.srcRoot, 'components/@(p-)*/*.jade')
-            ),
-            next
-        );
+    var rStream;
 
-    }).then(function(stream, next){
-        iStream.html2dest(stream, next);
+    rStream = iStream.jade2html(gulp.src(util.joinFormat(iConfig.alias.srcRoot, 'components/@(p-)*/*.jade')));
+    rStream = iStream.jade2html(rStream);
+    rStream = iStream.html2dest(rStream);
+    rStream = rStream.pipe(gulp.dest(vars.htmlDest));
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest(vars.htmlDest));
-        done();
-
-    }).start();
+    return rStream;
 
 });
 
-gulp.task('html-to-dest-task', function(done){
+gulp.task('html-to-dest-task', function(){
     var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars;
@@ -677,15 +667,12 @@ gulp.task('html-to-dest-task', function(done){
     if(!iConfig){
         return;
     }
+    var rStream;
 
-    new util.Promise(function(next){
-        iStream.html2dest(gulp.src(util.joinFormat(vars.srcRoot, 'html/*.html')), next);
+    rStream = iStream.html2dest(gulp.src(util.joinFormat(vars.srcRoot, 'html/*.html')));
+    rStream = rStream.pipe(gulp.dest(vars.htmlDest));
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest(vars.htmlDest));
-        done();
-
-    }).start();
+    return rStream;
 
 });
 // - html task
@@ -696,31 +683,28 @@ gulp.task('css', ['sass-component-to-dest', 'sass-base-to-dest', 'css-to-dest'],
     runQueue('concat', 'rev-update', done);
 
 });
-gulp.task('sass-component-to-dest', function(done) {
+gulp.task('sass-component-to-dest', function() {
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
     }
     
     var vars = gulp.env.vars;
+    var rStream;
 
-    new util.Promise(function(next){
-        iStream.sassComponent2css(gulp.src(
-            path.join(vars.srcRoot,'components/@(p-)*/*.scss'), {
-                base: path.join(vars.srcRoot)
-            }
-        ), next);
+    rStream = iStream.sassComponent2css(
+        gulp.src(path.join(vars.srcRoot,'components/@(p-)*/*.scss'), {
+            base: path.join(vars.srcRoot)
+        }
+    ));
 
-    }).then(function(stream, next){
-        iStream.css2dest(stream, next);
-    }).then(function(stream){
-        stream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
-        done();
+    rStream = iStream.css2dest(rStream);
+    rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
 
-    }).start();
+    return rStream;
 });
 
-gulp.task('sass-base-to-dest', function(done){
+gulp.task('sass-base-to-dest', function(){
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
@@ -728,23 +712,21 @@ gulp.task('sass-base-to-dest', function(done){
 
     var vars = gulp.env.vars;
 
-    new util.Promise(function(next){
-        iStream.sassBase2css(gulp.src([
-            util.joinFormat(vars.srcRoot, 'sass/**/*.scss'),
-            '!' + util.joinFormat(vars.srcRoot, 'sass/base/**/*.*')
-        ]), next);
+    var rStream;
 
-    }).then(function(stream, next){
-        iStream.css2dest(stream, next);
-    }).then(function(stream){
-        stream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
-        done();
+    rStream = iStream.sassBase2css(gulp.src([
+        util.joinFormat(vars.srcRoot, 'sass/**/*.scss'),
+        '!' + util.joinFormat(vars.srcRoot, 'sass/base/**/*.*')
+    ]));
 
-    }).start();
+    rStream = iStream.css2dest(rStream);
+    rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
+
+    return rStream;
 
 });
 
-gulp.task('css-to-dest', function(done){
+gulp.task('css-to-dest', function(){
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
@@ -752,17 +734,12 @@ gulp.task('css-to-dest', function(done){
 
     var vars = gulp.env.vars;
 
-    new util.Promise(function(next){
-        iStream.css2dest(
-            gulp.src(path.join(vars.srcRoot, 'css', '**/*.css')),
-            next
-        );
+    var rStream;
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
-        done();
+    rStream = iStream.css2dest(gulp.src(path.join(vars.srcRoot, 'css', '**/*.css')));
+    rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
 
-    }).start();
+    return rStream;
 
 });
 // - css task
@@ -773,24 +750,21 @@ gulp.task('images',['images-base-task', 'images-component-task'], function(done)
     runQueue('rev-update', 'rev-img-update', done);
 });
 
-gulp.task('images-base-task', function(done) {
+gulp.task('images-base-task', function() {
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
     }
     var vars = gulp.env.vars;
+    var rStream;
 
-    new util.Promise(function(next){
-        iStream.image2dest(gulp.src([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {base: util.joinFormat( vars.srcRoot, 'images')}), next);
+    rStream = iStream.image2dest(gulp.src([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {base: util.joinFormat( vars.srcRoot, 'images')}));
+    rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.imagesDest)));
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest( util.joinFormat(vars.imagesDest)));
-        done();
-
-    }).start();
+    return rStream;
 
 });
-gulp.task('images-component-task', function(done){
+gulp.task('images-component-task', function(){
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
@@ -799,18 +773,15 @@ gulp.task('images-component-task', function(done){
     var 
         vars = gulp.env.vars;
 
-    new util.Promise(function(next){
-        iStream.image2dest(gulp.src([
-            util.joinFormat( vars.srcRoot, 'components/**/*.*')
-        ], {
-            base: util.joinFormat( vars.srcRoot, 'components')
-        }), next);
+    var rStream;
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')));
-        done();
+    rStream = iStream.image2dest(gulp.src([util.joinFormat( vars.srcRoot, 'components/**/*.*')], {
+        base: util.joinFormat( vars.srcRoot, 'components')
+    }));
 
-    }).start();
+    rStream = rStream.pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')));
+
+    return rStream;
 
 });
 // - images task
@@ -821,45 +792,44 @@ gulp.task('js',['requirejs-task', 'jslib-task', 'data-task'], function (done) {
     runQueue('concat', 'rev-update', done);
 });
 
-gulp.task('requirejs-task', function(done) {
+gulp.task('requirejs-task', function() {
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
     }
     var vars = gulp.env.vars;
 
-    new util.Promise(function(next){
-        iStream.requirejs2dest(gulp.src([
-            util.joinFormat(iConfig.alias.srcRoot, 'components/p-*/p-*.js'),
-            util.joinFormat(iConfig.alias.srcRoot, 'js/**/*.js'),
-            '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/lib/**'),
-            '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/**'),
-            '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/widget/**')
-        ], {base: util.joinFormat(iConfig.alias.srcRoot)}), next);
+    var rStream;
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest(util.joinFormat(vars.jsDest)));
-        done();
+    rStream = iStream.requirejs2dest(gulp.src([
+        util.joinFormat(iConfig.alias.srcRoot, 'components/p-*/p-*.js'),
+        util.joinFormat(iConfig.alias.srcRoot, 'js/**/*.js'),
+        '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/lib/**'),
+        '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/**'),
+        '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/widget/**')
+    ], {
+        base: iConfig.alias.srcRoot
+    }));
 
-    }).start();
+    rStream = rStream.pipe(gulp.dest(util.joinFormat(vars.jsDest)));
+
+    return rStream;
 
 });
 
-gulp.task('jslib-task', function(done) {
+gulp.task('jslib-task', function() {
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
     }
     var vars = gulp.env.vars;
 
-    new util.Promise(function(next){
-        iStream.js2dest(gulp.src(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js')), next);
+    var rStream;
 
-    }).then(function(stream){
-        stream.pipe(gulp.dest(vars.jslibDest));
-        done();
+    rStream = iStream.js2dest(gulp.src(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js')));
+    rStream = rStream.pipe(gulp.dest(vars.jslibDest));
 
-    }).start();
+    return rStream;
 
 });
 
