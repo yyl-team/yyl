@@ -36,7 +36,6 @@
     "gulp-prettify": "^0.4.0",
     "gulp-rename": "^1.2.0",
     "gulp-replace-path": "^0.4.0",
-    "gulp-requirejs-optimize": "^0.3.2",
     "gulp-rev": "^7.1.0",
     "gulp-rev-css-url": "^0.1.0",
     "gulp-sass": "^2.3.2",

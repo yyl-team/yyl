@@ -65,7 +65,6 @@ var gulp = require('gulp'),
         while(deep){
             deepFn();
         }
-        util.msg.info('runSequence', r);
         runSequence.apply(runSequence, r);
 
     };
@@ -180,8 +179,13 @@ var
             }
             var rStream = stream
                 .pipe(plumber())
+                .pipe(through.obj(function(file, enc, next){
+                    util.msg.info('Optimizing jade', file.relative);
+                    this.push(file);
+                    next();
+                }))
                 .pipe(gulpJade({
-                    pretty: true,
+                    pretty: false,
                     client: false
                 }))
                 .pipe(through.obj(function(file, enc, next){
@@ -651,7 +655,6 @@ gulp.task('jade-to-dest-task', function(){
     var rStream;
 
     rStream = iStream.jade2html(gulp.src(util.joinFormat(iConfig.alias.srcRoot, 'components/@(p-)*/*.jade')));
-    rStream = iStream.jade2html(rStream);
     rStream = iStream.html2dest(rStream);
     rStream = rStream.pipe(gulp.dest(vars.htmlDest));
 
