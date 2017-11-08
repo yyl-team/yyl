@@ -197,10 +197,12 @@ var
                         socket.pipe(conn);
                     });
 
-                    socket.on('error', function(){
-                        socket.end();
-                        conn.end();
-                    });
+                    
+                });
+
+                socket.on('error', function(){
+                    socket.end();
+                    conn.end();
                 });
 
                 conn.on('error', function() {

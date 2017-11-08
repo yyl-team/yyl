@@ -1233,7 +1233,7 @@ gulp.task('watch', ['all'], function() {
         util.joinFormat(vars.commons, '**.*.js')
     ], util.debounce(function(){
         util.taskQueue.add('js', function(next){
-            runQueue('js-task', 'html-task', 'html-task-step02', 'concat', 'rev-update', function(){
+            runQueue('js', 'html', 'concat', 'rev-update', function(){
                 util.livereload();
                 util.msg.success('js task done');
                 if(!gulp.env.silent){
