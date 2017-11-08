@@ -356,7 +356,7 @@ var
                 .pipe(replacePath('../css', util.joinFormat( remotePath, fn.relateDest(vars.cssDest))))
 
                 // 替换公用图片
-                .pipe(replacePath('../images', util.joinFormat( remotePath, vars.imagesDest)))
+                .pipe(replacePath('../images', util.joinFormat( remotePath, fn.relateDest(vars.imagesDest))))
                 .pipe(replacePath(/\.\.\/(components\/[pwr]-[a-zA-Z0-9\-]+\/images)/g, util.joinFormat( remotePath, fn.relateDest(vars.imagesDest), '$1')))
 
                 // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下

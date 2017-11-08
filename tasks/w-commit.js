@@ -442,7 +442,10 @@ var
 
                 iPromise.then(function(next){
                     util.msg.info('start svn commit:', iPath);
-                    util.runSpawn('svn commit -m gulpAutoCommit', function(){
+                    util.runSpawn('svn commit -m gulpAutoCommit', function(err){
+                        if(err){
+                            return done(err);
+                        }
                         util.msg.success('done');
                         next();
                     }, iPath);
