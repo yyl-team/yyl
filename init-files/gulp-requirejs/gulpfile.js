@@ -407,6 +407,11 @@ var
             
             var 
                 rStream = stream
+                    .pipe(through.obj(function(file, enc, next){
+                        util.msg.info('Optimizing sass', file.relative);
+                        this.push(file);
+                        next();
+                    }))
                     .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
                     .pipe(through.obj(function(file, enc, next){
                         var iCnt = file.contents.toString();
@@ -570,7 +575,13 @@ var
             var 
                 rStream = stream
                     .pipe(plumber())
+                    
                     .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
+                    .pipe(through.obj(function(file, enc, next){
+                        util.msg.info('Optimizing img ', file.relative);
+                        this.push(file);
+                        next();
+                    }))
                     .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe());
 
             return rStream;
@@ -606,7 +617,7 @@ var
                                 }
                             };
 
-                        util.msg.info('Optimizing js', file.relative);
+                        util.msg.info('Optimizing js  ', file.relative);
 
                         requirejs.optimize(optimizeOptions, null, function(err) {
                             if(err){
