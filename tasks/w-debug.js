@@ -1,7 +1,7 @@
 'use strict';
 var 
     fs = require('fs'),
-    util = require('yyl-util'),
+    util = require('./w-util.js'),
     path = require('path');
 
 

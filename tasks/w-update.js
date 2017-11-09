@@ -1,5 +1,5 @@
 'use strict';
-var util = require('yyl-util');
+var util = require('./w-util.js');
 var wServer = require('./w-server.js');
 
 var

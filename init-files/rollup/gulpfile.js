@@ -77,6 +77,12 @@ var gulp = require('gulp'),
 
 require('colors');
 
+util.msg.init({
+    type: {
+        optimize: {name: 'Optimize', color: 'green'}
+    }
+});
+
 var 
     config = require('./config.js'),
     localConfig = fs.existsSync('./config.mine.js')? require('./config.mine.js'): {};
@@ -186,7 +192,7 @@ var
             var rStream = stream
                 .pipe(plumber())
                 .pipe(through.obj(function(file, enc, next){
-                    util.msg.info('Optimizing jade', file.relative);
+                    util.msg.optimize('jade', file.relative);
                     this.push(file);
                     next();
                 }))
@@ -413,6 +419,11 @@ var
             
             var 
                 rStream = stream
+                    .pipe(through.obj(function(file, enc, next){
+                        util.msg.optimize('sass', file.relative);
+                        this.push(file);
+                        next();
+                    }))
                     .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
                     .pipe(through.obj(function(file, enc, next){
                         var iCnt = file.contents.toString();
@@ -576,7 +587,13 @@ var
             var 
                 rStream = stream
                     .pipe(plumber())
+                    
                     .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
+                    .pipe(through.obj(function(file, enc, next){
+                        util.msg.optimize('img ', file.relative);
+                        this.push(file);
+                        next();
+                    }))
                     .pipe(gulp.env.isCommit?imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }): fn.blankPipe());
 
             return rStream;

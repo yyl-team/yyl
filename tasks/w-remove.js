@@ -2,7 +2,7 @@
 
 var 
     fs = require('fs'),
-    util = require('yyl-util'),
+    util = require('./w-util.js'),
     vars = require('./w-vars'),
     path = require('path');
 

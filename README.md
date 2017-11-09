@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.12 (2017-11-09)
+* [EDIT] 优化 `gulp-requirejs`, `gulp-rollup` 中 log 显示
+
 ### 2.15.10 (2017-11-08)
 * [FIX] `gulp-requirejs`, `gulp-rollup` 中 `html-dest` 图片地址替换问题修复(陈年老bug)
 

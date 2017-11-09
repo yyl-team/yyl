@@ -1,7 +1,7 @@
 'use strict';
 var
     path = require('path'),
-    util = require('yyl-util'),
+    util = require('./w-util.js'),
     http = require('http'),
     net = require('net'),
     fs = require('fs'),

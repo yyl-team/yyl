@@ -1,6 +1,6 @@
 'use strict';
 var 
-    util = require('yyl-util'),
+    util = require('./w-util.js'),
     color = require('yyl-color'),
     vars = require('./w-vars.js');
 

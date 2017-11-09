@@ -1,6 +1,6 @@
 'use strict';
 var 
-    util = require('yyl-util'),
+    util = require('./w-util.js'),
     wServer = require('./w-server'),
     wProxy = require('./w-proxy'),
     vars = require('./w-vars'),

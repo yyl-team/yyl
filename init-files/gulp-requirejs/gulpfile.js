@@ -71,6 +71,12 @@ var gulp = require('gulp'),
 
 require('colors');
 
+util.msg.init({
+    type: {
+        optimize: {name: 'Optimize', color: 'green'}
+    }
+});
+
 var 
     config = require('./config.js'),
     localConfig = fs.existsSync('./config.mine.js')? require('./config.mine.js'): {};
@@ -180,7 +186,7 @@ var
             var rStream = stream
                 .pipe(plumber())
                 .pipe(through.obj(function(file, enc, next){
-                    util.msg.info('Optimizing jade', file.relative);
+                    util.msg.optimize('jade', file.relative);
                     this.push(file);
                     next();
                 }))
@@ -408,7 +414,7 @@ var
             var 
                 rStream = stream
                     .pipe(through.obj(function(file, enc, next){
-                        util.msg.info('Optimizing sass', file.relative);
+                        util.msg.optimize('sass', file.relative);
                         this.push(file);
                         next();
                     }))
@@ -578,7 +584,7 @@ var
                     
                     .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
                     .pipe(through.obj(function(file, enc, next){
-                        util.msg.info('Optimizing img ', file.relative);
+                        util.msg.optimize('img ', file.relative);
                         this.push(file);
                         next();
                     }))
@@ -617,7 +623,7 @@ var
                                 }
                             };
 
-                        util.msg.info('Optimizing js  ', file.relative);
+                        util.msg.optimize('js  ', file.relative);
 
                         requirejs.optimize(optimizeOptions, null, function(err) {
                             if(err){
