@@ -73,7 +73,8 @@ require('colors');
 
 util.msg.init({
     type: {
-        optimize: {name: 'Optimize', color: 'green'}
+        optimize: {name: 'Optimize', color: 'green'},
+        update: {name: 'Updated', color: 'cyan'}
     }
 });
 
@@ -968,8 +969,17 @@ gulp.task('rev-loadRemote', function(done){
         iVer = gulp.env.version,
         revAddr;
 
+    var vars = gulp.env.vars;
+
     if(!iVer){
-        util.msg.info('rev-loadRemote finish, no version');
+        util.msg.info('rev-loadRemote finish, no version, use local rev-manifset');
+        var localRevPath = util.joinFormat(vars.revDest, 'rev-manifest.json');
+        if(fs.existsSync(localRevPath)){
+            cache.remoteRevData = JSON.parse(fs.readFileSync(localRevPath));
+
+        } else {
+            util.msg.info('use local rev-manifest fail, no exist:', localRevPath);
+        }
         return done();
 
     } else if(!iConfig.commit.revAddr){
@@ -1075,10 +1085,12 @@ gulp.task('rev-remote-build', function(){
             .pipe(
                 through.obj(function(file, enc, next){
                     if(cache.remoteRevData){
-                        var iPath = cache.remoteRevData[util.joinFormat(path.relative( vars.destRoot, file.path)) ];
+                        
+                        var iPath = cache.remoteRevData[util.joinFormat(path.relative( vars.revRoot, file.path)) ];
 
                         if(iPath){
-                            file.path = util.joinFormat( vars.destRoot, iPath) ;
+                            file.path = util.joinFormat( vars.revRoot, iPath) ;
+                            util.msg.update(file.relative);
                         }
                         this.push(file);
 
@@ -1140,6 +1152,9 @@ gulp.task('rev-replace', function(){
                     }
                 }
 
+                if(iCnt != file.contents.toString()){
+                    util.msg.update(file.relative);
+                }
 
                 file.contents = new Buffer(iCnt, 'utf-8');
                 this.push(file);
