@@ -486,18 +486,26 @@ var
 
                 });
             }).then(function(config, next){ // dest clean
-                util.msg.info('clean dest start');
+                util.msg.info('commit task clean dest start');
+                if(iEnv.nooptimize){
+                    util.msg.info('skip commit task clean dest');
+                    return next(config);
+                }
                 util.removeFiles([config.alias.destRoot], function(err){
                     if(err){
-                        return util.msg.error('clean dest fail', err);
+                        return util.msg.error('commit task clean dest fail', err);
                     }
 
-                    util.msg.info('clean dest done');
+                    util.msg.info('commit task clean dest done');
                     next(config);
                 });
 
             }).then(function(config, next){ // optimize
                 util.msg.info('commit task optimize start');
+                if(iEnv.nooptimize){
+                    util.msg.info('skip commit task optimize');
+                    return next(config);
+                }
                 wCommit.optimize(iEnv, config, function(err){
                     if(err){
                         util.msg.error('commit task optimize error:', err);
@@ -590,6 +598,7 @@ var
                     '--name': 'project name if it have',
                     '--sub': 'branch name',
                     '--nosvn': 'commit without svn command',
+                    '--nooptimize': 'commit skip the optimize task, run svn cmd',
                     '-h, --help': 'print usage information'
                 }
             });
