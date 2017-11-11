@@ -50,7 +50,7 @@ var
 
             }).then(function(data, next){
                 if(!data.commonPath){
-                    data.commonPath = vars.PROJECT_PATH;
+                    data.commonPath = util.joinFormat(vars.PROJECT_PATH, '../commons');
                 }
 
                 data.commonPath = data.commonPath.trim();

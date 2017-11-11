@@ -422,23 +422,32 @@ var
 
                     if(fs.existsSync(localRevPath)){
                         try {
-                            next(JSON.parse(fs.readFileSync(localRevPath)));
+                            revMap = JSON.parse(fs.readFileSync(localRevPath).toString());
 
                         } catch(er){
                             return util.msg.warn('local rev file parse fail', er);
                         }
+
+                        next(revMap);
 
                     } else {
                         return util.msg.warn('local rev file not exist', localRevPath);
                     }
 
                 }).then(function(revMap, next){ // hash 表内html, css 文件 hash 替换
+                    // html 替换
+                    var htmlFiles = util.readFilesSync(config.alias.root, /\.html$/);
+
+                    htmlFiles.forEach(function(iPath){
+                        self.fn.fileHashPathUpdate(iPath, revMap);
+                    });
+
+                    // css 替换
                     Object.keys(revMap).forEach(function(iPath){
-                        var filePath = util.joinFormat(config.revRoot, iPath);
+                        var filePath = util.joinFormat(config.alias.revRoot, iPath);
 
                         if(fs.existsSync(filePath)){
                             switch(path.extname(filePath)){
-                                case '.html':
                                 case '.css':
                                     self.fn.fileHashPathUpdate(filePath, revMap);
                                     break;

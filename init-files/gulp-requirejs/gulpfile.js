@@ -32,27 +32,6 @@ var gulp = require('gulp'),
 
 require('colors');
 
-var 
-    fn = {
-        supercall: function(cmd, done){
-            var iCmd = [
-                'yyl supercall ' + cmd,
-                util.envStringify({
-                    name: gulp.env.name,
-                    ver: gulp.env.ver,
-                    debug: gulp.env.debug,
-                    silent: gulp.env.silent,
-                    proxy: gulp.env.proxy
-                })
-            ].join(' ');
-
-            util.msg.info('run cmd:', iCmd);
-            util.runCMD(iCmd, function(){
-                return done && done();
-            });
-        }
-    };
-
 util.msg.init({
     type: {
         optimize: {name: 'Optimize', color: 'green'},
@@ -152,6 +131,23 @@ var fn = {
             return iConfig;
         }
 
+    },
+    supercall: function(cmd, done){
+        var iCmd = [
+            'yyl supercall ' + cmd,
+            util.envStringify({
+                name: gulp.env.name,
+                ver: gulp.env.ver,
+                debug: gulp.env.debug,
+                silent: gulp.env.silent,
+                proxy: gulp.env.proxy
+            })
+        ].join(' ');
+
+        util.msg.info('run cmd:', iCmd);
+        util.runCMD(iCmd, function(){
+            return done && done();
+        });
     }
 };
 
@@ -1020,11 +1016,6 @@ gulp.task('watch', ['all'], function() {
     fn.supercall('watch-done');
 });
 // - watch task
-// + clear task
-gulp.task('clean-dest', function(done){
-    fn.supercall('clean-dest', done);
-});
-// - clear task
 
 // + all
 gulp.task('all', function(done){
@@ -1033,7 +1024,7 @@ gulp.task('all', function(done){
         return;
     }
 
-    runSequence('clean-dest', ['js', 'css', 'images', 'html', 'resource'], 'concat', 'rev-build', function(){
+    runSequence(['js', 'css', 'images', 'html', 'resource'], 'concat',  function(){
         if(!gulp.env.silent){
             util.pop('all task done');
         }
