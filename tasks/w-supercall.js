@@ -7,19 +7,25 @@ var revHash = require('rev-hash');
 var Concat = require('concat-with-sourcemaps');
 
 var 
-    supercall = {
+    cache = {
+        config: null
+    },
+    fn = {
+        // 获取 项目config
         getConfigSync: function(op){
             var 
                 userConfigPath = vars.USER_CONFIG_FILE,
                 userConfig,
                 iConfig;
             if(!fs.existsSync(userConfigPath)){
+                cache.config = null;
                 return false;
             }
             try{
                 userConfig = require(userConfigPath);
             } catch(er){
                 util.msg.warn('supercall getConfig fail', 'require('+ userConfigPath +') parse fail');
+                cache.config = null;
                 return false;
             }
 
@@ -27,12 +33,14 @@ var
                 userConfig = userConfig[op.name];
                 if(!userConfig){
                     util.msg.warn('supercall getConfig fail', 'userConfig['+ op.name +'] is null');
+                    cache.config = null;
                     return false;
                 }
             }
 
             if(!userConfig.workflow){
                 util.msg.warn('supercall getConfig fail', 'config.workflow is not exists', serverConfigPath);
+                cache.config = null;
                 return false;
             }
 
@@ -40,6 +48,7 @@ var
 
             if(!fs.existsSync(serverConfigPath)){
                 util.msg.warn('supercall getConfig fail', 'serverConfigPath is not exists:', serverConfigPath);
+                cache.config = null;
                 return false;
             }
 
@@ -47,19 +56,37 @@ var
 
             if(op.name){
                 if(iConfig[op.name]){
-                    return util.initConfig(iConfig[op.name]);
+                    cache.config = util.initConfig(iConfig[op.name]);
                 } else {
                     util.msg.warn('supercall getConfig fail', 'config['+ op.name +'] is no content');
-                    return false;
+                    cache.config = null;
                 }
             } else {
-                return util.initConfig(iConfig);
+                cache.config = util.initConfig(iConfig);
             }
+            return cache.config;
 
         },
+        // 获取当前运行task 中的 config
+        getConfigCacheSync: function(){
+            return cache.config;
+        },
+
+        // 输出 log 用路径
+        printIt: function(iPath){
+            var config = fn.getConfigCacheSync();
+            if(!config){
+                return iPath;
+            }
+            return path.relative(config.alias.dirname, iPath);
+        }
+    },
+    supercall = {
+        
+        
         // 执行 concat 操作
         concat: function(op){
-            var config = supercall.getConfigSync(op);
+            var config = fn.getConfigSync(op);
             
             if(!config){
                 return util.msg.warn('concat run fail');
@@ -111,7 +138,7 @@ var
                 return;
             }
 
-            var config = supercall.getConfigSync(op);
+            var config = fn.getConfigSync(op);
             
             if(!config){
                 return util.msg.warn('watchDone run fail');
@@ -188,16 +215,73 @@ var
         },
         // rev-manifest 生成
         rev: {
+            fn: {
+                // hash map 生成
+                buildHashMap: function(iPath, revMap){
+                    var config = fn.getConfigCacheSync();
+                    var 
+                        revSrc = util.joinFormat(path.relative(config.alias.revRoot, iPath)),
+                        hash = '-' + revHash(fs.readFileSync(iPath)),
+                        revDest = revSrc.replace(/(\.[^\.]+$)/g, hash + '$1');
+
+                    revMap[revSrc] = revDest;
+                },
+                // 文件 hash 替换
+                fileHashPathUpdate: function(iPath, revMap){
+                    var iCnt = fs.readFileSync(iPath).toString();
+                    var rCnt = iCnt;
+
+ 
+                    Object.keys(revMap).forEach(function(key){
+                        rCnt = rCnt.split(key).join(revMap[key]);
+                    });
+
+                    if(iCnt != rCnt){
+                        util.msg.update(fn.printIt(iPath));
+                        fs.writeFileSync(iPath, rCnt);
+                    }
+
+                },
+                buildRevMapDestFiles: function(revMap){
+                    var config = fn.getConfigCacheSync();
+                    if(!config){
+                        return;
+                    }
+                    Object.keys(revMap).forEach(function(iPath){
+                        var revSrc = util.joinFormat(config.alias.revRoot, iPath);
+                        var revDest = util.joinFormat(config.alias.revRoot, revMap[iPath]);
+
+                        if(!fs.existsSync(revSrc)){
+                            return;
+                        }
+
+                        if(fs.existsSync(revDest)){
+                            util.msg.update(fn.printIt(revDest));
+
+                        } else {
+                            util.msg.create(fn.printIt(revDest));
+                        }
+                        fs.writeFileSync(revDest, fs.readFileSync(revSrc));
+
+                    });
+
+                }
+            },
+            // 文件名称
+            filename: 'rev-manifest.json',
             // rev-build 入口
             build: function(op){
-                var config = supercall.getConfigSync(op);
+                var config = fn.getConfigSync(op);
+                var self = this;
                 if(!config){
                     return util.msg.warn('rev-build run fail', 'config not exist');
                 }
 
-                var printIt = function(iPath){
-                    return path.relative(config.alias.dirname, iPath);
-                };
+                if(!config.commit.revAddr){
+                    util.msg.warn('config.commit.revAddr not set, rev task not run');
+                    return;
+                }
+
 
                 // 清除 dest 目录下所有带 hash 文件
                 supercall.rev.clean(op);
@@ -242,96 +326,173 @@ var
                 });
 
                 // 生成 hash 列表
-                var 
-                    revMap = {},
-                    
-                    buildHashMap = function(iPath){
-                        var 
-                            revSrc = util.joinFormat(path.relative(config.alias.revRoot, iPath)),
-                            hash = '-' + revHash(fs.readFileSync(iPath)),
-                            revDest = revSrc.replace(/(\.[^\.]+$)/g, hash + '$1');
-
-                        revMap[revSrc] = revDest;
-                    },
-                    fileHashPathUpdate = function(iPath){
-                        var iCnt = fs.readFileSync(iPath).toString();
-                        var rCnt = iCnt;
-
-     
-                        Object.keys(revMap).forEach(function(key){
-                            rCnt = rCnt.split(key).join(revMap[key]);
-                        });
-
-                        if(iCnt != rCnt){
-                            util.msg.update(printIt(iPath));
-                            fs.writeFileSync(iPath, rCnt);
-                        }
-
-                    };
+                var revMap = {};
 
                 // 生成 资源 hash 表
-                resourceFiles.forEach(buildHashMap);
+                resourceFiles.forEach(function(iPath){
+                    self.fn.buildHashMap(iPath, revMap);
+                });
 
                 // 生成 js hash 表
-                jsFiles.forEach(buildHashMap);
+                jsFiles.forEach(function(iPath){
+                    self.fn.buildHashMap(iPath, revMap);
+                });
 
                 // css 文件内路径替换 并且生成 hash 表
                 cssFiles.forEach(function(iPath){
                     // hash路径替换
-                    fileHashPathUpdate(iPath);
+                    self.fn.fileHashPathUpdate(iPath, revMap);
                     // 生成hash 表
-                    buildHashMap(iPath);
+                    self.fn.buildHashMap(iPath, revMap);
                 });
 
                 // html 路径替换
-                htmlFiles.forEach(fileHashPathUpdate);
+                htmlFiles.forEach(function(iPath){
+                    self.fn.fileHashPathUpdate(iPath, revMap);
+                });
 
                 // 根据hash 表生成对应的文件
-                Object.keys(revMap).forEach(function(iPath){
-                    var revSrc = util.joinFormat(config.alias.revRoot, iPath);
-                    var revDest = util.joinFormat(config.alias.revRoot, revMap[iPath]);
-
-                    util.msg.create(printIt(revDest));
-                    fs.writeFileSync(revDest, fs.readFileSync(revSrc));
-
-                });
+                self.fn.buildRevMapDestFiles(revMap);
+                
 
                 // 版本生成
                 revMap.version = util.makeCssJsDate();
 
                 // rev-manifest.json 生成
                 util.mkdirSync(config.alias.revDest);
-                var revPath = util.joinFormat(config.alias.revDest, 'rev-manifest.json');
-                var revVerPath = util.joinFormat(config.alias.revDest, 'rev-manifest-'+ revMap.version +'.json');
+                var 
+                    revPath = util.joinFormat(config.alias.revDest, supercall.rev.filename),
+                    revVerPath = util.joinFormat(
+                        config.alias.revDest, 
+                        supercall.rev.filename.replace(/(\.\w+$)/g, '-' + revMap.version + '$1')
+                    );
 
                 fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
-                util.msg.create(printIt(revPath));
+                util.msg.create(fn.printIt(revPath));
 
                 // rev-manifest-{cssjsdate}.json 生成
-
                 fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
-                util.msg.create(printIt(revVerPath));
+                util.msg.create(fn.printIt(revVerPath));
 
+                util.msg.success('rev-build finished');
             },
             
             // rev-update 入口
             update: function(op){
-                var config = supercall.getConfigSync(op);
+                var self = this;
+                var config = fn.getConfigSync(op);
                 if(!config){
                     return util.msg.warn('rev-update run fail', 'config not exist');
                 }
+                if(!config.commit.revAddr){
+                    util.msg.warn('config.commit.revAddr not set, rev task not run');
+                    return;
+                }
+
+                new util.Promise(function(next){ // 获取 rev-manifest
+                    if(op.ver == 'remote'){ // 远程获取 rev-manifest
+                        if(config.commit.revAddr){
+                            util.msg.info('get remote rev start:', config.commit.revAddr);
+                            var requestUrl = config.commit.revAddr; 
+                            requestUrl += (~config.commit.revAddr.indexOf('?')? '&': '?') + '_=' + (+new Date());
+                            util.get(requestUrl, function(content){
+                                try {
+                                    next(JSON.parse(content.toString()));
+                                } catch(er){
+                                    util.msg.warn('get remote rev fail', er);
+                                    next(null);
+                                }
+                            });
+
+                        } else {
+                            util.msg.warn('get remote rev fail', 'config.commit.revAddr is null');
+                            next(null);
+                        }
+
+                    } else { 
+                        next(null);
+                    }
+
+                }).then(function(revMap, next){ // 获取本地 rev-manifest
+                    if(revMap){
+                        return next(revMap);
+                    }
+                    
+                    var localRevPath = util.joinFormat(config.alias.revDest, supercall.rev.filename);
+
+                    if(fs.existsSync(localRevPath)){
+                        try {
+                            next(JSON.parse(fs.readFileSync(localRevPath)));
+
+                        } catch(er){
+                            return util.msg.warn('local rev file parse fail', er);
+                        }
+
+                    } else {
+                        return util.msg.warn('local rev file not exist', localRevPath);
+                    }
+
+                }).then(function(revMap, next){ // hash 表内html, css 文件 hash 替换
+                    Object.keys(revMap).forEach(function(iPath){
+                        var filePath = util.joinFormat(config.revRoot, iPath);
+
+                        if(fs.existsSync(filePath)){
+                            switch(path.extname(filePath)){
+                                case '.html':
+                                case '.css':
+                                    self.fn.fileHashPathUpdate(filePath, revMap);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
+                    });
+
+                    next(revMap);
+
+                }).then(function(revMap, next){ // hash对应文件生成
+                    self.fn.buildRevMapDestFiles(revMap);
+                    next(revMap);
+
+                }).then(function(revMap){ // 本地 rev-manifest 更新
+                    var localRevPath = util.joinFormat(config.alias.revDest, supercall.rev.filename);
+                    var localRevData;
+                    var revContent = JSON.stringify(revMap, null, 4);
+
+                    if(fs.existsSync(localRevPath)){
+                        localRevData = fs.readFileSync(localRevPath).toString();
+
+                        if(localRevData != revContent){
+                            fs.writeFileSync(localRevPath, revContent);
+                            util.msg.update(fn.printIt(localRevPath));
+                        }
+
+
+                    } else {
+                        util.mkdirSync(config.alias.revDest);
+                        fs.writeFileSync(localRevPath, revContent);
+                        util.msg.create(fn.printIt(localRevPath));
+                    }
+
+                    util.msg.success('rev-update finished');
+                    
+
+                }).start();
+
+                
+
+                
 
             },
             // rev-clean 入口
             clean: function(op){
-                var config = supercall.getConfigSync(op);
+                var config = fn.getConfigSync(op);
                 if(!config){
                     return util.msg.warn('rev-clean run fail', 'config not exist');
                 }
 
-                var printIt = function(iPath){
-                    return path.relative(config.alias.dirname, iPath);
-                };
+                
 
                 var files = util.readFilesSync(config.alias.root);
                 files.forEach(function(iPath){
@@ -340,24 +501,29 @@ var
                         fs.existsSync(iPath.replace(/-[a-zA-Z0-9]{10}(\.?\w*\.\w+$)/, '$1'))
                     ){
                         try{
-                            util.msg.del('delete file fail', printIt(iPath));
+                            util.msg.del('delete file fail', fn.printIt(iPath));
                             fs.unlinkSync(iPath);
                         } catch(er){
-                            util.msg.warn('delete file fail', printIt(iPath));
+                            util.msg.warn('delete file fail', fn.printIt(iPath));
                         }
                     }
                 });
 
                 util.msg.success('rev-clean finished');
 
-            },
-            // 初始化 
-            init: function(){
-
-            },
-
+            }
 
         },
+        // 清除 dest 目录文件
+        cleanDest: function(op){
+            var config = fn.getConfigSync(op);
+
+            util.removeFiles(config.alias.destRoot, function(){
+                util.msg.success('clear-dest finished');
+            });
+
+        },
+
         // yyl 脚本调用入口
         run: function(){
             var
@@ -366,6 +532,7 @@ var
                 op = util.envParse(iArgv.slice(1));
 
             switch(ctx){
+                case 'watch-done':
                 case 'watchDone':
                     supercall.watchDone(op);
                     break;
@@ -379,6 +546,10 @@ var
                     break;
                 case 'rev-update':
                     supercall.rev.update(op);
+                    break;
+
+                case 'clean-dest':
+                    supercall.cleanDest(op);
                     break;
 
                 case 'rev-clean':
