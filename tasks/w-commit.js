@@ -94,41 +94,45 @@ var
                 return done('--sub ' + iEnv.sub + ' is not exist');
             }
 
-            new util.Promise(function(NEXT){ // 删除动态文件
-                
-                // update 文件
+            new util.Promise(function(NEXT){ // update the svn.sub.update & svn.sub.commit files
+                var updatePath = [];
+
                 if(svnConfig.update && svnConfig.update.length){
-                    var iPromise = new util.Promise();
-
-                    svnConfig.update.forEach(function(iPath){
-                        var mPath = iPath;
-                        if(!fs.existsSync(mPath)){
-                            util.msg.warn('svn update path not exists:', mPath);
-
-                        } else {
-                            iPromise.then(function(next){
-                                util.msg.info('svn update path:', mPath);
-                                util.runSpawn('svn update', function(){
-                                    util.msg.info('done');
-                                    next();
-                                }, mPath, true);
-                            });
-
-                        }
-
-                    });
-                    iPromise.then(function(){
-                        util.msg.info('svn config.udpate is done');
-                        NEXT();
-                    });
-                    iPromise.start();
-
-                } else {
-                    util.msg.info('svn config.udpate is blank');
-                    NEXT();
+                    updatePath = updatePath.concat(svnConfig.update);
                 }
-            }).then(function(NEXT){ // update git
-                
+
+                if(svnConfig.commit && svnConfig.commit.length){
+                    svnConfig.commit.forEach(function(iPath){
+                        if(~updatePath.indexOf(iPath)){
+                            updatePath.push(iPath);
+                        }
+                    });
+                }
+
+                var iPromise = new util.Promise();
+                updatePath.forEach(function(iPath){
+                    if(!fs.existsSync(iPath)){
+                        util.msg.warn('svn update path not exists:', iPath);
+
+                    } else {
+                        iPromise.then(function(next){
+                            util.msg.info('svn update path:', iPath);
+                            util.runSpawn('svn update', function(){
+                                util.msg.info('done');
+                                next();
+                            }, iPath, true);
+                        });
+                    }
+                });
+
+                iPromise.then(function(){
+                    util.msg.info( 'svn.' + iEnv.sub + '.udpate paths updated');
+                    NEXT();
+                });
+
+                iPromise.start();
+
+            }).then(function(NEXT){ // update the git.sub.update files
                 // update 文件
                 if(gitConfig.update && gitConfig.update.length){
                     var iPromise = new util.Promise();
@@ -151,68 +155,15 @@ var
                         }
                     });
                     iPromise.then(function(){
-                        util.msg.info('git config.udpate is done');
+                        util.msg.info('git.'+ iEnv.sub +' .udpate paths updated');
                         NEXT();
                     });
                     iPromise.start();
 
                 } else {
-                    util.msg.info('git config.udpate is blank');
+                    util.msg.info('git.'+ iEnv.sub +' .udpate is null');
                     NEXT();
                 }
-                
-            }).then(function(next){ // 添加 被删除的文件夹
-                var delPath = [];
-
-                // 删除 commit 设置下的文件
-                if(svnConfig.commit){
-                    svnConfig.commit.forEach(function(iPath){
-                        var mPath = iPath;
-                        if(!fs.existsSync(mPath)){
-                            util.msg.warn('svn commit path not exist:', mPath);
-
-                        } else {
-                            delPath.push(mPath);
-                        }
-                    });
-                }
-
-                util.removeFiles(delPath, function(){
-                    util.msg.success('svn.update, svn.commit files deleted');
-                    next(delPath);
-                });
-
-            }).then(function(delPath ,next){ // 添加 被删除的文件夹
-                delPath.forEach(function(iPath){
-                    if(!path.extname(iPath) && !fs.existsSync(iPath)){
-                        util.mkdirSync(iPath);
-                    }
-                });
-                util.msg.info('svn.update, svn.commit files doc added');
-
-                next(delPath);
-
-            }).then(function(delPath ,NEXT){ // update 被删除的文件
-                var iPromise = new util.Promise();
-
-
-                delPath.forEach(function(iPath){
-                    iPromise.then(function(next){
-                        util.msg.info('svn update ['+ iPath +']');
-                        process.chdir(iPath);
-                        util.runSpawn('svn update', function(){
-                            util.msg.info('done');
-                            next();
-                        }, util.joinFormat(iPath), true);
-                    });
-                    
-                });
-
-                iPromise.then(function(){
-                    util.msg.info('svn.update, svn.commit files updated');
-                    NEXT();
-                });
-                iPromise.start();
 
             }).then(function(){
                 util.msg.success('commit step 01 passed');
