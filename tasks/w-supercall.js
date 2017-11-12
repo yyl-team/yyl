@@ -282,6 +282,12 @@ var
                     return;
                 }
 
+                // 如果是 remote 直接执行 rev-update
+                if(op.ver){
+                    util.msg.info('ver is not blank, run rev-update');
+                    return supercall.rev.update(op);
+                }
+
 
                 // 清除 dest 目录下所有带 hash 文件
                 supercall.rev.clean(op);
@@ -396,12 +402,15 @@ var
                             var requestUrl = config.commit.revAddr; 
                             requestUrl += (~config.commit.revAddr.indexOf('?')? '&': '?') + '_=' + (+new Date());
                             util.get(requestUrl, function(content){
+                                var iCnt;
                                 try {
-                                    next(JSON.parse(content.toString()));
+                                    iCnt = JSON.parse(content.toString());
+                                    util.msg.success('get remote finished');
                                 } catch(er){
                                     util.msg.warn('get remote rev fail', er);
-                                    next(null);
                                 }
+
+                                next(iCnt);
                             });
 
                         } else {

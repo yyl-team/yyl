@@ -185,6 +185,10 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.14 (2017-11-11)
+* [EDIT] 将 `gulp-requirejs`, `gulp-rollup` 中  `rev` 相关任务提取到 `yyl supercall rev-update`, `yyl supercall rev-build` 作为通用方法
+* [FIX] 修复 `gulp-requirejs`, `gulp-rollup` 中只修改图片 样式 hash 不更新问题
+
 ### 2.15.13 (2017-11-10)
 * [ADD] 新增 `yyl commit` 时 `--nooptimize` 参数
 

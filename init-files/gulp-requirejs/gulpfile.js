@@ -1024,7 +1024,7 @@ gulp.task('all', function(done){
         return;
     }
 
-    runSequence(['js', 'css', 'images', 'html', 'resource'], 'concat',  function(){
+    runSequence(['js', 'css', 'images', 'html', 'resource'], 'concat', 'rev-build',  function(){
         if(!gulp.env.silent){
             util.pop('all task done');
         }
