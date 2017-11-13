@@ -36,6 +36,7 @@ util.msg.init({
     type: {
         optimize: {name: 'Optimize', color: 'green'},
         update: {name: 'Updated', color: 'cyan'}
+
     }
 });
 
@@ -628,8 +629,16 @@ var
 
             return rStream;
 
-        }
+        },
         // - js task
+        // + rev task
+        relative2dest: function(){
+
+        },
+        revupdate: function(){
+
+        }
+        // - rev task
     };
 
 
@@ -914,104 +923,191 @@ gulp.task('watch', ['all'], function() {
         return;
     }
     var vars = gulp.env.vars;
+    var 
+        watchit = function(glob, op, fn){
+            if(arguments.length == 3){
+                return watch(glob, op, util.debounce(fn, 500));
+
+            } else {
+                fn = op;
+                return watch(glob, util.debounce(fn, 500));
+            }
+            
+        };
+
+    // jade-to-dest-task
+    watchit(util.joinFormat(iConfig.alias.srcRoot, 'components/@(p-)*/*.jade'), function(file){
+        var rStream;
+        rStream = gulp.src([file.history], { 
+            base: util.joinFormat(iConfig.alias.srcRoot, 'components')
+        });
+
+        rStream = iStream.html2dest(rStream);
+        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
+        rStream = iStream.relative2dest(rStream);
+        rStream = iStream.revupdate(rStream);
+
+        return rStream;
+
+    });
+
+    // // html-to-dest-task
+    // watchit(util.joinFormat(vars.srcRoot, 'html/*.html'), function(){
+
+    // });
+
+    // // sass-component-to-dest
+    // watchit(path.join(vars.srcRoot,'components/@(p-)*/*.scss'), {
+    //     base: path.join(vars.srcRoot)
+    // }, function(){
+
+    // });
+
+    // // sass-base-to-dest
+    // watchit([
+    //     util.joinFormat(vars.srcRoot, 'sass/**/*.scss'),
+    //     '!' + util.joinFormat(vars.srcRoot, 'sass/base/**/*.*')
+    // ], function(){
+
+    // });
+
+    // // css-to-dest
+    // watchit(path.join(vars.srcRoot, 'css', '**/*.css'), function(){
+
+    // });
+
+    // // images-base-task
+    // watchit([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {
+    //     base: util.joinFormat( vars.srcRoot, 'images')
+    // }, function(){
+
+    // });
+
+    // // images-component-task
+    // watchit([util.joinFormat( vars.srcRoot, 'components/**/*.*')], {
+    //     base: util.joinFormat( vars.srcRoot, 'components')
+    // }, function(){
+
+    // });
+
+    // // requirejs-task
+    // watchit([
+    //     util.joinFormat(iConfig.alias.srcRoot, 'components/p-*/p-*.js'),
+    //     util.joinFormat(iConfig.alias.srcRoot, 'js/**/*.js'),
+    //     '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/lib/**'),
+    //     '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/**'),
+    //     '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/widget/**')
+    // ], {
+    //     base: iConfig.alias.srcRoot
+    // }, function(){
+
+    // });
+
+    // // jslib-task
+    // watchit(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js'), function(){
+
+    // });
+
+    // // data-task
+    // watchit([util.joinFormat(vars.srcRoot, 'js/**/*.json')], function(){
+
+    // });
 
 
-    // 看守所有.scss档
-    watch( util.joinFormat( vars.srcRoot, '**/*.scss'), util.debounce(function(){
-        util.taskQueue.add('css', function(next){
-            runSequence(['css', 'html'], 'rev-update', function(){
-                util.livereload();
-                util.msg.success('css task done');
-                if(!gulp.env.silent){
-                    util.pop('css task done');
-                }
-                next();
-            });
+    // // 看守所有.scss档
+    // watch( util.joinFormat( vars.srcRoot, '**/*.scss'), util.debounce(function(){
+    //     util.taskQueue.add('css', function(next){
+    //         runSequence(['css', 'html'], 'rev-update', function(){
+    //             util.livereload();
+    //             util.msg.success('css task done');
+    //             if(!gulp.env.silent){
+    //                 util.pop('css task done');
+    //             }
+    //             next();
+    //         });
 
-        }, 200);
-    }, 500));
+    //     }, 200);
+    // }, 500));
 
-    // 看守所有.js档
-    watch([
-        util.joinFormat(vars.srcRoot, 'components/**/*.js'),
-        util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
-        util.joinFormat(vars.commons, '**.*.js')
-    ], util.debounce(function(){
-        util.taskQueue.add('js', function(next){
-            runSequence(['js', 'html'], 'rev-update', function(){
-                util.livereload();
-                util.msg.success('js task done');
-                if(!gulp.env.silent){
-                    util.pop('js task done');
-                }
-                next();
-            });
+    // // 看守所有.js档
+    // watch([
+    //     util.joinFormat(vars.srcRoot, 'components/**/*.js'),
+    //     util.joinFormat(vars.srcRoot, 'js/lib/**/*.js'),
+    //     util.joinFormat(vars.commons, '**.*.js')
+    // ], util.debounce(function(){
+    //     util.taskQueue.add('js', function(next){
+    //         runSequence(['js', 'html'], 'rev-update', function(){
+    //             util.livereload();
+    //             util.msg.success('js task done');
+    //             if(!gulp.env.silent){
+    //                 util.pop('js task done');
+    //             }
+    //             next();
+    //         });
 
-        }, 200);
-    }, 500));
+    //     }, 200);
+    // }, 500));
 
-    // 看守所有图片档
-    watch([
-        util.joinFormat(vars.srcRoot, 'images/*.*'),
-        util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
-        util.joinFormat(vars.globalcomponents, '**/images/*.')
-    ], util.debounce(function(){
-        util.taskQueue.add('images', function(next){
-            runSequence('images', 'rev-update', function(){
-                util.livereload();
-                util.msg.success('images task done');
-                if(!gulp.env.silent){
-                    util.pop('images task done');
-                }
-                next();
-            });
-        }, 200);
+    // // 看守所有图片档
+    // watch([
+    //     util.joinFormat(vars.srcRoot, 'images/*.*'),
+    //     util.joinFormat(vars.srcRoot, 'components/**/images/*.*'),
+    //     util.joinFormat(vars.globalcomponents, '**/images/*.')
+    // ], util.debounce(function(){
+    //     util.taskQueue.add('images', function(next){
+    //         runSequence('images', 'rev-update', function(){
+    //             util.livereload();
+    //             util.msg.success('images task done');
+    //             if(!gulp.env.silent){
+    //                 util.pop('images task done');
+    //             }
+    //             next();
+    //         });
+    //     }, 200);
 
-    }, 500));
+    // }, 500));
 
-    // 看守所有jade 文件
-    watch([
-        util.joinFormat(vars.srcRoot, 'components/**/*.jade'),
-        util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
-        util.joinFormat(vars.globalcomponents, '**/*.jade')
-    ], util.debounce(function(){
-        util.taskQueue.add('html', function(next){
-            runSequence('html', 'rev-update', function(){
-                util.livereload();
-                util.msg.success('jade task done');
-                if(!gulp.env.silent){
-                    util.pop('jade task done');
-                }
-                next();
-            });
+    // // 看守所有jade 文件
+    // watch([
+    //     util.joinFormat(vars.srcRoot, 'components/**/*.jade'),
+    //     util.joinFormat(vars.srcRoot, 'templates/**/*.jade'),
+    //     util.joinFormat(vars.globalcomponents, '**/*.jade')
+    // ], util.debounce(function(){
+    //     util.taskQueue.add('html', function(next){
+    //         runSequence('html', 'rev-update', function(){
+    //             util.livereload();
+    //             util.msg.success('jade task done');
+    //             if(!gulp.env.silent){
+    //                 util.pop('jade task done');
+    //             }
+    //             next();
+    //         });
 
-        }, 200);
-    }, 500));
+    //     }, 200);
+    // }, 500));
 
-    // 看守所有 resource 定义的文件
-    if(iConfig.resource){
-        watch(Object.keys(iConfig.resource).map(function(src){
-            return path.join(src, '**/*.*');
+    // // 看守所有 resource 定义的文件
+    // if(iConfig.resource){
+    //     watch(Object.keys(iConfig.resource).map(function(src){
+    //         return path.join(src, '**/*.*');
 
-        }), util.debounce(function(){
-            util.taskQueue.add('resource', function(next){
-                runSequence('resource', function(){
-                    util.livereload();
-                    util.msg.success('resource task done');
-                    if(!gulp.env.silent){
-                        util.pop('resource task done');
-                    }
-                    next();
-                });
+    //     }), util.debounce(function(){
+    //         util.taskQueue.add('resource', function(next){
+    //             runSequence('resource', function(){
+    //                 util.livereload();
+    //                 util.msg.success('resource task done');
+    //                 if(!gulp.env.silent){
+    //                     util.pop('resource task done');
+    //                 }
+    //                 next();
+    //             });
 
-            }, 200);
+    //         }, 200);
 
-        }, 500));
+    //     }, 500));
 
 
-    }
-
-    util.livereload();
+    // }
 
     fn.supercall('watch-done');
 });
