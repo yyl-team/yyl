@@ -149,6 +149,237 @@ var fn = {
         util.runCMD(iCmd, function(){
             return done && done();
         });
+    },
+    fileRelate:  function(files, op){
+        var iPaths;
+        var iBase = op.base;
+        if(util.type(files) != 'array'){
+            iPaths = [files];
+        } else {
+            iPaths = files;
+        }
+
+        var 
+            friendship = {
+                scss: function(iPath){
+                    var sourceFiles = util.readFilesSync(iBase, /\.scss/);
+
+                    iPath = util.joinFormat(iPath);
+
+                    if(~sourceFiles.indexOf(iPath)){ //排除当前文件
+                        sourceFiles.splice(sourceFiles.indexOf(iPath), 1);
+                    }
+
+                    var r = [];
+
+                    if(/p\-\w+\/p\-\w+\.scss/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                        r.push(iPath);
+                    }
+
+                    // 查找 文件当中 有引用当前 地址的
+                    sourceFiles.forEach(function(iSource){
+                        var iCnt = fs.readFileSync(iSource).toString();
+                        iCnt.replace(/\@import ["']([^'"]+)['"]/g, function(str, $1){
+                            var myPath = util.joinFormat(path.dirname(iSource), $1 + (path.extname($1)?'': '.scss'));
+                            if(util.joinFormat(iPath) == myPath){
+                                r.push(iSource);
+                            }
+                            return str;
+
+                        });
+                    });
+
+                    return r;
+                },
+                jade: function(iPath){
+                    var sourceFiles = util.readFilesSync(iBase, /\.jade$/);
+                    iPath = util.joinFormat(iPath);
+
+                    if(~sourceFiles.indexOf(iPath)){ // 排除当前文件
+                        sourceFiles.splice(sourceFiles.indexOf(iPath), 1);
+                    }
+
+                    var r = [];
+
+                    if(/p\-\w+\/p\-\w+\.jade$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                        r.push(iPath);
+                    }
+
+                    // 查找 文件当中 有引用当前 地址的
+                    sourceFiles.forEach(function(iSource){
+                        var iCnt = fs.readFileSync(iSource).toString();
+                        iCnt.replace(/(extends|include) ([^\ \r\n\t]+)/g, function(str, $1, $2){
+                            var myPath = util.joinFormat(path.dirname(iSource), $2 + '.jade');
+                            if(util.joinFormat(iPath) == myPath){
+                                r.push(iSource);
+                            }
+                            return str;
+
+                        });
+                    });
+
+                    return r;
+
+
+                },
+                js: function(iPath){
+                    var sourceFiles = util.readFilesSync(iBase, /\.js/);
+                    iPath = util.joinFormat(iPath);
+
+                    if(~sourceFiles.indexOf(iPath)){ // 排除当前文件
+                        sourceFiles.splice(sourceFiles.indexOf(iPath), 1);
+                    }
+
+                    var r = [];
+
+                    if(/p\-\w+\/p\-\w+\.js/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                        r.push(iPath);
+                    }
+                    // 如果是 lib 里面的 js 也返回到当前 array
+                    if(op.jslib && op.jslib == iPath.substring(0, op.jslib.length)){
+                        r.push(iPath);
+                    }
+
+                    var rConfig = {};
+                    if(op.rConfig && fs.existsSync(op.rConfig)){
+                        try {
+                            rConfig = require(op.rConfig);
+                            rConfig = rConfig.paths;
+                        } catch(er){}
+
+                    }
+
+                    var 
+                        var2Path = function(name, dirname){
+                            var rPath = rConfig[name];
+                            if(rPath){
+                                return util.joinFormat(path.dirname(op.rConfig), rPath + (path.extname(rPath)? '': '.js'));
+                            } else {
+                                rPath = name;
+                                return util.joinFormat(dirname, name + (path.extname(rPath)? '': '.js'));
+                            }
+
+                        };
+
+                    // 查找 文件当中 有引用当前 地址的
+                    sourceFiles.forEach(function(iSource){
+                        var iCnt = fs.readFileSync(iSource).toString();
+                        iCnt.replace(/require\s*\(\s*["']([^'"]+)['"]/g, function(str, $1){ // require('xxx') 模式
+                            var myPath = var2Path($1, iSource.dirname);
+                            if(util.joinFormat(iPath) == myPath){
+                                r.push(iSource);
+                            }
+
+                            return str;
+                        }).replace(/require\s*\(\s*(\[[^\]]+\])/g, function(str, $1){ // require(['xxx', 'xxx']) 模式
+                            var iMatchs = new Function('return ' + $1)();
+
+                            iMatchs.forEach(function(name){
+                                var myPath = var2Path(name, path.dirname(iSource));
+                                if(util.joinFormat(iPath) == myPath){
+                                    r.push(iSource);
+                                }
+                            });
+
+                            return str;
+
+                        });
+                    });
+
+                    return r;
+
+
+                },
+                other: function(iPath){ // 检查 html, css 当中 是否有引用
+                    return [iPath];
+                    // iPath = util.joinFormat(iPath);
+                    // var r = [];
+
+                    // var htmlFiles = util.readFilesSync(iBase, /\.html$/);
+                    // var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig;
+                    // var pathReg = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
+
+                    // // 查找 文件当中 有引用当前 地址的
+                    // htmlFiles.forEach(function(iSource){
+                    //     var iCnt = fs.readFileSync(iSource).toString();
+                    //     iCnt// 隔离 script 内容
+                    //         .replace(scriptReg, function(str, $1, $2, $3){
+                    //             return $1 + querystring.escape($2) + $3;
+                    //         })
+                    //         .replace(pathReg, function(str, $1, $2, $3){
+                    //             var iPath = $3;
+                    //             if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || !iPath){
+                    //                 return;
+                    //             }
+
+                    //             // TODO iPath is the matched url
+
+                    //         });
+                    // });
+
+                    // var cssFiles = util.readFilesSync(iBase, /\.css/);
+                    // // 查找 文件当中 有引用当前 地址的
+                    // cssFiles.forEach(function(iSource){
+                    //     var iCnt = fs.readFileSync(iSource).toString();
+
+                    //     var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+                    //     var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+
+                    //     var replaceHandle = function(str, $1, $2){
+                    //         var iPath = $2;
+
+                    //         if(iPath.match(/^(about:|data:)/)){
+                    //             return;
+                    //         }
+
+                    //         if(iPath.match(/^http[s]?\:/)){
+                    //             return str;
+                    //         }
+
+                    //         // TODO iPath is the matched url;
+
+
+                    //     };
+
+
+                    //     iCnt.replace(pathReg, replaceHandle)
+                    //         .replace(pathReg2, replaceHandle);
+                    // });
+
+                    // return r;
+
+                }
+
+            };
+
+        var r = [];
+
+
+        iPaths.forEach(function(iPath){
+            var iExt = path.extname(iPath).replace(/^\./, '');
+            var handle;
+            switch(iExt){
+                case 'scss':
+                    handle = friendship.scss;
+                    break;
+
+                case 'jade':
+                    handle = friendship.jade;
+                    break;
+
+                case 'js':
+                    handle = friendship.js;
+                    break;
+
+                default:
+                    handle = friendship.other;
+                    break;
+            }
+
+            r = r.concat(handle(iPath));
+        });
+        return r;
+
     }
 };
 
@@ -935,83 +1166,30 @@ gulp.task('watch', ['all'], function() {
             
         };
 
-    // jade-to-dest-task
-    watchit(util.joinFormat(iConfig.alias.srcRoot, 'components/@(p-)*/*.jade'), function(file){
-        var rStream;
-        rStream = gulp.src([file.history], { 
-            base: util.joinFormat(iConfig.alias.srcRoot, 'components')
-        });
+    watchit(util.joinFormat(iConfig.alias.srcRoot, '**/**.*'), function(file){
+        var 
+            runtimeFiles = fn.fileRelate(file.history, {
+                base: iConfig.alias.srcRoot,
+                jslib: util.joinFormat(iConfig.alias.srcRoot, 'js/lib'),
+                rConfig: util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/rConfig.js')
+            });
 
-        rStream = iStream.html2dest(rStream);
-        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
-        rStream = iStream.relative2dest(rStream);
-        rStream = iStream.revupdate(rStream);
+        console.log('runtimeFiles', runtimeFiles);
 
-        return rStream;
+        // var rStream;
+        // rStream = gulp.src([file.history], { 
+        //     base: util.joinFormat(iConfig.alias.srcRoot, 'components')
+        // });
+
+        // rStream = iStream.html2dest(rStream);
+        // rStream = rStream.pipe(gulp.dest(vars.htmlDest));
+        // rStream = iStream.relative2dest(rStream);
+        // rStream = iStream.revupdate(rStream);
+
+        // return rStream;
 
     });
 
-    // // html-to-dest-task
-    // watchit(util.joinFormat(vars.srcRoot, 'html/*.html'), function(){
-
-    // });
-
-    // // sass-component-to-dest
-    // watchit(path.join(vars.srcRoot,'components/@(p-)*/*.scss'), {
-    //     base: path.join(vars.srcRoot)
-    // }, function(){
-
-    // });
-
-    // // sass-base-to-dest
-    // watchit([
-    //     util.joinFormat(vars.srcRoot, 'sass/**/*.scss'),
-    //     '!' + util.joinFormat(vars.srcRoot, 'sass/base/**/*.*')
-    // ], function(){
-
-    // });
-
-    // // css-to-dest
-    // watchit(path.join(vars.srcRoot, 'css', '**/*.css'), function(){
-
-    // });
-
-    // // images-base-task
-    // watchit([ util.joinFormat( vars.srcRoot, 'images/**/*.*')], {
-    //     base: util.joinFormat( vars.srcRoot, 'images')
-    // }, function(){
-
-    // });
-
-    // // images-component-task
-    // watchit([util.joinFormat( vars.srcRoot, 'components/**/*.*')], {
-    //     base: util.joinFormat( vars.srcRoot, 'components')
-    // }, function(){
-
-    // });
-
-    // // requirejs-task
-    // watchit([
-    //     util.joinFormat(iConfig.alias.srcRoot, 'components/p-*/p-*.js'),
-    //     util.joinFormat(iConfig.alias.srcRoot, 'js/**/*.js'),
-    //     '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/lib/**'),
-    //     '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/**'),
-    //     '!' + util.joinFormat(iConfig.alias.srcRoot, 'js/widget/**')
-    // ], {
-    //     base: iConfig.alias.srcRoot
-    // }, function(){
-
-    // });
-
-    // // jslib-task
-    // watchit(util.joinFormat( vars.srcRoot, 'js/lib/**/*.js'), function(){
-
-    // });
-
-    // // data-task
-    // watchit([util.joinFormat(vars.srcRoot, 'js/**/*.json')], function(){
-
-    // });
 
 
     // // 看守所有.scss档
