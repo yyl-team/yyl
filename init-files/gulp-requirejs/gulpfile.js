@@ -613,7 +613,7 @@ var
                         });
 
                     }))
-                    .pipe(iConfig.isCommit?uglify(): fn.blankPipe())
+                    .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
                     .pipe(rename(function(path){
                         path.basename = path.basename.replace(/^[pj]-/g,'');
                         path.dirname = '';
