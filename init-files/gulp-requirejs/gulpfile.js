@@ -380,6 +380,12 @@ var fn = {
         });
         return r;
 
+    },
+    pathInside: function(relPath, targetPath){
+        return !/^\.\.\//.test(util.joinFormat(path.relative(relPath, targetPath)));
+    },
+    isImage: function(iPath){
+        return /^\.(jpg|jpeg|bmp|gif|webp|png)$/.test(path.extname(iPath));
     }
 };
 
@@ -1175,6 +1181,116 @@ gulp.task('watch', ['all'], function() {
             });
 
         console.log('runtimeFiles', runtimeFiles);
+
+        runtimeFiles.forEach(function(iPath){
+            var iExt = path.extname(iPath).replace(/^\./, '');
+
+            switch(iExt){
+                case 'jade':
+                    if(fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'components'),
+                        iPath
+                    )){ // jade-to-dest-task
+                        // TODO
+
+                    }
+                    break;
+                case 'html':
+                    if(fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'html'),
+                        iPath
+                    )){ // html-to-dest-task
+                        // TODO
+
+                    }
+                    break;
+
+                case 'scss':
+                    if(fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'components'),
+                        iPath
+                    )){ // sass-component-to-dest
+                        // TODO
+
+                    } else if(fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'sass'),
+                        iPath
+                    ) && !fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'sass/base'),
+                        iPath
+                    )){ // sass-base-to-dest
+                        // TODO
+
+                    }
+                    break;
+                case 'css':
+                    if(fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'css'),
+                        iPath
+                    )) { // css-to-dest
+                        // TODO
+
+                    }
+                    break;
+
+                case 'js':
+                    if(!fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/lib'),
+                        iPath
+                    ) && !fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/rConfig'),
+                        iPath
+                    ) && !fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/widget'),
+                        iPath
+                    )){ // requirejs-task
+                        // TODO
+
+                    } else if(fn.pathInsite(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/lib'),
+                        iPath
+                    )) { // jslib-task
+                        // TODO
+
+                    }
+                    break;
+
+                case 'json':
+                    if(fn.pathInside(
+                        util.joinFormat(iConfig.aliaas.srcRoot, 'js'),
+                        iPath
+                    )){ // data-task
+                        // TODO
+                    }
+                    break;
+
+                default:
+                    if(fn.isImage(iPath)){
+                        if(fn.pathInside(
+                            util.joinFormat(iConfig.aliaas.srcRoot, 'components'),
+                            iPath
+
+                        )){ // images-component-task
+                            // TODO
+
+                        } else if(fn.pathInside(
+                            util.joinFormat(iConfig.aliaas.srcRoot, 'images'),
+                            iPath
+                        )) { // images-base-task
+                            // TODO
+
+                        }
+
+                    } else { // 可能是 resource 里面的东西
+                        // TODO
+
+                    }
+                    break;
+
+            }
+
+        });
+
 
         // var rStream;
         // rStream = gulp.src([file.history], { 
