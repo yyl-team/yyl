@@ -103,7 +103,7 @@ var
 
                 if(svnConfig.commit && svnConfig.commit.length){
                     svnConfig.commit.forEach(function(iPath){
-                        if(~updatePath.indexOf(iPath)){
+                        if(!~updatePath.indexOf(iPath)){
                             updatePath.push(iPath);
                         }
                     });
@@ -328,7 +328,7 @@ var
                                 handle();
 
                             } else {
-                                util.runSpawn('svn del ' + path.basename(src) + ' --force', function(){
+                                util.runSpawn('svn del ' + path.basename(src), function(){
                                     handle();
                                 }, path.dirname(src));
 
@@ -375,7 +375,7 @@ var
                 iPromise.then(function(next){
                     var dirname = path.dirname(iPath);
                     var idir = iPath.split(/[\\\/]/).pop();
-                    var cmd = 'svn add '+ idir +' --force';
+                    var cmd = 'svn add '+ idir + ' --force';
 
                     util.msg.info('start svn add path:', dirname);
                     util.msg.info('cmd:', cmd);
