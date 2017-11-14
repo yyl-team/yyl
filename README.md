@@ -185,6 +185,12 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.15-beta1 (2017-11-14)
+* [FIX] 修复 `svn commit` 在高版本 svn `1.9.7` 提交经常出错问题
+
+### 2.15.15 (2017-11-14)
+* [FIX] 修复 `gulp-requirejs`, `gulp-rollup` 打包不会压缩 js 的问题
+
 ### 2.15.14 (2017-11-11)
 * [EDIT] 将 `gulp-requirejs`, `gulp-rollup` 中  `rev` 相关任务提取到 `yyl supercall rev-update`, `yyl supercall rev-build` 作为通用方法
 * [EDIT] 优化 `yyl commit` svn 提交逻辑， 执行 `svn update` 之前不会进行目录清空操作
