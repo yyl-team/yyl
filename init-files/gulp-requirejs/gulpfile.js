@@ -150,7 +150,7 @@ var fn = {
             return done && done();
         });
     },
-    fileRelate:  function(files, op){
+    srcRelative:  function(files, op){
         var iPaths;
         var iBase = op.base;
         if(util.type(files) != 'array'){
@@ -1174,7 +1174,7 @@ gulp.task('watch', ['all'], function() {
 
     watchit(util.joinFormat(iConfig.alias.srcRoot, '**/**.*'), function(file){
         var 
-            runtimeFiles = fn.fileRelate(file.history, {
+            runtimeFiles = fn.srcRelative(file.history, {
                 base: iConfig.alias.srcRoot,
                 jslib: util.joinFormat(iConfig.alias.srcRoot, 'js/lib'),
                 rConfig: util.joinFormat(iConfig.alias.srcRoot, 'js/rConfig/rConfig.js')
@@ -1183,100 +1183,72 @@ gulp.task('watch', ['all'], function() {
         console.log('runtimeFiles', runtimeFiles);
 
         runtimeFiles.forEach(function(iPath){
-            var iExt = path.extname(iPath).replace(/^\./, '');
+            var 
+                iExt = path.extname(iPath).replace(/^\./, ''),
+                inside = function(rPath){
+                    return fn.pathInside(util.joinFormat(iConfig.alias.srcRoot, rPath), iPath);
+                },
+                rStream;
 
             switch(iExt){
                 case 'jade':
-                    if(fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'components'),
-                        iPath
-                    )){ // jade-to-dest-task
+                    if(inside('components')){ // jade-to-dest-task
+                        rStream = iStream.jade2html(gulp.src([
+                            iPath
+                        ], {
+                            base: util.joinFormat(iConfig.alias.srcRoot)
+                        }));
+                        rStream = iStream.html2dest(rStream);
+                        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
                         // TODO
-
                     }
+
                     break;
                 case 'html':
-                    if(fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'html'),
-                        iPath
-                    )){ // html-to-dest-task
+                    if(inside('html')){ // html-to-dest-task
                         // TODO
 
                     }
                     break;
 
                 case 'scss':
-                    if(fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'components'),
-                        iPath
-                    )){ // sass-component-to-dest
+                    if(inside('components')){ // sass-component-to-dest
                         // TODO
 
-                    } else if(fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'sass'),
-                        iPath
-                    ) && !fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'sass/base'),
-                        iPath
-                    )){ // sass-base-to-dest
+                    } else if(inside('sass') && !inside('sass/base')){ // sass-base-to-dest
                         // TODO
 
                     }
                     break;
                 case 'css':
-                    if(fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'css'),
-                        iPath
-                    )) { // css-to-dest
+                    if(inside('css')){ // css-to-dest
                         // TODO
 
                     }
                     break;
 
                 case 'js':
-                    if(!fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/lib'),
-                        iPath
-                    ) && !fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/rConfig'),
-                        iPath
-                    ) && !fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/widget'),
-                        iPath
-                    )){ // requirejs-task
+                    if(!inside('js/lib') && !inside('js/rConfig') && !inside('js/widget')){ // requirejs-task
                         // TODO
-
-                    } else if(fn.pathInsite(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'js/lib'),
-                        iPath
-                    )) { // jslib-task
+                        
+                    } else if(inside('js/lib')){ // jslib-task
                         // TODO
 
                     }
                     break;
 
                 case 'json':
-                    if(fn.pathInside(
-                        util.joinFormat(iConfig.aliaas.srcRoot, 'js'),
-                        iPath
-                    )){ // data-task
+                    if(inside('js')){ // data-task
                         // TODO
                     }
                     break;
 
                 default:
                     if(fn.isImage(iPath)){
-                        if(fn.pathInside(
-                            util.joinFormat(iConfig.aliaas.srcRoot, 'components'),
-                            iPath
-
-                        )){ // images-component-task
+                        if(inside('components')){ // images-component-task
                             // TODO
 
-                        } else if(fn.pathInside(
-                            util.joinFormat(iConfig.aliaas.srcRoot, 'images'),
-                            iPath
-                        )) { // images-base-task
+                        } else if(inside('images')){ // images-base-task
                             // TODO
 
                         }
