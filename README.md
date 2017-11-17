@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.16 (2017-11-17)
+* [EDIT] `gulp-requirejs` 工作流 `yyl watch` 优化，能自动检测需要构建的文件, 不再是 整个 task 的去运行
+
 ### 2.15.15-beta1 (2017-11-14)
 * [FIX] 修复 `svn commit` 在高版本 svn `1.9.7` 提交经常出错问题
 
