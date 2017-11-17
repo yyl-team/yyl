@@ -11,7 +11,6 @@ var gulp = require('gulp'),
     path = require('path'),
     querystring = require('querystring'),
     util = require('yyl-util'),
-
     sass = require('gulp-sass'), // sass compiler
     minifycss = require('gulp-minify-css'), // minify css files
     jshint = require('gulp-jshint'), // check js syntac
@@ -27,7 +26,6 @@ var gulp = require('gulp'),
     runSequence = require('run-sequence').use(gulp),
     prettify = require('gulp-prettify'),
     through = require('through2'),
-    es = require('event-stream'),
     watch = require('gulp-watch');
 
 require('colors');
@@ -292,62 +290,6 @@ var fn = {
                 },
                 other: function(iPath){ // 检查 html, css 当中 是否有引用
                     return [iPath];
-                    // iPath = util.joinFormat(iPath);
-                    // var r = [];
-
-                    // var htmlFiles = util.readFilesSync(iBase, /\.html$/);
-                    // var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig;
-                    // var pathReg = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
-
-                    // // 查找 文件当中 有引用当前 地址的
-                    // htmlFiles.forEach(function(iSource){
-                    //     var iCnt = fs.readFileSync(iSource).toString();
-                    //     iCnt// 隔离 script 内容
-                    //         .replace(scriptReg, function(str, $1, $2, $3){
-                    //             return $1 + querystring.escape($2) + $3;
-                    //         })
-                    //         .replace(pathReg, function(str, $1, $2, $3){
-                    //             var iPath = $3;
-                    //             if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || !iPath){
-                    //                 return;
-                    //             }
-
-                    //             // TODO iPath is the matched url
-
-                    //         });
-                    // });
-
-                    // var cssFiles = util.readFilesSync(iBase, /\.css/);
-                    // // 查找 文件当中 有引用当前 地址的
-                    // cssFiles.forEach(function(iSource){
-                    //     var iCnt = fs.readFileSync(iSource).toString();
-
-                    //     var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
-                    //     var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
-
-                    //     var replaceHandle = function(str, $1, $2){
-                    //         var iPath = $2;
-
-                    //         if(iPath.match(/^(about:|data:)/)){
-                    //             return;
-                    //         }
-
-                    //         if(iPath.match(/^http[s]?\:/)){
-                    //             return str;
-                    //         }
-
-                    //         // TODO iPath is the matched url;
-
-
-                    //     };
-
-
-                    //     iCnt.replace(pathReg, replaceHandle)
-                    //         .replace(pathReg2, replaceHandle);
-                    // });
-
-                    // return r;
-
                 }
 
             };
@@ -381,36 +323,102 @@ var fn = {
         return r;
 
     },
-    // 从
+    // 从 dest 中生成的文件查找调用该文件的 css, html, 返回 这 css html 对应的 src 源文件
     destRelative: function(files, op){
         var 
             iFiles = util.type(iFiles) == 'array'? files: [files],
             r = [],
-            getRevMapDest = function(key){
+            destFiles = [],
+            revMap = {},
+            hostRoot = util.joinFormat(
+                op.remotePath,
+                path.relative(op.destRoot, op.revRoot)
+            ),
+            // 根据地址 返回 输出目录内带有 remote 和 hash 的完整地址
+            getRevMapDest = function(iPath){
+                var revSrc = util.joinFormat(path.relative(op.revRoot, iPath));
+                return util.joinFormat(hostRoot, revMap[revSrc] || revSrc);
+            },
+            // 根据地址返回 rev map 中的 源文件
+            getRevSrcPath = function(iPath){
+                var revDest = util.joinFormat(path.relative(op.revRoot, iPath));
+
+                for(var key in revMap){
+                    if(revMap.hasOwnProperty(key)){
+                        if(revMap[key] == revDest){
+                            return util.joinFormat(op.revRoot, key);
+                        }
+                    }
+                }
+
+                return iPath;
 
             };
 
 
+        if(op.revPath && fs.existsSync(op.revPath)){
+            try {
+                revMap = JSON.parse(fs.readFileSync(op.revPath).toString());
+            } catch(er){}
+        }
+
+
         iFiles.forEach(function(iPath){
             var iExt = path.extname(iPath).replace(/^\./, '');
+            var searchFiles = [];
 
             switch(iExt){
-                case 'html': // html 没有依赖文件
+                case 'html': // html 没有谁会调用 html 的
                     break;
                 case 'js':
-                case 'css':
+                case 'css': // 查找调用这文件的 html
+                    searchFiles = util.readFilesSync(op.root, /\.html$/);
                     break;
                 default:
-                    if(fn.isImage(iPath)){
-
-                    } else {
-
+                    if(fn.isImage(iPath)){ // 查找调用这文件的 html, css
+                        searchFiles = util.readFilesSync(op.root, /\.(html|css)$/);
                     }
                     break;
+            }
+
+            searchFiles.forEach(function(iSearch){
+                var iCnt = fs.readFileSync(iSearch).toString();
+                var iSrc;
+                if(iCnt.split(getRevMapDest(iPath)).length > 1){ // match
+                    iSrc = getRevSrcPath(iSearch);
+
+                    if(!~destFiles.indexOf(iSrc)){
+                        destFiles.push(iSrc);
+                    }
+                }
+            });
+        });
+
+        // 根据生成的 html, css 反推出对应src 的哪个文件
+        destFiles.forEach(function(iPath){
+            var filename = path.basename(iPath).replace(/\.[^\.]+$/, '');
+            var rPaths = [];
+            if(op.htmlDest == iPath.substr(0, op.htmlDest.length) && path.extname(iPath) == '.html'){ // html
+                rPaths.push(util.joinFormat(op.srcRoot, 'html', path.basename(iPath)));
+                rPaths.push(util.joinFormat(op.srcRoot, 'components', 'p-' + filename, 'p-' + filename + '.jade'));
+
+            } else if(op.cssDest == iPath.substr(0, op.cssDest.length) && path.extname(iPath) == '.css'){ // css
+                rPaths.push(util.joinFormat(op.srcRoot, 'css', path.basename(iPath)));
+                rPaths.push(util.joinFormat(op.srcRoot, 'sass', filename + 'scss'));
+                rPaths.push(util.joinFormat(op.srcRoot, 'components', 'p-' + filename, 'p-' + filename + '.scss'));
 
             }
 
+            rPaths.forEach(function(rPath){
+                if(fs.existsSync(rPath)){
+                    r.push(rPath);
+                }
+
+            });
+
         });
+
+        return r;
     },
     pathInside: function(relPath, targetPath){
         return !/^\.\.\//.test(util.joinFormat(path.relative(relPath, targetPath)));
@@ -932,13 +940,137 @@ var
         // 从 dest 生成的一个文件找到关联的其他 src 文件， 然后再重新生成到 dest
         dest2dest: function(stream, op){
             var rStream;
-            var vars = gulp.env.vars;
             rStream = stream.pipe(through.obj(function(file, enc, next) {
-                var relativeFiles = fn.destRelative(util.joinFormat(file.base, file.relative), op);
-                console.log('dest2dest', relativeFiles);
-                next(null, file);
+                var 
+                    relativeFiles = fn.destRelative(util.joinFormat(file.base, file.relative), op),
+                    total = relativeFiles.length,
+                    streamCheck = function(){
+                        if(total === 0){
+                            next(null, file);
+                        }
+
+                    };
+
+                relativeFiles.forEach(function(iPath){
+                    var rStream = iStream.any2dest(iPath);
+
+                    rStream.on('finish', function(){
+                        total--;
+                        streamCheck();
+                    });
+
+                });
+                streamCheck();
             }));
             return rStream;
+        },
+        // 任意src 内文件输出到 dest (遵循 构建逻辑)
+        any2dest: function(iPath){
+            var 
+                vars = gulp.env.vars,
+                iExt = path.extname(iPath).replace(/^\./, ''),
+                inside = function(rPath){
+                    return fn.pathInside(util.joinFormat(vars.srcRoot, rPath), iPath);
+                },
+                rStream;
+
+            switch(iExt){
+                case 'jade':
+                    if(inside('components')){ // jade-to-dest-task
+                        rStream = iStream.jade2dest(gulp.src([iPath], {
+                            base: util.joinFormat(vars.srcRoot)
+                        }));
+                        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
+                        
+                    }
+
+                    break;
+                case 'html':
+                    if(inside('html')){ // html-to-dest-task
+                        rStream = iStream.html2dest(gulp.src([iPath], {
+                            base: util.joinFormat(vars.srcRoot, 'html')
+                        }));
+                        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
+
+                    }
+                    break;
+
+                case 'scss':
+                    if(inside('components')){ // sass-component-to-dest
+                        rStream = iStream.sassComponent2dest(gulp.src([iPath], {
+                            base: path.join(vars.srcRoot)
+                        }));
+                        rStream = rStream.pipe(gulp.dest(util.joinFormat(vars.cssDest)));
+
+                    } else if(inside('sass') && !inside('sass/base')){ // sass-base-to-dest
+                        rStream = iStream.sassBase2dest(gulp.src([iPath], {
+                            base: path.join(vars.srcRoot)
+                        }));
+
+                        rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
+
+                    }
+                    break;
+                case 'css':
+                    if(inside('css')){ // css-to-dest
+                        rStream = iStream.css2dest(gulp.src([iPath], {
+                            base: util.joinFormat(vars.srcRoot, 'css')
+                        }));
+                        rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
+                    }
+                    break;
+
+                case 'js':
+                    if(!inside('js/lib') && !inside('js/rConfig') && !inside('js/widget')){ // requirejs-task
+                        rStream = iStream.requirejs2dest(gulp.src([iPath], {
+                            base: vars.srcRoot
+                        }));
+                        rStream = rStream.pipe(gulp.dest(util.joinFormat(vars.jsDest)));
+
+                        
+                    } else if(inside('js/lib')){ // jslib-task
+                        rStream = iStream.js2dest(gulp.src([iPath], {
+                            base: util.joinFormat(vars.srcRoot, 'js/lib')
+                        }));
+                        rStream = rStream.pipe(gulp.dest(vars.jslibDest));
+
+                    }
+                    break;
+
+                case 'json':
+                    if(inside('js')){ // data-task
+                        rStream = gulp.src([iPath], {
+                            base : util.joinFormat(vars.srcRoot, 'js')
+                        });
+
+                        rStream = rStream.pipe(gulp.dest( vars.jsDest ));
+                    }
+                    break;
+
+                default:
+                    if(fn.isImage(iPath)){
+                        if(inside('components')){ // images-component-task
+                            rStream = iStream.image2dest(gulp.src([iPath], {
+                                base: util.joinFormat( vars.srcRoot, 'components')
+                            }));
+
+                            rStream = rStream.pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')));
+
+                        } else if(inside('images')){ // images-base-task
+                            rStream = iStream.image2dest(gulp.src([iPath], {
+                                base: util.joinFormat( vars.srcRoot, 'images')
+                            }));
+                            rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.imagesDest)));
+
+                        }
+
+                    }
+                    break;
+
+            }
+
+            return rStream;
+
         }
         // - dest task
     };
@@ -985,7 +1117,7 @@ gulp.task('html-to-dest-task', function(){
 
 // + css task
 gulp.task('css', ['sass-component-to-dest', 'sass-base-to-dest', 'css-to-dest'], function(done) {
-    runSequence('concat', done);
+    runSequence('concat-css', done);
 
 });
 gulp.task('sass-component-to-dest', function() {
@@ -1089,7 +1221,7 @@ gulp.task('images-component-task', function(){
 
 // + js task
 gulp.task('js',['requirejs-task', 'jslib-task', 'data-task'], function (done) {
-    runSequence('concat', done);
+    runSequence('concat-js', done);
 });
 
 gulp.task('requirejs-task', function() {
@@ -1151,35 +1283,49 @@ gulp.task('data-task', function() {
 gulp.task('concat', function(done){
     var iConfig = fn.taskInit();
     if(!iConfig){
-        return;
+        return done();
     }
     if(!iConfig.concat){
-        return;
+        return done();
     }
 
     fn.supercall('concat', done);
 });
+gulp.task('concat-js', function(done){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return done();
+    }
+    if(!iConfig.concat){
+        return done();
+    }
+
+    fn.supercall('concat', done);
+});
+gulp.task('concat-js', function(done){
+    var iConfig = fn.taskInit();
+    if(!iConfig){
+        return done();
+    }
+    if(!iConfig.concat){
+        return done();
+    }
+
+    fn.supercall('concat-css', done);
+});
 // - concat task
 
 // + resource
-gulp.task('resource', function(){
+gulp.task('resource', function(done){
     var iConfig = fn.taskInit();
     if(!iConfig){
-        return;
+        return done();
     }
 
-    if(iConfig.resource){
-        var streams = [],
-            i = 0;
-
-        for(var key in iConfig.resource){
-            if(iConfig.resource.hasOwnProperty(key) && fs.existsSync(key)){
-                streams[i++] = gulp.src(path.join(key, '**/*.*')).pipe(gulp.dest(iConfig.resource[key]));
-            }
-        }
-
-        return streams.length? es.concat.apply(es, streams): null;
+    if(!iConfig.resource){
+        return done();
     }
+    fn.supercall('resource', done);
 
 });
 // - resource
@@ -1242,131 +1388,33 @@ gulp.task('watch', ['all'], function() {
                 rConfig: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js')
             }),
             streamCheck = function(){
-                util.msg.info('stream check', total);
                 if(!total){
                     util.msg.success('optimize finished');
                 }
-                // TODO
             };
-
-        console.log('runtimeFiles', runtimeFiles);
 
         var total = runtimeFiles.length;
 
         runtimeFiles.forEach(function(iPath){
             var 
-                iExt = path.extname(iPath).replace(/^\./, ''),
-                inside = function(rPath){
-                    return fn.pathInside(util.joinFormat(vars.srcRoot, rPath), iPath);
-                },
-                rStream;
-
-            switch(iExt){
-                case 'jade':
-                    if(inside('components')){ // jade-to-dest-task
-                        rStream = iStream.jade2dest(gulp.src([iPath], {
-                            base: util.joinFormat(vars.srcRoot)
-                        }));
-                        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
-                        
-                    }
-
-                    break;
-                case 'html':
-                    if(inside('html')){ // html-to-dest-task
-                        rStream = iStream.html2dest(gulp.src([iPath], {
-                            base: util.joinFormat(vars.srcRoot, 'html')
-                        }));
-                        rStream = rStream.pipe(gulp.dest(vars.htmlDest));
-
-                    }
-                    break;
-
-                case 'scss':
-                    if(inside('components')){ // sass-component-to-dest
-                        rStream = iStream.sassComponent2dest(gulp.src([iPath], {
-                            base: path.join(vars.srcRoot)
-                        }));
-                        rStream = rStream.pipe(gulp.dest(util.joinFormat(vars.cssDest)));
-
-                    } else if(inside('sass') && !inside('sass/base')){ // sass-base-to-dest
-                        rStream = iStream.sassBase2dest(gulp.src([iPath], {
-                            base: path.join(vars.srcRoot)
-                        }));
-
-                        rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
-
-                    }
-                    break;
-                case 'css':
-                    if(inside('css')){ // css-to-dest
-                        rStream = iStream.css2dest(gulp.src([iPath], {
-                            base: util.joinFormat(vars.srcRoot, 'css')
-                        }));
-                        rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.cssDest)));
-                    }
-                    break;
-
-                case 'js':
-                    if(!inside('js/lib') && !inside('js/rConfig') && !inside('js/widget')){ // requirejs-task
-                        rStream = iStream.requirejs2dest(gulp.src([iPath], {
-                            base: vars.srcRoot
-                        }));
-                        rStream = rStream.pipe(gulp.dest(util.joinFormat(vars.jsDest)));
-
-                        
-                    } else if(inside('js/lib')){ // jslib-task
-                        rStream = iStream.js2dest(gulp.src([iPath], {
-                            base: util.joinFormat(vars.srcRoot, 'js/lib')
-                        }));
-                        rStream = rStream.pipe(gulp.dest(vars.jslibDest));
-
-                    }
-                    break;
-
-                case 'json':
-                    if(inside('js')){ // data-task
-                        rStream = gulp.src([iPath], {
-                            base : util.joinFormat(vars.srcRoot, 'js')
-                        });
-
-                        rStream = rStream.pipe(gulp.dest( vars.jsDest ));
-                    }
-                    break;
-
-                default:
-                    if(fn.isImage(iPath)){
-                        if(inside('components')){ // images-component-task
-                            rStream = iStream.image2dest(gulp.src([iPath], {
-                                base: util.joinFormat( vars.srcRoot, 'components')
-                            }));
-
-                            rStream = rStream.pipe(gulp.dest( util.joinFormat( vars.imagesDest, 'components')));
-
-                        } else if(inside('images')){ // images-base-task
-                            rStream = iStream.image2dest(gulp.src([iPath], {
-                                base: util.joinFormat( vars.srcRoot, 'images')
-                            }));
-                            rStream = rStream.pipe(gulp.dest( util.joinFormat(vars.imagesDest)));
-
-                        }
-
-                    } else { // 可能是 resource 里面的东西
-                        // TODO
-
-                    }
-                    break;
-
-            }
+                rStream = iStream.any2dest(iPath);
 
             if(rStream){
                 rStream = iStream.dest2dest(rStream, {
                     remotePath: gulp.env.remotePath,
-                    revPath: util.joinFormat(vars.revDest, 'manifest.json'),
+                    revPath: util.joinFormat(vars.revDest, 'rev-manifest.json'),
                     revRoot: vars.revRoot,
-                    destRoot: vars.destRoot
+                    destRoot: vars.destRoot,
+                    srcRoot: vars.srcRoot,
+                    cssDest: vars.cssDest,
+                    htmlDest: vars.htmlDest,
+                    root: vars.root
                 });
-                rStream.on('finish',streamCheck);
+                rStream.on('finish', function(){
+                    total--;
+                    streamCheck();
+
+                });
             } else {
                 total--;
                 streamCheck();

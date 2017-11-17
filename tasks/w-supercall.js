@@ -97,6 +97,9 @@ var
                     return util.joinFormat(path.relative(config.alias.dirname, iPath));
                 },
                 concatIt = function(dest, srcs){
+                    if(op.concatType && path.extname(dest).replace(/^\./, '') != op.concatType){
+                        return;
+                    }
                     var concat = new Concat(false, dest, '\n');
                     srcs.forEach(function(item){
                         if(!fs.existsSync(item)){
@@ -111,10 +114,10 @@ var
                     fs.writeFileSync(dest, concat.content);
                     util.msg.info(
                         'concat file:', 
-                        relativeIt(dest), 
+                        fn.printIt(dest), 
                         '<=', 
                         srcs.map(function(p){ 
-                            return relativeIt(p); 
+                            return fn.printIt(p); 
                         })
                     );
                 };
@@ -541,6 +544,12 @@ var
             });
 
         },
+        // resource 文件 配置（自定义 复制 src 某文件到 dest 下面）
+        resource: function(op){
+            var config = fn.getConfigSync(op);
+
+            util.copyFiles(config.resource);
+        },
 
         // yyl 脚本调用入口
         run: function(){
@@ -559,6 +568,14 @@ var
                     supercall.concat(op);
                     break;
 
+                case 'concat-css':
+                    supercall.concat(util.extend(op, { concatType: 'css' }));
+                    break;
+
+                case 'concat-js':
+                    supercall.concat(util.extend(op, { concatType: 'js' }));
+                    break;
+
                 case 'rev-build':
                     supercall.rev.build(op);
                     break;
@@ -571,7 +588,12 @@ var
                     break;
 
                 case 'rev-clean':
-                    supercall.rev.clean();
+                    supercall.rev.clean(op);
+
+                    break;
+
+                case 'resource':
+                    supercall.resource(op);
                     break;
 
                 default:
