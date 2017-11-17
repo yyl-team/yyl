@@ -158,6 +158,12 @@ var fn = {
         }
 
         var 
+            isWidget = function(iPath){
+                var widgetPath = util.joinFormat(op.base, 'components/w-');
+                return  widgetPath == iPath.substr(0, widgetPath.length);
+            };
+
+        var 
             friendship = {
                 scss: function(iPath){
                     var sourceFiles = util.readFilesSync(iBase, /\.scss/);
@@ -179,13 +185,14 @@ var fn = {
                         var iCnt = fs.readFileSync(iSource).toString();
                         iCnt.replace(/\@import ["']([^'"]+)['"]/g, function(str, $1){
                             var myPath = util.joinFormat(path.dirname(iSource), $1 + (path.extname($1)?'': '.scss'));
-                            if(util.joinFormat(iPath) == myPath){
+                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
                                 r.push(iSource);
                             }
                             return str;
 
                         });
                     });
+
 
                     return r;
                 },
@@ -208,7 +215,7 @@ var fn = {
                         var iCnt = fs.readFileSync(iSource).toString();
                         iCnt.replace(/(extends|include) ([^\ \r\n\t]+)/g, function(str, $1, $2){
                             var myPath = util.joinFormat(path.dirname(iSource), $2 + '.jade');
-                            if(util.joinFormat(iPath) == myPath){
+                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
                                 r.push(iSource);
                             }
                             return str;
@@ -263,18 +270,22 @@ var fn = {
                     sourceFiles.forEach(function(iSource){
                         var iCnt = fs.readFileSync(iSource).toString();
                         iCnt.replace(/require\s*\(\s*["']([^'"]+)['"]/g, function(str, $1){ // require('xxx') 模式
-                            var myPath = var2Path($1, iSource.dirname);
-                            if(util.joinFormat(iPath) == myPath){
+
+                            var myPath = var2Path($1, path.dirname(iSource));
+                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
                                 r.push(iSource);
                             }
 
                             return str;
                         }).replace(/require\s*\(\s*(\[[^\]]+\])/g, function(str, $1){ // require(['xxx', 'xxx']) 模式
-                            var iMatchs = new Function('return ' + $1)();
+                            var iMatchs = [];
+                            try {
+                                iMatchs = new Function('return ' + $1)();
+                            } catch(er){}
 
                             iMatchs.forEach(function(name){
                                 var myPath = var2Path(name, path.dirname(iSource));
-                                if(util.joinFormat(iPath) == myPath){
+                                if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
                                     r.push(iSource);
                                 }
                             });
