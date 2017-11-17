@@ -212,7 +212,7 @@ var
 
 
             } else {
-                util.msg.success('done');
+                util.msg.success('watch-done finished');
             }
 
         },
@@ -551,6 +551,10 @@ var
             util.copyFiles(config.resource);
         },
 
+        livereload: function(){
+            util.livereload();
+        },
+
         // yyl 脚本调用入口
         run: function(){
             var
@@ -589,11 +593,14 @@ var
 
                 case 'rev-clean':
                     supercall.rev.clean(op);
-
                     break;
 
                 case 'resource':
                     supercall.resource(op);
+                    break;
+
+                case 'livereload':
+                    supercall.livereload(op);
                     break;
 
                 default:

@@ -1302,7 +1302,7 @@ gulp.task('concat-js', function(done){
 
     fn.supercall('concat', done);
 });
-gulp.task('concat-js', function(done){
+gulp.task('concat-css', function(done){
     var iConfig = fn.taskInit();
     if(!iConfig){
         return done();
@@ -1390,6 +1390,10 @@ gulp.task('watch', ['all'], function() {
             streamCheck = function(){
                 if(!total){
                     util.msg.success('optimize finished');
+                    runSequence(['concat', 'resource'], 'rev-update', function(){
+                        fn.supercall('livereload');
+                        util.msg.success('watch task finished');
+                    });
                 }
             };
 
