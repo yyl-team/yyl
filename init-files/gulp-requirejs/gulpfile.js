@@ -160,7 +160,8 @@ var fn = {
         var 
             isWidget = function(iPath){
                 var widgetPath = util.joinFormat(op.base, 'components/w-');
-                return  widgetPath == iPath.substr(0, widgetPath.length);
+                var widgetPath2 = util.joinFormat(op.base, 'components/r-');
+                return  widgetPath == iPath.substr(0, widgetPath.length) || widgetPath2 == iPath.substr(0, widgetPath2.length);
             };
 
         var 
@@ -261,7 +262,7 @@ var fn = {
                                 return util.joinFormat(path.dirname(op.rConfig), rPath + (path.extname(rPath)? '': '.js'));
                             } else {
                                 rPath = name;
-                                return util.joinFormat(dirname, name + (path.extname(rPath)? '': '.js'));
+                                return util.joinFormat(dirname, rPath + (path.extname(rPath)? '': '.js'));
                             }
 
                         };
@@ -291,7 +292,6 @@ var fn = {
                             });
 
                             return str;
-
                         });
                     });
 
