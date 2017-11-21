@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.18 (2017-11-21)
+* [EDIT] 调整`yyl-util` `vars` 变量到 yyl 主干下， 不再放置于 `yyl-util` 组件内
+
 ### 2.15.17 (2017-11-20)
 * [EDIT] `gulp-rollup` 工作流 `yyl watch` 优化，能自动检测需要构建的文件, 不再是 整个 task 的去运行
 
