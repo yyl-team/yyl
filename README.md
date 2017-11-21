@@ -185,7 +185,7 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
-### 2.15.19 (2017-11-21)
+### 2.15.20 (2017-11-21)
 * [EDIT] 调整`yyl-util` `vars` 变量到 yyl 主干下， 不再放置于 `yyl-util` 组件内
 * [EDIT] 调整`yyl-util` `livereload()`, `initConfig()` 变量到 yyl 主干下， 不再放置于 `yyl-util` 组件内
 * [FIX] 修复 `gulp-requirejs` `yyl watch` 时 如果 `w-xx` 组件 引用 `w-xx2` 组件时， 修改 `w-xx2` 组件 不会进行相应的更新 的问题

@@ -200,13 +200,14 @@ var fn = {
 
                             rs = [].concat(rs);
 
-                            rs.forEach(function(rPath, i){ // 防止死循环
-                                if(cache[rPath]){
+                            for(var i = 0; i < rs.length; ){
+                                if(cache[rs[i]]){
                                     rs.splice(i, 1);
                                 } else {
-                                    cache[rPath] = true;
+                                    cache[rs[i]] = true;
+                                    i++;
                                 }
-                            });
+                            }
 
                             if(isPage(iPath)){
                                 return [iPath];
