@@ -10,6 +10,25 @@ var
     util = require('yyl-util'),
     webpackConfig = require('./webpack.config.js');
 
+var fn = {
+    supercall: function(cmd, done){
+        var iCmd = [
+            'yyl supercall ' + cmd,
+            util.envStringify({
+                name: gulp.env.name,
+                ver: gulp.env.ver,
+                debug: gulp.env.debug,
+                silent: gulp.env.silent,
+                proxy: gulp.env.proxy
+            })
+        ].join(' ');
+
+        util.msg.info('run cmd:', iCmd);
+        util.runCMD(iCmd, function(){
+            return done && done();
+        });
+    }
+};
 
 require('colors');
 
@@ -37,7 +56,8 @@ gulp.task('default', function(){
 });
 
 gulp.task('connect-reload', function(){
-    util.livereload();
+    fn.supercall('livereload');
+
 });
 
 gulp.task('webpack', function(done){

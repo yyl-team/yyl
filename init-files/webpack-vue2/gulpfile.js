@@ -17,6 +17,26 @@ if(fs.existsSync('./config.mine.js')){
     config = util.extend(config, require('./config.mine.js'));
 }
 
+var fn = {
+    supercall: function(cmd, done){
+        var iCmd = [
+            'yyl supercall ' + cmd,
+            util.envStringify({
+                name: gulp.env.name,
+                ver: gulp.env.ver,
+                debug: gulp.env.debug,
+                silent: gulp.env.silent,
+                proxy: gulp.env.proxy
+            })
+        ].join(' ');
+
+        util.msg.info('run cmd:', iCmd);
+        util.runCMD(iCmd, function(){
+            return done && done();
+        });
+    }
+};
+
 
 gulp.task('default', function(){
     console.log([
@@ -37,7 +57,7 @@ gulp.task('default', function(){
 });
 
 gulp.task('connect-reload', function(){
-    util.livereload();
+    fn.supercall('livereload');
 });
 
 gulp.task('webpack', function(done){
