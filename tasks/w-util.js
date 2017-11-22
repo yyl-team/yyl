@@ -58,6 +58,8 @@ util.vars = {
 util.msg.init({
     maxSize: 8,
     type: {
+        rev: {name: 'rev', color: '#ffdd00'},
+        concat: {name: 'Concat', color: 'cyan'},
         update: {name: 'Updated', color: 'cyan'}
     }
 });

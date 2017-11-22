@@ -5,6 +5,7 @@ var path = require('path');
 var fs = require('fs');
 var revHash = require('rev-hash');
 var Concat = require('concat-with-sourcemaps');
+var chalk = require('chalk');
 
 var 
     cache = {
@@ -112,8 +113,7 @@ var
 
                     util.mkdirSync(path.dirname(dest));
                     fs.writeFileSync(dest, concat.content);
-                    util.msg.info(
-                        'concat file:', 
+                    util.msg.concat(
                         fn.printIt(dest), 
                         '<=', 
                         srcs.map(function(p){ 
@@ -219,6 +219,32 @@ var
         // rev-manifest 生成
         rev: {
             fn: {
+                mark: {
+                    source: {
+                        create: [],
+                        update: [],
+                        other: []
+                    },
+                    add: function(type, iPath){
+                        var self = this;
+                        self.source[type in self.source? type: 'other'].push(iPath);
+                    },
+                    reset: function(){
+                        var self = this;
+                        Object.keys(self.source).forEach(function(key){
+                            self.source[key] = [];
+                        });
+
+                    },
+                    print: function(){
+                        var source = this.source;
+                        util.msg.rev([
+                            chalk.green('create: ') + source.create.length,
+                            chalk.cyan('update: ') + source.update.length,
+                            chalk.gray('other: ') + source.other.length
+                        ].join(', '));
+                    },
+                },
                 // hash map 生成
                 buildHashMap: function(iPath, revMap){
                     var config = fn.getConfigCacheSync();
@@ -233,6 +259,7 @@ var
                 fileHashPathUpdate: function(iPath, revMap){
                     var iCnt = fs.readFileSync(iPath).toString();
                     var rCnt = iCnt;
+                    var selfFn = this;
 
  
                     Object.keys(revMap).forEach(function(key){
@@ -240,13 +267,14 @@ var
                     });
 
                     if(iCnt != rCnt){
-                        util.msg.update(fn.printIt(iPath));
+                        selfFn.mark.add('update', iPath);
                         fs.writeFileSync(iPath, rCnt);
                     }
 
                 },
                 buildRevMapDestFiles: function(revMap){
                     var config = fn.getConfigCacheSync();
+                    var selfFn = this;
                     if(!config){
                         return;
                     }
@@ -258,12 +286,7 @@ var
                             return;
                         }
 
-                        if(fs.existsSync(revDest)){
-                            util.msg.update(fn.printIt(revDest));
-
-                        } else {
-                            util.msg.create(fn.printIt(revDest));
-                        }
+                        selfFn.mark.add(fs.existsSync(revDest)? 'update': 'create', revDest);
                         fs.writeFileSync(revDest, fs.readFileSync(revSrc));
 
                     });
@@ -276,6 +299,7 @@ var
             build: function(op){
                 var config = fn.getConfigSync(op);
                 var self = this;
+                var selfFn = self.fn;
                 if(!config){
                     return util.msg.warn('rev-build run fail', 'config not exist');
                 }
@@ -290,6 +314,8 @@ var
                     util.msg.info('ver is not blank, run rev-update');
                     return supercall.rev.update(op);
                 }
+
+                
 
 
                 // 清除 dest 目录下所有带 hash 文件
@@ -336,32 +362,35 @@ var
 
                 // 生成 hash 列表
                 var revMap = {};
+                
+                // 重置 mark
+                selfFn.mark.reset();
 
                 // 生成 资源 hash 表
                 resourceFiles.forEach(function(iPath){
-                    self.fn.buildHashMap(iPath, revMap);
+                    selfFn.buildHashMap(iPath, revMap);
                 });
 
                 // 生成 js hash 表
                 jsFiles.forEach(function(iPath){
-                    self.fn.buildHashMap(iPath, revMap);
+                    selfFn.buildHashMap(iPath, revMap);
                 });
 
                 // css 文件内路径替换 并且生成 hash 表
                 cssFiles.forEach(function(iPath){
                     // hash路径替换
-                    self.fn.fileHashPathUpdate(iPath, revMap);
+                    selfFn.fileHashPathUpdate(iPath, revMap);
                     // 生成hash 表
-                    self.fn.buildHashMap(iPath, revMap);
+                    selfFn.buildHashMap(iPath, revMap);
                 });
 
                 // html 路径替换
                 htmlFiles.forEach(function(iPath){
-                    self.fn.fileHashPathUpdate(iPath, revMap);
+                    selfFn.fileHashPathUpdate(iPath, revMap);
                 });
 
                 // 根据hash 表生成对应的文件
-                self.fn.buildRevMapDestFiles(revMap);
+                selfFn.buildRevMapDestFiles(revMap);
                 
 
                 // 版本生成
@@ -377,18 +406,20 @@ var
                     );
 
                 fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
-                util.msg.create(fn.printIt(revPath));
+                selfFn.mark.add('create', revPath);
 
                 // rev-manifest-{cssjsdate}.json 生成
                 fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
-                util.msg.create(fn.printIt(revVerPath));
+                selfFn.mark.add('create', revVerPath);
 
+                selfFn.mark.print();
                 util.msg.success('rev-build finished');
             },
             
             // rev-update 入口
             update: function(op){
                 var self = this;
+                var selfFn = self.fn;
                 var config = fn.getConfigSync(op);
                 if(!config){
                     return util.msg.warn('rev-update run fail', 'config not exist');
@@ -397,6 +428,9 @@ var
                     util.msg.warn('config.commit.revAddr not set, rev task not run');
                     return;
                 }
+
+                // 重置 mark
+                selfFn.mark.reset();
 
                 new util.Promise(function(next){ // 获取 rev-manifest
                     if(op.ver == 'remote'){ // 远程获取 rev-manifest
@@ -451,7 +485,7 @@ var
                     var htmlFiles = util.readFilesSync(config.alias.root, /\.html$/);
 
                     htmlFiles.forEach(function(iPath){
-                        self.fn.fileHashPathUpdate(iPath, revMap);
+                        selfFn.fileHashPathUpdate(iPath, revMap);
                     });
 
                     // css 替换
@@ -473,7 +507,7 @@ var
                     next(revMap);
 
                 }).then(function(revMap, next){ // hash对应文件生成
-                    self.fn.buildRevMapDestFiles(revMap);
+                    selfFn.buildRevMapDestFiles(revMap);
                     next(revMap);
 
                 }).then(function(revMap){ // 本地 rev-manifest 更新
@@ -486,16 +520,17 @@ var
 
                         if(localRevData != revContent){
                             fs.writeFileSync(localRevPath, revContent);
-                            util.msg.update(fn.printIt(localRevPath));
+                            selfFn.mark.add('update', localRevPath);
                         }
 
 
                     } else {
                         util.mkdirSync(config.alias.revDest);
                         fs.writeFileSync(localRevPath, revContent);
-                        util.msg.create(fn.printIt(localRevPath));
+                        selfFn.mark.add('create', localRevPath);
                     }
 
+                    selfFn.mark.print();
                     util.msg.success('rev-update finished');
                     
 

@@ -10,6 +10,13 @@ var
     util = require('yyl-util'),
     webpackConfig = require('./webpack.config.js');
 
+
+require('colors');
+
+if(fs.existsSync('./config.mine.js')){
+    config = util.extend(config, require('./config.mine.js'));
+}
+
 var fn = {
     supercall: function(cmd, done){
         var iCmd = [
@@ -29,12 +36,6 @@ var fn = {
         });
     }
 };
-
-require('colors');
-
-if(fs.existsSync('./config.mine.js')){
-    config = util.extend(config, require('./config.mine.js'));
-}
 
 
 gulp.task('default', function(){
@@ -308,17 +309,5 @@ gulp.task('watch', ['all'], function(){
         });
     });
 
-    var iCmd = [
-        'yyl supercall watchDone',
-        util.envStringify({
-            name: gulp.env.name,
-            ver: gulp.env.ver,
-            debug: gulp.env.debug,
-            slient: gulp.env.slient,
-            proxy: gulp.env.proxy
-        })
-    ].join(' ');
-
-    util.msg.info('run cmd:', iCmd);
-    util.runCMD(iCmd);
+    fn.supercall('watch-done');
 });

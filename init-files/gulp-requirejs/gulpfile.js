@@ -32,6 +32,7 @@ require('colors');
 
 util.msg.init({
     type: {
+        supercall: {name: 'Supercal', color: 'magenta'},
         optimize: {name: 'Optimize', color: 'green'},
         update: {name: 'Updated', color: 'cyan'}
 
@@ -143,7 +144,7 @@ var fn = {
             })
         ].join(' ');
 
-        util.msg.info('run cmd:', iCmd);
+        util.msg.supercall(iCmd);
         util.runCMD(iCmd, function(){
             return done && done();
         });

@@ -39,6 +39,7 @@ require('colors');
 
 util.msg.init({
     type: {
+        supercall: {name: 'Supercal', color: 'magenta'},
         optimize: {name: 'Optimize', color: 'green'},
         update: {name: 'Updated', color: 'cyan'}
     }
@@ -149,7 +150,7 @@ var fn = {
             })
         ].join(' ');
 
-        util.msg.info('run cmd:', iCmd);
+        util.msg.supercall(iCmd);
         util.runCMD(iCmd, function(){
             return done && done();
         });
@@ -168,6 +169,77 @@ var fn = {
                 var widgetPath = util.joinFormat(op.base, 'components/w-');
                 var widgetPath2 = util.joinFormat(op.base, 'components/r-');
                 return  widgetPath == iPath.substr(0, widgetPath.length) || widgetPath2 == iPath.substr(0, widgetPath2.length);
+            },
+            isPage = function(iPath){
+                var pagePath = util.joinFormat(op.base, 'components/p-');
+                var sameName = false;
+
+                iPath.replace(/p\-([a-zA-Z0-9\-]+)\/p\-([a-zA-Z0-9\-]+)\.\w+$/, function(str, $1, $2){
+                    sameName = $1 == $2;
+                    return str;
+                });
+                return sameName && pagePath == iPath.substr(0, pagePath.length);
+            },
+            rMap = {
+                source: {
+                    // 文件路径: [被引用的文件路径列表]
+                    // r-demo: [p-demo, r-demo2]
+                },
+                set: function(source, iPath){
+                    if(!rMap.source[iPath]){
+                        rMap.source[iPath] = [];
+                    }
+                    if(!~rMap.source[iPath].indexOf(source)){
+                        rMap.source[iPath].push(source);
+                    }
+                },
+                findPages: function(iPath){
+                    
+                    var 
+                        cache = {},
+                        findit = function(iPath){
+                            var r = [];
+                            var rs = rMap.source[iPath];
+
+                            if(!rs || !rs.length){
+                                return r;
+                            }
+
+                            rs = [].concat(rs);
+
+                            for(var i = 0; i < rs.length; ){
+                                if(cache[rs[i]]){
+                                    rs.splice(i, 1);
+                                } else {
+                                    cache[rs[i]] = true;
+                                    i++;
+                                }
+                            }
+
+                            if(isPage(iPath)){
+                                return [iPath];
+
+                            } else {
+                                rs.forEach(function(rPath){
+                                    if(isPage(rPath)){
+                                        // console.log('findit('+ iPath +')','=== run 1', rPath);
+                                        r.push(rPath);
+                                    } else {
+                                        // console.log('findit('+ iPath +')','=== run findit('+ rPath +')');
+                                        r = r.concat(findit(rPath));
+                                    }
+                                    // 去重
+                                    r = Array.from(new Set(r));
+                                });
+                                return r;
+                                
+                            }
+
+                        };
+                    return findit(iPath);
+
+                }
+                
             };
 
         var 
@@ -183,23 +255,24 @@ var fn = {
 
                     var r = [];
 
-                    if(/p\-\w+\/p\-\w+\.scss/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                    if(isPage(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
                         r.push(iPath);
                     }
 
-                    // 查找 文件当中 有引用当前 地址的
+                    // 生成文件引用关系表
                     sourceFiles.forEach(function(iSource){
                         var iCnt = fs.readFileSync(iSource).toString();
+
                         iCnt.replace(/\@import ["']([^'"]+)['"]/g, function(str, $1){
                             var myPath = util.joinFormat(path.dirname(iSource), $1 + (path.extname($1)?'': '.scss'));
-                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
-                                r.push(iSource);
-                            }
+                            rMap.set(iSource, myPath);
                             return str;
 
                         });
                     });
 
+                    // 查找调用情况
+                    r = r.concat(rMap.findPages(iPath));
 
                     return r;
                 },
@@ -217,18 +290,19 @@ var fn = {
                         r.push(iPath);
                     }
 
-                    // 查找 文件当中 有引用当前 地址的
+                    // 查找 文件当中 有引用当前 地址的, 此处应有递归
                     sourceFiles.forEach(function(iSource){
                         var iCnt = fs.readFileSync(iSource).toString();
                         iCnt.replace(/(extends|include) ([^\ \r\n\t]+)/g, function(str, $1, $2){
                             var myPath = util.joinFormat(path.dirname(iSource), $2 + '.jade');
-                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
-                                r.push(iSource);
-                            }
+                            rMap.set(iSource, myPath);
                             return str;
 
                         });
                     });
+
+                    // 查找调用情况
+                    r = r.concat(rMap.findPages(iPath));
 
                     return r;
 
@@ -244,7 +318,7 @@ var fn = {
 
                     var r = [];
 
-                    if(/p\-\w+\/p\-\w+\.js/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                    if(isPage(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
                         r.push(iPath);
                     }
                     // 如果是 lib 里面的 js 也返回到当前 array
@@ -267,12 +341,11 @@ var fn = {
                     // 查找 文件当中 有引用当前 地址的
                     sourceFiles.forEach(function(iSource){
                         var iCnt = fs.readFileSync(iSource).toString();
-                        iCnt.replace(/require\s*\(\s*["']([^'"]+)['"]/g, function(str, $1){ // require('xxx') 模式
+                        iCnt.replace(/\r|\t/g, '')
+                        .replace(/require\s*\(\s*["']([^'"]+)['"]/g, function(str, $1){ // require('xxx') 模式
 
                             var myPath = var2Path($1, path.dirname(iSource));
-                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
-                                r.push(iSource);
-                            }
+                            rMap.set(iSource, myPath);
 
                             return str;
                         }).replace(/require\s*\(\s*(\[[^\]]+\])/g, function(str, $1){ // require(['xxx', 'xxx']) 模式
@@ -283,20 +356,32 @@ var fn = {
 
                             iMatchs.forEach(function(name){
                                 var myPath = var2Path(name, path.dirname(iSource));
-                                if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
-                                    r.push(iSource);
-                                }
+                                rMap.set(iSource, myPath);
                             });
 
                             return str;
+			}).replace(/define\s*\(\s*(\[[^\]]+\])/g, function(str, $1){ // define(['xxx', 'xxx']) 模式
+                            var iMatchs = [];
+                            try {
+                                iMatchs = new Function('return ' + $1)();
+                            } catch(er){}
+
+                            iMatchs.forEach(function(name){
+                                var myPath = var2Path(name, path.dirname(iSource));
+                                rMap.set(iSource, myPath);
+                            });
+
+                            return str;
+
                         }).replace(/import[^'"]+['"]([^'"]+)["']/g, function(str, $1){ // import xx from 'xx' 模式
                             var myPath = var2Path($1, path.dirname(iSource));
-                            if(util.joinFormat(iPath) == myPath && !isWidget(iSource)){
-                                r.push(iSource);
-                            }
+                            rMap.set(iSource, myPath);
                             return str;
                         });
                     });
+
+                    // 查找调用情况
+                    r = r.concat(rMap.findPages(iPath));
 
                     return r;
 

@@ -58,6 +58,7 @@ gulp.task('default', function(){
 
 gulp.task('connect-reload', function(){
     fn.supercall('livereload');
+
 });
 
 gulp.task('webpack', function(done){
@@ -198,7 +199,7 @@ gulp.task('rev-update', function(done){
     }
 
     var revPath = path.join(config.alias.revDest, 'rev-manifest.json');
-        
+
         new util.Promise(function(next){
             var revData = {};
 
@@ -285,6 +286,7 @@ gulp.task('all', function(done){
         if(!gulp.env.silent){
             util.pop('optimize task done');
         }
+        
         done();
     });
 });
@@ -300,22 +302,12 @@ gulp.task('watch', ['all'], function(){
         runSequence('webpack', 'html', 'rev', 'rev-update', 'connect-reload', function(){
             if(!gulp.env.silent){
                 util.pop('watch task done');
+
             }
+            
 
         });
     });
 
-    var iCmd = [
-        'yyl supercall watchDone',
-        util.envStringify({
-            name: gulp.env.name,
-            ver: gulp.env.ver,
-            debug: gulp.env.debug,
-            slient: gulp.env.slient,
-            proxy: gulp.env.proxy
-        })
-    ].join(' ');
-
-    util.msg.info('run cmd:', iCmd);
-    util.runCMD(iCmd);
+    fn.supercall('watch-done');
 });
