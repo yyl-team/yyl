@@ -185,6 +185,9 @@ rollup + es6 技术架构, 适用于 PC 端开发
 * [hello world](./examples/webpack-vue2/single-project)
 
 ## 版本信息
+### 2.15.22 (2017-11-30)
+* [FIX] 修复 `gulp-requirejs`, `gulp-rollup` `jade` 中 `<script type="type/html"></script>` 路径不会替换的问题
+
 ### 2.15.21 (2017-11-22)
 * [EDIT] 优化 `yyl supercall rev-build`,  `yyl supercall rev-update` 信息展现
 * [FIX] 同步更新 `gulp-rollup` `yyl watch` 时 如果 `w-xx` 组件 引用 `w-xx2` 组件时， 修改 `w-xx2` 组件 不会进行相应的更新 的问题

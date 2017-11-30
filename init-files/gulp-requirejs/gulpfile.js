@@ -561,7 +561,12 @@ var
                     iCnt = iCnt
                         // 隔离 script 内容
                         .replace(scriptReg, function(str, $1, $2, $3){
-                            return $1 + querystring.escape($2) + $3;
+                            if(/type\s*\=\s*['"]text\/html["']/.test($1)){
+                                return str;
+
+                            } else {
+                                return $1 + querystring.escape($2) + $3;
+                            }
                         })
                         .replace(pathReg, function(str, $1, $2, $3, $4){
                             var iPath = $3,
@@ -577,7 +582,7 @@ var
                                 }
                             });
 
-                            if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || !iPath){
+                            if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || iPath.match(/\{\{[^\}]+\}\}/) || !iPath){
                                 return str;
                             }
 
@@ -592,7 +597,12 @@ var
                         })
                         // 取消隔离 script 内容
                         .replace(scriptReg, function(str, $1, $2, $3){
-                            return $1 + querystring.unescape($2) + $3;
+                            if(/type\s*\=\s*['"]text\/html["']/.test($1)){
+                                return str;
+
+                            } else {
+                                return $1 + querystring.unescape($2) + $3;
+                            }
                         });
 
                     file.contents = new Buffer(iCnt, 'utf-8');
