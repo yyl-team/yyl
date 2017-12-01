@@ -43,7 +43,7 @@ var
     config = require('./config.js'),
     localConfig = fs.existsSync('./config.mine.js')? require('./config.mine.js'): {};
 
-config = util.initConfig(util.extend(true, config, localConfig));
+config = util.extend(true, config, localConfig);
 
 
 
