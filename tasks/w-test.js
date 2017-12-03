@@ -3,17 +3,69 @@
 var util = require('./w-util.js');
 var fs = require('fs');
 
+var 
+    MD_REG = {
+        TITLE_1: /^\#{1}\s+([^ ]+.*$)/,
+        TITLE_2: /^\#{2}\s+([^ ]+.*$)/,
+        TITLE_3: /^\#{3}\s+([^ ]+.*$)/,
+        TITLE_4: /^\#{4}\s+([^ ]+.*$)/,
+        TITLE_5: /^\#{5}\s+([^ ]+.*$)/,
+        TITLE_6: /^\#{6}\s+([^ ]+.*$)/,
+        LIST: /^\*\s+([^ ]+.*$)/,
+        NUM_LIST: /^\d+\.\s+([^ ]+.*$)/
+    };
+
 var md2JSON = function(iPath){
         if(!fs.existsSync(iPath)){
             return;
         }
-        var r = [];
         var iCnt = fs.readFileSync(iPath).toString();
+        var iCntArr = iCnt.split(/[\r\n]+/);
 
-        var i = 10;
-        var iCntArr = iCnt.split(/[\r\n\t]+/);
+        var 
+            treePoint = function(title, parent){
+                this.title = title;
+                this.contents = [];
+                this.parents = [];
+                this.children = [];
+                this.deep = 0;
+                if(parent){
+                    if(parent.parents){
+                        this.parents = parent.parents.concat(parent);
+                    } else {
+                        this.parents = [parent];
+                    }
 
-        console.log(iCntArr);
+                    this.deep = this.parents.length;
+                    
+                    if(parent.children){
+                        parent.children.push(this);
+                    }
+
+                }
+            },
+            r = new treePoint(),
+            currentPoint = r;
+
+        iCntArr.forEach(function(str){ // 逐行读取
+            if(str.match(MD_REG.TITLE_1)){ // 1 级标题
+
+            } else if(str.match(MD_REG.TITLE_2)){ // 2 级标题
+
+            } else if(str.match(MD_REG.TITLE_3)){ // 3 级标题
+            } else if(str.match(MD_REG.TITLE_4)){ // 4 级标题
+            } else if(str.match(MD_REG.TITLE_5)){ // 5 级标题
+            } else if(str.match(MD_REG.TITLE_6)){ // 6 级标题
+
+            } else if(str.match(MD_REG.LIST)){ // 无序列表
+
+            } else if(str.match(MD_REG.NUM_LIST)){ // 有序列表
+
+            } else { // 一般内容
+
+            }
+
+        });
 
         // iCnt = iCnt.replace(/[\r\n\t]+\#\#\s+([^\#]+)/g, function(str, $1){
             
