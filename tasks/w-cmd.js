@@ -16,6 +16,7 @@ var
         debug: require('./w-debug'),
         supercall: require('./w-supercall'),
         update: require('./w-update'),
+        make: require('./w-make'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -134,13 +135,16 @@ module.exports = function(ctx){
         case 'update':
             events.update.apply(events.update, iArgv.slice(1));
             break;
-
+        
+        case 'make': 
+            events.make.apply(events, iArgv);
+            break;
 
         case 'debug':
             events.debug.apply(events, iArgv.slice(1));
             break;
 
-
+        
         default:
             events.help();
             break;
