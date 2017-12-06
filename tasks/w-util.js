@@ -2,6 +2,7 @@
 var 
     util = require('yyl-util'),
     os = require('os'),
+    color = require('yyl-color'),
     USERPROFILE = process.env[process.platform == 'win32'? 'USERPROFILE': 'HOME'];
 
 util.vars = {
@@ -168,5 +169,17 @@ util.initConfig = function(config){
     return config;
 
 };
+
+util = Object.assign(util, {
+    logSuccess (str) {
+        console.log(color.green(str))
+    },
+    logWarning (str) {
+        console.log(color.yellow(str))
+    },
+    logError (str) {
+        console.log(color.red(str))        
+    }
+});
 
 module.exports = util;

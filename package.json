@@ -9,7 +9,7 @@
   "author": "yylive FE team",
   "license": "ISC",
   "bin": {
-    "yyl": "./bin/init.js"
+    "yyl": "./bin/init.js --inspect"
   },
   "scripts": {},
   "main": "index.js",

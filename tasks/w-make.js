@@ -1,41 +1,46 @@
 'use strict';
 
 var fs = require('fs'),
-    util = require('./w-util.js'),
-    touch = require('touch'),
-    path = require('path'),
-    mkdirp = require('mkdirp');
+    _ = require('./w-util.js'),
+    path = require('path');
 
 module.exports = function () {
     var 
-        iArgv = util.makeArray(arguments);
-        
-    console.log('argsments', iArgv);
-
-    var componentsPath = path.join(util.vars.PROJECT_PATH, 'src/pc/components');
-    
-    mkdirp(path.join(__dirname, 'sb'), function (err) {
-        if (err) console.error(err);
-        else console.log('pow');
-    });
+        iArgv = Array.from(arguments),
+        newComponentName = iArgv[1],
+        componentsPath = path.join(_.vars.PROJECT_PATH, 'src/pc/components'),
+        newComponentDir = path.join(componentsPath, newComponentName),
+        extensions = ['.js', '.jade', '.scss'];
 
 
-    // var componentName = iArgv[1];
-    
-    // var extensions = ['.js', '.jade', '.scss'];
-     
-    // var newFiles = extensions.map(function (e) {
-    //     return path.join(componentsPath, componentName, componentName+e);
-    // });
+    function mkdir(path) {
+        return new Promise((resolve, reject) => {
+            fs.mkdir(path, (err) => {
+                if (err) {
+                    reject(err)
+                }
+                resolve(`Made component dir: ${newComponentDir}`)
+            })
+        })
+    }
 
-    // function touchFile(filename) {
-    //     mkdirp(path.dirname(filename), function (err) {
-    //         if (err) throw new Error('can\'t create dir: ', err);
-    //         touch.sync(filename);
-    //         console.log(filename, ' created');
-    //     });
-    // }
 
-    // newFiles.forEach(touchFile);
+    mkdir(newComponentDir).then((msg) => {
+        _.logSuccess(msg)
+
+        extensions.map((extension) => {
+            let fileName = path.join(newComponentDir, newComponentName+extension);
+            try {
+                fs.openSync(fileName, 'a')
+                _.logSuccess(`Created file: ${fileName}`)
+            } catch(e) {
+                _.logError(`Create file failed: ${e}`)
+            }
+        });
+
+    }).catch((err) => {
+        _.logError(err)
+    })
+
 };
 
