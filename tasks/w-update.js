@@ -4,9 +4,9 @@ var wServer = require('./w-server.js');
 
 var
     update = function(version){
-        var iCmd = 'git pull -u origin master';
+        var iCmd = 'git checkout master & git pull';
         if(version){
-            iCmd = 'git pull -u origin ' + version;
+            iCmd = 'git checkout '+ version +' & git pull';
         }
         util.msg.info(iCmd);
     };
