@@ -1,7 +1,7 @@
 'use strict';
 var 
     util = require('./w-util.js'),
-    vars = require('./w-vars.js'),
+    vars = util.vars,
     wServer = require('./w-server.js'),
     path = require('path'),
     fs = require('fs');

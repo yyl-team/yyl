@@ -2,7 +2,7 @@
 var 
     util = require('./w-util.js'),
     color = require('yyl-color'),
-    vars = require('./w-vars.js');
+    vars = util.vars;
 
 var 
     events = {
@@ -16,6 +16,7 @@ var
         debug: require('./w-debug'),
         supercall: require('./w-supercall'),
         update: require('./w-update'),
+        make: require('./w-make'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -138,6 +139,10 @@ module.exports = function(ctx){
 
         case 'debug':
             events.debug.apply(events, iArgv.slice(1));
+            break;
+
+        case 'make':
+            events.make.run.apply(events, iArgv.slice(1));
             break;
 
 
