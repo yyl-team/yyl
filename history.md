@@ -2,6 +2,7 @@
 ## 2.15.24 (2017-12-02)
 * [EDIT] 锁定 `gulp-requirejs`, `gulp-rollup`, `webpack-vue`, `webpack-vue2` 中 `package.json` 依赖组件的版本
 * [ADD] `gulp-requirejs`, `gulp-rollup` 新增 `--remote` 选项
+* [EDIT] `yyl update` 功能完成
 
 ## 2.15.23 (2017-12-01)
 * [FIX] 修复 `gulp-requirejs`, `gulp-rollup` 运行 会报错问题 
