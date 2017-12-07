@@ -26,6 +26,7 @@ Options:
 
     --ver <remote>   线上rev-manifest 版本
                      remote: 版本信息 如直接拉取最新版 输入 'remote'
+    --remote         同 --ver remote
 
     --sub <branch>   发布的版本 dev|trunk
 

@@ -105,6 +105,10 @@ var fn = {
             commands = process.argv[2],
             iConfig;
 
+        if(gulp.env.remote){
+            gulp.env.ver = 'remote';
+        }
+
         if(gulp.env.ver){
             gulp.env.version = gulp.env.ver;
         }
