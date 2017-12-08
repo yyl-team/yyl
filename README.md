@@ -27,6 +27,7 @@ Commands:
     server  yyl本地服务相关命令
     commit  提交代码到 svn/git
     update  更新
+    make    创建模块
 
 
 Options:

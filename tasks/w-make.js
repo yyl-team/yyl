@@ -2,6 +2,7 @@
 var 
     util = require('./w-util.js'),
     wServer = require('./w-server.js'),
+    path = require('path'),
     fs = require('fs');
 
 
@@ -36,6 +37,12 @@ var TEMPLATE = {
         'DEFAULT': [
             '\'use strict;\''
         ].join('\r\n')
+    },
+    'ALIAS': {
+        'START': '// + yyl make',
+        'END': '// - yyl make',
+        'START_REG': /^([\s\t]*)\/\/\s*\+\s*yyl make\s*/,
+        'END_REG'  : /^([\s\t]*)\/\/\s*\-\s*yyl make\s*/
     }
 
 };
@@ -70,7 +77,7 @@ var
 
                 });
 
-            }).then(function(config){
+            }).then(function(config, next){
                 var 
                     srcRoot = config.alias.srcRoot,
                     widgetPath = '',
@@ -87,7 +94,7 @@ var
 
                 } else { // 不执行
                     util.msg.warn('yyl make fail');
-                    util.msg.warn(name + ' is not a widget(w-xx|r-xx) or page(p-) components');
+                    util.msg.warn(name, 'is not a widget(w-xx|r-xx) or page(p-) components');
                     return;
                 }
 
@@ -98,11 +105,11 @@ var
                 widgetPath = util.joinFormat(widgetPath, name);
                 util.mkdirSync(widgetPath);
 
-                var scssPath = util.joinFormat(widgetPath, name + '.scss');
-                var jsPath = util.joinFormat(widgetPath, name + '.js');
-                var jadePath = util.joinFormat(widgetPath, name + '.jade');
-                var iTmpl;
+                next(widgetPath, type, srcRoot, config);
 
+            }).then(function(widgetPath, type, srcRoot, config, next){ // scss 
+                var scssPath = util.joinFormat(widgetPath, name + '.scss');
+                var iTmpl;
                 // scss 部分
                 if(fs.existsSync(scssPath)){
                     util.msg.warn(util.printIt(scssPath), 'is exists', 'make it fail');
@@ -119,6 +126,29 @@ var
                     util.msg.create(util.printIt(scssPath));
                 }
 
+                next(widgetPath, type, srcRoot, config);
+
+            }).then(function(widgetPath, type, srcRoot, config, next){ // jade
+                var jadePath = util.joinFormat(widgetPath, name + '.jade');
+                var iTmpl;
+
+                // jade 部分
+                if(fs.existsSync(jadePath)){
+                    util.msg.warn(util.printIt(jadePath), 'is exists', 'make it fail');
+
+                } else {
+                    iTmpl = TEMPLATE.JADE.DEFAULT;
+                    fs.writeFileSync(jadePath, fn.render(iTmpl, {
+                        'name': name
+                    }));
+                    util.msg.create(util.printIt(jadePath));
+                }
+
+                next(widgetPath, type, srcRoot, config);
+
+            }).then(function(widgetPath, type, srcRoot, config, next){ // js
+                var jsPath = util.joinFormat(widgetPath, name + '.js');
+                var iTmpl;
                 // js 部分
                 if(fs.existsSync(jsPath)){
                     util.msg.warn(util.printIt(jsPath), 'is exists', 'make it fail');
@@ -143,37 +173,132 @@ var
                     util.msg.create(util.printIt(jsPath));
                 }
 
-                // jade 部分
-                if(fs.existsSync(jadePath)){
-                    util.msg.warn(util.printIt(jadePath), 'is exists', 'make it fail');
+                next(widgetPath, type, srcRoot, config);
 
-                } else {
-                    iTmpl = TEMPLATE.JADE.DEFAULT;
-                    fs.writeFileSync(jadePath, fn.render(iTmpl, {
-                        'name': name
-                    }));
-                    util.msg.create(util.printIt(jadePath));
-                }
+            }).then(function(widgetPath, type, srcRoot, config){ // alias
+                var configPath, configCnts;
 
-                // alias部分
+                // alias 部分
                 if(config.workflow == 'gulp-requirejs'){
-                    var rConfigPath = util.joinFormat(srcRoot, 'js/rConfig/rConfig.js');
-                    var rConfigCnts;
-                    if(fs.existsSync(rConfigPath)){
-                        rConfigCnts = fs.readFileSync(rConfigPath).toString().split(/[\r\n]+/);
-                        console.log(rConfigCnts);
-                    }
-                    // TODO 修改 rConfig
+                    configPath = util.joinFormat(srcRoot, 'js/rConfig/rConfig.js');
 
                 } else if(/^(gulp\-rollup|webpack\-vue|webpack\-vue2)$/.test(config.workflow)){
-                    // TODO 修改 config 中alias
+                    configPath = util.joinFormat( util.vars.PROJECT_PATH, 'config.js');
+                }
+                
+                if(type == 'widget' && configPath && fs.existsSync(configPath)){
+                    configCnts = fs.readFileSync(configPath).toString().split(/[\r\n]+/);
+                    // 查找标记位置
+                    var 
+                        startIndex = -1,
+                        endIndex = -1,
+                        prefix = '';
+
+                    configCnts.forEach(function(str, i){
+                        if(!str){
+                            return;
+                        }
+
+                        if(str.match(TEMPLATE.ALIAS.START_REG)){ // 开始 标记
+                            startIndex = i;
+
+                        } else if(str.match(TEMPLATE.ALIAS.END_REG)){ // 结束 标记
+                            endIndex = i;
+                        }
+
+                    });
+                    if(~startIndex){ // 插入模块
+                        prefix = configCnts[startIndex].replace(TEMPLATE.ALIAS.START_REG, '$1');
+                        var 
+                            moduleName = name.replace(/(^[rw])(\-)(\w)(.*$)/, function(str, $1, $2, $3, $4){
+                                return $1 + $3.toUpperCase() + $4;
+                            }),
+                            modulePath = util.joinFormat(path.relative(
+                                path.dirname(configPath),
+                                util.joinFormat(widgetPath, name)
+                            )),
+                            insertStr = prefix + "'"+ moduleName +"' : '"+ modulePath +"',";
+                        
+                        // 查找是否已经添加过了
+                        var added = false;
+                        var isBeforeBracket = false; // 是否后面就跟着 花括号了
+                        var bracketReg = /^[\s\t]*\}[\s\t]*[,]?[\s\t]*$/;
+                        var commaReg = /\,[\s\t]*$/;
+                        configCnts.slice(startIndex, endIndex).forEach(function(str){
+                            if(str.replace(commaReg, '') == insertStr.replace(commaReg, '')){
+                                added = true;
+                                return true;
+                            }
+                        });
+
+                        if(added){
+                            return util.msg.warn(moduleName, 'was added to the config path before yyl make run');
+                        }
+
+                        configCnts.splice(startIndex + 1, 0, insertStr); // 插入
+                        endIndex += 1;
+                        if(~endIndex){ // 那就帮忙排个序吧
+                            isBeforeBracket = bracketReg.test(configCnts[endIndex + 1]);
+                            var sortArr = configCnts.slice(startIndex + 1, endIndex);
+                            sortArr.sort(function(a, b){
+                                return b.localeCompare(a);
+                            });
+
+
+                            configCnts = configCnts.map(function(str, i){
+                                var r;
+                                if(i >= startIndex + 1 && i < endIndex){
+                                    r = sortArr[i - startIndex - 1];
+                                    if(isBeforeBracket){
+                                        if( i == endIndex - 1 ){ // 最后一个
+                                            r = r.replace(commaReg, '');
+
+                                        } else {
+                                            if(!r.match(commaReg)){
+                                                r = r + ',';
+                                            }
+
+                                        }
+
+                                    }
+                                } else {
+                                    r = str;
+                                }
+                                return r;
+                            });
+                            // 解决逗号问题
+                            
+                        } else {
+                            isBeforeBracket = bracketReg.test(configCnts[startIndex + 2]);
+                            if(isBeforeBracket){
+                                configCnts[startIndex + 1] = configCnts[startIndex + 1].replace(commaReg, '');
+                            }
+                            // 解决逗号问题
+
+                        }
+
+                        fs.writeFileSync(configPath, configCnts.join('\r\n'));
+                        util.msg.update(util.printIt(configPath));
+                        util.msg.update(insertStr.substr(prefix.length));
+
+                    } else { 
+                        util.msg.warn('add alias fail,', 'config haven\'t the mark:');
+                        util.msg.warn(TEMPLATE.ALIAS.START);
+                        util.msg.warn('in config file:', util.printIt(configPath));
+                    }
 
                 }
+
             }).start();
 
-
-
-            
+        },
+        help: function(){
+            util.help({
+                usage: 'yyl make',
+                options: {
+                    'command': 'w-xx, r-xx wigets or p-xx pages component',
+                }
+            });
 
         },
         run: function(){
@@ -182,7 +307,13 @@ var
                 ctx = iArgv[0],
                 op = util.envParse(iArgv.slice(1));
 
-            wMake.init(ctx, op);
+            if(!ctx){
+                wMake.help();
+
+            } else {
+                wMake.init(ctx, op);
+            }
+
         }
 
     };
