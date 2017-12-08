@@ -158,6 +158,8 @@ var
                 revDest: path.join(setting01.localserver.root, setting01.dest.basePath, setting01.dest.revPath),
 
                 rDemo: path.join('src/proj01/components/r-demo/r-demo.js')
+                // + yyl make
+                // - yyl make
             },
             // -此部分 yyl server 端config 会进行替换
 
@@ -324,6 +326,9 @@ var
                 revDest: path.join(setting02.localserver.root, setting02.dest.basePath, setting02.dest.revPath),
 
                 rDemo: path.join('./src/proj02/components/r-demo/r-demo.js')
+                // + yyl make
+                // - yyl make
+
             },
             // -此部分 yyl server 端config 会进行替换
 

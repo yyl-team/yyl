@@ -7,6 +7,8 @@ var require = {
         rDemo: '../../../../../../../public/plugin/pc/r-demo/r-demo',
         // global
         jquery: '../../../../../../../public/global/lib/jQuery/jquery-1.11.1'
+        // + yyl make
+        // - yyl make
     },
     shim: {
         // artTemplate: {

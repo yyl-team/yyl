@@ -116,6 +116,8 @@ var
 
             // 公用 alias
             rDemo: path.join('./src/components/r-demo/r-demo.js')
+            // + yyl make
+            // - yyl make
         },
         // -此部分 yyl server 端config 会进行替换
 

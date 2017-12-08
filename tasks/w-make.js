@@ -245,6 +245,12 @@ var
                             });
 
 
+                            // 解决逗号问题
+                            if(isBeforeBracket){
+                                if(!configCnts[startIndex - 1].match(commaReg)){
+                                    configCnts[startIndex - 1] = configCnts[startIndex - 1] + ',';
+                                }
+                            }
                             configCnts = configCnts.map(function(str, i){
                                 var r;
                                 if(i >= startIndex + 1 && i < endIndex){
@@ -266,14 +272,16 @@ var
                                 }
                                 return r;
                             });
-                            // 解决逗号问题
                             
                         } else {
+                            // 解决逗号问题
                             isBeforeBracket = bracketReg.test(configCnts[startIndex + 2]);
                             if(isBeforeBracket){
+                                if(!configCnts[startIndex - 1].match(commaReg)){
+                                    configCnts[startIndex - 1] = configCnts[startIndex - 1] + ',';
+                                }
                                 configCnts[startIndex + 1] = configCnts[startIndex + 1].replace(commaReg, '');
                             }
-                            // 解决逗号问题
 
                         }
 
