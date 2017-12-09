@@ -163,11 +163,6 @@ var fn = {
         }
 
         var 
-            isWidget = function(iPath){
-                var widgetPath = util.joinFormat(op.base, 'components/w-');
-                var widgetPath2 = util.joinFormat(op.base, 'components/r-');
-                return  widgetPath == iPath.substr(0, widgetPath.length) || widgetPath2 == iPath.substr(0, widgetPath2.length);
-            },
             isPage = function(iPath){
                 var pagePath = util.joinFormat(op.base, 'components/p-');
                 var sameName = false;
@@ -588,6 +583,17 @@ var
 
                             if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || iPath.match(/\{\{[^\}]+\}\}/) || !iPath){
                                 return str;
+                            }
+
+                            if(path.extname(iPath) == '.scss'){ // 纠正 p-xx.scss 路径
+                                var filename = path.basename(iPath, path.extname(iPath));
+                                if(/^p\-/.test(filename)){
+
+                                    iPath = util.joinFormat(path.relative(
+                                        path.dirname(file.path),
+                                        path.join(vars.srcRoot, 'css', filename.replace(/^p\-/, '') + '.css'))
+                                    );
+                                }
                             }
 
 

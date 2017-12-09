@@ -8,6 +8,37 @@ var
 
 var TEMPLATE = {
     'JADE': {
+        'LAYOUT': [
+            'doctype html',
+            'html',
+            '    head',
+            '        meta(charset="utf-8")',
+            '        meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")',
+            '        meta(name="renderer", content="webkit")',
+            '        title',
+            '            block title',
+            '',
+            '        block head',
+            '    body',
+            '        block body',
+            '',
+            '        block script'
+        ].join('\r\n'),
+        'PAGE': [
+            'extends ../w-layout/w-layout',
+            'block title {{name}}',
+            '',
+            'block head',
+            '    link(rel="stylesheet", href="./{{name}}.scss", type="text/css")',
+            '',
+            'block body',
+            '',
+            'append script',
+            '    script(src="./{{name}}.js")'
+        ].join('\r\n'),
+        'WIDGET': [
+            'mixin {{name}}'
+        ].join('\r\n'),
         'DEFAULT': ''
     },
     'SCSS': {
@@ -115,11 +146,11 @@ var
                     util.msg.warn(util.printIt(scssPath), 'is exists', 'make it fail');
                 } else {
                     if(type == 'page'){
-                        iTmpl = TEMPLATE.JS.PAGE;
+                        iTmpl = TEMPLATE.SCSS.PAGE;
                     } else if(type == 'widget'){
-                        iTmpl = TEMPLATE.JS.WIDGET;
+                        iTmpl = TEMPLATE.SCSS.WIDGET;
                     } else {
-                        iTmpl = TEMPLATE.JS.DEFAULT;
+                        iTmpl = TEMPLATE.SCSS.DEFAULT;
                     }
 
                     fs.writeFileSync(scssPath, fn.render(iTmpl, { 'name': name }));
@@ -137,7 +168,18 @@ var
                     util.msg.warn(util.printIt(jadePath), 'is exists', 'make it fail');
 
                 } else {
-                    iTmpl = TEMPLATE.JADE.DEFAULT;
+                    if(type == 'page'){
+                        iTmpl = TEMPLATE.JADE.PAGE;
+
+                    } else if(name == 'w-layout') {
+                        iTmpl = TEMPLATE.JADE.LAYOUT;
+
+                    } else if(type == 'widget') {
+                        iTmpl = TEMPLATE.JADE.WIDGET;
+                    } else {
+                        iTmpl = TEMPLATE.JADE.DEFAULT;
+                    }
+
                     fs.writeFileSync(jadePath, fn.render(iTmpl, {
                         'name': name
                     }));
