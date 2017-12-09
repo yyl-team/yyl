@@ -56,17 +56,17 @@ var TEMPLATE = {
     },
     'JS': {
         'PAGE': [
-            '\'use strict;\'',
+            '\'use strict\';',
             'require([], function() {',
             '});'
         ].join('\r\n'),
         'WIDGET': [
-            '\'use strict;\'',
+            '\'use strict\';',
             'define([], function() {',
             '});'
         ].join('\r\n'),
         'DEFAULT': [
-            '\'use strict;\''
+            '\'use strict\';'
         ].join('\r\n')
     },
     'ALIAS': {
@@ -259,8 +259,19 @@ var
                                 path.dirname(configPath),
                                 util.joinFormat(widgetPath, name)
                             )),
-                            insertStr = prefix + "'"+ moduleName +"' : '"+ modulePath +"',";
+                            insertStr;
+
+                        switch(config.workflow){
+                            case 'gulp-requirejs':
+                                break;
+
+                            default:
+                                modulePath += '.js';
+                                break;
+                        }
                         
+                        insertStr = prefix + "'"+ moduleName +"' : '"+ modulePath +"',";
+
                         // 查找是否已经添加过了
                         var added = false;
                         var isBeforeBracket = false; // 是否后面就跟着 花括号了

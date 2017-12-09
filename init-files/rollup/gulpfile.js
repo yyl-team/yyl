@@ -994,11 +994,18 @@ var
                 return;
             }
 
+            // 更新 alias
+
             var rStream = stream
                     .pipe(filter('**/*.js'))
                     .pipe(plumber())
                     .pipe(jshint.reporter('default'))
                     .pipe(jshint())
+                    .pipe(through.obj(function(file, enc, next){
+                        util.msg.optimize('js  ', file.relative);
+                        this.push(file);
+                        next();
+                    }))
                     .pipe(rollup({
                         plugins: [
                             rollupCommonjs(),
