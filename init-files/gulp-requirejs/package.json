@@ -31,6 +31,7 @@
     "gulp-notify": "~2.2.0",
     "gulp-plumber": "~1.1.0",
     "gulp-prettify": "~0.4.0",
+    "gulp-pug": "^3.3.0",
     "gulp-rename": "~1.2.0",
     "gulp-replace-path": "~0.4.0",
     "gulp-sass": "~2.3.2",

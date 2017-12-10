@@ -21,7 +21,7 @@ var gulp = require('gulp'),
     requirejs = require('requirejs'),
     inlinesource = require('gulp-inline-source'), // requirejs optimizer which can combine all modules into the main js file
     filter = require('gulp-filter'), // filter the specified file(s) in file stream
-    gulpJade = require('gulp-jade'),
+    gulpPug = require('gulp-pug'),
     plumber = require('gulp-plumber'),
     runSequence = require('run-sequence').use(gulp),
     prettify = require('gulp-prettify'),
@@ -271,8 +271,8 @@ var fn = {
 
                     return r;
                 },
-                jade: function(iPath){
-                    var sourceFiles = util.readFilesSync(iBase, /\.jade$/);
+                pug: function(iPath){
+                    var sourceFiles = util.readFilesSync(iBase, /\.pug$/);
                     iPath = util.joinFormat(iPath);
 
                     if(~sourceFiles.indexOf(iPath)){ // 排除当前文件
@@ -281,7 +281,7 @@ var fn = {
 
                     var r = [];
 
-                    if(/p\-\w+\/p\-\w+\.jade$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                    if(/p\-\w+\/p\-\w+\.pug$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
                         r.push(iPath);
                     }
 
@@ -289,7 +289,7 @@ var fn = {
                     sourceFiles.forEach(function(iSource){
                         var iCnt = fs.readFileSync(iSource).toString();
                         iCnt.replace(/(extends|include) ([^\ \r\n\t]+)/g, function(str, $1, $2){
-                            var myPath = util.joinFormat(path.dirname(iSource), $2 + '.jade');
+                            var myPath = util.joinFormat(path.dirname(iSource), $2 + '.pug');
                             rMap.set(iSource, myPath);
                             return str;
 
@@ -404,8 +404,8 @@ var fn = {
                     handle = friendship.scss;
                     break;
 
-                case 'jade':
-                    handle = friendship.jade;
+                case 'pug':
+                    handle = friendship.pug;
                     break;
 
                 case 'js':
@@ -499,7 +499,7 @@ var fn = {
             var rPaths = [];
             if(op.htmlDest == iPath.substr(0, op.htmlDest.length) && path.extname(iPath) == '.html'){ // html
                 rPaths.push(util.joinFormat(op.srcRoot, 'html', path.basename(iPath)));
-                rPaths.push(util.joinFormat(op.srcRoot, 'components', 'p-' + filename, 'p-' + filename + '.jade'));
+                rPaths.push(util.joinFormat(op.srcRoot, 'components', 'p-' + filename, 'p-' + filename + '.pug'));
 
             } else if(op.cssDest == iPath.substr(0, op.cssDest.length) && path.extname(iPath) == '.css'){ // css
                 rPaths.push(util.joinFormat(op.srcRoot, 'css', path.basename(iPath)));
@@ -530,7 +530,7 @@ var fn = {
 var 
     iStream = {
         // + html task
-        jade2html: function(stream){
+        pug2html: function(stream){
             var 
                 iConfig = fn.taskInit(),
                 vars = gulp.env.vars;
@@ -541,11 +541,11 @@ var
             var rStream = stream
                 .pipe(plumber())
                 .pipe(through.obj(function(file, enc, next){
-                    util.msg.optimize('jade', file.relative);
+                    util.msg.optimize('pug', file.relative);
                     this.push(file);
                     next();
                 }))
-                .pipe(gulpJade({
+                .pipe(gulpPug({
                     pretty: false,
                     client: false
                 }))
@@ -758,9 +758,9 @@ var
             return rStream;
 
         },
-        jade2dest: function(stream){
+        pug2dest: function(stream){
             var 
-                rStream = iStream.jade2html(stream);
+                rStream = iStream.pug2html(stream);
 
             rStream = iStream.html2dest(rStream);
             return rStream;
@@ -1084,9 +1084,9 @@ var
                 rStream;
 
             switch(iExt){
-                case 'jade':
-                    if(inside('components')){ // jade-to-dest-task
-                        rStream = iStream.jade2dest(gulp.src([iPath], {
+                case 'pug':
+                    if(inside('components')){ // pug-to-dest-task
+                        rStream = iStream.pug2dest(gulp.src([iPath], {
                             base: util.joinFormat(vars.srcRoot)
                         }));
                         rStream = rStream.pipe(gulp.dest(vars.htmlDest));
@@ -1186,10 +1186,10 @@ var
 
 
 // + html task
-gulp.task('html', ['jade-to-dest-task', 'html-to-dest-task'], function(){
+gulp.task('html', ['pug-to-dest-task', 'html-to-dest-task'], function(){
 });
 
-gulp.task('jade-to-dest-task', function(){
+gulp.task('pug-to-dest-task', function(){
     var 
         iConfig = fn.taskInit(),
         vars = gulp.env.vars;
@@ -1199,7 +1199,7 @@ gulp.task('jade-to-dest-task', function(){
     }
     var rStream;
 
-    rStream = iStream.jade2dest(gulp.src(util.joinFormat(vars.srcRoot, 'components/@(p-)*/*.jade')));
+    rStream = iStream.pug2dest(gulp.src(util.joinFormat(vars.srcRoot, 'components/@(p-)*/*.pug')));
     rStream = rStream.pipe(gulp.dest(vars.htmlDest));
 
     return rStream;
