@@ -27,7 +27,8 @@ var
                     'server': 'local server commands',
                     'examples': 'show yyl examples',
                     'commit': 'commit code to svn/git server(need config)',
-                    'update': 'update yyl from npm'
+                    'update': 'update yyl from npm',
+                    'make': 'make new component'
                 },
                 options: {
                     '-h, --help': 'print usage information',
