@@ -10,7 +10,7 @@ module.exports = function () {
         newComponentName = iArgv[1],
         componentsPath = path.join(_.vars.PROJECT_PATH, 'src/pc/components'),
         newComponentDir = path.join(componentsPath, newComponentName),
-        extensions = ['.js', '.jade', '.scss'];
+        extensions = ['.js', '.pug', '.scss'];
 
 
     function mkdir(path) {
