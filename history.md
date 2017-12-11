@@ -5,7 +5,7 @@
 * [ADD] 新增 `yyl make` 功能
 * [EDIT] `yyl update` 功能完成
 * [ADD] `gulp-requirejs`, `gulp-rollup` 支持在 `p-xx.jade` 里面直接引用 `p-xx.scss` 构建工具会自动转义成 `xx.css`
-* TODO [FIX] 修复 `gulp-rollup` 在 `watch` 时 修改 `jade` 不会触发更新问题
+* [FIX] 修复 `gulp-rollup` 在 `watch` `p-xx-xx` 时 修改 `jade` 不会触发更新问题
 
 ## 2.15.23 (2017-12-01)
 * [FIX] 修复 `gulp-requirejs`, `gulp-rollup` 运行 会报错问题 

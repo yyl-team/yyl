@@ -280,7 +280,7 @@ var fn = {
 
                     var r = [];
 
-                    if(/p\-\w+\/p\-\w+\.jade$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                    if(/p\-[a-zA-Z0-9\-]+\/p\-[a-zA-Z0-9\-]+\.jade$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
                         r.push(iPath);
                     }
 
