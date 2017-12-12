@@ -1,5 +1,9 @@
 # 版本信息
-## 2.15.24 (2017-12-02)
+## 2.15.25 (2017-12-12)
+* [EDIT] 升级 `gulp-requirejs` 中 `jade` 为 `pug`, 升级后不再对 `*.jade` 文件进行渲染，只对 `*.pug` 文件渲染
+* [ADD] 新增 `yyl jade2pug` 命令 一键把原有项目中的 `*.jade` 格式转成 `*.pug` 格式
+
+## 2.15.24 (2017-12-11)
 * [EDIT] 锁定 `gulp-requirejs`, `gulp-rollup`, `webpack-vue`, `webpack-vue2` 中 `package.json` 依赖组件的版本
 * [ADD] `gulp-requirejs`, `gulp-rollup` 新增 `--remote` 选项
 * [ADD] 新增 `yyl make` 功能
