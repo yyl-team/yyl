@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "2.15.25",
+  "version": "2.15.26",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -9,7 +9,7 @@
   "author": "yylive FE team",
   "license": "ISC",
   "bin": {
-    "yyl": "./bin/init.js --inspect"
+    "yyl": "./bin/init.js"
   },
   "scripts": {},
   "main": "index.js",
