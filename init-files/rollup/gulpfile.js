@@ -111,6 +111,10 @@ var fn = {
             commands = process.argv[2],
             iConfig;
 
+        if(gulp.env.remote){
+            gulp.env.ver = 'remote';
+        }
+
         if(gulp.env.ver){
             gulp.env.version = gulp.env.ver;
         }
@@ -165,11 +169,6 @@ var fn = {
         }
 
         var 
-            isWidget = function(iPath){
-                var widgetPath = util.joinFormat(op.base, 'components/w-');
-                var widgetPath2 = util.joinFormat(op.base, 'components/r-');
-                return  widgetPath == iPath.substr(0, widgetPath.length) || widgetPath2 == iPath.substr(0, widgetPath2.length);
-            },
             isPage = function(iPath){
                 var pagePath = util.joinFormat(op.base, 'components/p-');
                 var sameName = false;
@@ -222,10 +221,8 @@ var fn = {
                             } else {
                                 rs.forEach(function(rPath){
                                     if(isPage(rPath)){
-                                        // console.log('findit('+ iPath +')','=== run 1', rPath);
                                         r.push(rPath);
                                     } else {
-                                        // console.log('findit('+ iPath +')','=== run findit('+ rPath +')');
                                         r = r.concat(findit(rPath));
                                     }
                                     // 去重
@@ -286,7 +283,7 @@ var fn = {
 
                     var r = [];
 
-                    if(/p\-\w+\/p\-\w+\.jade$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                    if(/p\-[a-zA-Z0-9\-]+\/p\-[a-zA-Z0-9\-]+\.jade$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
                         r.push(iPath);
                     }
 
@@ -584,6 +581,17 @@ var
 
                             if(iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || iPath.match(/\{\{[^\}]+\}\}/) || !iPath){
                                 return str;
+                            }
+
+                            if(path.extname(iPath) == '.scss'){ // 纠正 p-xx.scss 路径
+                                var filename = path.basename(iPath, path.extname(iPath));
+                                if(/^p\-/.test(filename)){
+
+                                    iPath = util.joinFormat(path.relative(
+                                        path.dirname(file.path),
+                                        path.join(vars.srcRoot, 'css', filename.replace(/^p\-/, '') + '.css'))
+                                    );
+                                }
                             }
 
 
@@ -984,11 +992,18 @@ var
                 return;
             }
 
+            // 更新 alias
+
             var rStream = stream
                     .pipe(filter('**/*.js'))
                     .pipe(plumber())
                     .pipe(jshint.reporter('default'))
                     .pipe(jshint())
+                    .pipe(through.obj(function(file, enc, next){
+                        util.msg.optimize('js  ', file.relative);
+                        this.push(file);
+                        next();
+                    }))
                     .pipe(rollup({
                         plugins: [
                             rollupCommonjs(),

@@ -2,7 +2,7 @@
 var 
     color = require('yyl-color'),
     util = require('./w-util.js'),
-    vars = require('./w-vars'),
+    vars = util.vars,
     wServer = require('./w-server'),
     path = require('path'),
     fs = require('fs'),

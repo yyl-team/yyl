@@ -3,7 +3,7 @@
 var 
     fs = require('fs'),
     util = require('./w-util.js'),
-    vars = require('./w-vars'),
+    vars = util.vars,
     path = require('path');
 
 var 

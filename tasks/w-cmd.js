@@ -2,7 +2,7 @@
 var 
     util = require('./w-util.js'),
     color = require('yyl-color'),
-    vars = require('./w-vars.js');
+    vars = util.vars;
 
 var 
     events = {
@@ -145,7 +145,6 @@ module.exports = function(ctx){
             events.debug.apply(events, iArgv.slice(1));
             break;
 
-        
         default:
             events.help();
             break;

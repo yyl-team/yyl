@@ -2,7 +2,7 @@
 var 
     util = require('./w-util.js'),
     color = require('yyl-color'),
-    vars = require('./w-vars'),
+    vars = util.vars,
     connect = require('connect'),
     serveIndex = require('serve-index'),
     serveStatic = require('serve-static'),

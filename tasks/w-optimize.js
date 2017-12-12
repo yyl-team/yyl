@@ -3,7 +3,7 @@ var
     util = require('./w-util.js'),
     wServer = require('./w-server'),
     wProxy = require('./w-proxy'),
-    vars = require('./w-vars'),
+    vars = util.vars,
     path = require('path'),
     fs = require('fs');
 

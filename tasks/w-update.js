@@ -4,15 +4,11 @@ var wServer = require('./w-server.js');
 
 var
     update = function(version){
-        wServer.clear(function(){
-            var iCmd = 'npm install yyl -g';
-            if(version){
-                iCmd = 'npm install yyl@' + version + ' -g';
-            }
-            util.msg.info('clear done please input cmd:');
-            util.msg.info(iCmd);
-        });
-
+        var iCmd = 'git checkout master & git pull';
+        if(version){
+            iCmd = 'git checkout '+ version +' & git pull';
+        }
+        util.msg.info(iCmd);
     };
 
 module.exports = update;
