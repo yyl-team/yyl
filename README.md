@@ -21,13 +21,14 @@ npm install yyl -g
 Usage: yyl <command>
 
 Commands:
-    init    项目初始化
-    watch   执行打包并建立本地服务器监听
-    all     执行打包操作
-    server  yyl本地服务相关命令
-    commit  提交代码到 svn/git
-    update  更新
-    make    创建模块
+    init     项目初始化
+    watch    执行打包并建立本地服务器监听
+    all      执行打包操作
+    server   yyl本地服务相关命令
+    commit   提交代码到 svn/git
+    update   更新
+    make     创建模块
+    jade2pug 批量把jade 文件转成 pug 
 
 
 Options:

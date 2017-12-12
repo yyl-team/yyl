@@ -281,7 +281,7 @@ var fn = {
                     var r = [];
 
 
-                    if(/p\-[a-zA-Z0-9\-]+\/p\-[a-zA-Z0-9\-]+\.(jade|pug)$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
+                    if(/p\-[a-zA-Z0-9\-]+\/p\-[a-zA-Z0-9\-]+\.pug$/.test(iPath)){ // 如果自己是 p-xx 文件 也添加到 返回 array
                         r.push(iPath);
                     }
 
@@ -541,7 +541,7 @@ var
             var rStream = stream
                 .pipe(plumber())
                 .pipe(through.obj(function(file, enc, next){
-                    util.msg.optimize('pug', file.relative);
+                    util.msg.optimize('pug ', file.relative);
                     this.push(file);
                     next();
                 }))
@@ -1096,15 +1096,15 @@ var
 
             switch(iExt){
                 case 'pug':
+                case 'jade':
                     if(inside('components')){ // pug-to-dest-task
                         rStream = iStream.pug2dest(gulp.src([iPath], {
                             base: util.joinFormat(vars.srcRoot)
                         }));
                         rStream = rStream.pipe(gulp.dest(vars.htmlDest));
-                        
                     }
-
                     break;
+
                 case 'html':
                     if(inside('html')){ // html-to-dest-task
                         rStream = iStream.html2dest(gulp.src([iPath], {
@@ -1210,7 +1210,10 @@ gulp.task('pug-to-dest-task', function(){
     }
     var rStream;
 
-    rStream = iStream.pug2dest(gulp.src(util.joinFormat(vars.srcRoot, 'components/@(p-)*/*.pug')));
+    rStream = iStream.pug2dest(gulp.src([
+        util.joinFormat(vars.srcRoot, 'components/@(p-)*/*.pug'),
+        util.joinFormat(vars.srcRoot, 'components/@(p-)*/*.jade')
+    ]));
     rStream = rStream.pipe(gulp.dest(vars.htmlDest));
 
     return rStream;

@@ -17,6 +17,7 @@ var
         supercall: require('./w-supercall'),
         update: require('./w-update'),
         make: require('./w-make'),
+        jade2pug: require('./w-jade2pug'),
         help: function(){
             util.help({
                 usage: 'yyl',
@@ -28,7 +29,8 @@ var
                     'examples': 'show yyl examples',
                     'commit': 'commit code to svn/git server(need config)',
                     'update': 'update yyl from npm',
-                    'make': 'make new component'
+                    'make': 'make new component',
+                    'jade2pug': 'transform *.jade to *.pug'
                 },
                 options: {
                     '-h, --help': 'print usage information',
@@ -138,7 +140,11 @@ module.exports = function(ctx){
             break;
         
         case 'make': 
-            events.make.apply(events, iArgv);
+            events.make.run.apply(events, iArgv);
+            break;
+
+        case 'jade2pug':
+            events.jade2pug.run.apply(events, iArgv);
             break;
 
         case 'debug':
