@@ -140,7 +140,7 @@ module.exports = function(ctx){
             break;
         
         case 'make': 
-            events.make.run.apply(events, iArgv);
+            events.make.run.apply(events, iArgv.slice(1));
             break;
 
         case 'jade2pug':

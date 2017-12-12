@@ -114,6 +114,8 @@ var
                     widgetPath = '',
                     type = '';
 
+                console.log(name);
+
 
                 if(/^p\-/.test(name)){ // 页面级 组件
                     widgetPath = util.joinFormat(srcRoot, 'components/page');
@@ -160,7 +162,13 @@ var
                 next(widgetPath, type, srcRoot, config);
 
             }).then(function(widgetPath, type, srcRoot, config, next){ // jade
-                var jadePath = util.joinFormat(widgetPath, name + '.jade');
+
+                var jadePath;
+                if(config.workflow == 'gulp-requirejs'){
+                    jadePath = util.joinFormat(widgetPath, name + '.pug');
+                } else {
+                    jadePath = util.joinFormat(widgetPath, name + '.jade');
+                }
                 var iTmpl;
 
                 // jade 部分
