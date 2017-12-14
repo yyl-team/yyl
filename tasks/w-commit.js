@@ -169,8 +169,13 @@ var
                 util.msg.success('commit step 01 passed');
 
                 if(svnConfig.onBeforeCommit){
-                    util.msg.info('onBeofreCommit task run');
+                    util.msg.info('svnConfig.onBeofreCommit task run');
                     svnConfig.onBeforeCommit(iBranch, done);
+
+                } else if(config.onBeforeCommit) {
+                    util.msg.info('config.onBeofreCommit task run');
+                    config.onBeforeCommit(iBranch, done);
+
                 } else {
                     done();
                 }

@@ -1,4 +1,7 @@
 # 版本信息
+## 2.15.27 (2017-12-14)
+* [EDIT]`config.js` 中 在 `config.onBeforeCommit` 和 `config.svn[branches].onBeforeCommit` 两个地方都可配置 提交前的操作, 其中优先级是后者比前者优先级要高
+
 ## 2.15.26 (2017-12-12)
 * [EDIT] 升级 `gulp-requirejs` 中 `jade` 为 `pug`, 升级后不再对 `*.jade` 文件进行渲染，只对 `*.pug` 文件渲染
 * [ADD] 新增 `yyl jade2pug` 命令 一键把原有项目中的 `*.jade` 格式转成 `*.pug` 格式
