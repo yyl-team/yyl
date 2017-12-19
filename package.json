@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "2.15.27",
+  "version": "2.15.28",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -11,7 +11,9 @@
   "bin": {
     "yyl": "./bin/init.js"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "mocha ./test/test.js"
+  },
   "main": "index.js",
   "directories": {
     "example": "examples"
@@ -40,5 +42,7 @@
     "yyl-color": "^1.0.0",
     "yyl-util": "^1.7.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "chai": "^4.1.2"
+  }
 }

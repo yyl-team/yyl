@@ -15,38 +15,61 @@ var
                 usage: 'yyl init',
                 options: {
                     '-h, --help': 'print usage information',
-                    '-f': 'init forcibly'
+                    '-f': 'init forcibly',
+                    '--name': 'project name',
+                    '--platform': 'platform: pc or mobile',
+                    '--workflow': 'workflow type',
+                    '--init': 'workflow init type',
+                    '--doc': 'git or svn documents path init'
                 }
             });
 
         },
-        init: function(isForce){
+        init: function(op){
 
             // 信息收集
             new util.Promise(function(next){
 
                 var 
                     data = {},
-                    prompt = inquirer.createPromptModule();
+                    prompt = inquirer.createPromptModule(),
+                    questions = [];
 
-                prompt([
-                    {
+                if(op.name){
+                    data.name = op.name;
+
+                } else {
+                    questions.push({
                         name: 'name',
                         message: 'name',
                         type: 'input',
-                        default: vars.PROJECT_PATH.split('/').pop(),
+                        default: vars.PROJECT_PATH.split('/').pop()
+                    });
+                    
+                }
 
-                    }, {
-                        name: 'platforms',
+                if(op.platform && /^pc|mobile$/.test(op.platform)){
+                    data.platform = op.platform;
+
+                } else {
+                    questions.push({
+                        name: 'platform',
                         message: 'platform',
-                        type: 'checkbox',
+                        type: 'list',
                         choices: ['pc', 'mobile'],
                         default: ['pc']
-                    }
+                    });
+                    
+                }
 
-                ], function(d){
-                    next(util.extend(data, d));
-                });
+                if(questions.length){
+                    data.confirm = true;
+                    prompt(questions, function(d){
+                        next(util.extend(data, d));
+                    });
+                } else {
+                    next(data);
+                }
 
             }).then(function(data, next){
                 if(!data.commonPath){
@@ -58,20 +81,109 @@ var
                 next(data);
                 
 
-            }).then(function(data, next){ // pc workflow
+            }).then(function(data, next){ // workflow
                 var 
                     prompt = inquirer.createPromptModule(),
                     questions = [],
-                    workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
-
-                if(~data.platforms.indexOf('pc')){
-                    questions.push({
-                        name: 'pcWorkflow',
-                        message: 'pc workflow',
+                    workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./),
+                    iQuestion = {
+                        name: 'workflow',
                         type: 'list',
-                        choices: workflows,
-                        default: 'gulp-requirejs'
+                        message: 'workflow',
+                        choices: workflows
+                    };
+
+                if(data.platform == 'pc'){
+                    iQuestion.default = 'gulp-requirejs';
+
+                } else {
+                    iQuestion.default = 'webpack-vue';
+                }
+
+                if(op.workflow && ~workflows.indexOf(op.workflow)){
+                    data.workflow = op.workflow;
+                } else {
+                    questions.push(iQuestion);
+                }
+
+                if(questions.length){
+                    data.confirm = true;
+                    prompt(questions, function(d){
+                        next(util.extend(data, d));
                     });
+                } else {
+                    next(data);
+                }
+
+            }).then(function(data, next){ // workflow resetFiles init
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [];
+
+                if(data.workflow){
+                    var 
+                        workFlowExpPath = path.join(__dirname, '../examples', data.workflow),
+                        expType = [];
+
+                    if(fs.existsSync(workFlowExpPath)){
+                        expType = util.readdirSync(workFlowExpPath, /^\./);
+                        if(op.workflowInitType && ~expType.indexOf(op.workflowInitType)){
+                            data.workflowInitType = op.workflowInitType;
+
+                        } else {
+                            questions.push({
+                                name: 'init',
+                                message: 'workflow init type',
+                                type: 'list',
+                                choices: expType,
+                                default: 'single-project'
+                            });
+                        }
+
+                        if(questions.length){
+                            data.confirm = true;
+                            prompt(questions, function(d){
+                                next(util.extend(data, d));
+                            });
+
+                        } else {
+                            next(data);
+                        }
+
+                    } else {
+                        util.msg.error('file not exist:', workFlowExpPath);
+                        next(data);
+                    }
+
+                } else {
+                    next(data);
+                }
+
+            }).then(function(data, next){ // doc reset
+                var 
+                    prompt = inquirer.createPromptModule(),
+                    questions = [],
+                    iType = {
+                        'svn': 'svn path (full svn)',
+                        'git': 'git path (just project)'
+                    };
+
+                if(op.initType && iType[op.initType]){
+                    data.initType = iType[op.initType];
+
+                } else {
+                    questions.push({
+                        name: 'doc',
+                        message: 'select init type',
+                        type: 'list',
+                        choices: Object.keys(iType).map(function(key){
+                            return iType[key];
+                        })
+                    });
+                }
+
+                if(questions.length){
+                    data.confirm = true;
                     prompt(questions, function(d){
                         next(util.extend(data, d));
                     });
@@ -79,114 +191,6 @@ var
                 } else {
                     next(data);
                 }
-
-            }).then(function(data, next){ // pc workflow resetFiles
-                var 
-                    prompt = inquirer.createPromptModule(),
-                    questions = [];
-
-                if(data.pcWorkflow){
-                    var 
-                        workFlowExpPath = path.join(__dirname, '../examples', data.pcWorkflow),
-                        expType = [];
-                    if(fs.existsSync(workFlowExpPath)){
-                        expType = util.readdirSync(workFlowExpPath, /^\./);
-
-                        questions.push({
-                            name: 'pcWorkflowInitType',
-                            message: 'pc workflow init type',
-                            type: 'list',
-                            choices: expType,
-                            default: 'single-project'
-                        });
-
-                        prompt(questions, function(d){
-                            next(util.extend(data, d));
-                        });
-
-                    } else {
-                        util.msg.error('file not exist:', workFlowExpPath);
-                        next(data);
-
-                    }
-
-                } else {
-                    next(data);
-                }
-
-
-
-            }).then(function(data, next){ // mobile workflow
-                var 
-                    prompt = inquirer.createPromptModule(),
-                    questions = [],
-                    workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
-
-                if(~data.platforms.indexOf('mobile')){
-                    questions.push({
-                        name: 'mobileWorkflow',
-                        message: 'mobile workflow',
-                        type: 'list',
-                        choices: workflows,
-                        default: 'webpack-vue2'
-                    });
-                    prompt(questions, function(d){
-                        next(util.extend(data, d));
-                    });
-
-                } else {
-                    next(data);
-                }
-
-            }).then(function(data, next){ // pc workflow resetFiles
-                var 
-                    prompt = inquirer.createPromptModule(),
-                    questions = [];
-
-                if(data.mobileWorkflow){
-                    var 
-                        workFlowExpPath = path.join(__dirname, '../examples', data.mobileWorkflow),
-                        expType = [];
-                    if(fs.existsSync(workFlowExpPath)){
-                        expType = util.readdirSync(workFlowExpPath, /^\./);
-
-                        questions.push({
-                            name: 'mobileWorkflowInitType',
-                            message: 'mobile workflow init type',
-                            type: 'list',
-                            choices: expType,
-                            default: 'single-project'
-                        });
-
-                        prompt(questions, function(d){
-                            next(util.extend(data, d));
-                        });
-
-                    } else {
-                        util.msg.error('file not exist:', workFlowExpPath);
-                        next(data);
-
-                    }
-
-                } else {
-                    next(data);
-                }
-
-            }).then(function(data, next){ // init type
-                var 
-                    prompt = inquirer.createPromptModule(),
-                    questions = [];
-
-                questions.push({
-                    name: 'initType',
-                    message: 'select init type',
-                    type: 'list',
-                    choices: ['git path (just project)', 'svn path (full svn)']
-
-                });
-                prompt(questions, function(d){
-                    next(util.extend(data, d));
-                });
 
             }).then(function(data, next){
 
@@ -198,11 +202,10 @@ var
                     ' project info',
                     ' ----------------------------------------',
                     ' name             : ' + data.name,
-                    ' platforms        : ' + data.platforms,
-                    ' pc workflow      : ' + (data.pcWorkflow || ''),
-                    ' pc init type     : ' + (data.pcWorkflowInitType || ''),
-                    ' mobile workflow  : ' + (data.mobileWorkflow || ''),
-                    ' mobile init type : ' + (data.mobileWorkflowInitType || ''),
+                    ' platform         : ' + data.platform,
+                    ' workflow         : ' + (data.workflow || ''),
+                    ' init             : ' + (data.init || ''),
+                    ' doc              : ' + (data.doc || ''),
                     ' yyl version      : ' + data.version,
                     ' ----------------------------------------',
                     ' project ' + color.yellow(data.name) + ' path initial like this:',
@@ -211,7 +214,7 @@ var
 
                 var buildPaths = [];
 
-                if(/svn/.test(data.initType)){ // svn full path
+                if(/svn/.test(data.doc)){ // svn full path
                     // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}
                     var parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop();
                     var 
@@ -221,13 +224,7 @@ var
                         subDirs2 = ['dist', 'src'],
                         subDirs3 = ['css', 'html', 'images', 'js'];
 
-                    if(data.pcWorkflow){
-                        subDirs1.push('pc');
-                    }
-
-                    if(data.mobileWorkflow){
-                        subDirs1.push('mobile');
-                    }
+                    subDirs1.push(data.workflow);
 
 
                     branches.forEach(function(branch){
@@ -265,45 +262,31 @@ var
                     data.buildPaths = buildPaths;
 
                 } else { // just project
-                    var isFullPath = false;
-                    if(data.pcWorkflow && data.mobileWorkflow){
-                        isFullPath = true;
-                    }
-
-                    if(data.pcWorkflow){
-
-                        util.buildTree({
-                            frontPath: path.join(data.name, isFullPath? 'pc': ''),
-                            path: path.join(vars.BASE_PATH, 'examples', data.pcWorkflow, data.pcWorkflowInitType),
-                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
-                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
-                            
-                        });
-                    }
-                    if(data.mobileWorkflow){
-                        util.buildTree({
-                            frontPath: path.join(data.name, isFullPath? 'mobile': ''),
-                            path: path.join(vars.BASE_PATH, 'examples', data.mobileWorkflow, data.mobileWorkflowInitType),
-                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
-                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass']
-                        });
-                    }
+                    util.buildTree({
+                        frontPath: '',
+                        path: path.join(vars.BASE_PATH, 'examples', data.workflow, data.init),
+                        dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
+                        dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
+                    });
                 }
 
                 var 
                     prompt = inquirer.createPromptModule();
 
-                prompt( [
-                    {
+                if(data.confirm){
+                    prompt([{
                         name: 'ok',
                         message: 'is it ok?',
                         type: 'confirm'
-                    }
-                ], function(d){
-                    if(d.ok){
-                        next(data);
-                    }
-                });
+                    }], function(d){
+                        if(d.ok){
+                            next(data);
+                        }
+                    });
+                } else {
+                    next(data);
+                }
+
             }).then(function(data){
                 var 
                     parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop(),
@@ -312,28 +295,23 @@ var
                         util.msg.info('init client', workflowName, 'start');
 
                         var 
-                            dirPath,
-                            isFullPath = false;
+                            dirPath;
 
-
-                        if(~data.initType.indexOf('svn')){
+                        if(~data.doc.indexOf('svn')){
                             dirPath = path.join(frontPath, 'develop', dirname);
 
                         } else {
-                            if(data.pcWorkflow && data.mobileWorkflow){
-                                isFullPath = true;
-                            }
-                            dirPath = path.join(frontPath, isFullPath? dirname: '');
+                            dirPath = frontPath;
                         }
 
                         new util.Promise(function(next){ // mk dir front path
                             util.msg.info('make dir...');
-                            if(!fs.existsSync(dirPath)){
+                            if(dirPath && !fs.existsSync(dirPath)){
                                 util.mkdirSync(dirPath);
                             }
 
                             var 
-                                dirs = fs.readdirSync(dirPath),
+                                dirs = dirPath? fs.readdirSync(dirPath): [],
                                 noEmpty = false;
                             if(dirs.length){
                                 dirs.forEach(function(str){
@@ -342,7 +320,8 @@ var
                                     }
 
                                 });
-                                if(noEmpty && !isForce){
+                                if(noEmpty && !op.f){
+
                                     return done(dirname + ' directory is not empty, init fail');
                                 }
                             }
@@ -464,15 +443,10 @@ var
 
                     };
 
-                if(data.pcWorkflow){
+                if(data.workflow){
                     padding += 2;
-                    initClientFlow('pc', data.pcWorkflow, data.pcWorkflowInitType, paddingCheck);
-                    wServer.init(data.pcWorkflow, paddingCheck);
-                }
-                if(data.mobileWorkflow){
-                    padding += 2;
-                    initClientFlow('mobile', data.mobileWorkflow, data.mobileWorkflowInitType, paddingCheck);
-                    wServer.init(data.mobileWorkflow, paddingCheck);
+                    initClientFlow( data.platform, data.workflow, data.init, paddingCheck);
+                    wServer.init(data.workflow, paddingCheck);
                 }
 
             }).start();
@@ -482,19 +456,16 @@ var
     };
 
 
-module.exports = function(cmd, ctx){
-    switch(ctx){
-        case '-h':
-        case '--help':
-            events.help();
-            break;
+module.exports = function(){
+    var
+        iArgv = util.makeArray(arguments),
+        op = util.envParse(iArgv.slice(1));
 
-        case '-f':
-            events.init(true);
-            break;
+    if(op.h || op.help){
+        events.help();
 
-        default:
-            events.init();
-            break;
+    } else {
+        events.init(op);
+
     }
 };

@@ -46,6 +46,11 @@ Commands:
 Options:
     -h, --help    帮助信息
     -f,           不管当前目录下有没文件，直接覆盖
+    --name        项目名称
+    --platform    项目平台 pc 或者 mobile
+    --workflow    选用的构建方式
+    --init        初始化类型, 默认为 single-project
+    --doc         git 或者 svn 目录结构
 ```
 
 ### 压缩相关命令
