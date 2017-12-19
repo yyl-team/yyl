@@ -20,12 +20,17 @@ var
                     '--platform': 'platform: pc or mobile',
                     '--workflow': 'workflow type',
                     '--init': 'workflow init type',
-                    '--doc': 'git or svn documents path init'
+                    '--doc': 'git or svn documents path init',
+                    '--cwd': 'runtime path'
                 }
             });
 
         },
         init: function(op){
+
+            if(op.cwd) {
+                vars.PROJECT_PATH = op.cwd;
+            }
 
             // 信息收集
             new util.Promise(function(next){
@@ -127,8 +132,8 @@ var
 
                     if(fs.existsSync(workFlowExpPath)){
                         expType = util.readdirSync(workFlowExpPath, /^\./);
-                        if(op.workflowInitType && ~expType.indexOf(op.workflowInitType)){
-                            data.workflowInitType = op.workflowInitType;
+                        if(op.init && ~expType.indexOf(op.init)){
+                            data.init = op.init;
 
                         } else {
                             questions.push({
@@ -168,8 +173,8 @@ var
                         'svn': 'svn path (full svn)'
                     };
 
-                if(op.initType && iType[op.initType]){
-                    data.initType = iType[op.initType];
+                if(op.doc && iType[op.doc]){
+                    data.doc = iType[op.doc];
 
                 } else {
                     questions.push({
@@ -417,7 +422,9 @@ var
                     };
 
                 if(parentDir !== data.name){ // 如项目名称与父级名称不一致, 创建顶级目录
-                    fs.mkdirSync(data.name);
+                    if(!fs.existsSync(data.name)){
+                        fs.mkdirSync(data.name);
+                    }
                     frontPath = data.name;
                 }
 
@@ -435,9 +442,14 @@ var
 
                         if(!padding){
                             util.msg.line().success(data.name + ' init complete');
-                            util.runCMD('yyl');
-                            if(iPaths.length){
+
+                            if(iPaths.length && !op.silent){
+                                util.runCMD('yyl');
                                 util.openPath(iPaths[0]);
+                            }
+
+                            if(global.YYL_RUN_CALLBACK){
+                                setTimeout(global.YYL_RUN_CALLBACK, 0);
                             }
 
                         }

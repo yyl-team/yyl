@@ -5,36 +5,48 @@ var
     path = require('path'),
     fs = require('fs'),
     util = require('yyl-util'),
-    FRAG_PATH = path.join(__dirname, '../frag'),
-    FRAG_PATH2 = path.join(__dirname, '../frag2');
+    FRAG_PATH = path.join(__dirname, 'frag'),
+    FRAG_PATH2 = path.join(__dirname, 'frag2'),
 
-describe('yyl workflow gulp-requirejs test', function() {
+    fn = {
+        resetFrag: function() {
+            if(fs.existsSync(FRAG_PATH)){
+                util.removeFiles(FRAG_PATH);
+            } else {
+                util.mkdirSync(FRAG_PATH);
+            }
 
-    util.mkdirSync(FRAG_PATH);
-    util.removeFiles(FRAG_PATH);
+        },
+        removeFrag: function(){
+            if(fs.existsSync(FRAG_PATH)){
+                util.removeFiles(FRAG_PATH, true);
+            }
+
+        }
+    };
+
+describe('yyl init test', function() {
+
+    fn.resetFrag();
+    var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'));
+    console.log('===', iWorkflows);
 
     it('yyl init test', function(){
-        expect(yyl.run('init ' + util.envStringify({
+        yyl.run('init ' + util.envStringify({
             name: 'frag',
             platform: 'pc',
             workflow: 'gulp-requirejs',
-            init: 'singer-project',
-            doc: 'git'
-        })));
+            init: 'single-project',
+            doc: 'git',
+            silent: true,
+            cwd: FRAG_PATH
+        }), function(){
+            console.log('done');
+            fn.removeFrag();
+
+        });
     });
     // it('usage test', function() {
     //     expect(util.readdirSync(path.join(__dirname, '../'), /node_modules/)).to.not.include('node_modules');
     // });
-});
-
-describe('yyl workflow gulp-rollup test', function() {
-    
-});
-
-describe('yyl workflow webpack-vue test', function() {
-    
-});
-
-describe('yyl workflow webpack-vue2 test', function() {
-    
 });
