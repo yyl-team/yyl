@@ -164,8 +164,8 @@ var
                     prompt = inquirer.createPromptModule(),
                     questions = [],
                     iType = {
-                        'svn': 'svn path (full svn)',
-                        'git': 'git path (just project)'
+                        'git': 'git path (just project)',
+                        'svn': 'svn path (full svn)'
                     };
 
                 if(op.initType && iType[op.initType]){
@@ -178,7 +178,8 @@ var
                         type: 'list',
                         choices: Object.keys(iType).map(function(key){
                             return iType[key];
-                        })
+                        }),
+                        default: iType.git
                     });
                 }
 
