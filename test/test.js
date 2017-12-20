@@ -31,21 +31,25 @@ describe('yyl init test', function() {
     var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'));
     console.log('===', iWorkflows);
 
-    it('yyl init test', function(){
-        yyl.run('init ' + util.envStringify({
-            name: 'frag',
-            platform: 'pc',
-            workflow: 'gulp-requirejs',
-            init: 'single-project',
-            doc: 'git',
-            silent: true,
-            cwd: FRAG_PATH
-        }), function(){
-            console.log('done');
-            fn.removeFrag();
-
-        });
+    iWorkflows.forEach(function(workflow){
+        var inits = util.readdirSync(path.join(__dirname, '../examples', workflow));
     });
+
+    // it('yyl init test', function(){
+    //     yyl.run('init ' + util.envStringify({
+    //         name: 'frag',
+    //         platform: 'pc',
+    //         workflow: 'gulp-requirejs',
+    //         init: 'single-project',
+    //         doc: 'git',
+    //         silent: true,
+    //         cwd: FRAG_PATH
+    //     }), function(){
+    //         console.log('done');
+    //         fn.removeFrag();
+
+    //     });
+    // });
     // it('usage test', function() {
     //     expect(util.readdirSync(path.join(__dirname, '../'), /node_modules/)).to.not.include('node_modules');
     // });
