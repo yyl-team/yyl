@@ -43,68 +43,73 @@ describe('yyl init test', function() {
     var 
         iWorkflows = util.readdirSync(path.join(__dirname, '../init-files')),
         iInits,
-        iPromise = new util.Promise(),
         copyTask = function(workflow, init){
-            iPromise.then(function(next){
-                it('yyl init copy test, ' + workflow + ':' + init, function(done){
-                    fn.frag.build();
+            it('yyl init copy test, ' + workflow + ':' + init, function(done){
+                fn.frag.build();
 
-                    var sourcePath01 = path.join('../init-files', workflow);
-                    var sourcePath02 = path.join('../examples', workflow, init);
-                    var projectPath = FRAG_PATH;
+                var sourcePath01 = path.join(__dirname, '../init-files', workflow);
+                var sourcePath02 = path.join(__dirname, '../examples', workflow, init);
+                var projectPath = FRAG_PATH;
 
-                    yyl.run('init ' + util.envStringify({
-                        name: 'frag',
-                        platform: 'pc',
-                        workflow: workflow,
-                        init: init,
-                        doc: 'git',
-                        silent: true,
-                        cwd: FRAG_PATH
-                    }), function(){ // 文件校验
-                        var 
-                            rFiles = util.readFilesSync(projectPath),
-                            s01Files = util.readFilesSync(sourcePath01, function(iPath){
-                                if(/readme\.md|\.gitignore/i.test(iPath)){
-                                    return true;
-                                } else {
+                yyl.run('init ' + util.envStringify({
+                    name: 'frag',
+                    platform: 'pc',
+                    workflow: workflow,
+                    init: init,
+                    doc: 'git',
+                    silent: true,
+                    cwd: FRAG_PATH
+                }), function(){ // 文件校验
+                    var 
+                        rFiles = util.readFilesSync(projectPath),
+                        s01Files = util.readFilesSync(sourcePath01, function(iPath){
+                            if(/readme\.md|\.gitignore/i.test(iPath)){
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }),
+                        s02Files = util.readFilesSync(
+                            sourcePath02, 
+                            function(iPath){
+                                if(/package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g.test(iPath)){
                                     return false;
+
+                                } else {
+                                    return true;
                                 }
-                            }),
-                            s02Files = util.readFilesSync(
-                                sourcePath02, 
-                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g
-                            ),
-                            sFiles = [];
 
-                        rFiles = rFiles.map(function(iPath){
-                            return util.joinFormat(path.relative(projectPath, iPath));
-                        });
+                            }
+                            
+                        ),
+                        sFiles = [];
 
-                        s01Files = s01Files.map(function(iPath){
-                            return util.joinFormat(path.relative(sourcePath01, iPath));
-                        });
-
-                        s02Files = s01Files.map(function(iPath){
-                            return util.joinFormat(path.relative(sourcePath02, iPath));
-                        });
-
-                        sFiles = s01Files.concat(s02Files);
-
-                        rFiles.sort(function(a, b){
-                            return a.localeCompare(b);
-                        });
-
-                        sFiles.sort(function(a, b){
-                            return a.localeCompare(b);
-                        });
-
-                        expect(rFiles).to.deep.equal(sFiles);
-
-                        fn.frag.destory();
-                        done();
-                        next();
+                    rFiles = rFiles.map(function(iPath){
+                        return util.joinFormat(path.relative(projectPath, iPath));
                     });
+
+                    s01Files = s01Files.map(function(iPath){
+                        return util.joinFormat(path.relative(sourcePath01, iPath));
+                    });
+
+                    s02Files = s02Files.map(function(iPath){
+                        return util.joinFormat(path.relative(sourcePath02, iPath));
+                    });
+
+                    sFiles = s01Files.concat(s02Files);
+
+                    rFiles.sort(function(a, b){
+                        return a.localeCompare(b);
+                    });
+
+                    sFiles.sort(function(a, b){
+                        return a.localeCompare(b);
+                    });
+
+                    expect(rFiles).to.deep.equal(sFiles);
+
+                    fn.frag.destory();
+                    done();
                 });
             });
         };
@@ -121,30 +126,20 @@ describe('yyl init test', function() {
 
     });
 
-    // iPromise.then(function(next){
-    //     it('yyl init --doc svn test', function(done){
-    //         // TODO
-    //         done();
-    //         next();
-    //     });
+    // it('yyl init --doc svn test', function(done){
+    //     // TODO
+    //     done();
     // });
     
-    // iPromise.then(function(next){
-    //     it('yyl init --platform moble test', function(done){
-    //         // TODO
-    //         done();
-    //         next();
-    //     });
-
+    // it('yyl init --platform moble test', function(done){
+    //     // TODO
+    //     done();
     // });
 
-    // iPromise.then(function(next){
-    //     it('yyl init --name any test', function(done){
-    //         // TODO
-    //         done();
-    //         next();
-    //     });
+
+    // it('yyl init --name any test', function(done){
+    //     // TODO
+    //     done();
     // });
 
-    iPromise.start();
 });
