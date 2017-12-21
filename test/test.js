@@ -38,6 +38,23 @@ var
         }
     };
 
+// describe('yyl server init', function(){
+//     var 
+//         iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'));
+
+    
+
+//     iWorkflows.forEach(function(workflow){
+//         it('yyl server init ' + workflow, function(done){
+//             expect(yyl.server.init(workflow, function(){
+//                 console.log('============== done');
+//                 done();
+//             }));
+//         });
+//     });
+
+// });
+
 describe('yyl init test', function() {
 
     var 
@@ -45,6 +62,7 @@ describe('yyl init test', function() {
         iInits,
         copyTask = function(workflow, init){
             it('yyl init copy test, ' + workflow + ':' + init, function(done){
+                this.timeout(10000); // 设置用例超时时间
                 fn.frag.build();
 
                 var sourcePath01 = path.join(__dirname, '../init-files', workflow);
@@ -58,12 +76,15 @@ describe('yyl init test', function() {
                     init: init,
                     doc: 'git',
                     silent: true,
+                    nonpm: true,
                     cwd: FRAG_PATH
                 }), function(){ // 文件校验
+
                     var 
                         rFiles = util.readFilesSync(projectPath),
                         s01Files = util.readFilesSync(sourcePath01, function(iPath){
-                            if(/readme\.md|\.gitignore/i.test(iPath)){
+                            var relativePath = util.joinFormat(path.relative(sourcePath01, iPath));
+                            if(/readme\.md|\.gitignore/i.test(iPath) && !/node_modules/.test(relativePath)){
                                 return true;
                             } else {
                                 return false;
@@ -119,6 +140,7 @@ describe('yyl init test', function() {
         if(i === 0){
             iInits = inits;
         }
+
 
         inits.forEach(function(init){
             copyTask(workflow, init);

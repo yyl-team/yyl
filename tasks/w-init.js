@@ -21,7 +21,8 @@ var
                     '--workflow': 'workflow type',
                     '--init': 'workflow init type',
                     '--doc': 'git or svn documents path init',
-                    '--cwd': 'runtime path'
+                    '--cwd': 'runtime path',
+                    '--nonpm': 'init without npm install'
                 }
             });
 
@@ -30,6 +31,9 @@ var
 
             if(op.cwd) {
                 vars.PROJECT_PATH = op.cwd;
+            }
+            if(op.silent){
+                util.msg.silent(true);
             }
 
             // 信息收集
@@ -202,21 +206,25 @@ var
 
                 data.version = util.requireJs(path.join(vars.BASE_PATH, 'package.json')).version;
 
-                // 基本信息
-                console.log([
-                    '',
-                    ' project info',
-                    ' ----------------------------------------',
-                    ' name             : ' + data.name,
-                    ' platform         : ' + data.platform,
-                    ' workflow         : ' + (data.workflow || ''),
-                    ' init             : ' + (data.init || ''),
-                    ' doc              : ' + (data.doc || ''),
-                    ' yyl version      : ' + data.version,
-                    ' ----------------------------------------',
-                    ' project ' + color.yellow(data.name) + ' path initial like this:',
-                    ''
-                ].join('\n'));
+                if(!op.silent && data.confirm){
+                    // 基本信息
+                    console.log([
+                        '',
+                        ' project info',
+                        ' ----------------------------------------',
+                        ' name             : ' + data.name,
+                        ' platform         : ' + data.platform,
+                        ' workflow         : ' + (data.workflow || ''),
+                        ' init             : ' + (data.init || ''),
+                        ' doc              : ' + (data.doc || ''),
+                        ' yyl version      : ' + data.version,
+                        ' ----------------------------------------',
+                        ' project ' + color.yellow(data.name) + ' path initial like this:',
+                        ''
+                    ].join('\n'));
+
+                }
+                
 
                 var buildPaths = [];
 
@@ -260,20 +268,26 @@ var
 
                     });
 
-                    util.buildTree({
-                        path: name,
-                        dirList: buildPaths
-                    });
+                    if(!op.silent && data.confirm){
+                        util.buildTree({
+                            path: name,
+                            dirList: buildPaths
+                        });
+                    }
 
                     data.buildPaths = buildPaths;
 
                 } else { // just project
-                    util.buildTree({
-                        frontPath: '',
-                        path: path.join(vars.BASE_PATH, 'examples', data.workflow, data.init),
-                        dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
-                        dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
-                    });
+                    if(!op.silent && data.confirm){
+                        util.buildTree({
+                            frontPath: '',
+                            path: path.join(vars.BASE_PATH, 'examples', data.workflow, data.init),
+                            dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
+                            dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components'],
+                        });
+
+                    }
+                    
                 }
 
                 var 
@@ -298,6 +312,7 @@ var
                     parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop(),
                     frontPath = '',
                     initClientFlow = function(dirname, workflowName, initType, done){
+
                         util.msg.info('init client', workflowName, 'start');
 
                         var 
@@ -343,6 +358,7 @@ var
 
                         }).then(function(next){ // copy file to PROJECT_PATH
                             util.msg.info('copy file to ', workflowName);
+
                             util.copyFiles(
                                 path.join(vars.BASE_PATH, 'examples', workflowName, initType),
                                 path.join(vars.PROJECT_PATH, dirPath),
@@ -355,7 +371,8 @@ var
                                 },
                                 /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g,
                                 null,
-                                path.join(vars.PROJECT_PATH, frontPath)
+                                path.join(vars.PROJECT_PATH, frontPath),
+                                op.silent? true: false
                             );
                         }).then(function(next){ // copy readme
                             util.msg.info('copy README, .gitignore to ', workflowName);
@@ -373,7 +390,8 @@ var
                                 },
                                 null,
                                 null,
-                                path.join(vars.PROJECT_PATH, frontPath)
+                                path.join(vars.PROJECT_PATH, frontPath),
+                                op.silent? true: false
                             );
                         
                         }).then(function(next){ // create dist file
@@ -461,7 +479,11 @@ var
                 if(data.workflow){
                     padding += 2;
                     initClientFlow( data.platform, data.workflow, data.init, paddingCheck);
-                    wServer.init(data.workflow, paddingCheck);
+                    if(!op.nonpm){
+                        wServer.init(data.workflow, paddingCheck);
+                    } else {
+                        paddingCheck();
+                    }
                 }
 
             }).start();

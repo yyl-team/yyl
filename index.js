@@ -12,7 +12,8 @@ var
                 return done && done();
             };
             cmd.apply(global, iArgv);
-        }
+        },
+        server: require('./tasks/w-server.js')
 
     };
 
