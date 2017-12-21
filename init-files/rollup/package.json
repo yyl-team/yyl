@@ -44,7 +44,7 @@
     "rollup-plugin-commonjs": "~8.0.2",
     "run-sequence": "~1.1.5",
     "through2": "~2.0.1",
-    "yyl-util": "~1.7.0"
+    "yyl-util": "~1.9.0"
   },
   "dependencies": {
     "gulp": "~3.9.1"

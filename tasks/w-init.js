@@ -353,15 +353,17 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js/g,
+                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
                         }).then(function(next){ // copy readme
-                            util.msg.info('copy readme to ', workflowName);
+                            util.msg.info('copy README, .gitignore to ', workflowName);
+                            var iMap = {};
+                            iMap[path.join(vars.BASE_PATH, 'init-files', workflowName, 'README.md')] = path.join(vars.PROJECT_PATH, dirPath, 'README.md');
+                            iMap[path.join(vars.BASE_PATH, 'init-files', workflowName, '.gitignore')] = path.join(vars.PROJECT_PATH, dirPath, '.gitignore');
                             util.copyFiles(
-                                path.join(vars.BASE_PATH, 'init-files', workflowName),
-                                path.join(vars.PROJECT_PATH, dirPath),
+                                iMap,
                                 function(err){
                                     if(err){
                                         return done('copy file error, init fail');
@@ -369,7 +371,7 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|\.babelrc/g,
+                                null,
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath)
                             );
