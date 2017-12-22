@@ -12,6 +12,7 @@ var
     },
     INTERFACE = {
         NPM_DOWNLOAD: 'https://registry.npmjs.org/{$name}/-/{$name}-{$version}.tgz',
+        NPM_INSTALL: 'npm install {$name}@{$version}',
         VERSION: '~{$version}'
     },
     fn = {
@@ -103,6 +104,7 @@ var
                         if(key == name){
                             var r = fn.render(INTERFACE.VERSION, { 'version': version });
                             if(pkg.devDependencies[key] != r){
+                                pkg.devDependencies[key] = r;
                                 isUpdate = true;
                                 return true;
                             }
@@ -184,7 +186,8 @@ var
 
             util.msg.line().info('update finished');
             util.msg.success('updated ' + count + ' files');
-
+            util.msg.warn('please input the following cmd by yourself:');
+            util.msg.warn(fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version }));
 
         },
         yyl: function(version){
