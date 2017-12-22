@@ -134,155 +134,9 @@ gulp.task('webpack', function(done){
 
 });
 
-gulp.task('rev', function(done){
-    if(!config.commit.revAddr){
-        util.msg.warn('config.commit.revAddr is blank or  false, no run rev task');
-        return done();
-
-    }
-    runSequence('rev-standard', 'rev-update', done);
-});
-
-gulp.task('rev-standard', function(done){
-    if(!config.commit.revAddr){
-        util.msg.warn('config.commit.revAddr is blank or  false, no run rev task');
-        return done();
-
-    }
-
-    var 
-        revPath = path.join(config.alias.revDest, 'rev-manifest.json'),
-        pathTrans = function(src){
-            if(/(\.css|\.css\.map)$/.test(src)){
-                return util.joinFormat(path.relative( 
-                    path.join(__dirname, config.alias.revRoot), 
-                    path.join(__dirname, config.alias.jsDest, '../css', src)
-                ));
-
-            } else {
-                return util.joinFormat(path.relative( 
-                    path.join(__dirname, config.alias.revRoot), 
-                    path.join(__dirname, config.alias.jsDest, src)
-                ));
-
-            }
-        };
-
-    var revData = {};
-    var outRev = {};
-
-    if(fs.existsSync(revPath)){
-        revData = JSON.parse(fs.readFileSync(revPath));
-        // revData = require(revPath);
-    }
-
-    // 将连地址标准化
-    for(var src in revData){
-        if(revData.hasOwnProperty(src)){
-            outRev[pathTrans(src)] = pathTrans(revData[src]);
-        }
-    }
-
-    util.msg.info(outRev);
-    fs.writeFileSync( path.join(config.alias.revDest, 'rev-manifest.json'), JSON.stringify(outRev, null, 4));
-    done();
-
-});
-
-
-
-gulp.task('rev-update', function(done){
-    if(!config.commit.revAddr){
-        util.msg.warn('config.commit.revAddr is blank or  false, no run rev task');
-        return done();
-
-    }
-
-    var revPath = path.join(config.alias.revDest, 'rev-manifest.json');
-
-        new util.Promise(function(next){
-            var revData = {};
-
-            if(fs.existsSync(revPath)){
-                revData = JSON.parse(fs.readFileSync(revPath));
-
-            }
-
-            next(revData);
-        }).then(function(outRev, next){ // 生成原来的文件
-            
-            var fPath = '';
-            for(var src in outRev){
-                if(outRev.hasOwnProperty(src) && /css|js|map/.test(path.extname(src))){
-                    fPath = path.join(config.alias.revRoot, outRev[src]);
-                    if(fs.existsSync(fPath)){
-                        fs.writeFileSync(
-                            path.join(config.alias.revRoot, src), 
-                            fs.readFileSync(fPath)
-                        );
-                        util.msg.create('file:', src);
-                    }
-                    
-                }
-            }
-            next(outRev);
-
-
-        }).then(function(revData, next){ // 拉去 remote 上的 和本地的 rev数据合并， 并生成一份文件
-            var outRev = util.extend({}, revData);
-            if(gulp.env.ver == 'remote' && gulp.env.sub){
-
-                util.msg.info('start get the revFile', config.commit.revAddr.green);
-
-                util.get(config.commit.revAddr + '?' + (+new Date()), function(data){
-                    util.msg.success('get remote rev success');
-                    util.msg.info('rev data =>', data.toString());
-                    try{
-                        var 
-                            remoteRevData = JSON.parse(data.toString()),
-                            fPath = '';
-
-                        outRev = util.extend({}, revData, remoteRevData);
-                        util.msg.success('rev get!');
-
-                        for(var src in revData){
-                            if(revData.hasOwnProperty(src)){
-                                if(revData[src] != outRev[src]){
-                                    fPath = path.join(config.alias.revRoot, revData[src]);
-                                    if(fs.existsSync(fPath)){
-                                        fs.writeFileSync(
-                                            path.join(config.alias.revRoot, outRev[src]), 
-                                            fs.readFileSync(fPath)
-                                        );
-                                        util.msg.create('file', revData[src]);
-                                    }
-                                }
-                            }
-                        }
-
-                    } catch(er){
-                        util.msg.error('rev get fail', er);
-                    }
-                    next(outRev);
-                });
-
-            } else {
-                next(outRev);
-            }
-        }).then(function(outRev){ // 写入原有文件
-            fs.writeFileSync( path.join(config.alias.revDest, 'rev-manifest.json'), JSON.stringify(outRev, null, 4));
-            util.msg.info('update the rev file', util.joinFormat(config.alias.revDest, 'rev-manifest.json'));
-            util.msg.info('=>', JSON.stringify(outRev, null, 4));
-
-            done();
-
-        }).start();
-
-});
-
 
 gulp.task('all', function(done){
-    runSequence('webpack', 'rev', function(){
+    runSequence('webpack', 'rev-build', function(){
         if(!gulp.env.silent){
             util.pop('optimize task done');
         }
@@ -292,9 +146,17 @@ gulp.task('all', function(done){
 });
 
 
-gulp.task('html', function(){
-    
+// + rev
+gulp.task('rev-build', function(done){
+    fn.supercall('rev-build', done);
 });
+
+gulp.task('rev-update', function(done){
+    fn.supercall('rev-update', done);
+
+});
+
+// - rev
 
 gulp.task('watch', ['all'], function(){
     

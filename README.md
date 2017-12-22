@@ -193,4 +193,5 @@ rollup + es6 技术架构, 适用于 PC 端开发
 #### 例子
 * [hello world](./examples/webpack-vue2/single-project)
 
-
+## 版本信息
+[这里](./history.md)

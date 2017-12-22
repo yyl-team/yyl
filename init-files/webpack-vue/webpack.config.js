@@ -72,7 +72,7 @@ var webpackconfig = {
     })(),
     output: {
         path: config.alias.jsDest,
-        filename: '[name]-[chunkhash:8].js',
+        filename: '[name].js',
         publicPath: util.joinFormat(
             config.dest.basePath, 
             path.relative(
@@ -105,7 +105,7 @@ var webpackconfig = {
             loaders: ['pug-loader']
         }, {
             test: /\.(png|jpg|gif)$/,
-            loader: 'url-loader?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')))
+            loader: 'url-loader?limit=10000&name=' + util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name].[ext]')))
         }, {
             // shiming the module
             test: path.join(config.alias.srcRoot, 'js/lib/'),
@@ -132,10 +132,14 @@ var webpackconfig = {
     },
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name]-[chunkhash:8].css"))))
+        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name].css"))))
         // HtmlWebpackExcludeAssetsPlugin()
     ]
 };
+
+console.log('==================================')
+console.log(util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name].css"))))
+console.log('==================================')
 
 if(config.commit.revAddr){
     webpackconfig.plugins.push(new ManifestPlugin({
