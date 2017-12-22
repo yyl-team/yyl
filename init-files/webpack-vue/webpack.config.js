@@ -137,10 +137,6 @@ var webpackconfig = {
     ]
 };
 
-console.log('==================================')
-console.log(util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name].css"))))
-console.log('==================================')
-
 if(config.commit.revAddr){
     webpackconfig.plugins.push(new ManifestPlugin({
         fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
