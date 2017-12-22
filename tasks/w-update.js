@@ -7,7 +7,8 @@ var
     REG = {
         IS_VERSION: /^\d+\.\d+\.\d+$/,
         PACKAGE: /package\.json$/,
-        PACKAGE_LOCK: /package\-lock\.json$/
+        PACKAGE_LOCK: /package\-lock\.json$/,
+        NODE_MODULES: /node_modules/,
     },
     INTERFACE = {
         NPM_DOWNLOAD: 'https://registry.npmjs.org/{$name}/-/{$name}-{$version}.tgz',
@@ -19,7 +20,7 @@ var
         },
         render: function(src, obj){
             if(src && obj){
-                src.replace(/\{\$(\w+)\}/g, function(str, $1){
+                return src.replace(/\{\$(\w+)\}/g, function(str, $1){
                     if(obj[$1]){
                         return obj[$1];
                     } else {
@@ -54,10 +55,14 @@ var
             var packageLocks = [];
 
             util.readFilesSync(util.vars.BASE_PATH, function(iPath){
-                if(iPath.match(REG.PACKAGE)){
+                var relativePath = util.joinFormat( path.relative(util.vars.BASE_PATH, iPath) );
+                if(relativePath.match(REG.NODE_MODULES)){
+                    return;
+
+                } else if(relativePath.match(REG.PACKAGE)){
                     packages.push(iPath);
 
-                } else if(iPath.match(REG.PACKAGE_LOCK)){
+                } else if(relativePath.match(REG.PACKAGE_LOCK)){
                     packageLocks.push(iPath);
                 }
             });
@@ -120,7 +125,7 @@ var
                             pkg.dependencies[key].version = version;
                             pkg.dependencies[key].resolved = fn.render(INTERFACE.NPM_DOWNLOAD, {
                                 'name': key,
-                                'versioin': version
+                                'version': version
                             });
                             isUpdate = true;
                             return true;
