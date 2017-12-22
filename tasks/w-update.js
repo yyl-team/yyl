@@ -51,8 +51,13 @@ var
                 return update.help();
             }
 
+            if(!version.match(REG.IS_VERSION)){
+                return util.msg.error('version is not meet the rules:', version);
+            }
+
             var packages = [];
             var packageLocks = [];
+            var count = 0;
 
             util.readFilesSync(util.vars.BASE_PATH, function(iPath){
                 var relativePath = util.joinFormat( path.relative(util.vars.BASE_PATH, iPath) );
@@ -82,8 +87,11 @@ var
                 if(pkg.dependencies){
                     Object.keys(pkg.dependencies).forEach(function(key){
                         if(key == name){
-                            pkg.dependencies[key] = fn.render(INTERFACE.VERSION, { 'version': version });
-                            isUpdate = true;
+                            var r = fn.render(INTERFACE.VERSION, { 'version': version });
+                            if(pkg.dependencies[key] != r){
+                                pkg.dependencies[key] = r;
+                                isUpdate = true;
+                            }
                             return true;
                         }
                     });
@@ -93,9 +101,11 @@ var
                 if(pkg.devDependencies){
                     Object.keys(pkg.devDependencies).forEach(function(key){
                         if(key == name){
-                            pkg.devDependencies[key] = fn.render(INTERFACE.VERSION, { 'version': version });
-                            isUpdate = true;
-                            return true;
+                            var r = fn.render(INTERFACE.VERSION, { 'version': version });
+                            if(pkg.devDependencies[key] != r){
+                                isUpdate = true;
+                                return true;
+                            }
                         }
                     });
                 }
@@ -103,6 +113,7 @@ var
                 if(isUpdate){
                     fs.writeFileSync(iPath, JSON.stringify(pkg, null, 2));
                     util.msg.update(fn.printIt(iPath));
+                    count++;
                 }
 
             });
@@ -113,7 +124,7 @@ var
                 }
 
                 var pkg = util.requireJs(iPath);
-                var isUpdate = true;
+                var isUpdate = false;
 
                 if(!pkg){
                     return;
@@ -122,12 +133,20 @@ var
                 if(pkg.dependencies){
                     Object.keys(pkg.dependencies).forEach(function(key){
                         if(key == name){
-                            pkg.dependencies[key].version = version;
-                            pkg.dependencies[key].resolved = fn.render(INTERFACE.NPM_DOWNLOAD, {
+                            if(pkg.dependencies[key].version != version){
+                                pkg.dependencies[key].version = version;
+                                isUpdate = true;
+                            }
+
+                            var r = fn.render(INTERFACE.NPM_DOWNLOAD, {
                                 'name': key,
                                 'version': version
                             });
-                            isUpdate = true;
+
+                            if(pkg.dependencies[key].resolved != r){
+                                pkg.dependencies[key].resolved = r;
+                                isUpdate = true;
+                            }
                             return true;
                         }
                     });
@@ -137,12 +156,19 @@ var
                 if(pkg.devDependencies){
                     Object.keys(pkg.devDependencies).forEach(function(key){
                         if(key == name){
-                            pkg.devDependencies[key].version = version;
-                            pkg.devDependencies[key].resolved = fn.render(INTERFACE.NPM_DOWNLOAD, {
+                            if(pkg.devDependencies[key].version != version){
+                                pkg.devDependencies[key].version = version;
+                                isUpdate = true;
+                            }
+
+                            var r = fn.render(INTERFACE.NPM_DOWNLOAD, {
                                 'name': key,
                                 'versioin': version
                             });
-                            isUpdate = true;
+                            if(pkg.devDependencies[key].resolved != r){
+                                pkg.devDependencies[key].resolved = r;
+                                isUpdate = true;
+                            }
                             return true;
                         }
                     });
@@ -151,8 +177,14 @@ var
                 if(isUpdate){
                     fs.writeFileSync(iPath, JSON.stringify(pkg, null, 2));
                     util.msg.update(fn.printIt(iPath));
+                    count++;
                 }
+
             });
+
+            util.msg.line().info('update finished');
+            util.msg.success('updated ' + count + ' files');
+
 
         },
         yyl: function(version){
