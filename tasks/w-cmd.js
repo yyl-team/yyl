@@ -136,7 +136,7 @@ module.exports = function(ctx){
             break;
 
         case 'update':
-            events.update.apply(events.update, iArgv.slice(1));
+            events.update.run.apply(events.update, iArgv.slice(1));
             break;
         
         case 'make': 

@@ -1,8 +1,8 @@
 # 版本信息
 ## 2.15.28 (2017-12-22)
 * [ADD] `yyl init` 新增 `--name`, `--platform`, `--workflow`, `--init`, `--doc` 参数
+* [ADD] 新增 `yyl update <package> <version>` 一键 update yyl 内所有 `package.json`, `package-lock.json` 中 组件版本 命令
 * [ADD] 引入 `test` 模块
-* [ADD] TODO 新增 一键 update yyl 内所有 `package.json`, `package-lock.json` 中 组件版本 命令
 * [EDIT] `webpack-vue` rev 构建模式 改用全局的 `supercall rev-build`, `supercall rev-update` 方法
 * [DEL] 去除 `yyl init` 中 `platfrom` 可以多选 `pc` 和 `mobile`， 改为 `单选`
 
