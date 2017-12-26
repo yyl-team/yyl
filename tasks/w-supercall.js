@@ -170,6 +170,67 @@ var chalk = require('chalk');
                             ].join(', '));
                         },
                     },
+
+                    // 路径纠正
+                    resolveUrl: function(cnt, extname){
+                        var 
+                            iExt = extname.replace(/^\./g, ''),
+                            r = '',
+                            htmlReplace = function(iCnt){
+                                var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+                                var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+                                var pathReg3 = /(href\s*=\s*['"])([^'" ]*?)(['"])/ig;
+                                var filterHandle = function(str, $1, $2, $3){
+                                    var iPath = $2;
+
+                                    if(iPath.match(/^(about:|data:)/)){
+                                        return str;
+                                    } else {
+                                        return $1 + util.path.join($2) + $3;
+                                    }
+
+                                };
+
+
+                                return iCnt.replace(pathReg, filterHandle).replace(pathReg2, filterHandle).replace(pathReg3, filterHandle);
+
+                            },
+                            cssReplace = function(iCnt){
+                                var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+                                var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+
+                                var filterHandle = function(str, $1, $2, $3){
+                                    var iPath = $2;
+
+                                    if(iPath.match(/^(about:|data:)/)){
+                                        return str;
+                                    } else {
+                                        return $1 + util.joinFormat($2) + $3;
+                                    }
+
+                                };
+
+                                return iCnt.replace(pathReg, filterHandle).replace(pathReg2, filterHandle);
+
+                            };
+                        switch(iExt){
+                            case 'html':
+                                r = htmlReplace(cnt);
+                                break;
+
+                            case 'css':
+                                r = cssReplace(cnt);
+                                break;
+
+                            default:
+                                r = cnt;
+                                break;
+                        }
+
+                        return r;
+
+                    },
+
                     // hash map 生成
                     buildHashMap: function(iPath, revMap){
                         var config = util.getConfigCacheSync();
@@ -186,7 +247,8 @@ var chalk = require('chalk');
                         var rCnt = iCnt;
                         var selfFn = this;
 
-     
+                        rCnt = selfFn.resolveUrl(rCnt, path.extname(iPath));
+
                         Object.keys(revMap).forEach(function(key){
                             rCnt = rCnt.split(key).join(revMap[key]);
                         });

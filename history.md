@@ -5,6 +5,7 @@
 * [ADD] 引入 `test` 模块
 * [EDIT] `webpack-vue` rev 构建模式 改用全局的 `supercall rev-build`, `supercall rev-update` 方法
 * [DEL] 去除 `yyl init` 中 `platfrom` 可以多选 `pc` 和 `mobile`， 改为 `单选`
+* [ADD] `yyl supercall rev-build` 新增 对 `html` 文件 路径 format 功能
 
 ## 2.15.27 (2017-12-14)
 * [EDIT]`config.js` 中 在 `config.onBeforeCommit` 和 `config.svn[branches].onBeforeCommit` 两个地方都可配置 提交前的操作, 其中优先级是后者比前者优先级要高

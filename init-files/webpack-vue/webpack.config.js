@@ -132,14 +132,14 @@ var webpackconfig = {
     },
     plugins: [
         // 样式分离插件
-        new ExtractTextPlugin( util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name].css"))))
+        new ExtractTextPlugin( util.path.relative(config.alias.jsDest, path.join(config.alias.cssDest, "[name].css")) )
         // HtmlWebpackExcludeAssetsPlugin()
     ]
 };
 
 if(config.commit.revAddr){
     webpackconfig.plugins.push(new ManifestPlugin({
-        fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
+        fileName: util.path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
         basePath: ''
     }));
 }

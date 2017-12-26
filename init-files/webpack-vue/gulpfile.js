@@ -161,7 +161,7 @@ gulp.task('rev-update', function(done){
 gulp.task('watch', ['all'], function(){
     
     gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack', 'html', 'rev', 'rev-update', 'connect-reload', function(){
+        runSequence('webpack', 'rev-update', 'connect-reload', function(){
             if(!gulp.env.silent){
                 util.pop('watch task done');
 
