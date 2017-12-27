@@ -8,14 +8,11 @@ var
     path = require('path'),
     config = require('./config.js'),
     util = require('yyl-util'),
+    watch = require('gulp-watch'),
     webpackConfig = require('./webpack.config.js');
 
 
 require('colors');
-
-if(fs.existsSync('./config.mine.js')){
-    config = util.extend(config, require('./config.mine.js'));
-}
 
 var fn = {
     supercall: function(cmd, done){
@@ -56,11 +53,7 @@ gulp.task('default', function(){
     ].join(''));
 });
 
-gulp.task('connect-reload', function(){
-    fn.supercall('livereload');
-
-});
-
+// + webpack
 gulp.task('webpack', function(done){
     var 
         iWebpackConfig = util.extend(true, {}, webpackConfig),
@@ -133,18 +126,7 @@ gulp.task('webpack', function(done){
     });
 
 });
-
-
-gulp.task('all', function(done){
-    runSequence('webpack', 'rev-build', function(){
-        if(!gulp.env.silent){
-            util.pop('optimize task done');
-        }
-        
-        done();
-    });
-});
-
+// - webpack
 
 // + rev
 gulp.task('rev-build', function(done){
@@ -155,20 +137,49 @@ gulp.task('rev-update', function(done){
     fn.supercall('rev-update', done);
 
 });
-
 // - rev
+// + concat
+gulp.task('concat', function(done){
+    fn.supercall('concat', done);
+});
+// - concat
+
+// + resource
+gulp.task('resource', function(done){
+    fn.supercall('resource', done);
+});
+// - resource
+
+gulp.task('all', function(done){
+    runSequence('webpack', ['concat', 'resource'], 'rev-build', function(){
+        if(!gulp.env.silent){
+            util.pop('optimize task done');
+        }
+        done();
+    });
+});
 
 gulp.task('watch', ['all'], function(){
-    
-    gulp.watch([ path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack', 'rev-update', 'connect-reload', function(){
-            if(!gulp.env.silent){
-                util.pop('watch task done');
+    var 
+        watchit = function(glob, op, fn){
+            if(arguments.length == 3){
+                return watch(glob, op, util.debounce(fn, 500));
 
+            } else {
+                fn = op;
+                return watch(glob, util.debounce(fn, 500));
             }
             
+        };
 
+    watchit(path.join(config.alias.srcRoot, '**/*.*'), function(){
+        runSequence('webpack', ['concat', 'resource'], 'rev-update', function(){
+            fn.supercall('livereload');
+            if(!gulp.env.silent){
+                util.pop('watch task finished');
+            }
         });
+
     });
 
     fn.supercall('watch-done');

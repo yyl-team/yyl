@@ -1423,7 +1423,7 @@ gulp.task('concat-js', function(done){
         return done();
     }
 
-    fn.supercall('concat', done);
+    fn.supercall('concat-js', done);
 });
 gulp.task('concat-css', function(done){
     var iConfig = fn.taskInit();

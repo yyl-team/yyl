@@ -2,18 +2,16 @@
 var util = require('./w-util.js');
 var path = require('path');
 var fs = require('fs');
+var querystring = require('querystring');
 var revHash = require('rev-hash');
 var Concat = require('concat-with-sourcemaps');
 var chalk = require('chalk');
 
     var 
         supercall = {
-            
-            
             // 执行 concat 操作
             concat: function(op){
                 var config = util.getConfigSync(op);
-                
                 if(!config){
                     return util.msg.warn('concat run fail');
                 }
@@ -172,32 +170,71 @@ var chalk = require('chalk');
                     },
 
                     // 路径纠正
-                    resolveUrl: function(cnt, extname){
+                    resolveUrl: function(cnt, filePath){
                         var 
-                            iExt = extname.replace(/^\./g, ''),
+                            REG = {
+                                HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
+                                HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig,
+                                HTML_IGNORE_REG: /^(about:|data:|javascript:|#)/,
+                                HTML_SCRIPT_TEMPLATE_REG: /type\s*\=\s*['"]text\/html["']/,
+
+                                CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
+                                CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
+
+                                IS_HTTP: /^http[s]:/
+                            };
+                        var 
+                            iExt = path.extname(filePath).replace(/^\./g, ''),
+                            iDir = path.dirname(filePath),
+                            config = util.getConfigCacheSync(),
                             r = '',
                             htmlReplace = function(iCnt){
-                                var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
-                                var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
-                                var pathReg3 = /(href\s*=\s*['"])([^'" ]*?)(['"])/ig;
-                                var filterHandle = function(str, $1, $2, $3){
-                                    var iPath = $2;
 
-                                    if(iPath.match(/^(about:|data:)/)){
+                                iCnt = iCnt.replace(REG.HTML_SCRIPT_REG, function(str, $1, $2, $3){ // 隔离script 标签
+                                    if($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)){
                                         return str;
+
                                     } else {
-                                        return $1 + util.path.join($2) + $3;
+                                        return $1 + querystring.escape($2) + $3;
                                     }
 
-                                };
+                                }).replace(REG.HTML_PATH_REG, function(str, $1, $2, $3, $4, $5){
+                                    var iPath = $4;
+
+                                    if(iPath.match(REG.HTML_IGNORE_REG)){
+                                        return str;
+                                    } else {
+                                        // url format
+                                        iPath = util.path.join(iPath);
+
+                                        // url absolute
+                                        if(!iPath.match(REG.IS_HTTP) && !path.isAbsolute(iPath)){
+                                            iPath = util.path.join(
+                                                config.commit.hostname, 
+                                                util.path.relative(config.alias.destRoot, iDir),
+                                                iPath
+                                            );
+                                        } 
+
+                                        return $1 + $2 + $3 + iPath + $5;
+                                    }
+
+                                }) .replace(REG.HTML_SCRIPT_REG, function(str, $1, $2, $3){
+                                    if($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)){
+                                        return str;
+
+                                    } else {
+                                        return $1 + querystring.unescape($2) + $3;
+                                    }
+
+                                });
 
 
-                                return iCnt.replace(pathReg, filterHandle).replace(pathReg2, filterHandle).replace(pathReg3, filterHandle);
+                                return iCnt;
+                                    
 
                             },
                             cssReplace = function(iCnt){
-                                var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
-                                var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
 
                                 var filterHandle = function(str, $1, $2, $3){
                                     var iPath = $2;
@@ -205,12 +242,22 @@ var chalk = require('chalk');
                                     if(iPath.match(/^(about:|data:)/)){
                                         return str;
                                     } else {
-                                        return $1 + util.joinFormat($2) + $3;
+                                        iPath = util.path.join($2);
+                                        // url absolute
+                                        if(!iPath.match(REG.IS_HTTP) && !path.isAbsolute(iPath)){
+                                            iPath = util.path.join(
+                                                config.commit.hostname, 
+                                                util.path.relative(config.alias.destRoot, iDir),
+                                                iPath
+                                            );
+                                        }
+
+                                        return $1 + iPath + $3;
                                     }
 
                                 };
 
-                                return iCnt.replace(pathReg, filterHandle).replace(pathReg2, filterHandle);
+                                return iCnt.replace(REG.CSS_PATH_REG, filterHandle).replace(REG.CSS_PATH_REG2, filterHandle);
 
                             };
                         switch(iExt){
@@ -247,7 +294,8 @@ var chalk = require('chalk');
                         var rCnt = iCnt;
                         var selfFn = this;
 
-                        rCnt = selfFn.resolveUrl(rCnt, path.extname(iPath));
+                        // url format
+                        rCnt = selfFn.resolveUrl(rCnt, iPath);
 
                         Object.keys(revMap).forEach(function(key){
                             rCnt = rCnt.split(key).join(revMap[key]);
@@ -519,13 +567,9 @@ var chalk = require('chalk');
 
                         selfFn.mark.print();
                         util.msg.success('rev-update finished');
-                        
 
                     }).start();
 
-                    
-
-                    
 
                 },
                 // rev-clean 入口
@@ -534,8 +578,6 @@ var chalk = require('chalk');
                     if(!config){
                         return util.msg.warn('rev-clean run fail', 'config not exist');
                     }
-
-                    
 
                     var files = util.readFilesSync(config.alias.root);
                     files.forEach(function(iPath){
@@ -570,67 +612,67 @@ var chalk = require('chalk');
             resource: function(op){
                 var config = util.getConfigSync(op);
 
-            util.copyFiles(config.resource);
-        },
+                util.copyFiles(config.resource);
+            },
 
-        livereload: function(){
-            util.livereload();
-        },
+            livereload: function(){
+                util.livereload();
+            },
 
-        // yyl 脚本调用入口
-        run: function(){
-            var
-                iArgv = util.makeArray(arguments),
-                ctx = iArgv[1],
-                op = util.envParse(iArgv.slice(1));
+            // yyl 脚本调用入口
+            run: function(){
+                var
+                    iArgv = util.makeArray(arguments),
+                    ctx = iArgv[1],
+                    op = util.envParse(iArgv.slice(1));
 
-            switch(ctx){
-                case 'watch-done':
-                case 'watchDone':
-                    supercall.watchDone(op);
-                    break;
+                switch(ctx){
+                    case 'watch-done':
+                    case 'watchDone':
+                        supercall.watchDone(op);
+                        break;
 
-                case 'concat':
-                    supercall.concat(op);
-                    break;
+                    case 'concat':
+                        supercall.concat(op);
+                        break;
 
-                case 'concat-css':
-                    supercall.concat(util.extend(op, { concatType: 'css' }));
-                    break;
+                    case 'concat-css':
+                        supercall.concat(util.extend(op, { concatType: 'css' }));
+                        break;
 
-                case 'concat-js':
-                    supercall.concat(util.extend(op, { concatType: 'js' }));
-                    break;
+                    case 'concat-js':
+                        supercall.concat(util.extend(op, { concatType: 'js' }));
+                        break;
 
-                case 'rev-build':
-                    supercall.rev.build(op);
-                    break;
-                case 'rev-update':
-                    supercall.rev.update(op);
-                    break;
+                    case 'rev-build':
+                        supercall.rev.build(op);
+                        break;
+                    case 'rev-update':
+                        supercall.rev.update(op);
+                        break;
 
-                case 'clean-dest':
-                    supercall.cleanDest(op);
-                    break;
+                    case 'clean-dest':
+                        supercall.cleanDest(op);
+                        break;
 
-                case 'rev-clean':
-                    supercall.rev.clean(op);
-                    break;
+                    case 'rev-clean':
+                        supercall.rev.clean(op);
+                        break;
 
-                case 'resource':
-                    supercall.resource(op);
-                    break;
+                    case 'resource':
+                        supercall.resource(op);
+                        break;
 
-                case 'livereload':
-                    supercall.livereload(op);
-                    break;
+                    case 'livereload':
+                        supercall.livereload(op);
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
+
             }
 
-        }
-
-    };
+        };
 
 module.exports = supercall;
