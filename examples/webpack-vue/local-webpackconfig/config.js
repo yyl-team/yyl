@@ -64,6 +64,13 @@ var
 
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
+        resource: { // 自定义项目中其他需打包的文件夹
+            /*
+            'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
+            'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
+             */
+
+        },
         // 需要构建工具额外安装的 npm 组件放这里 如 axios
         plugins: [
             'clean-webpack-plugin'
