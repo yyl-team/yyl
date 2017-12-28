@@ -523,7 +523,7 @@ var fn = {
         return !/^\.\.\//.test(util.joinFormat(path.relative(relPath, targetPath)));
     },
     isImage: function(iPath){
-        return /^\.(jpg|jpeg|bmp|gif|webp|png)$/.test(path.extname(iPath));
+        return /^\.(jpg|jpeg|bmp|gif|webp|png|apng)$/.test(path.extname(iPath));
     }
 };
 

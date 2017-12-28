@@ -175,7 +175,7 @@ var chalk = require('chalk');
                             REG = {
                                 HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
                                 HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig,
-                                HTML_IGNORE_REG: /^(about:|data:|javascript:|#)/,
+                                HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{)/,
                                 HTML_SCRIPT_TEMPLATE_REG: /type\s*\=\s*['"]text\/html["']/,
 
                                 CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
