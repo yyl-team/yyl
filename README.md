@@ -103,6 +103,7 @@ Commands:
     start            在当前文件夹建立本地服务器
 
 Options:
+    --proxy       配合 start 使用, 启动服务器同时启动 proxy 服务
     -h, --help    帮助信息
     -p, --path    打开本地服务所在路径
 ```

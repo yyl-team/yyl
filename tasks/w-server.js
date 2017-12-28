@@ -8,6 +8,7 @@ var
     serveStatic = require('serve-static'),
     livereload = require('connect-livereload'),
     wRemove = require('./w-remove.js'),
+    wProxy = require('./w-proxy.js'),
     tinylr = require('tiny-lr'),
     fs = require('fs'),
     path = require('path'),
@@ -24,6 +25,7 @@ var
                     'clear': 'empty the server path'
                 },
                 options: {
+                    '--proxy': 'start with proxy server',
                     '-h, --help': 'print usage information',
                     '-p, --path': 'show the yyl server local path'
                 }
@@ -43,7 +45,14 @@ var
 
         start: function(){
             var iEnv = util.envPrase(arguments);
+
             wServer.start(iEnv.path);
+            if(iEnv.proxy){
+                wProxy.init({
+                    port: 8887
+                });
+            }
+
         },
         init: function(workflowName){
             wServer.init(workflowName, function(err){

@@ -54,7 +54,7 @@ var
 
                     var 
                         reqUrl = req.url,
-                        iAddrs = Object.keys(op.localRemote);
+                        iAddrs = Object.keys(op.localRemote || {});
 
                     // 本地代理
                     var 
@@ -161,6 +161,10 @@ var
                                     res.writeHead(vRes.statusCode, iHeader);
                                 });
 
+                                vRequest.on('error', function(){
+                                    res.end();
+                                });
+
                                 vRequest.write(body);
                                 vRequest.end();
 
@@ -206,7 +210,6 @@ var
                 });
 
                 conn.on('error', function() {
-                    // util.msg.error("Server connection error: ", e);
                     socket.end();
                     conn.end();
                 });
@@ -222,7 +225,7 @@ var
                 }
             });
 
-            done();
+            return done && done();
         }
     };
 
