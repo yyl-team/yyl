@@ -2,8 +2,6 @@
 var path = require('path'),
     ExtractTextPlugin = require("extract-text-webpack-plugin"),
     HtmlWebpackPlugin = require('html-webpack-plugin'),
-    // HtmlWebpackExcludeAssetsPlugin = require('html-webpack-exclude-assets-plugin'),
-    ManifestPlugin = require('webpack-manifest-plugin'),
     util = require('yyl-util'),
     fs = require('fs'),
     config = require('./config.js');
@@ -136,13 +134,6 @@ var webpackconfig = {
         // HtmlWebpackExcludeAssetsPlugin()
     ]
 };
-
-if(config.commit.revAddr){
-    webpackconfig.plugins.push(new ManifestPlugin({
-        fileName: util.path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
-        basePath: ''
-    }));
-}
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
     var 

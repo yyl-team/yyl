@@ -487,7 +487,6 @@ var chalk = require('chalk');
                 
                 // rev-update 入口
                 update: function(op){
-                    return;
                     var self = this;
                     var selfFn = self.fn;
                     var config = util.getConfigSync(op);

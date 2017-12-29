@@ -26,7 +26,6 @@
     "gulp-util": "~3.0.7",
     "gulp-watch": "^4.3.11",
     "html-loader": "~0.4.4",
-    "html-webpack-exclude-assets-plugin": "0.0.3",
     "html-webpack-plugin": "~2.26.0",
     "imports-loader": "~0.6.5",
     "is-buffer": "~1.1.5",
@@ -40,7 +39,6 @@
     "vue-html-loader": "~1.2.3",
     "vue-loader": "~8.5.3",
     "vue-style-loader": "~1.0.0",
-    "webpack-manifest-plugin": "~1.0.1",
     "yyl-util": "~1.9.4"
   },
   "scripts": {
