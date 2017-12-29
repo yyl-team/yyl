@@ -30,7 +30,7 @@ var chalk = require('chalk');
                                 util.msg.warn(relativeIt(item), 'is not exist', 'break');
                                 return;
                             }
-                            concat.add(null, '/* ' + path.basename(item) + ' */');
+                            concat.add(null, ';/* ' + path.basename(item) + ' */');
                             concat.add(item, fs.readFileSync(item));
                         });
 
@@ -170,7 +170,8 @@ var chalk = require('chalk');
                     },
 
                     // 路径纠正
-                    resolveUrl: function(cnt, filePath){
+                    resolveUrl: function(cnt, filePath, op){
+
                         var 
                             REG = {
                                 HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
@@ -188,6 +189,14 @@ var chalk = require('chalk');
                             iExt = path.extname(filePath).replace(/^\./g, ''),
                             iDir = path.dirname(filePath),
                             config = util.getConfigCacheSync(),
+                            iHostname = (function(){
+                                if(op.isCommit || op.ver  == 'remote'){
+                                    return config.commit.hostname;
+                                } else {
+                                    return '/';
+                                }
+
+                            })(),
                             r = '',
                             htmlReplace = function(iCnt){
 
@@ -205,7 +214,6 @@ var chalk = require('chalk');
                                     if(iPath.match(REG.HTML_IGNORE_REG)){
                                         return str;
                                     } else if(iPath.match(REG.HTML_ALIAS_REG)) { // 构建语法糖 {$key}
-                                        console.log('===== match??', iPath)
 
                                         var isMatch = false;
 
@@ -220,9 +228,8 @@ var chalk = require('chalk');
                                         });
 
                                         if(isMatch && iPath && fs.existsSync(iPath)){
-                                            console.log('===', iPath);
                                             iPath = util.path.join(
-                                                config.commit.hostname, 
+                                                iHostname, 
                                                 util.path.relative(config.alias.destRoot, iPath)
                                             );
 
@@ -240,7 +247,7 @@ var chalk = require('chalk');
                                         // url absolute
                                         if(!iPath.match(REG.IS_HTTP) && !path.isAbsolute(iPath)){
                                             iPath = util.path.join(
-                                                config.commit.hostname, 
+                                                iHostname, 
                                                 util.path.relative(config.alias.destRoot, iDir),
                                                 iPath
                                             );
@@ -319,13 +326,13 @@ var chalk = require('chalk');
                         revMap[revSrc] = revDest;
                     },
                     // 文件 hash 替换
-                    fileHashPathUpdate: function(iPath, revMap){
+                    fileHashPathUpdate: function(iPath, revMap, op){
                         var iCnt = fs.readFileSync(iPath).toString();
                         var rCnt = iCnt;
                         var selfFn = this;
 
                         // url format
-                        rCnt = selfFn.resolveUrl(rCnt, iPath);
+                        rCnt = selfFn.resolveUrl(rCnt, iPath, op);
 
                         Object.keys(revMap).forEach(function(key){
                             rCnt = rCnt.split(key).join(revMap[key]);
@@ -441,14 +448,14 @@ var chalk = require('chalk');
                     // css 文件内路径替换 并且生成 hash 表
                     cssFiles.forEach(function(iPath){
                         // hash路径替换
-                        selfFn.fileHashPathUpdate(iPath, revMap);
+                        selfFn.fileHashPathUpdate(iPath, revMap, op);
                         // 生成hash 表
                         selfFn.buildHashMap(iPath, revMap);
                     });
 
                     // html 路径替换
                     htmlFiles.forEach(function(iPath){
-                        selfFn.fileHashPathUpdate(iPath, revMap);
+                        selfFn.fileHashPathUpdate(iPath, revMap, op);
                     });
 
                     // 根据hash 表生成对应的文件
@@ -480,6 +487,7 @@ var chalk = require('chalk');
                 
                 // rev-update 入口
                 update: function(op){
+                    return;
                     var self = this;
                     var selfFn = self.fn;
                     var config = util.getConfigSync(op);
@@ -547,7 +555,7 @@ var chalk = require('chalk');
                         var htmlFiles = util.readFilesSync(config.alias.root, /\.html$/);
 
                         htmlFiles.forEach(function(iPath){
-                            selfFn.fileHashPathUpdate(iPath, revMap);
+                            selfFn.fileHashPathUpdate(iPath, revMap, op);
                         });
 
                         // css 替换
@@ -557,7 +565,7 @@ var chalk = require('chalk');
                             if(fs.existsSync(filePath)){
                                 switch(path.extname(filePath)){
                                     case '.css':
-                                        self.fn.fileHashPathUpdate(filePath, revMap);
+                                        self.fn.fileHashPathUpdate(filePath, revMap, op);
                                         break;
 
                                     default:

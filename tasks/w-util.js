@@ -70,7 +70,7 @@ util = util.extend(true, util, {
         var 
             ctxRender = function(ctx, vars){
                 vars = vars || {};
-                ctx = util.joinFormat(ctx.replace(/\{\$(\w+)\}/g, function(str, $1){
+                ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z\_\-\.]+)\}/g, function(str, $1){
                     return vars[$1] || '';
                 }));
                 return ctx;

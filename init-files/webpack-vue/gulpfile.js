@@ -160,20 +160,20 @@ gulp.task('all', function(done){
 });
 
 gulp.task('watch', ['all'], function(){
-    var 
-        watchit = function(glob, op, fn){
-            if(arguments.length == 3){
-                return watch(glob, op, util.debounce(fn, 500));
+    // var 
+    //     watchit = function(glob, op, fn){
+    //         if(arguments.length == 3){
+    //             return watch(glob, op, util.debounce(fn, 500));
 
-            } else {
-                fn = op;
-                return watch(glob, util.debounce(fn, 500));
-            }
+    //         } else {
+    //             fn = op;
+    //             return watch(glob, util.debounce(fn, 500));
+    //         }
             
-        };
+    //     };
 
-    watchit(path.join(config.alias.srcRoot, '**/*.*'), function(){
-        runSequence('webpack', ['concat', 'resource'], 'rev-update', function(){
+    gulp.watch([path.join(config.alias.srcRoot, '**/*.*')], function(){
+        runSequence('webpack' , ['concat', 'resource'], 'rev-update', function(){
             fn.supercall('livereload');
             if(!gulp.env.silent){
                 util.pop('watch task finished');
