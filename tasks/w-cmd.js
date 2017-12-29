@@ -17,12 +17,14 @@ var
         supercall: require('./w-supercall'),
         update: require('./w-update'),
         make: require('./w-make'),
+        info: require('./w-info'),
         jade2pug: require('./w-jade2pug'),
         help: function(){
             util.help({
                 usage: 'yyl',
                 commands: {
                     'init': 'init commands',
+                    'info': 'information',
                     'watch': 'watch task',
                     'all': 'optimize task',
                     'server': 'local server commands',
@@ -149,6 +151,10 @@ module.exports = function(ctx){
 
         case 'debug':
             events.debug.apply(events, iArgv.slice(1));
+            break;
+
+        case 'info':
+            events.info.run.apply(events, iArgv.slice(1));
             break;
 
         default:

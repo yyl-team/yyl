@@ -22,6 +22,7 @@ Usage: yyl <command>
 
 Commands:
     init     项目初始化
+    info     项目信息
     watch    执行打包并建立本地服务器监听
     all      执行打包操作
     server   yyl本地服务相关命令
@@ -51,6 +52,15 @@ Options:
     --workflow    选用的构建方式
     --init        初始化类型, 默认为 single-project
     --doc         git 或者 svn 目录结构
+```
+
+### 项目信息 显示
+```shell
+Usage: yyl info
+
+Commands:
+
+Options:
 ```
 
 ### 压缩相关命令

@@ -6,6 +6,7 @@
 * [ADD] `yyl supercall rev-build` 新增 对 `html` 文件 路径 format 功能 (包括 相对路径 变绝对路径， 路径 `../`, `./` format)
 * [ADD] `webpack-vue` `config.js` 新增 `resource` `concat` 属性配置项
 * [ADD] `yyl server start` 新增 `--proxy` 参数， 可以同时启动 server 和 proxy
+* [ADD] 新增 `yyl info` 用来显示当前项目 构建信息
 * [EDIT] `webpack-vue` rev 构建模式 改用全局的 `supercall rev-build`, `supercall rev-update` 方法
 * [DEL] 去除 `yyl init` 中 `platfrom` 可以多选 `pc` 和 `mobile`， 改为 `单选`
 * [FIX] 捕抓 `proxy` 中 出现的 `connect ECONNREFUSED` 错误, 不让这错误打印到 log 中
