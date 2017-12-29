@@ -11,6 +11,7 @@
 * [EDIT] `webpack-vue` rev 构建模式 改用全局的 `supercall rev-build`, `supercall rev-update` 方法
 * [DEL] 去除 `yyl init` 中 `platfrom` 可以多选 `pc` 和 `mobile`， 改为 `单选`
 * [FIX] 捕抓 `proxy` 中 出现的 `connect ECONNREFUSED` 错误, 不让这错误打印到 log 中
+* TODO 新增 `__inline(path)` `__url(path)` js 语法糖 用于js 中 直接引入 模板文件内容 和 url 地址
 
 ## 2.15.27 (2017-12-14)
 * [EDIT]`config.js` 中 在 `config.onBeforeCommit` 和 `config.svn[branches].onBeforeCommit` 两个地方都可配置 提交前的操作, 其中优先级是后者比前者优先级要高
