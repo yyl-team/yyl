@@ -68,13 +68,13 @@ var
             var config, configMine;
 
             if(!fs.existsSync(configPath)){
-                return util.msg.warn('read workflow info error', 'config.js is not exists');
+                return util.msg.warn('read workflow info error, config.js is not exists');
             }
 
             config = util.requireJs(configPath);
 
             if(!configPath){
-                return util.msg.warn('read workflow info error', 'config.js parse error');
+                return util.msg.warn('read workflow info error, config.js parse error');
             }
 
             if(fs.existsSync(configMinePath)){
@@ -104,7 +104,7 @@ var
             }
 
             if(!isWork){
-                return util.msg.warn('read workflow info error', 'config seetting wrong');
+                return util.msg.warn('read workflow info error, config seetting wrong');
             }
 
         },

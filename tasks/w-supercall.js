@@ -175,13 +175,14 @@ var chalk = require('chalk');
                             REG = {
                                 HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
                                 HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script\>)/ig,
-                                HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{)/,
+                                HTML_IGNORE_REG: /^(about:|data:|javascript:|#)/,
                                 HTML_SCRIPT_TEMPLATE_REG: /type\s*\=\s*['"]text\/html["']/,
+                                HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
 
                                 CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
                                 CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
 
-                                IS_HTTP: /^http[s]:/
+                                IS_HTTP: /^http[s]?:/
                             };
                         var 
                             iExt = path.extname(filePath).replace(/^\./g, ''),
@@ -203,6 +204,35 @@ var chalk = require('chalk');
 
                                     if(iPath.match(REG.HTML_IGNORE_REG)){
                                         return str;
+                                    } else if(iPath.match(REG.HTML_ALIAS_REG)) { // 构建语法糖 {$key}
+                                        console.log('===== match??', iPath)
+
+                                        var isMatch = false;
+
+                                        iPath = iPath.replace(REG.HTML_ALIAS_REG, function(str, $1, $2){
+                                            if(config.alias[$2]){
+                                                isMatch = true;
+                                                return config.alias[$2];
+                                            } else {
+                                                return '';
+
+                                            }
+                                        });
+
+                                        if(isMatch && iPath && fs.existsSync(iPath)){
+                                            console.log('===', iPath);
+                                            iPath = util.path.join(
+                                                config.commit.hostname, 
+                                                util.path.relative(config.alias.destRoot, iPath)
+                                            );
+
+                                            return $1 + $2 + $3 + iPath + $5;
+
+
+                                        } else {
+                                            return str;
+                                        }
+
                                     } else {
                                         // url format
                                         iPath = util.path.join(iPath);
@@ -349,9 +379,6 @@ var chalk = require('chalk');
                         util.msg.info('ver is not blank, run rev-update');
                         return supercall.rev.update(op);
                     }
-
-                    
-
 
                     // 清除 dest 目录下所有带 hash 文件
                     supercall.rev.clean(op);

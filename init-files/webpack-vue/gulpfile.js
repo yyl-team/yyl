@@ -106,7 +106,7 @@ gulp.task('webpack', function(done){
         iWebpackConfig.devtool = false;
     }
 
-    if(gulp.env.ver == 'remote' || gulp.env.isCommit){
+    if(gulp.env.ver == 'remote' || gulp.env.isCommit || gulp.env.remote){
         iWebpackConfig.output.publicPath = util.joinFormat(config.commit.hostname, iWebpackConfig.output.publicPath);
         util.msg.info('change webpack publicPath =>', iWebpackConfig.output.publicPath);
     }

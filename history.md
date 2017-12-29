@@ -7,6 +7,7 @@
 * [ADD] `webpack-vue` `config.js` 新增 `resource` `concat` 属性配置项
 * [ADD] `yyl server start` 新增 `--proxy` 参数， 可以同时启动 server 和 proxy
 * [ADD] 新增 `yyl info` 用来显示当前项目 构建信息
+* [ADD] html 生成 现 支持 `{$alias}` 语法糖，生成后会自动替换成 `config.alias` 内对应的地址并 处理好相对位置
 * [EDIT] `webpack-vue` rev 构建模式 改用全局的 `supercall rev-build`, `supercall rev-update` 方法
 * [DEL] 去除 `yyl init` 中 `platfrom` 可以多选 `pc` 和 `mobile`， 改为 `单选`
 * [FIX] 捕抓 `proxy` 中 出现的 `connect ECONNREFUSED` 错误, 不让这错误打印到 log 中
