@@ -63,7 +63,8 @@ var
         },
 
         // 服务器清空
-        clear: function(done){
+        clear: function(done, silent){
+            util.msg.silent(silent);
             new util.Promise(function(next){ // clear data file
                 util.msg.info('start clear server data path:', vars.SERVER_DATA_PATH);
                 if(fs.existsSync(vars.SERVER_DATA_PATH)){
@@ -191,12 +192,12 @@ var
         // },
         // 构建 服务端 config
         buildConfig: function(name, env, done){
+
             var
                 configPath = path.join(vars.PROJECT_PATH, 'config.js'),
                 mineConfigPath = path.join(vars.PROJECT_PATH, 'config.mine.js'),
                 config,
                 mineConfig;
-
 
             // 获取 config, config.mine 文件内容
             if(!fs.existsSync(configPath)){
@@ -458,7 +459,7 @@ var
 
         },
         // 服务器启动
-        start: function(iPath, port, slient){
+        start: function(iPath, port, silent){
             if(!iPath || !fs.existsSync(iPath)){
                 iPath = vars.PROJECT_PATH;
             }
@@ -512,7 +513,7 @@ var
                         return util.msg.error(err);
                     }
                     tinylr().listen(lrPort);
-                    if(!slient){
+                    if(!silent){
                         util.openBrowser(serverAddress);
                     }
 

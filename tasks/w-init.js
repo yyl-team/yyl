@@ -29,9 +29,6 @@ var
         },
         init: function(op){
 
-            if(op.cwd) {
-                vars.PROJECT_PATH = op.cwd;
-            }
             if(op.silent){
                 util.msg.silent(true);
             }

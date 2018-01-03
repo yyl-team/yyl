@@ -5,7 +5,10 @@ var
     path = require('path'),
     fs = require('fs'),
     USERPROFILE = process.env[process.platform == 'win32'? 'USERPROFILE': 'HOME'],
-    cache = {};
+    cache = {},
+    CWD = global.YYL_RUN_CWD || util.joinFormat(process.cwd());
+
+
 
 util = util.extend(true, util, {
     vars: {
@@ -17,17 +20,17 @@ util = util.extend(true, util, {
         // svn rev 文件保留多少个版本
         REV_KEEP_COUNT: 3,
         // 当前cmd 所在地址
-        PROJECT_PATH: util.joinFormat(process.cwd()),
+        PROJECT_PATH: CWD,
 
         // 搜索用 common 目录路径匹配
         COMMIN_PATH_LIKE: 'public/global',
         // COMMIN_PATH_LIKE: 'common/pc',
 
         // 用户设置文件地址
-        USER_CONFIG_FILE: util.joinFormat(process.cwd(), 'config.js'),
+        USER_CONFIG_FILE: util.joinFormat(CWD, 'config.js'),
 
         // 用户 package.json 地址
-        USER_PKG_FILE: util.joinFormat(process.cwd(), 'package.json'),
+        USER_PKG_FILE: util.joinFormat(CWD, 'package.json'),
 
         
 
