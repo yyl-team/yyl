@@ -235,7 +235,9 @@ describe('yyl ui test', function() {
                     });
 
                 }).then(function(demoPath, next) { // TODO 页面测试
-                    next(null);
+                    yyl.server.abort(function(){
+                        next(null);
+                    });
                     // console.log('===', demoPath);
                     // var ph = null;
 

@@ -14,6 +14,8 @@ var
     path = require('path'),
     url = require('url');
 
+var cache = {};
+
 var 
     events = {
         help: function(){
@@ -458,6 +460,15 @@ var
             
 
         },
+        abort: function(done){
+            if(cache.server){
+                console.log(Object.keys(cache.server))
+                console.log(typeof cache.server.close)
+                cache.server.close(function(){
+                    return done && done();
+                });
+            }
+        },
         // 服务器启动
         start: function(iPath, port, silent, done){
             if(!iPath || !fs.existsSync(iPath)){
@@ -530,6 +541,8 @@ var
                 }
 
             });
+
+            cache.server = server;
 
         },
         // 服务器目录初始化
