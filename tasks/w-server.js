@@ -462,8 +462,6 @@ var
         },
         abort: function(done){
             if(cache.server){
-                console.log(Object.keys(cache.server))
-                console.log(typeof cache.server.close)
                 cache.server.close(function(){
                     return done && done();
                 });
