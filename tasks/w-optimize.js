@@ -115,6 +115,9 @@ var
                     return util.msg.error(iArgv[0], 'task run error', err);
                 }
                 util.msg.success('run cmd done');
+                if(global.YYL_RUN_CALLBACK){ // yyl.run 用 callback
+                    setTimeout(global.YYL_RUN_CALLBACK, 0);
+                }
 
             }, workFlowPath);
         }).start();

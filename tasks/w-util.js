@@ -6,9 +6,7 @@ var
     fs = require('fs'),
     USERPROFILE = process.env[process.platform == 'win32'? 'USERPROFILE': 'HOME'],
     cache = {},
-    CWD = global.YYL_RUN_CWD || util.joinFormat(process.cwd());
-
-
+    CWD = process.cwd();
 
 util = util.extend(true, util, {
     vars: {
@@ -20,7 +18,7 @@ util = util.extend(true, util, {
         // svn rev 文件保留多少个版本
         REV_KEEP_COUNT: 3,
         // 当前cmd 所在地址
-        PROJECT_PATH: CWD,
+        PROJECT_PATH: util.joinFormat(CWD),
 
         // 搜索用 common 目录路径匹配
         COMMIN_PATH_LIKE: 'public/global',

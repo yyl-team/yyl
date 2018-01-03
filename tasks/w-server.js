@@ -459,7 +459,7 @@ var
 
         },
         // 服务器启动
-        start: function(iPath, port, silent){
+        start: function(iPath, port, silent, done){
             if(!iPath || !fs.existsSync(iPath)){
                 iPath = vars.PROJECT_PATH;
             }
@@ -515,6 +515,9 @@ var
                     tinylr().listen(lrPort);
                     if(!silent){
                         util.openBrowser(serverAddress);
+                    }
+                    if(done){
+                        done();
                     }
 
                 });

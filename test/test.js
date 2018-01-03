@@ -150,6 +150,7 @@ describe('yyl init test', function() {
     // });
 
 });
+
 describe('yyl ui test', function() {
     var
         iWorkflows = util.readdirSync(path.join(__dirname, '../init-files')),
@@ -157,9 +158,10 @@ describe('yyl ui test', function() {
         uiTask = function(workflow, init) {
             it('yyl ui test, ' + workflow + ':' + init, function(done) {
                 this.timeout(0); // 设置用例超时时间
+                fn.frag.destory();
                 fn.frag.build();
 
-                new Promise(function(next) { // 项目初始化
+                new util.Promise(function(next) { // 项目初始化
                     yyl.run('init ' + util.envStringify({
                         name: 'frag',
                         platform: 'pc',
@@ -184,15 +186,14 @@ describe('yyl ui test', function() {
                             next(names);
 
                         } else {
-                            expect('config is not in roles').equal.to('');
-                            done();
+                            done('config is not in roles');
                         }
                     }
                 }).then(function(names, next) { // 项目监听
 
                     if (names.length) {
                         var iName = names[0];
-                        yyl.run('watch', util.envStringify({
+                        yyl.run('all ' + util.envStringify({
                             silent: true,
                             name: iName
                         }), function() {
@@ -204,7 +205,7 @@ describe('yyl ui test', function() {
 
 
                     } else {
-                        yyl.run('watch --silent', function(){
+                        yyl.run('all --silent', function(){
                             next(util.getConfigSync({}));
                         }, FRAG_PATH);
                     }
@@ -220,21 +221,81 @@ describe('yyl ui test', function() {
                     demoPath = demoPath[0];
 
                     if(demoPath){
+                        var hostname = 'http://' + util.vars.LOCAL_SERVER + ':' + config.localserver.port;
+                        var relativePath = util.path.relative(config.alias.destRoot, demoPath);
+                        var openPath = util.path.join(hostname, relativePath);
+                        next(config, openPath);
 
+                    } else {
+                        done('cannot find the demo.html in dest');
                     }
+                }).then(function(config, demoPath, next) { // 开启服务器
+                    yyl.server.start(config.alias.destRoot, config.localserver.port, true, function(){
+                        next(demoPath);
+                    });
 
-                }).then(function() { // 去掉生成的文件
+                }).then(function(demoPath, next) { // TODO 页面测试
+                    next(null);
+                    // console.log('===', demoPath);
+                    // var ph = null;
+
+                    // phantom.create()
+                    //     .then(function(instance){
+                    //         ph = instance;
+                    //         return instance.createPage();
+                    //     }).then(function(page){
+                    //         console.log('openopen')
+                    //         var errMsg;
+
+                    //         page.property('onResourceReceived', function(response){
+                    //             if(response.status != 200){
+                    //                 next(workflow + ':' + init + ' run error, resource 404: ' + response.url);
+                    //             }
+                    //         });
+                    //         page.property('onError', function(msg){
+                    //             console.log('===', 'onError', status);
+                    //             errMsg = msg;
+                    //         });
+                    //         page.property('onLoadFinished', function(status){
+                    //             console.log('===', 'onLoadFinished', status);
+                    //             if(status == 'success'){
+                    //                 console.log(111)
+                    //                 ph.kill();
+                    //                 console.log(222)
+                    //                 next(errMsg);
+                                    
+                    //             } else {
+                    //                 ph.exit();
+                    //                 // phantom.exit();
+                    //                 next(workflow + ':' + init + ' run error, resource 404: ' + demoPath);
+                    //             }
+
+
+                    //         });
+                    //         page.open(demoPath);
+
+
+                    //     }).catch(function(er){
+                    //         console.log('===','onerror')
+                    //         ph.exit();
+                    //         next(er);
+                    //     });
+
+
+                }).then(function(err) { // 去掉生成的文件
+                    // console.log('next!')
                     fn.frag.destory();
-                    done();
+                    done(err);
 
-                })
+                }).start();
 
             });
         };
 
+    iWorkflows = [iWorkflows[0]]; // test
     iWorkflows.forEach(function(workflow, i) {
         var inits = util.readdirSync(path.join(__dirname, '../examples', workflow));
-        // var inits = ['single-project'];
+        inits = ['single-project']; // test
         if (i === 0) {
             iInits = inits;
         }

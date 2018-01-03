@@ -135,9 +135,7 @@ var chalk = require('chalk');
 
 
                 } else {
-                    if(global.YYL_RUN_CALLBACK){ // yyl.run 用 callback
-                        setTimeout(global.YYL_RUN_CALLBACK, 0);
-                    }
+                    
                     util.msg.success('watch-done finished');
                 }
 
