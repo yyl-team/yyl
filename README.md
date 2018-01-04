@@ -112,6 +112,8 @@ Commands:
 
     start            在当前文件夹建立本地服务器
 
+    rebuild          重新 npm install 当前目录对应的 server node_modules
+
 Options:
     --proxy       配合 start 使用, 启动服务器同时启动 proxy 服务
     -h, --help    帮助信息

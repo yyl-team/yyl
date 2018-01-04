@@ -24,7 +24,8 @@ var
                 commands: {
                     'start': 'start local server',
                     'init': 'init server ref',
-                    'clear': 'empty the server path'
+                    'clear': 'empty the server path',
+                    'rebuild': 'reinstall the server node_modules'
                 },
                 options: {
                     '--proxy': 'start with proxy server',
@@ -53,6 +54,53 @@ var
                 wProxy.init({
                     port: 8887
                 });
+            }
+
+        },
+        rebuild: function(name){
+            var type;
+            var iWorkflows = util.readdirSync(path.join( util.vars.SERVER_WORKFLOW_PATH));
+            if(name){
+                type = name;
+            } else {
+                if(fs.existsSync(util.vars.USER_CONFIG_FILE)){
+                    var userConfig = util.requireJs(util.vars.USER_CONFIG_FILE);
+                    type = userConfig.workflow;
+                    if(!type){
+                        Object.keys(userConfig).forEach(function(key){
+                            if(userConfig[key].workflow){
+                                type = userConfig[key].workflow;
+                                return true;
+                            }
+                        });
+                    }
+                    if(!userConfig){
+                        return util.msg.error('yyl rebuild fail','user config parse error');
+                    }
+
+                } else {
+                    return util.msg.error('yyl rebuild fail','no user config file in current cwd');
+                }
+            }
+
+            if(~iWorkflows.indexOf(type)){
+                var targetPath = path.join(util.vars.SERVER_WORKFLOW_PATH, type, 'node_modules');
+                if(fs.existsSync(targetPath)){
+                    util.msg.info('start remove server files:');
+                    util.msg.info(targetPath);
+                    util.removeFiles(targetPath, function(){
+                        util.msg.success('done');
+                        util.msg.info('start run npm install');
+                        util.runCMD('npm install', function(){
+                            util.msg.success('yyl rebuild success');
+                        }, path.join(targetPath, '../'));
+                    });
+                } else {
+                    return util.msg.success('yyl rebuild success');
+                }
+
+            } else {
+                return util.msg.warn('yyl rebuild success', type, 'is not in', iWorkflows.join('|'));
             }
 
         },
@@ -738,6 +786,10 @@ var
 
                 case 'init':
                     events.init.apply(events, iArgv.slice(2));
+                    break;
+
+                case 'rebuild':
+                    events.rebuild.apply(events, iArgv.slice(2));
                     break;
 
                 case '--h':

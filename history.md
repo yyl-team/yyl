@@ -1,5 +1,6 @@
 # 版本信息
 ## 2.16.0 (2018-01-03)
+* [ADD] 新增 `yyl server rebuild <projectName>`
 
 ## 2.15.28 (2017-12-28)
 * [ADD] `yyl init` 新增 `--name`, `--platform`, `--workflow`, `--init`, `--doc` 参数
