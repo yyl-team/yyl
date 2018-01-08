@@ -32,6 +32,7 @@ Options:
 
     --proxy          开启本地代理服务(需要配置 config.proxy 参数)
     --silent         不显示右下角小气泡
+    --logLevel       log 级别， 目前 loglevel > 1 时 proxy 会输出 代理的详细信息
 ```
 ### 构建例子
 ```

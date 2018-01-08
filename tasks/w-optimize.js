@@ -76,7 +76,7 @@ var
                         util.msg.warn('proxy init error', err);
                     }
                     next(config);
-                }, iEnv.debug);
+                }, iEnv.logLevel > 1);
 
             } else {
                 util.msg.info('no proxy, next');

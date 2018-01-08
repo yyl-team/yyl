@@ -33,6 +33,7 @@ Options:
     --sub <branch>   发布的版本 dev|trunk
 
     --proxy          开启本地代理服务(需要配置 config.proxy 参数)
+    --logLevel       log 级别， 目前 loglevel > 1 时 proxy 会输出 代理的详细信息
 ```
 
 ### 构建例子

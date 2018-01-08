@@ -249,7 +249,8 @@ util.msg.init({
         rev: {name: 'rev', color: '#ffdd00'},
         concat: {name: 'Concat', color: 'cyan'},
         update: {name: 'Updated', color: 'cyan'},
-        proxy: {name: 'Proxy', color: 'orange'}
+        proxyTo: {name: 'Proxy =>', color: 'gray'},
+        proxyBack: {name: 'Proxy <=', color: 'cyan'}
     }
 });
 

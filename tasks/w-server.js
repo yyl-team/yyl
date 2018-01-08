@@ -53,7 +53,7 @@ var
             if(iEnv.proxy){
                 wProxy.init({
                     port: 8887
-                });
+                }, !iEnv.silent);
             }
 
         },

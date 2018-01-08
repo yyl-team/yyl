@@ -4,7 +4,6 @@ var
     util = require('./w-util.js'),
     http = require('http'),
     net = require('net'),
-    color = require('yyl-color'),
     fs = require('fs'),
     url = require('url');
 
@@ -46,33 +45,49 @@ var
 
 var 
     fn = {
+        blank: function(num){
+            return new Array(num + 1).join(' ');
+        },
         log: {
             STRING_COUNT: 55,
             to: function(url){
                 var iUrl = url;
-                if(iUrl.length > this.STRING_COUNT){
-                    iUrl = iUrl.substring(0, this.STRING_COUNT - 3) + '...';
+                var lines = [];
+                var self = this;
+                while(iUrl.length  > self.STRING_COUNT) {
+                    lines.push(iUrl.substring(0, self.STRING_COUNT));
+                    iUrl = iUrl.substring(self.STRING_COUNT);
                 }
-                util.msg.proxy('=>', iUrl);
+                lines.push(iUrl);
+
+                if(lines.length > 3){
+                    lines.length = 3;
+                    lines[2] = lines[2].substr(0, lines[2].length - 3) + '...';
+                }
+
+                iUrl = lines.join('\n' + fn.blank(20));
+                util.msg.proxyTo(iUrl);
 
             },
 
             back: function(status, url){
                 var iUrl = url;
-                var iStu = status + '';
-                // if(iUrl.length > this.STRING_COUNT - 4){
-                //     iUrl = iUrl.substring(0, this.STRING_COUNT - 7) + '...';
-                // }
-                if(iStu == '200'){
-                    iStu = color.green(iStu);
-                } else if (/^3/.test(iStu)) {
-                    iStu = color.gray(iStu);
-                } else if(/^5/.test(iStu)){
-                    iStu = color.red(iStu);
-                } else {
-                    iStu = color.gray(iStu);
+                var lines = [];
+                var self = this;
+                while(iUrl.length  > self.STRING_COUNT) {
+                    lines.push(iUrl.substring(0, self.STRING_COUNT));
+                    iUrl = iUrl.substring(self.STRING_COUNT);
                 }
-                util.msg.proxy('<=', iStu, iUrl, '\n');
+                lines.push(iUrl);
+
+                if(lines.length > 3){
+                    lines.length = 3;
+                    lines[2] = lines[2].substr(0, lines[2].length - 3) + '...';
+                }
+
+                iUrl = lines.join('\n' + fn.blank(20));
+
+                util.msg.proxyBack(iUrl);
 
             }
         }
@@ -85,7 +100,7 @@ var
             var 
                 iPort = op.port || 8887;
 
-            // util.msg.silent(!showlog);
+            util.msg.silent(!showlog);
 
             var 
                 server = http.createServer(function(req, res){
@@ -156,7 +171,7 @@ var
                                     if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
 
                                         vRes.on('end', function(){
-                                            util.msg.proxy('<=', 'proxy local server not found, to remote');
+                                            util.msg.proxyBack('proxy local server not found, to remote');
                                             linkit(req.url, iBuffer);
                                         });
 
