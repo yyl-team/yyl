@@ -248,7 +248,8 @@ util.msg.init({
     type: {
         rev: {name: 'rev', color: '#ffdd00'},
         concat: {name: 'Concat', color: 'cyan'},
-        update: {name: 'Updated', color: 'cyan'}
+        update: {name: 'Updated', color: 'cyan'},
+        proxy: {name: 'Proxy', color: 'orange'}
     }
 });
 

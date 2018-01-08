@@ -4,6 +4,7 @@ var
     util = require('./w-util.js'),
     http = require('http'),
     net = require('net'),
+    color = require('yyl-color'),
     fs = require('fs'),
     url = require('url');
 
@@ -43,11 +44,48 @@ var
         '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
     ].join('');
 
+var 
+    fn = {
+        log: {
+            STRING_COUNT: 55,
+            to: function(url){
+                var iUrl = url;
+                if(iUrl.length > this.STRING_COUNT){
+                    iUrl = iUrl.substring(0, this.STRING_COUNT - 3) + '...';
+                }
+                util.msg.proxy('=>', iUrl);
+
+            },
+
+            back: function(status, url){
+                var iUrl = url;
+                var iStu = status + '';
+                // if(iUrl.length > this.STRING_COUNT - 4){
+                //     iUrl = iUrl.substring(0, this.STRING_COUNT - 7) + '...';
+                // }
+                if(iStu == '200'){
+                    iStu = color.green(iStu);
+                } else if (/^3/.test(iStu)) {
+                    iStu = color.gray(iStu);
+                } else if(/^5/.test(iStu)){
+                    iStu = color.red(iStu);
+                } else {
+                    iStu = color.gray(iStu);
+                }
+                util.msg.proxy('<=', iStu, iUrl, '\n');
+
+            }
+        }
+
+    };
+
 var
     wProxy = {
         init: function(op, done, showlog){
             var 
                 iPort = op.port || 8887;
+
+            // util.msg.silent(!showlog);
 
             var 
                 server = http.createServer(function(req, res){
@@ -60,6 +98,7 @@ var
                     var 
                         remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/\#.*$/, ''),
                         localData,
+                        localUrl,
                         httpRemoteUrl;
 
                     iAddrs.forEach(function(addr){
@@ -80,6 +119,7 @@ var
 
                             if(fs.existsSync(subAddr)){
                                 localData = fs.readFileSync(subAddr);
+                                localUrl = subAddr;
                                 return false;
                             }
                         }
@@ -88,7 +128,8 @@ var
 
                     if(localData){ // 存在本地文件
 
-                        util.msg.info('proxy local', req.url);
+                        fn.log.to(req.url);
+                        fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
 
                         var iExt = path.extname(req.url).replace(/^\./, '');
                         if(MIME_TYPE_MAP[iExt]){
@@ -99,9 +140,7 @@ var
                         res.end();
 
                     } else { // 透传 or 转发
-                        if(showlog && /html$/.test(req.url)){
-                            util.msg.info('proxy remote =>', req.url);
-                        }
+                        fn.log.to(req.url);
                         var 
                             iUrl = httpRemoteUrl || req.url,
                             body = [],
@@ -117,9 +156,7 @@ var
                                     if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
 
                                         vRes.on('end', function(){
-                                            if(showlog){
-                                                util.msg.info('proxy local server not found, to remote:', iUrl);
-                                            }
+                                            util.msg.proxy('<=', 'proxy local server not found, to remote');
                                             linkit(req.url, iBuffer);
                                         });
 
@@ -131,8 +168,8 @@ var
                                     });
 
                                     vRes.on('end', function(){
-                                        if(showlog  && /html$/.test(req.url)){
-                                            util.msg.info('proxy end <=', vRes.statusCode, iUrl);
+                                        if(iUrl != req.url){
+                                            fn.log.back(vRes.statusCode, iUrl);
                                         }
 
                                         // if(/text\/html/.test(res.getHeader('content-type'))){
