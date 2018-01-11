@@ -12,8 +12,7 @@
     "yyl": "./bin/init.js"
   },
   "scripts": {
-    "test": "mocha ./test/test.js && casperjs ./test/test-ui.js",
-    "test:ui": "casperjs ./test/test-ui.js"
+    "test": "mocha ./test/test.js"
   },
   "main": "index.js",
   "directories": {
