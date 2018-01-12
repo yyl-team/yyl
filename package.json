@@ -12,7 +12,7 @@
     "yyl": "./bin/init.js"
   },
   "scripts": {
-    "test": "mocha ./test/test.js"
+    "test": "mocha ./test/test-ui.js"
   },
   "main": "index.js",
   "directories": {
@@ -43,6 +43,7 @@
     "yyl-util": "~1.9.4"
   },
   "devDependencies": {
-    "chai": "^4.1.2"
+    "chai": "^4.1.2",
+    "webdriverio": "^4.10.0"
   }
 }
