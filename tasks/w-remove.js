@@ -20,7 +20,7 @@ var
 
         if(!fs.existsSync(tPath)){
             var msg = tPath + ' is not exists';
-            util.trace.warn(msg);
+            util.msg.warn(msg);
             return done && done(msg);
         }
 

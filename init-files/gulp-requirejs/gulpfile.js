@@ -7,6 +7,7 @@
 
 
 var gulp = require('gulp'),
+    gutil = require('gulp-util'),
     fs = require('fs'),
     path = require('path'),
     querystring = require('querystring'),
@@ -30,6 +31,8 @@ var gulp = require('gulp'),
 
 require('colors');
 
+gutil.log = gutil.noop;
+
 util.msg.init({
     type: {
         supercall: {name: 'Supercal', color: 'magenta'},
@@ -48,8 +51,11 @@ config = util.extend(true, config, localConfig);
 
 
 var fn = {
-    blankPipe: function() {
+    blankPipe: function(fn) {
         return through.obj(function(file, enc, next) {
+            if (typeof fn == 'function') {
+                fn();
+            }
             next(null, file);
         });
     },
@@ -1347,7 +1353,7 @@ gulp.task('js',['requirejs-task', 'jslib-task', 'data-task'], function (done) {
     runSequence('concat-js', done);
 });
 
-gulp.task('requirejs-task', function() {
+gulp.task('requirejs-task', function(done) {
     var iConfig = fn.taskInit();
     if(!iConfig){
         return;
@@ -1355,6 +1361,7 @@ gulp.task('requirejs-task', function() {
     var vars = gulp.env.vars;
 
     var rStream;
+    var total = 0;
 
     rStream = iStream.requirejs2dest(gulp.src([
         util.joinFormat(vars.srcRoot, 'components/p-*/p-*.js'),
@@ -1366,9 +1373,16 @@ gulp.task('requirejs-task', function() {
         base: vars.srcRoot
     }));
 
-    rStream = rStream.pipe(gulp.dest(util.joinFormat(vars.jsDest)));
+    rStream = rStream
+        .pipe(fn.blankPipe(function(){
+            total++;
+        }))
+        .pipe(gulp.dest(util.joinFormat(vars.jsDest)));
 
-    return rStream;
+    rStream.on('finish', function(){
+        util.msg.info('Optimized js total:', total);
+        done();
+    });
 
 });
 
