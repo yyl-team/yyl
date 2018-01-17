@@ -232,6 +232,46 @@ var
                         }, util.vars.SERVER_UPDATE_PATH);
                     }).start();
                 }
+            }).then(function(next) { // package 校验
+                var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, 'package.json');
+                var basePackagePath = util.path.join(util.vars.BASE_PATH, 'package.json');
+
+                if (!fs.existsSync(updatePackagePath)) {
+                    util.msg.error('path is not exists', updatePackagePath);
+                    return util.msg.warn(UPDATE_ERR_MSG);
+                } else if (!fs.existsSync(basePackagePath)) {
+                    util.msg.error('path is not exists', basePackagePath);
+                    return util.msg.warn(UPDATE_ERR_MSG);
+                }
+
+                var updatePackage = util.requireJs(updatePackagePath);
+                var basePackage = util.requireJs(basePackagePath);
+                var isNotMatch = false;
+
+                if (basePackage.version === updatePackage.version) {
+                    return util.msg.warn('your yyl latest already:', updatePackage.version);
+                } else {
+                    Object.keys(updatePackage.dependencies).forEach(function(key) {
+                        if (updatePackage.dependencies[key] != basePackage.dependencies[key]) {
+                            isNotMatch = 'dependencies ' + key;
+                            return true;
+                        }
+                    });
+
+                    Object.keys(updatePackage.devDependencies).forEach(function(key) {
+                        if (updatePackage.devDependencies[key] !=
+                            basePackage.devDependencies[key]) {
+                            isNotMatch = 'devDependencies ' + key;
+                            return true;
+                        }
+                    });
+
+                    if (isNotMatch) {
+                        return util.msg.warn('the latest yyl package ' + isNotMatch + ' changed, please run "npm i yyl -g" manual');
+                    } else {
+                        next();
+                    }
+                }
             }).then(function(next) { // copy files
                 var updatePath = util.vars.SERVER_UPDATE_PATH;
 
@@ -247,7 +287,7 @@ var
                         next();
                     }
                 }, function(iPath) { // 除去 根目录的 package.json 和 .git, .gitignore
-                    if (util.path.join(iPath) == util.path.join(updatePath, 'package.json') || /(\.git$|\.gitignore)/.test(iPath)) {
+                    if (util.path.join(iPath) == util.path.join(updatePath, 'package.json') || /(\.git$|\.gitignore$|\.git[/\\])/.test(iPath)) {
                         return false;
                     } else {
                         return true;
@@ -273,25 +313,7 @@ var
                         next();
                     }
                 });
-            }).then(function() { // 单独 update package.json
-                var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, 'package.json');
-                var basePackagePath = util.path.join(util.vars.BASE_PATH, 'package.json');
-
-                if (!fs.existsSync(updatePackagePath)) {
-                    util.msg.error('path is not exists', updatePackagePath);
-                    return util.msg.warn(UPDATE_ERR_MSG);
-                } else if (!fs.existsSync(basePackagePath)) {
-                    util.msg.error('path is not exists', basePackagePath);
-                    return util.msg.warn(UPDATE_ERR_MSG);
-                }
-
-                var updatePackage = util.requireJs(updatePackagePath);
-                var basePackage = util.requireJs(basePackagePath);
-
-                fs.writeFileSync(
-                    basePackagePath,
-                    JSON.stringify(util.extend(true, basePackage, updatePackage), null, 2)
-                );
+            }).then(function() {
                 util.msg.success('yyl update finished');
             }).start();
         },
