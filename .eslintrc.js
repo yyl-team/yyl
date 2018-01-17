@@ -32,6 +32,9 @@ module.exports = {
         // 变量声明方式
         "one-var": [2, "never", { "var": 'never', "let": "always", "const": "always"}],
 
+        // template 预处理
+        "prefer-template": 2,
+
         // 禁用 console
         "no-console": 0,
 
