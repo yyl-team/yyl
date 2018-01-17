@@ -1,11 +1,11 @@
 'use strict';
 
-var util = require('./w-util.js');
-var fs = require('fs');
+// var util = require('./w-util.js');
+// var fs = require('fs');
 
 var
-    wTest = function() {
+  wTest = function() {
 
-    };
+  };
 
 module.exports = wTest;

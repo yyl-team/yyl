@@ -1,284 +1,270 @@
 'use strict';
 var
-    path = require('path'),
-    util = require('./w-util.js'),
-    http = require('http'),
-    net = require('net'),
-    fs = require('fs'),
-    url = require('url');
-
-var 
-    MIME_TYPE_MAP = {
-        'css': 'text/css',
-        'js': 'text/javascript',
-        'html': 'text/html',
-        'xml': 'text/xml',
-        'txt': 'text/plain',
-
-        'json': 'application/json',
-        'pdf': 'application/pdf',
-        'swf': 'application/x-shockwave-flash',
-
-        'woff': 'application/font-woff',
-        'ttf': 'application/font-ttf',
-        'eot': 'application/vnd.ms-fontobject',
-        'otf': 'application/font-otf',
-
-        'wav': 'audio/x-wav',
-        'wmv': 'video/x-ms-wmv',
-        'mp4': 'video/mp4',
-
-        'gif': 'image/gif'
-        ,
-        'ico': 'image/x-icon',
-        'jpeg': 'image/jpeg',
-        'jpg': 'image/jpeg',
-        'png': 'image/png',
-        'svg': 'image/svg+xml',
-        'tiff': 'image/tiff'
-
-    },
-    PROXY_INFO_HTML = [
-        '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
-        '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
-    ].join('');
-
-var 
-    fn = {
-        blank: function(num){
-            return new Array(num + 1).join(' ');
-        },
-        log: {
-            STRING_COUNT: 55,
-            to: function(url){
-                var iUrl = url;
-                var lines = [];
-                var self = this;
-                while(iUrl.length  > self.STRING_COUNT) {
-                    lines.push(iUrl.substring(0, self.STRING_COUNT));
-                    iUrl = iUrl.substring(self.STRING_COUNT);
-                }
-                lines.push(iUrl);
-
-                if(lines.length > 3){
-                    lines.length = 3;
-                    lines[2] = lines[2].substr(0, lines[2].length - 3) + '...';
-                }
-
-                iUrl = lines.join('\n' + fn.blank(20));
-                util.msg.proxyTo(iUrl);
-
-            },
-
-            back: function(status, url){
-                var iUrl = url;
-                var lines = [];
-                var self = this;
-                while(iUrl.length  > self.STRING_COUNT) {
-                    lines.push(iUrl.substring(0, self.STRING_COUNT));
-                    iUrl = iUrl.substring(self.STRING_COUNT);
-                }
-                lines.push(iUrl);
-
-                if(lines.length > 3){
-                    lines.length = 3;
-                    lines[2] = lines[2].substr(0, lines[2].length - 3) + '...';
-                }
-
-                iUrl = lines.join('\n' + fn.blank(20));
-
-                util.msg.proxyBack(iUrl);
-
-            }
-        }
-
-    };
+  path = require('path'),
+  util = require('./w-util.js'),
+  http = require('http'),
+  net = require('net'),
+  fs = require('fs'),
+  url = require('url');
 
 var
-    wProxy = {
-        init: function(op, done, showlog){
-            var 
-                iPort = op.port || 8887;
+  MIME_TYPE_MAP = {
+    'css': 'text/css',
+    'js': 'text/javascript',
+    'html': 'text/html',
+    'xml': 'text/xml',
+    'txt': 'text/plain',
 
-            util.msg.silent(!showlog);
+    'json': 'application/json',
+    'pdf': 'application/pdf',
+    'swf': 'application/x-shockwave-flash',
 
-            var 
-                server = http.createServer(function(req, res){
+    'woff': 'application/font-woff',
+    'ttf': 'application/font-ttf',
+    'eot': 'application/vnd.ms-fontobject',
+    'otf': 'application/font-otf',
 
-                    var 
-                        reqUrl = req.url,
-                        iAddrs = Object.keys(op.localRemote || {});
+    'wav': 'audio/x-wav',
+    'wmv': 'video/x-ms-wmv',
+    'mp4': 'video/mp4',
 
-                    // 本地代理
-                    var 
-                        remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/\#.*$/, ''),
-                        localData,
-                        localUrl,
-                        httpRemoteUrl;
+    'gif': 'image/gif'
+    ,
+    'ico': 'image/x-icon',
+    'jpeg': 'image/jpeg',
+    'jpg': 'image/jpeg',
+    'png': 'image/png',
+    'svg': 'image/svg+xml',
+    'tiff': 'image/tiff'
 
-                    iAddrs.forEach(function(addr){
-                        var localAddr = op.localRemote[addr];
+  },
+  PROXY_INFO_HTML = [
+    '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
+    '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
+  ].join('');
 
-                        if(!localAddr){
-                            return true;
-                        }
+var
+  fn = {
+    blank: function(num) {
+      return new Array(num + 1).join(' ');
+    },
+    log: {
+      STRING_COUNT: 55,
+      to: function(url) {
+        var iUrl = url;
+        var lines = [];
+        var self = this;
+        while (iUrl.length  > self.STRING_COUNT) {
+          lines.push(iUrl.substring(0, self.STRING_COUNT));
+          iUrl = iUrl.substring(self.STRING_COUNT);
+        }
+        lines.push(iUrl);
+
+        if (lines.length > 3) {
+          lines.length = 3;
+          lines[2] = lines[2].substr(0, lines[2].length - 3) + '...';
+        }
+
+        iUrl = lines.join('\n' + fn.blank(20));
+        util.msg.proxyTo(iUrl);
+      },
+
+      back: function(status, url) {
+        var iUrl = url;
+        var lines = [];
+        var self = this;
+        while (iUrl.length  > self.STRING_COUNT) {
+          lines.push(iUrl.substring(0, self.STRING_COUNT));
+          iUrl = iUrl.substring(self.STRING_COUNT);
+        }
+        lines.push(iUrl);
+
+        if (lines.length > 3) {
+          lines.length = 3;
+          lines[2] = lines[2].substr(0, lines[2].length - 3) + '...';
+        }
+
+        iUrl = lines.join('\n' + fn.blank(20));
+
+        util.msg.proxyBack(iUrl);
+      }
+    }
+
+  };
+
+var
+  wProxy = {
+    init: function(op, done, showlog) {
+      var
+        iPort = op.port || 8887;
+
+      util.msg.silent(!showlog);
+
+      var
+        server = http.createServer(function(req, res) {
+          var
+            reqUrl = req.url,
+            iAddrs = Object.keys(op.localRemote || {});
+
+          // 本地代理
+          var
+            remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/\#.*$/, ''),
+            localData,
+            localUrl,
+            httpRemoteUrl;
+
+          iAddrs.forEach(function(addr) {
+            var localAddr = op.localRemote[addr];
+
+            if (!localAddr) {
+              return true;
+            }
 
 
-                        if(addr === remoteUrl.substr(0, addr.length)){
-                            var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
+            if (addr === remoteUrl.substr(0, addr.length)) {
+              var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
 
-                            if(/^http(s)?:/.test(localAddr)){
-                                httpRemoteUrl = subAddr;
-                                return false;
-                            }
+              if (/^http(s)?:/.test(localAddr)) {
+                httpRemoteUrl = subAddr;
+                return false;
+              }
 
-                            if(fs.existsSync(subAddr)){
-                                localData = fs.readFileSync(subAddr);
-                                localUrl = subAddr;
-                                return false;
-                            }
-                        }
+              if (fs.existsSync(subAddr)) {
+                localData = fs.readFileSync(subAddr);
+                localUrl = subAddr;
+                return false;
+              }
+            }
+          });
 
+          if (localData) { // 存在本地文件
+            fn.log.to(req.url);
+            fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
+
+            var iExt = path.extname(req.url).replace(/^\./, '');
+            if (MIME_TYPE_MAP[iExt]) {
+              res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+            }
+
+            res.write(localData);
+            res.end();
+          } else { // 透传 or 转发
+            fn.log.to(req.url);
+            var
+              iUrl = httpRemoteUrl || req.url,
+              body = [],
+              linkit = function(iUrl, iBuffer) {
+                var vOpts = url.parse(iUrl);
+                vOpts.method = req.method;
+                vOpts.headers = req.headers;
+                vOpts.body = body;
+
+
+                var vRequest = http.request(vOpts, function(vRes) {
+                  if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
+                    vRes.on('end', function() {
+                      util.msg.proxyBack('proxy local server not found, to remote');
+                      linkit(req.url, iBuffer);
                     });
 
-                    if(localData){ // 存在本地文件
+                    return vRequest.abort();
+                  }
 
-                        fn.log.to(req.url);
-                        fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
+                  vRes.on('data', function(chunk) {
+                    res.write(chunk, 'binary');
+                  });
 
-                        var iExt = path.extname(req.url).replace(/^\./, '');
-                        if(MIME_TYPE_MAP[iExt]){
-                            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-                        }
-
-                        res.write(localData);
-                        res.end();
-
-                    } else { // 透传 or 转发
-                        fn.log.to(req.url);
-                        var 
-                            iUrl = httpRemoteUrl || req.url,
-                            body = [],
-                            linkit = function(iUrl, iBuffer){
-                                var vOpts = url.parse(iUrl);
-                                vOpts.method = req.method;
-                                vOpts.headers = req.headers;
-                                vOpts.body = body;
-
-
-                                var vRequest = http.request(vOpts, function(vRes){
-
-                                    if(/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl){
-
-                                        vRes.on('end', function(){
-                                            util.msg.proxyBack('proxy local server not found, to remote');
-                                            linkit(req.url, iBuffer);
-                                        });
-
-                                        return vRequest.abort();
-                                    }
-
-                                    vRes.on('data', function(chunk){
-                                        res.write(chunk, 'binary');
-                                    });
-
-                                    vRes.on('end', function(){
-                                        if(iUrl != req.url){
-                                            fn.log.back(vRes.statusCode, iUrl);
-                                        }
-
-                                        // if(/text\/html/.test(res.getHeader('content-type'))){
-                                        //     res.write(PROXY_INFO_HTML);
-                                        // }
-                                        res.end();
-                                    });
-                                    vRes.on('error', function(){
-                                        res.end();
-                                    });
-
-                                    var iHeader = util.extend(true, {}, vRes.headers);
-
-                                    // 设置 header
-                                    var iType = vRes.headers['content-type'];
-                                    if(iType){
-                                        res.setHeader('Content-Type', iType);
-                                    } else {
-                                        var iExt = path.extname(req.url).replace(/^\./, '');
-
-                                        if(MIME_TYPE_MAP[iExt]){
-                                            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-                                        }
-                                    }
-
-                                    res.writeHead(vRes.statusCode, iHeader);
-                                });
-
-                                vRequest.on('error', function(){
-                                    res.end();
-                                });
-
-                                vRequest.write(body);
-                                vRequest.end();
-
-                            };
-
-                        req.on('data', function(chunk){
-                            body.push(chunk);
-                        });
-
-
-                        req.on('end', function(){
-                            body = Buffer.concat(body).toString();
-                            linkit(iUrl, body);
-                        });
+                  vRes.on('end', function() {
+                    if (iUrl != req.url) {
+                      fn.log.back(vRes.statusCode, iUrl);
                     }
 
+                    // if(/text\/html/.test(res.getHeader('content-type'))){
+                    //     res.write(PROXY_INFO_HTML);
+                    // }
+                    res.end();
+                  });
+                  vRes.on('error', function() {
+                    res.end();
+                  });
+
+                  var iHeader = util.extend(true, {}, vRes.headers);
+
+                  // 设置 header
+                  var iType = vRes.headers['content-type'];
+                  if (iType) {
+                    res.setHeader('Content-Type', iType);
+                  } else {
+                    var iExt = path.extname(req.url).replace(/^\./, '');
+
+                    if (MIME_TYPE_MAP[iExt]) {
+                      res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+                    }
+                  }
+
+                  res.writeHead(vRes.statusCode, iHeader);
                 });
 
-            util.msg.success('proxy server start');
-            util.msg.success('proxy config localRemote:', JSON.stringify(op.localRemote, null, 4));
-            util.msg.success('proxy server port:', iPort);
-
-            server.listen(iPort);
-
-            // ws 监听, 转发
-            server.on('connect', function(req, socket){
-                var addr = req.url.split(':');
-                //creating TCP connection to remote server
-                var conn = net.connect(addr[1] || 443, addr[0], function() {
-                    // tell the client that the connection is established
-                    socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', function() {
-                        // creating pipes in both ends
-                        conn.pipe(socket);
-                        socket.pipe(conn);
-                    });
-
-                    
+                vRequest.on('error', function() {
+                  res.end();
                 });
 
-                socket.on('error', function(){
-                    socket.end();
-                    conn.end();
-                });
+                vRequest.write(body);
+                vRequest.end();
+              };
 
-                conn.on('error', function() {
-                    socket.end();
-                    conn.end();
-                });
-
+            req.on('data', function(chunk) {
+              body.push(chunk);
             });
 
-            server.on('error', function(err){
-                if(err.code == 'EADDRINUSE'){
-                    util.msg.error('proxy server start fail:', iPort ,'is occupied, please check');
 
-                } else {
-                    util.msg.error('proxy server error', err);
-                }
+            req.on('end', function() {
+              body = Buffer.concat(body).toString();
+              linkit(iUrl, body);
             });
+          }
+        });
 
-            return done && done();
+      util.msg.success('proxy server start');
+      util.msg.success('proxy config localRemote:', JSON.stringify(op.localRemote, null, 4));
+      util.msg.success('proxy server port:', iPort);
+
+      server.listen(iPort);
+
+      // ws 监听, 转发
+      server.on('connect', function(req, socket) {
+        var addr = req.url.split(':');
+        //creating TCP connection to remote server
+        var conn = net.connect(addr[1] || 443, addr[0], function() {
+          // tell the client that the connection is established
+          socket.write('HTTP/' + req.httpVersion + ' 200 OK\r\n\r\n', 'UTF-8', function() {
+            // creating pipes in both ends
+            conn.pipe(socket);
+            socket.pipe(conn);
+          });
+        });
+
+        socket.on('error', function() {
+          socket.end();
+          conn.end();
+        });
+
+        conn.on('error', function() {
+          socket.end();
+          conn.end();
+        });
+      });
+
+      server.on('error', function(err) {
+        if (err.code == 'EADDRINUSE') {
+          util.msg.error('proxy server start fail:', iPort, 'is occupied, please check');
+        } else {
+          util.msg.error('proxy server error', err);
         }
-    };
+      });
+
+      return done && done();
+    }
+  };
 
 module.exports = wProxy;

@@ -4,7 +4,13 @@ module.exports = {
         "es6": true,
     	"amd":true
     },
-    "extends": "eslint:recommended",
+    "plugins": ["node"],
+    "extends": ["eslint:recommended", "plugin:node/recommended"],
+    "settings": {
+        "node": {
+            "allowModules": ["chalk"]
+        }
+    },
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true,
@@ -18,9 +24,13 @@ module.exports = {
      *  "error" 或 2 - 开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)
      */
     "rules": {
+        "no-process-exit": 0,
         // 'strict': [2, "global"],
         // 禁止条件表达式中出现赋值操作符
         "no-cond-assign": 2,
+
+        // 变量声明方式
+        "one-var": [2, "never", { "var": 'never', "let": "always", "const": "always"}],
 
         // 禁用 console
         "no-console": 0,
@@ -45,7 +55,7 @@ module.exports = {
         "comma-spacing": ['warn', { "before": false, "after": true }],
 
         // 空格控制
-        "indent": [ "warn", 4 , {"SwitchCase": 1}],
+        "indent": [ "warn", 2 , {"SwitchCase": 1}],
 
          // 强制使用一致的换行风格
         "linebreak-style": [ "error", "windows" ],
