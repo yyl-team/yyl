@@ -35,6 +35,9 @@ module.exports = {
         // template 预处理
         "prefer-template": 2,
 
+        // 箭头函数
+        "prefer-arrow-callback": 2,
+
         // 禁用 console
         "no-console": 0,
 
