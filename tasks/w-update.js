@@ -3,42 +3,41 @@ var util = require('./w-util.js');
 var fs = require('fs');
 var path = require('path');
 
-var 
+var
     REG = {
         IS_VERSION: /^\d+\.\d+\.\d+$/,
         PACKAGE: /package\.json$/,
-        PACKAGE_LOCK: /package\-lock\.json$/,
-        NODE_MODULES: /node_modules/,
+        PACKAGE_LOCK: /package-lock\.json$/,
+        NODE_MODULES: /node_modules/
     },
     INTERFACE = {
         NPM_DOWNLOAD: 'https://registry.npmjs.org/{$name}/-/{$name}-{$version}.tgz',
         NPM_INSTALL: 'npm install {$name}@{$version}',
         VERSION: '~{$version}'
     },
+    GIT_PATH = 'https://github.com/jackness1208/yyl.git',
     fn = {
         printIt: function(iPath) {
             return path.relative(util.vars.BASE_PATH, iPath);
         },
-        render: function(src, obj){
-            if(src && obj){
-                return src.replace(/\{\$(\w+)\}/g, function(str, $1){
-                    if(obj[$1]){
+        render: function(src, obj) {
+            if (src && obj) {
+                return src.replace(/\{\$(\w+)\}/g, function(str, $1) {
+                    if (obj[$1]) {
                         return obj[$1];
                     } else {
                         return '';
                     }
                 });
-
             } else {
                 return src;
             }
-
         }
     };
 
-var 
+var
     update = {
-        help: function(){
+        help: function() {
             util.help({
                 usage: 'yyl update <package> <version>',
                 options: {
@@ -47,12 +46,12 @@ var
                 }
             });
         },
-        package: function(name, version){
-            if(!name || !version){
+        package: function(name, version) {
+            if (!name || !version) {
                 return update.help();
             }
 
-            if(!version.match(REG.IS_VERSION)){
+            if (!version.match(REG.IS_VERSION)) {
                 return util.msg.error('version is not meet the rules:', version);
             }
 
@@ -60,50 +59,47 @@ var
             var packageLocks = [];
             var count = 0;
 
-            util.readFilesSync(util.vars.BASE_PATH, function(iPath){
+            util.readFilesSync(util.vars.BASE_PATH, function(iPath) {
                 var relativePath = util.joinFormat( path.relative(util.vars.BASE_PATH, iPath) );
-                if(relativePath.match(REG.NODE_MODULES)){
+                if (relativePath.match(REG.NODE_MODULES)) {
                     return;
-
-                } else if(relativePath.match(REG.PACKAGE)){
+                } else if (relativePath.match(REG.PACKAGE)) {
                     packages.push(iPath);
-
-                } else if(relativePath.match(REG.PACKAGE_LOCK)){
+                } else if (relativePath.match(REG.PACKAGE_LOCK)) {
                     packageLocks.push(iPath);
                 }
             });
 
-            packages.forEach(function(iPath){
-                if(!fs.existsSync(iPath)){
+            packages.forEach(function(iPath) {
+                if (!fs.existsSync(iPath)) {
                     return;
                 }
 
                 var pkg = util.requireJs(iPath);
                 var isUpdate = false;
 
-                if(!pkg){
+                if (!pkg) {
                     return;
                 }
 
-                if(pkg.dependencies){
-                    Object.keys(pkg.dependencies).forEach(function(key){
-                        if(key == name){
+                if (pkg.dependencies) {
+                    Object.keys(pkg.dependencies).forEach(function(key) {
+                        if (key == name) {
                             var r = fn.render(INTERFACE.VERSION, { 'version': version });
-                            if(pkg.dependencies[key] != r){
+                            if (pkg.dependencies[key] != r) {
                                 pkg.dependencies[key] = r;
                                 isUpdate = true;
                             }
                             return true;
                         }
                     });
-
                 }
 
-                if(pkg.devDependencies){
-                    Object.keys(pkg.devDependencies).forEach(function(key){
-                        if(key == name){
+                if (pkg.devDependencies) {
+                    Object.keys(pkg.devDependencies).forEach(function(key) {
+                        if (key == name) {
                             var r = fn.render(INTERFACE.VERSION, { 'version': version });
-                            if(pkg.devDependencies[key] != r){
+                            if (pkg.devDependencies[key] != r) {
                                 pkg.devDependencies[key] = r;
                                 isUpdate = true;
                                 return true;
@@ -112,30 +108,29 @@ var
                     });
                 }
 
-                if(isUpdate){
+                if (isUpdate) {
                     fs.writeFileSync(iPath, JSON.stringify(pkg, null, 2));
                     util.msg.update(fn.printIt(iPath));
                     count++;
                 }
-
             });
 
-            packageLocks.forEach(function(iPath){
-                if(!fs.existsSync(iPath)){
+            packageLocks.forEach(function(iPath) {
+                if (!fs.existsSync(iPath)) {
                     return;
                 }
 
                 var pkg = util.requireJs(iPath);
                 var isUpdate = false;
 
-                if(!pkg){
+                if (!pkg) {
                     return;
                 }
 
-                if(pkg.dependencies){
-                    Object.keys(pkg.dependencies).forEach(function(key){
-                        if(key == name){
-                            if(pkg.dependencies[key].version != version){
+                if (pkg.dependencies) {
+                    Object.keys(pkg.dependencies).forEach(function(key) {
+                        if (key == name) {
+                            if (pkg.dependencies[key].version != version) {
                                 pkg.dependencies[key].version = version;
                                 isUpdate = true;
                             }
@@ -145,20 +140,19 @@ var
                                 'version': version
                             });
 
-                            if(pkg.dependencies[key].resolved != r){
+                            if (pkg.dependencies[key].resolved != r) {
                                 pkg.dependencies[key].resolved = r;
                                 isUpdate = true;
                             }
                             return true;
                         }
                     });
-
                 }
 
-                if(pkg.devDependencies){
-                    Object.keys(pkg.devDependencies).forEach(function(key){
-                        if(key == name){
-                            if(pkg.devDependencies[key].version != version){
+                if (pkg.devDependencies) {
+                    Object.keys(pkg.devDependencies).forEach(function(key) {
+                        if (key == name) {
+                            if (pkg.devDependencies[key].version != version) {
                                 pkg.devDependencies[key].version = version;
                                 isUpdate = true;
                             }
@@ -167,7 +161,7 @@ var
                                 'name': key,
                                 'versioin': version
                             });
-                            if(pkg.devDependencies[key].resolved != r){
+                            if (pkg.devDependencies[key].resolved != r) {
                                 pkg.devDependencies[key].resolved = r;
                                 isUpdate = true;
                             }
@@ -176,51 +170,114 @@ var
                     });
                 }
 
-                if(isUpdate){
+                if (isUpdate) {
                     fs.writeFileSync(iPath, JSON.stringify(pkg, null, 2));
                     util.msg.update(fn.printIt(iPath));
                     count++;
                 }
-
             });
 
             util.msg.line().info('update finished');
             util.msg.success('updated ' + count + ' files');
             util.msg.warn('please input the following cmd by yourself:');
             util.msg.warn(fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version }));
-
         },
-        yyl: function(version){
+        yyl: function(version) {
+            new util.Promise(function(NEXT) {
+                // 如果有 git 就直接 git 命令更新
+                if (fs.existsSync(util.path.join(util.vars.SERVER_UPDATE_PATH, '.git'))) {
+                    var iCmd = 'git checkout master & git pull';
+                    if (version) {
+                        iCmd = 'git checkout '+ version +' & git pull';
+                    }
+                    util.msg.info('update start...');
+                    util.runCMD(iCmd, function(err) {
+                        if (err) { // 出错则需要清空后重试
+                            util.removeFiles(util.vars.SERVER_UPDATE_PATH, function() {
+                                update.yyl(version);
+                            });
+                        } else {
+                            NEXT();
+                        }
+                    }, util.vars.BASE_PATH);
+                } else { // 否则就 用 git clone
+                    new util.Promise(function(next) {
+                        if (fs.existsSync(util.vars.SERVER_UPDATE_PATH)) { // 先清空目录
+                            util.removeFiles(util.vars.SERVER_UPDATE_PATH, function() {
+                                next();
+                            });
+                        } else {
+                            util.mkdirSync(util.vars.SERVER_UPDATE_PATH);
+                            next();
+                        }
+                    }).then(function() { // 执行 git clone
+                        var iCmd = 'git clone ' + GIT_PATH;
+                        if (version) {
+                            iCmd = 'git clone -b ' + version + ' ' + GIT_PATH;
+                        }
 
-            var iCmd = 'git checkout master & git pull';
-            if(version){
-                iCmd = 'git checkout '+ version +' & git pull';
-            }
-            
-            util.msg.info(iCmd);
-            util.runCMD(iCmd, function(){
+                        util.msg.info('update start...');
+                        util.runCMD(iCmd, function(err) {
+                            if (err) {
+                                util.msg.error('version is not exist', version);
+                            } else {
+                                NEXT();
+                            }
+                        });
+                    }).start();
+                }
+            }).then(function(next) { // copy files
+                var updatePath = util.path.join(util.vars.SERVER_UPDATE_PATH, '.git', 'yyl');
+
+                if (!fs.existsSync(updatePath)) {
+                    return util.msg.error('udpate error, please run "npm i yyl -g" manual');
+                }
+
+                util.copyFiles(updatePath, util.vars.BASE_PATH, function(err) {
+                    if (err) {
+                        return util.msg.error('udpate error, please run "npm i yyl -g" manual');
+                    } else {
+                        next();
+                    }
+                }, function(iPath) { // 除去 根目录的 package.json
+                    if (util.path.join(iPath) == util.path.join(updatePath, 'package.json')) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }, null, util.vars.BASE_PATH);
+            }).then(function() { // 单独 update package.json
+                var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, '.git', 'yyl', 'package.json');
+                var basePackagePath = util.path.join(util.vars.BASE_PATH, 'package.json');
+
+                if (!fs.existsSync(updatePackagePath) || !fs.existsSync(basePackagePath)) {
+                    return util.msg.error('udpate error, please run "npm i yyl -g" manual');
+                }
+
+                var updatePackage = util.requireJs(updatePackagePath);
+                var basePackage = util.requireJs(basePackagePath);
+
+                fs.writeFileSync(
+                    basePackagePath,
+                    JSON.stringify(util.extend(true, basePackage, updatePackage), null, 2)
+                );
                 util.msg.success('yyl update finished');
-            }, util.vars.BASE_PATH);
-
+            }).start();
         },
-        run: function(ctx, version){
-            if(ctx) {
-                if(ctx.match(REG.IS_VERSION)){ // 正常组件升级
+        run: function(ctx, version) {
+            if (ctx) {
+                if (ctx.match(REG.IS_VERSION)) { // 正常组件升级
                     update.yyl(ctx);
-
-                } else if(version){ // package 更新 开发用功能
+                } else if (version) { // package 更新 开发用功能
                     update.package(ctx, version);
-
                 } else {
                     update.help();
                 }
-
             } else {
                 update.yyl();
             }
-            
-
         }
     };
 
 module.exports = update;
+

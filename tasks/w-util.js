@@ -1,5 +1,5 @@
 'use strict';
-var 
+var
     util = require('yyl-util'),
     os = require('os'),
     path = require('path'),
@@ -30,8 +30,6 @@ util = util.extend(true, util, {
         // 用户 package.json 地址
         USER_PKG_FILE: util.joinFormat(CWD, 'package.json'),
 
-        
-
         // server 根目录
         SERVER_PATH: util.joinFormat(USERPROFILE, '.yyl'),
 
@@ -43,16 +41,19 @@ util = util.extend(true, util, {
         // server 数据存放目录
         SERVER_DATA_PATH: util.joinFormat(USERPROFILE, '.yyl/data'),
 
+        // server 存放 更新程序目录
+        SERVER_UPDATE_PATH: util.joinFormat(USERPROFILE, '.yyl/update/yyl'),
+
         // 本机 ip地址
-        LOCAL_SERVER: (function(){
+        LOCAL_SERVER: (function() {
             var ipObj = os.networkInterfaces(),
                 ipArr;
-            for(var key in ipObj){
-                if(ipObj.hasOwnProperty(key)){
+            for (var key in ipObj) {
+                if (ipObj.hasOwnProperty(key)) {
                     ipArr = ipObj[key];
-                    for(var fip, i = 0, len = ipArr.length; i < len; i++){
+                    for (var fip, i = 0, len = ipArr.length; i < len; i++) {
                         fip = ipArr[i];
-                        if(fip.family.toLowerCase() == 'ipv4' && !fip.internal){
+                        if (fip.family.toLowerCase() == 'ipv4' && !fip.internal) {
                             return fip.address;
                         }
                     }
@@ -62,23 +63,23 @@ util = util.extend(true, util, {
         })()
 
     },
-    livereload: function(){
+    livereload: function() {
         var reloadPath = 'http://' + util.vars.LOCAL_SERVER + ':35729/changed?files=1';
         util.get(reloadPath);
     },
 
-    initConfig: function(config){
-        var 
-            ctxRender = function(ctx, vars){
+    initConfig: function(config) {
+        var
+            ctxRender = function(ctx, vars) {
                 vars = vars || {};
-                ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z\_\-\.]+)\}/g, function(str, $1){
+                ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z_\-.]+)\}/g, function(str, $1) {
                     return vars[$1] || '';
                 }));
                 return ctx;
             },
-            iForEach = function(arr, vars){
-                for(var i = 0, len = arr.length; i < len; i++){
-                    switch(util.type(arr[i])){
+            iForEach = function(arr, vars) {
+                for (var i = 0, len = arr.length; i < len; i++) {
+                    switch (util.type(arr[i])) {
                         case 'array':
                             arr[i] = iForEach(arr[i], vars);
                             break;
@@ -88,7 +89,7 @@ util = util.extend(true, util, {
                             break;
 
                         case 'object':
-                            if(arr[i] !== null){
+                            if (arr[i] !== null) {
                                 arr[i] = deep(arr[i], vars);
                             }
                             break;
@@ -101,17 +102,16 @@ util = util.extend(true, util, {
                 }
                 return arr;
             },
-            deep = function(obj, vars){
+            deep = function(obj, vars) {
                 var newKey;
-                for(var key in obj){
-                    if(obj.hasOwnProperty(key)){
-                        switch(util.type(obj[key])){
+                for (var key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        switch (util.type(obj[key])) {
                             case 'array':
                                 newKey = ctxRender(key, vars);
-                                if(newKey != key){
+                                if (newKey != key) {
                                     obj[newKey] = iForEach(obj[key], vars);
                                     delete obj[key];
-
                                 } else {
                                     obj[key] = iForEach(obj[key], vars);
                                 }
@@ -119,13 +119,11 @@ util = util.extend(true, util, {
 
                             case 'object':
                                 newKey = ctxRender(key, vars);
-                                if(newKey != key){
+                                if (newKey != key) {
                                     obj[newKey] = deep(obj[key], vars);
                                     delete obj[key];
-
                                 } else {
                                     obj[key] = deep(obj[key], vars);
-
                                 }
                                 break;
 
@@ -142,59 +140,57 @@ util = util.extend(true, util, {
                     }
                 }
                 return obj;
-
             };
 
         // 判断是单个 config 还是 多项目 config
-        var useful = false; 
-        if(!config.alias && !config.localserver){
-            for(var key in config){
-                if(util.type(config[key]) == 'object' && config[key].alias && config[key].localserver){
+        var useful = false;
+        if (!config.alias && !config.localserver) {
+            for (var key in config) {
+                if (util.type(config[key]) == 'object' && config[key].alias && config[key].localserver) {
                     config[key] = deep(config[key], config[key].alias);
                     useful = true;
                 }
             }
-        } else if(config.alias && config.localserver){
+        } else if (config.alias && config.localserver) {
             config = deep(config, config.alias);
             useful = true;
         }
 
 
-        if(!useful){
+        if (!useful) {
             util.msg.error('useness config file', 'please check');
             process.exit();
         }
         return config;
-
     },
     // 获取 项目config
-    getConfigSync: function(op){
-        var 
+    getConfigSync: function(op) {
+        var
             userConfigPath = util.vars.USER_CONFIG_FILE,
             userConfig,
             iConfig;
-        if(!fs.existsSync(userConfigPath)){
+        if (!fs.existsSync(userConfigPath)) {
             cache.config = null;
             return false;
         }
-        try{
+        try {
             userConfig = require(userConfigPath);
-        } catch(er){
+        } catch (er) {
             util.msg.warn('getConfig fail', 'require('+ userConfigPath +') parse fail');
             cache.config = null;
             return false;
         }
 
-        if(op.name){
+        if (op.name) {
             userConfig = userConfig[op.name];
-            if(!userConfig){
+            if (!userConfig) {
                 util.msg.warn('getConfig fail', 'userConfig['+ op.name +'] is null');
                 cache.config = null;
                 return false;
             }
         }
 
-        if(!userConfig.workflow){
+        if (!userConfig.workflow) {
             util.msg.warn('getConfig fail', 'config.workflow is not exists', serverConfigPath);
             cache.config = null;
             return false;
@@ -202,7 +198,7 @@ util = util.extend(true, util, {
 
         var serverConfigPath = path.join(util.vars.SERVER_WORKFLOW_PATH, userConfig.workflow, 'config.js');
 
-        if(!fs.existsSync(serverConfigPath)){
+        if (!fs.existsSync(serverConfigPath)) {
             util.msg.warn('getConfig fail', 'serverConfigPath is not exists:', serverConfigPath);
             cache.config = null;
             return false;
@@ -210,8 +206,8 @@ util = util.extend(true, util, {
 
         iConfig = require(serverConfigPath);
 
-        if(op.name){
-            if(iConfig[op.name]){
+        if (op.name) {
+            if (iConfig[op.name]) {
                 cache.config = util.initConfig(iConfig[op.name]);
             } else {
                 util.msg.warn('getConfig fail', 'config['+ op.name +'] is no content');
@@ -221,24 +217,23 @@ util = util.extend(true, util, {
             cache.config = util.initConfig(iConfig);
         }
         return cache.config;
-
     },
     // 获取当前运行task 中的 config
-    getConfigCacheSync: function(){
+    getConfigCacheSync: function() {
         return cache.config;
     },
 
     // 输出 log 用路径
-    printIt: function(iPath){
+    printIt: function(iPath) {
         var config = util.getConfigCacheSync();
-        if(!config){
+        if (!config) {
             return iPath;
         }
         return path.relative(config.alias.dirname, iPath);
     }
 });
 
-util.printIt.init = function(config){
+util.printIt.init = function(config) {
     cache.config = config;
 };
 
