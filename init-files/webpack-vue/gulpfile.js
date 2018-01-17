@@ -1,5 +1,5 @@
 'use strict';
-var 
+var
     gulp = require('gulp'),
     gutil = require('gulp-util'),
     webpack = require('webpack'),
@@ -14,8 +14,16 @@ var
 
 require('colors');
 
+util.msg.init({
+    type: {
+        supercall: {name: 'Supercal', color: 'magenta'},
+        optimize: {name: 'Optimize', color: 'green'},
+        update: {name: 'Updated', color: 'cyan'}
+    }
+});
+
 var fn = {
-    supercall: function(cmd, done){
+    supercall: function(cmd, done) {
         var iCmd = [
             'yyl supercall ' + cmd,
             util.envStringify({
@@ -27,15 +35,17 @@ var fn = {
             })
         ].join(' ');
 
-        util.msg.info('run cmd:', iCmd);
-        util.runCMD(iCmd, function(){
+        util.msg.supercall(iCmd);
+        util.runNodeModule(iCmd, function() {
             return done && done();
+        }, {
+            cwd: __dirname
         });
     }
 };
 
 
-gulp.task('default', function(){
+gulp.task('default', function() {
     console.log([
         '',
         '',
@@ -54,14 +64,14 @@ gulp.task('default', function(){
 });
 
 // + webpack
-gulp.task('webpack', function(done){
-    var 
+gulp.task('webpack', function(done) {
+    var
         iWebpackConfig = util.extend(true, {}, webpackConfig),
         localWebpackConfigPath = path.join(config.alias.dirname, 'webpack.config.js'),
         localWebpackConfig;
 
 
-    if(fs.existsSync(localWebpackConfigPath)){ // webpack 与 webpack local 整合
+    if (fs.existsSync(localWebpackConfigPath)) { // webpack 与 webpack local 整合
         util.msg.info('get local webpack.config.js:', localWebpackConfigPath);
         localWebpackConfig = require(localWebpackConfigPath);
 
@@ -71,11 +81,10 @@ gulp.task('webpack', function(done){
         var localLoaders = localWebpackConfig.module.loaders;
 
 
-        if(localLoaders && localLoaders.length){
-            
-            localLoaders.forEach(function(obj){
-                for(var i = 0, len = iLoaders.length; i < len; i++){
-                    if(iLoaders[i].test.toString() === obj.test.toString()){
+        if (localLoaders && localLoaders.length) {
+            localLoaders.forEach(function(obj) {
+                for (var i = 0, len = iLoaders.length; i < len; i++) {
+                    if (iLoaders[i].test.toString() === obj.test.toString()) {
                         util.msg.info('change loader['+ i +']', iLoaders[i], '=>', obj);
                         iLoaders.splice(i, 1, obj);
                         return;
@@ -90,13 +99,10 @@ gulp.task('webpack', function(done){
             util.msg.line();
         }
         iWebpackConfig = fwConfig;
-
-
     }
 
 
-    if(gulp.env.isCommit){
-
+    if (gulp.env.isCommit) {
         iWebpackConfig.plugins.push(new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
@@ -106,81 +112,79 @@ gulp.task('webpack', function(done){
         iWebpackConfig.devtool = false;
     }
 
-    if(gulp.env.ver == 'remote' || gulp.env.isCommit || gulp.env.remote){
-        iWebpackConfig.output.publicPath = util.joinFormat(config.commit.hostname, iWebpackConfig.output.publicPath);
+    if (gulp.env.ver == 'remote' || gulp.env.isCommit || gulp.env.remote) {
+        iWebpackConfig.output.publicPath = util.joinFormat(
+            config.commit.hostname,
+            iWebpackConfig.output.publicPath
+        );
         util.msg.info('change webpack publicPath =>', iWebpackConfig.output.publicPath);
     }
 
-    webpack(iWebpackConfig, function(err, stats){
+    webpack(iWebpackConfig, function(err, stats) {
         if (err) {
-          throw new gutil.PluginError('webpack', err);
-
+            throw new gutil.PluginError('webpack', err);
         } else {
             gutil.log('[webpack]', 'run pass');
-
         }
         gutil.log('[webpack]', stats.toString());
 
         done();
-
     });
-
 });
 // - webpack
 
 // + rev
-gulp.task('rev-build', function(done){
+gulp.task('rev-build', function(done) {
     fn.supercall('rev-build', done);
 });
 
-gulp.task('rev-update', function(done){
+gulp.task('rev-update', function(done) {
     fn.supercall('rev-update', done);
-
 });
 // - rev
 // + concat
-gulp.task('concat', function(done){
+gulp.task('concat', function(done) {
     fn.supercall('concat', done);
 });
 // - concat
 
 // + resource
-gulp.task('resource', function(done){
+gulp.task('resource', function(done) {
     fn.supercall('resource', done);
 });
 // - resource
 
-gulp.task('all', function(done){
-    runSequence('webpack', ['concat', 'resource'], 'rev-build', function(){
-        if(!gulp.env.silent){
+gulp.task('all', function(done) {
+    runSequence('webpack', ['concat', 'resource'], 'rev-build', function() {
+        if (!gulp.env.silent) {
             util.pop('optimize task done');
         }
         done();
     });
 });
 
-gulp.task('watch', ['all'], function(){
-    // var 
-    //     watchit = function(glob, op, fn){
-    //         if(arguments.length == 3){
-    //             return watch(glob, op, util.debounce(fn, 500));
+gulp.task('watch', ['all'], function() {
+    var
+        watchit = function(glob, op, fn) {
+            if (arguments.length == 3) {
+                return watch(glob, op, util.debounce(fn, 500));
+            } else {
+                fn = op;
+                return watch(glob, util.debounce(fn, 500));
+            }
+        };
 
-    //         } else {
-    //             fn = op;
-    //             return watch(glob, util.debounce(fn, 500));
-    //         }
-            
-    //     };
-
-    gulp.watch([path.join(config.alias.srcRoot, '**/*.*')], function(){
-        runSequence('webpack' , ['concat', 'resource'], 'rev-update', function(){
-            fn.supercall('livereload');
-            if(!gulp.env.silent){
+    watchit(path.join(config.alias.srcRoot, '**/*.*'), function() {
+        runSequence('webpack', ['concat', 'resource'], 'rev-update', 'reload', function() {
+            if (!gulp.env.silent) {
                 util.pop('watch task finished');
             }
         });
-
     });
 
     fn.supercall('watch-done');
+});
+
+gulp.task('reload', function() {
+    fn.supercall('livereload');
 });
