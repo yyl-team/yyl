@@ -1,4 +1,7 @@
 # 版本信息
+## 2.15.30 (2018-01-17)
+* [FIX] 修复 `yyl update` 执行失败问题
+
 ## 2.15.29 (2018-01-17)
 * [ADD] 新增 `proxy` 日志， 当 `--logLevel > 1` 时会显示
 * [ADD] 新增 `yyl server rebuild <projectName>`

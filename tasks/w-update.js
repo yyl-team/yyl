@@ -247,9 +247,10 @@ var
                 var updatePackage = util.requireJs(updatePackagePath);
                 var basePackage = util.requireJs(basePackagePath);
                 var isNotMatch = false;
+                return next();
 
                 if (basePackage.version === updatePackage.version) {
-                    return util.msg.warn('your yyl latest already:', updatePackage.version);
+                    return util.msg.warn('yyl already the latest:', updatePackage.version);
                 } else {
                     Object.keys(updatePackage.dependencies).forEach(function(key) {
                         if (updatePackage.dependencies[key] != basePackage.dependencies[key]) {
