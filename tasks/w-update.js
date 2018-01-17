@@ -183,6 +183,7 @@ var
             util.msg.warn(fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version }));
         },
         yyl: function(version) {
+            var UPDATE_ERR_MSG = 'udpate error, please run "npm i yyl -g" manual';
             new util.Promise(function(NEXT) {
                 // 如果有 git 就直接 git 命令更新
                 if (fs.existsSync(util.path.join(util.vars.SERVER_UPDATE_PATH, '.git'))) {
@@ -199,7 +200,7 @@ var
                         } else {
                             NEXT();
                         }
-                    }, util.vars.BASE_PATH);
+                    }, util.vars.SERVER_UPDATE_PATH);
                 } else { // 否则就 用 git clone
                     new util.Promise(function(next) {
                         if (fs.existsSync(util.vars.SERVER_UPDATE_PATH)) { // 先清空目录
@@ -211,47 +212,77 @@ var
                             next();
                         }
                     }).then(function() { // 执行 git clone
-                        var iCmd = 'git clone ' + GIT_PATH;
+                        var iCmd = 'git clone ' + GIT_PATH + ' ' + util.vars.SERVER_UPDATE_PATH;
                         if (version) {
-                            iCmd = 'git clone -b ' + version + ' ' + GIT_PATH;
+                            iCmd = 'git clone -b ' + version + ' ' + GIT_PATH + ' ' + util.vars.SERVER_UPDATE_PATH;
                         }
 
                         util.msg.info('update start...');
                         util.runCMD(iCmd, function(err) {
                             if (err) {
-                                util.msg.error('version is not exist', version);
+                                console.log(err);
+                                if (version) {
+                                    util.msg.error('version is not exist', version);
+                                } else {
+                                    util.msg.warn(UPDATE_ERR_MSG);
+                                }
                             } else {
                                 NEXT();
                             }
-                        });
+                        }, util.vars.SERVER_UPDATE_PATH);
                     }).start();
                 }
             }).then(function(next) { // copy files
-                var updatePath = util.path.join(util.vars.SERVER_UPDATE_PATH, '.git', 'yyl');
+                var updatePath = util.vars.SERVER_UPDATE_PATH;
 
                 if (!fs.existsSync(updatePath)) {
-                    return util.msg.error('udpate error, please run "npm i yyl -g" manual');
+                    util.msg.error('path is not exists', updatePath);
+                    return util.msg.warn(UPDATE_ERR_MSG);
                 }
 
                 util.copyFiles(updatePath, util.vars.BASE_PATH, function(err) {
                     if (err) {
-                        return util.msg.error('udpate error, please run "npm i yyl -g" manual');
+                        return util.msg.warn(UPDATE_ERR_MSG);
                     } else {
                         next();
                     }
-                }, function(iPath) { // 除去 根目录的 package.json
-                    if (util.path.join(iPath) == util.path.join(updatePath, 'package.json')) {
+                }, function(iPath) { // 除去 根目录的 package.json 和 .git, .gitignore
+                    if (util.path.join(iPath) == util.path.join(updatePath, 'package.json') || /(\.git$|\.gitignore)/.test(iPath)) {
                         return false;
                     } else {
                         return true;
                     }
-                }, null, util.vars.BASE_PATH);
+                }, null);
+            }).then(function(next) { // 单独 update .npmignore
+                var cp = {};
+                util.readFilesSync(util.vars.SERVER_UPDATE_PATH, /\.gitignore/).forEach(function(iPath) {
+                    var targetPath = util.path.join(
+                        util.vars.BASE_PATH,
+                        util.path.relative(util.vars.SERVER_UPDATE_PATH, iPath)
+                    );
+
+                    targetPath = targetPath.replace(/\.gitignore$/, '.npmignore');
+                    cp[iPath] = targetPath;
+                });
+
+                util.copyFiles(cp, function(err) {
+                    if (err) {
+                        console.log(err);
+                        return util.msg.warn(UPDATE_ERR_MSG);
+                    } else {
+                        next();
+                    }
+                });
             }).then(function() { // 单独 update package.json
-                var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, '.git', 'yyl', 'package.json');
+                var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, 'package.json');
                 var basePackagePath = util.path.join(util.vars.BASE_PATH, 'package.json');
 
-                if (!fs.existsSync(updatePackagePath) || !fs.existsSync(basePackagePath)) {
-                    return util.msg.error('udpate error, please run "npm i yyl -g" manual');
+                if (!fs.existsSync(updatePackagePath)) {
+                    util.msg.error('path is not exists', updatePackagePath);
+                    return util.msg.warn(UPDATE_ERR_MSG);
+                } else if (!fs.existsSync(basePackagePath)) {
+                    util.msg.error('path is not exists', basePackagePath);
+                    return util.msg.warn(UPDATE_ERR_MSG);
                 }
 
                 var updatePackage = util.requireJs(updatePackagePath);
@@ -280,4 +311,8 @@ var
     };
 
 module.exports = update;
+
+
+
+
 
