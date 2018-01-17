@@ -317,8 +317,10 @@ var
                         }).then(function(next) { // copy file to PROJECT_PATH
                             util.msg.info('copy file to ', workflowName);
 
+                            var initPath = path.join(vars.BASE_PATH, 'examples', workflowName, initType);
+
                             util.copyFiles(
-                                path.join(vars.BASE_PATH, 'examples', workflowName, initType),
+                                initPath,
                                 path.join(vars.PROJECT_PATH, dirPath),
                                 function(err) {
                                     if (err) {
@@ -327,7 +329,14 @@ var
                                     util.msg.info('done');
                                     next();
                                 },
-                                /package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g,
+                                function(iPath) {
+                                    var relativePath = util.path.relative(initPath, iPath);
+                                    if (/package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/.test(relativePath))  {
+                                        return false;
+                                    } else {
+                                        return true;
+                                    }
+                                },
                                 null,
                                 path.join(vars.PROJECT_PATH, frontPath),
                                 op.silent? true: false
@@ -335,8 +344,17 @@ var
                         }).then(function(next) { // copy readme
                             util.msg.info('copy README, .gitignore to ', workflowName);
                             var iMap = {};
+
                             iMap[path.join(vars.BASE_PATH, 'init-files', workflowName, 'README.md')] = path.join(vars.PROJECT_PATH, dirPath, 'README.md');
-                            iMap[path.join(vars.BASE_PATH, 'init-files', workflowName, '.gitignore')] = path.join(vars.PROJECT_PATH, dirPath, '.gitignore');
+
+                            var gitIgnorePath = path.join(vars.BASE_PATH, 'init-files', workflowName, '.gitignore');
+                            var npmIgnorePath = path.join(vars.BASE_PATH, 'init-files', workflowName, '.npmignore');
+
+                            if (fs.existsSync(gitIgnorePath)) {
+                                iMap[gitIgnorePath] = path.join(vars.PROJECT_PATH, dirPath, '.gitignore');
+                            } else if (fs.existsSync(npmIgnorePath)) {
+                                iMap[npmIgnorePath] = path.join(vars.PROJECT_PATH, dirPath, '.gitignore');
+                            }
                             util.copyFiles(
                                 iMap,
                                 function(err) {

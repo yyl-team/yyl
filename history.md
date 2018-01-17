@@ -1,8 +1,8 @@
 # 版本信息
-## 2.16.0 (2018-01-03)
-* [ADD] 新增 `yyl server rebuild <projectName>`
+## 2.15.29 (2018-01-17)
 * [ADD] 新增 `proxy` 日志， 当 `--logLevel > 1` 时会显示
-* [TODO] 执行 watch 后 修改 yy.com 下的 w-thirdpartyLogin.js 不会触发更新 js 操作
+* [ADD] 新增 `yyl server rebuild <projectName>`
+* [FIX] 修复 `yyl init` 不能正常拷贝文件 问题
 
 ## 2.15.28 (2017-12-28)
 * [ADD] `yyl init` 新增 `--name`, `--platform`, `--workflow`, `--init`, `--doc` 参数

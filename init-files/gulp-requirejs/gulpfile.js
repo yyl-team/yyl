@@ -31,7 +31,7 @@ var gulp = require('gulp'),
 
 require('colors');
 
-gutil.log = gutil.noop;
+// gutil.log = gutil.noop;
 
 util.msg.init({
     type: {
