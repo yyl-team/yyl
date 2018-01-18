@@ -28,7 +28,7 @@ var
       '        +ooooooooooooooooo/```-::`   ',
       '         `sooossssoooo+:             ',
       '',
-      '        ' + color.yellow('yyl version: ' + iVer)
+      `        ${color.yellow(`yyl version: ${iVer}`)}`
     ].join('\n'));
   };
 

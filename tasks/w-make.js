@@ -1,9 +1,9 @@
 'use strict';
-var
-  util = require('./w-util.js'),
-  wServer = require('./w-server.js'),
-  path = require('path'),
-  fs = require('fs');
+var path = require('path');
+var fs = require('fs');
+
+var util = require('./w-util.js');
+var wServer = require('./w-server.js');
 
 
 var TEMPLATE = {
@@ -84,7 +84,7 @@ var
       var r = tmpl;
       for (var key in op) {
         if (op.hasOwnProperty(key)) {
-          r = r.replace(new RegExp('\\{\\{' + key + '\\}\\}', 'g'), op[key] || '');
+          r = r.replace(new RegExp(`\\{\\{${  key  }\\}\\}`, 'g'), op[key] || '');
         }
       }
       return r;
@@ -94,9 +94,9 @@ var
 var
   wMake = {
     init: function(name, op) {
-      new util.Promise(function(next) {
+      new util.Promise(((next) => {
         util.msg.info('build server config start');
-        wServer.buildConfig(op.name, op, function(err, config) { // 创建 server 端 config
+        wServer.buildConfig(op.name, op, (err, config) => { // 创建 server 端 config
           if (err) {
             return util.msg.error('build server config error:', err);
           }
@@ -105,11 +105,10 @@ var
           util.printIt.init(config);
           next(config);
         });
-      }).then(function(config, next) {
-        var
-          srcRoot = config.alias.srcRoot,
-          widgetPath = '',
-          type = '';
+      })).then((config, next) => {
+        var srcRoot = config.alias.srcRoot;
+        var widgetPath = '';
+        var type = '';
 
         console.log(name);
 
@@ -134,8 +133,8 @@ var
         util.mkdirSync(widgetPath);
 
         next(widgetPath, type, srcRoot, config);
-      }).then(function(widgetPath, type, srcRoot, config, next) { // scss 
-        var scssPath = util.joinFormat(widgetPath, name + '.scss');
+      }).then((widgetPath, type, srcRoot, config, next) => { // scss 
+        var scssPath = util.joinFormat(widgetPath, `${name  }.scss`);
         var iTmpl;
         // scss 部分
         if (fs.existsSync(scssPath)) {
@@ -154,12 +153,12 @@ var
         }
 
         next(widgetPath, type, srcRoot, config);
-      }).then(function(widgetPath, type, srcRoot, config, next) { // jade
+      }).then((widgetPath, type, srcRoot, config, next) => { // jade
         var jadePath;
         if (config.workflow == 'gulp-requirejs') {
-          jadePath = util.joinFormat(widgetPath, name + '.pug');
+          jadePath = util.joinFormat(widgetPath, `${name  }.pug`);
         } else {
-          jadePath = util.joinFormat(widgetPath, name + '.jade');
+          jadePath = util.joinFormat(widgetPath, `${name  }.jade`);
         }
         var iTmpl;
 
@@ -184,8 +183,8 @@ var
         }
 
         next(widgetPath, type, srcRoot, config);
-      }).then(function(widgetPath, type, srcRoot, config, next) { // js
-        var jsPath = util.joinFormat(widgetPath, name + '.js');
+      }).then((widgetPath, type, srcRoot, config, next) => { // js
+        var jsPath = util.joinFormat(widgetPath, `${name  }.js`);
         var iTmpl;
         // js 部分
         if (fs.existsSync(jsPath)) {
@@ -210,8 +209,9 @@ var
         }
 
         next(widgetPath, type, srcRoot, config);
-      }).then(function(widgetPath, type, srcRoot, config) { // alias
-        var configPath, configCnts;
+      }).then((widgetPath, type, srcRoot, config) => { // alias
+        var configPath;
+        var configCnts;
 
         // alias 部分
         if (config.workflow == 'gulp-requirejs') {
@@ -223,12 +223,11 @@ var
         if (type == 'widget' && configPath && fs.existsSync(configPath)) {
           configCnts = fs.readFileSync(configPath).toString().split(/[\r\n]+/);
           // 查找标记位置
-          var
-            startIndex = -1,
-            endIndex = -1,
-            prefix = '';
+          var startIndex = -1;
+          var endIndex = -1;
+          var prefix = '';
 
-          configCnts.forEach(function(str, i) {
+          configCnts.forEach((str, i) => {
             if (!str) {
               return;
             }
@@ -241,15 +240,14 @@ var
           });
           if (~startIndex) { // 插入模块
             prefix = configCnts[startIndex].replace(TEMPLATE.ALIAS.START_REG, '$1');
-            var
-              moduleName = name.replace(/(^[rw])(-)(\w)(.*$)/, function(str, $1, $2, $3, $4) {
-                return $1 + $3.toUpperCase() + $4;
-              }),
-              modulePath = util.joinFormat(path.relative(
-                path.dirname(configPath),
-                util.joinFormat(widgetPath, name)
-              )),
-              insertStr;
+            var moduleName = name.replace(/(^[rw])(-)(\w)(.*$)/, (str, $1, $2, $3, $4) => {
+              return $1 + $3.toUpperCase() + $4;
+            });
+            var modulePath = util.joinFormat(path.relative(
+              path.dirname(configPath),
+              util.joinFormat(widgetPath, name)
+            ));
+            var insertStr;
 
             switch (config.workflow) {
               case 'gulp-requirejs':
@@ -260,14 +258,14 @@ var
                 break;
             }
 
-            insertStr = prefix + '\''+ moduleName +'\' : \''+ modulePath +'\',';
+            insertStr = `${prefix  }'${ moduleName }' : '${ modulePath }',`;
 
             // 查找是否已经添加过了
             var added = false;
             var isBeforeBracket = false; // 是否后面就跟着 花括号了
             var bracketReg = /^[\s\t]*\}[\s\t]*[,]?[\s\t]*$/;
             var commaReg = /,[\s\t]*$/;
-            configCnts.slice(startIndex, endIndex).forEach(function(str) {
+            configCnts.slice(startIndex, endIndex).forEach((str) => {
               if (str.replace(commaReg, '') == insertStr.replace(commaReg, '')) {
                 added = true;
                 return true;
@@ -283,7 +281,7 @@ var
             if (~endIndex) { // 那就帮忙排个序吧
               isBeforeBracket = bracketReg.test(configCnts[endIndex + 1]);
               var sortArr = configCnts.slice(startIndex + 1, endIndex);
-              sortArr.sort(function(a, b) {
+              sortArr.sort((a, b) => {
                 return b.localeCompare(a);
               });
 
@@ -291,10 +289,10 @@ var
               // 解决逗号问题
               if (isBeforeBracket) {
                 if (!configCnts[startIndex - 1].match(commaReg)) {
-                  configCnts[startIndex - 1] = configCnts[startIndex - 1] + ',';
+                  configCnts[startIndex - 1] = `${configCnts[startIndex - 1]  },`;
                 }
               }
-              configCnts = configCnts.map(function(str, i) {
+              configCnts = configCnts.map((str, i) => {
                 var r;
                 if (i >= startIndex + 1 && i < endIndex) {
                   r = sortArr[i - startIndex - 1];
@@ -303,7 +301,7 @@ var
                       r = r.replace(commaReg, '');
                     } else {
                       if (!r.match(commaReg)) {
-                        r = r + ',';
+                        r = `${r  },`;
                       }
                     }
                   }
@@ -317,7 +315,7 @@ var
               isBeforeBracket = bracketReg.test(configCnts[startIndex + 2]);
               if (isBeforeBracket) {
                 if (!configCnts[startIndex - 1].match(commaReg)) {
-                  configCnts[startIndex - 1] = configCnts[startIndex - 1] + ',';
+                  configCnts[startIndex - 1] = `${configCnts[startIndex - 1]  },`;
                 }
                 configCnts[startIndex + 1] = configCnts[startIndex + 1].replace(commaReg, '');
               }
@@ -343,10 +341,9 @@ var
       });
     },
     run: function() {
-      var
-        iArgv = util.makeArray(arguments),
-        ctx = iArgv[0],
-        op = util.envParse(iArgv.slice(1));
+      var iArgv = util.makeArray(arguments);
+      var ctx = iArgv[0];
+      var op = util.envParse(iArgv.slice(1));
 
       if (!ctx) {
         wMake.help();

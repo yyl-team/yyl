@@ -1,12 +1,12 @@
 'use strict';
-var
-  util = require('yyl-util'),
-  os = require('os'),
-  path = require('path'),
-  fs = require('fs'),
-  USERPROFILE = process.env[process.platform == 'win32'? 'USERPROFILE': 'HOME'],
-  cache = {},
-  CWD = process.cwd();
+var util = require('yyl-util');
+var os = require('os');
+var path = require('path');
+var fs = require('fs');
+
+var USERPROFILE = process.env[process.platform == 'win32'? 'USERPROFILE': 'HOME'];
+var cache = {};
+var CWD = process.cwd();
 
 util = util.extend(true, util, {
   vars: {
@@ -46,8 +46,8 @@ util = util.extend(true, util, {
 
     // 本机 ip地址
     LOCAL_SERVER: (function() {
-      var ipObj = os.networkInterfaces(),
-        ipArr;
+      var ipObj = os.networkInterfaces();
+      var ipArr;
       for (var key in ipObj) {
         if (ipObj.hasOwnProperty(key)) {
           ipArr = ipObj[key];
@@ -64,35 +64,72 @@ util = util.extend(true, util, {
 
   },
   livereload: function() {
-    var reloadPath = 'http://' + util.vars.LOCAL_SERVER + ':35729/changed?files=1';
+    var reloadPath = `http://${  util.vars.LOCAL_SERVER  }:35729/changed?files=1`;
     util.get(reloadPath);
   },
 
   initConfig: function(config) {
-    var
-      ctxRender = function(ctx, vars) {
-        vars = vars || {};
-        ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z_\-.]+)\}/g, function(str, $1) {
-          return vars[$1] || '';
-        }));
-        return ctx;
-      },
-      iForEach = function(arr, vars) {
-        for (var i = 0, len = arr.length; i < len; i++) {
-          switch (util.type(arr[i])) {
-            case 'array':
-              arr[i] = iForEach(arr[i], vars);
-              break;
+    var ctxRender = function(ctx, vars) {
+      vars = vars || {};
+      ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z_\-.]+)\}/g, (str, $1) => {
+        return vars[$1] || '';
+      }));
+      return ctx;
+    };
+    var iForEach = function(arr, vars) {
+      for (var i = 0, len = arr.length; i < len; i++) {
+        switch (util.type(arr[i])) {
+          case 'array':
+            arr[i] = iForEach(arr[i], vars);
+            break;
 
-            case 'string':
-              arr[i] = ctxRender(arr[i], vars);
+          case 'string':
+            arr[i] = ctxRender(arr[i], vars);
+            break;
+
+          case 'object':
+            if (arr[i] !== null) {
+              arr[i] = deep(arr[i], vars);
+            }
+            break;
+          case 'function':
+            break;
+
+          default:
+            break;
+        }
+      }
+      return arr;
+    };
+    var deep = function(obj, vars) {
+      var newKey;
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          switch (util.type(obj[key])) {
+            case 'array':
+              newKey = ctxRender(key, vars);
+              if (newKey != key) {
+                obj[newKey] = iForEach(obj[key], vars);
+                delete obj[key];
+              } else {
+                obj[key] = iForEach(obj[key], vars);
+              }
               break;
 
             case 'object':
-              if (arr[i] !== null) {
-                arr[i] = deep(arr[i], vars);
+              newKey = ctxRender(key, vars);
+              if (newKey != key) {
+                obj[newKey] = deep(obj[key], vars);
+                delete obj[key];
+              } else {
+                obj[key] = deep(obj[key], vars);
               }
               break;
+
+            case 'string':
+              obj[key] = ctxRender(obj[key], vars);
+              break;
+
             case 'function':
               break;
 
@@ -100,47 +137,9 @@ util = util.extend(true, util, {
               break;
           }
         }
-        return arr;
-      },
-      deep = function(obj, vars) {
-        var newKey;
-        for (var key in obj) {
-          if (obj.hasOwnProperty(key)) {
-            switch (util.type(obj[key])) {
-              case 'array':
-                newKey = ctxRender(key, vars);
-                if (newKey != key) {
-                  obj[newKey] = iForEach(obj[key], vars);
-                  delete obj[key];
-                } else {
-                  obj[key] = iForEach(obj[key], vars);
-                }
-                break;
-
-              case 'object':
-                newKey = ctxRender(key, vars);
-                if (newKey != key) {
-                  obj[newKey] = deep(obj[key], vars);
-                  delete obj[key];
-                } else {
-                  obj[key] = deep(obj[key], vars);
-                }
-                break;
-
-              case 'string':
-                obj[key] = ctxRender(obj[key], vars);
-                break;
-
-              case 'function':
-                break;
-
-              default:
-                break;
-            }
-          }
-        }
-        return obj;
-      };
+      }
+      return obj;
+    };
 
     // 判断是单个 config 还是 多项目 config
     var useful = false;
@@ -165,10 +164,9 @@ util = util.extend(true, util, {
   },
   // 获取 项目config
   getConfigSync: function(op) {
-    var
-      userConfigPath = util.vars.USER_CONFIG_FILE,
-      userConfig,
-      iConfig;
+    var userConfigPath = util.vars.USER_CONFIG_FILE;
+    var userConfig;
+    var iConfig;
     if (!fs.existsSync(userConfigPath)) {
       cache.config = null;
       return false;
@@ -176,7 +174,7 @@ util = util.extend(true, util, {
     try {
       userConfig = require(userConfigPath);
     } catch (er) {
-      util.msg.warn('getConfig fail', 'require('+ userConfigPath +') parse fail');
+      util.msg.warn('getConfig fail', `require(${ userConfigPath }) parse fail`);
       cache.config = null;
       return false;
     }
@@ -184,7 +182,7 @@ util = util.extend(true, util, {
     if (op.name) {
       userConfig = userConfig[op.name];
       if (!userConfig) {
-        util.msg.warn('getConfig fail', 'userConfig['+ op.name +'] is null');
+        util.msg.warn('getConfig fail', `userConfig[${ op.name }] is null`);
         cache.config = null;
         return false;
       }
@@ -210,7 +208,7 @@ util = util.extend(true, util, {
       if (iConfig[op.name]) {
         cache.config = util.initConfig(iConfig[op.name]);
       } else {
-        util.msg.warn('getConfig fail', 'config['+ op.name +'] is no content');
+        util.msg.warn('getConfig fail', `config[${ op.name }] is no content`);
         cache.config = null;
       }
     } else {

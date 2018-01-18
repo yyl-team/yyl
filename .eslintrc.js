@@ -8,7 +8,9 @@ module.exports = {
     "extends": ["eslint:recommended", "plugin:node/recommended"],
     "settings": {
         "node": {
-            "allowModules": ["chalk"]
+            "allowModules": ["chalk"],
+            "no-unpublished-require": 0,
+            "no-missing-require": 0
         }
     },
     "parserOptions": {
@@ -24,13 +26,15 @@ module.exports = {
      *  "error" 或 2 - 开启规则，使用错误级别的错误：error (当被触发的时候，程序会退出)
      */
     "rules": {
+        "node/no-missing-require": 0,
+        "node/no-unpublished-require": 0,
         "no-process-exit": 0,
         // 'strict': [2, "global"],
         // 禁止条件表达式中出现赋值操作符
         "no-cond-assign": 2,
 
         // 变量声明方式
-        "one-var": [2, "never"],
+        "one-var": [1, "never"],
 
         // template 预处理
         "prefer-template": 2,
@@ -81,7 +85,7 @@ module.exports = {
         "padded-blocks": [1, {"blocks": "never"}],
 
         // 一行代码最大长度
-        "max-len": [1, {"code": 100, "ignoreStrings": true, "ignoreRegExpLiterals": true, "ignoreComments": true}],
+        "max-len": [1, {"code": 100, "ignoreStrings": true, "ignoreRegExpLiterals": true, "ignoreComments": true, "ignoreTemplateLiterals": true}],
         
         "no-trailing-spaces": [1, {"ignoreComments": true}],
 

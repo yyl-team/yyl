@@ -1,10 +1,9 @@
 'use strict';
+var path = require('path');
+var fs = require('fs');
 
-var
-  fs = require('fs'),
-  util = require('./w-util.js'),
-  vars = util.vars,
-  path = require('path');
+var util = require('./w-util.js');
+var vars = util.vars;
 
 var
   remove = function(iPath, done) {
@@ -18,7 +17,7 @@ var
     var iBaseName = path.basename(tPath);
 
     if (!fs.existsSync(tPath)) {
-      var msg = tPath + ' is not exists';
+      var msg = `${tPath  } is not exists`;
       util.msg.warn(msg);
       return done && done(msg);
     }
@@ -27,7 +26,7 @@ var
       var iPromise = new util.Promise();
       var dirList = fs.readdirSync(tPath);
 
-      dirList.forEach(function(pathname) {
+      dirList.forEach((pathname) => {
         var filePath = path.join(tPath, pathname);
 
         if (/ /.test(pathname)) {
@@ -42,18 +41,18 @@ var
           return;
         }
 
-        iPromise.then(function(next) {
+        iPromise.then((next) => {
           util.msg.info('clearing path:', tPath);
-          util.removeFiles(tPath, function(err) {
+          util.removeFiles(tPath, (err) => {
             if (err) {
               util.msg.warn('remove files error', err);
 
-              var iCmd = 'npm uninstall ' + pathname;
+              var iCmd = `npm uninstall ${  pathname}`;
               util.msg.info('run cmd', iCmd);
 
-              util.runCMD( iCmd, function(err) {
+              util.runCMD( iCmd, (err) => {
                 if (err) {
-                  util.msg.warn( iCmd + ' run error:', err);
+                  util.msg.warn( `${iCmd  } run error:`, err);
                 }
                 next();
               });
@@ -64,8 +63,8 @@ var
           });
         });
       });
-      iPromise.then(function() {
-        util.removeFiles(tPath, function(err) {
+      iPromise.then(() => {
+        util.removeFiles(tPath, (err) => {
           if (err) {
             util.msg.warn('remove files error', err, tPath);
           } else {
@@ -80,7 +79,7 @@ var
 
       iPromise.start();
     } else {
-      util.removeFiles(tPath, function(err) {
+      util.removeFiles(tPath, (err) => {
         if (err) {
           util.msg.warn('remove files error:', err, tPath);
         } else {

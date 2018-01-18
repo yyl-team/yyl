@@ -1,8 +1,7 @@
 'use strict';
-var
-  util = require('./w-util.js'),
-  color = require('yyl-color'),
-  vars = util.vars;
+var color = require('yyl-color');
+var util = require('./w-util.js');
+var vars = util.vars;
 
 var
   events = {

@@ -28,7 +28,7 @@ var
       var maxLen = 0;
       var maxLine = 0;
 
-      Object.keys(r).forEach(function(key) {
+      Object.keys(r).forEach((key) => {
         if (key.length > maxLen) {
           maxLen = key.length;
         }
@@ -36,9 +36,9 @@ var
 
       var printStr = (function() {
         var str = [];
-        Object.keys(r).forEach(function(key) {
+        Object.keys(r).forEach((key) => {
           var blanks = new Array(maxLen - key.length + 1).join(' ');
-          var s = ' ' + color.green(key) + blanks + ' ' + r[key];
+          var s = ` ${  color.green(key)  }${blanks  } ${  r[key]}`;
           if (s.length > maxLine) {
             maxLine = s.length;
           }
@@ -49,7 +49,7 @@ var
         return str.join('\n');
       })();
 
-      var lineStr = ' ' + new Array(maxLine - 10).join('-');
+      var lineStr = ` ${  new Array(maxLine - 10).join('-')}`;
 
       console.log('');
       console.log(color.yellow(' # workflow info'));
@@ -61,7 +61,8 @@ var
     init: function() {
       var configPath = util.path.join(util.vars.PROJECT_PATH, 'config.js');
       var configMinePath = util.path.join(util.vars.PROJECT_PATH, 'config.mine.js');
-      var config, configMine;
+      var config;
+      var configMine;
 
       if (!fs.existsSync(configPath)) {
         return util.msg.warn('read workflow info error, config.js is not exists');
@@ -88,7 +89,7 @@ var
         info.printInformation(config);
         isWork = true;
       } else {
-        Object.keys(config).forEach(function(key) {
+        Object.keys(config).forEach((key) => {
           if ('workflow' in config[key]) {
             info.printInformation(config[key]);
             isWork = true;

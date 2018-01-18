@@ -3,37 +3,38 @@ var util = require('./w-util.js');
 var fs = require('fs');
 var path = require('path');
 
-var
-  REG = {
-    IS_VERSION: /^\d+\.\d+\.\d+$/,
-    PACKAGE: /package\.json$/,
-    PACKAGE_LOCK: /package-lock\.json$/,
-    NODE_MODULES: /node_modules/
+var REG = {
+  IS_VERSION: /^\d+\.\d+\.\d+$/,
+  PACKAGE: /package\.json$/,
+  PACKAGE_LOCK: /package-lock\.json$/,
+  NODE_MODULES: /node_modules/
+};
+
+var INTERFACE = {
+  NPM_DOWNLOAD: 'https://registry.npmjs.org/{$name}/-/{$name}-{$version}.tgz',
+  NPM_INSTALL: 'npm install {$name}@{$version}',
+  VERSION: '~{$version}'
+};
+
+var GIT_PATH = 'https://github.com/jackness1208/yyl.git';
+var fn = {
+  printIt: function(iPath) {
+    return path.relative(util.vars.BASE_PATH, iPath);
   },
-  INTERFACE = {
-    NPM_DOWNLOAD: 'https://registry.npmjs.org/{$name}/-/{$name}-{$version}.tgz',
-    NPM_INSTALL: 'npm install {$name}@{$version}',
-    VERSION: '~{$version}'
-  },
-  GIT_PATH = 'https://github.com/jackness1208/yyl.git',
-  fn = {
-    printIt: function(iPath) {
-      return path.relative(util.vars.BASE_PATH, iPath);
-    },
-    render: function(src, obj) {
-      if (src && obj) {
-        return src.replace(/\{\$(\w+)\}/g, function(str, $1) {
-          if (obj[$1]) {
-            return obj[$1];
-          } else {
-            return '';
-          }
-        });
-      } else {
-        return src;
-      }
+  render: function(src, obj) {
+    if (src && obj) {
+      return src.replace(/\{\$(\w+)\}/g, (str, $1) => {
+        if (obj[$1]) {
+          return obj[$1];
+        } else {
+          return '';
+        }
+      });
+    } else {
+      return src;
     }
-  };
+  }
+};
 
 var
   update = {
@@ -59,7 +60,7 @@ var
       var packageLocks = [];
       var count = 0;
 
-      util.readFilesSync(util.vars.BASE_PATH, function(iPath) {
+      util.readFilesSync(util.vars.BASE_PATH, (iPath) => {
         var relativePath = util.joinFormat( path.relative(util.vars.BASE_PATH, iPath) );
         if (relativePath.match(REG.NODE_MODULES)) {
           return;
@@ -70,7 +71,7 @@ var
         }
       });
 
-      packages.forEach(function(iPath) {
+      packages.forEach((iPath) => {
         if (!fs.existsSync(iPath)) {
           return;
         }
@@ -83,7 +84,7 @@ var
         }
 
         if (pkg.dependencies) {
-          Object.keys(pkg.dependencies).forEach(function(key) {
+          Object.keys(pkg.dependencies).forEach((key) => {
             if (key == name) {
               var r = fn.render(INTERFACE.VERSION, { 'version': version });
               if (pkg.dependencies[key] != r) {
@@ -96,7 +97,7 @@ var
         }
 
         if (pkg.devDependencies) {
-          Object.keys(pkg.devDependencies).forEach(function(key) {
+          Object.keys(pkg.devDependencies).forEach((key) => {
             if (key == name) {
               var r = fn.render(INTERFACE.VERSION, { 'version': version });
               if (pkg.devDependencies[key] != r) {
@@ -115,7 +116,7 @@ var
         }
       });
 
-      packageLocks.forEach(function(iPath) {
+      packageLocks.forEach((iPath) => {
         if (!fs.existsSync(iPath)) {
           return;
         }
@@ -128,7 +129,7 @@ var
         }
 
         if (pkg.dependencies) {
-          Object.keys(pkg.dependencies).forEach(function(key) {
+          Object.keys(pkg.dependencies).forEach((key) => {
             if (key == name) {
               if (pkg.dependencies[key].version != version) {
                 pkg.dependencies[key].version = version;
@@ -150,7 +151,7 @@ var
         }
 
         if (pkg.devDependencies) {
-          Object.keys(pkg.devDependencies).forEach(function(key) {
+          Object.keys(pkg.devDependencies).forEach((key) => {
             if (key == name) {
               if (pkg.devDependencies[key].version != version) {
                 pkg.devDependencies[key].version = version;
@@ -178,23 +179,23 @@ var
       });
 
       util.msg.line().info('update finished');
-      util.msg.success('updated ' + count + ' files');
+      util.msg.success(`updated ${  count  } files`);
       util.msg.warn('please input the following cmd by yourself:');
       util.msg.warn(fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version }));
     },
     yyl: function(version) {
       var UPDATE_ERR_MSG = 'udpate error, please run "npm i yyl -g" manual';
-      new util.Promise(function(NEXT) {
+      new util.Promise(((NEXT) => {
         // 如果有 git 就直接 git 命令更新
         if (fs.existsSync(util.path.join(util.vars.SERVER_UPDATE_PATH, '.git'))) {
           var iCmd = 'git checkout master & git pull';
           if (version) {
-            iCmd = 'git checkout '+ version +' & git pull';
+            iCmd = `git checkout ${ version } & git pull`;
           }
           util.msg.info('update start...');
-          util.runCMD(iCmd, function(err) {
+          util.runCMD(iCmd, (err) => {
             if (err) { // 出错则需要清空后重试
-              util.removeFiles(util.vars.SERVER_UPDATE_PATH, function() {
+              util.removeFiles(util.vars.SERVER_UPDATE_PATH, () => {
                 update.yyl(version);
               });
             } else {
@@ -202,23 +203,23 @@ var
             }
           }, util.vars.SERVER_UPDATE_PATH);
         } else { // 否则就 用 git clone
-          new util.Promise(function(next) {
+          new util.Promise(((next) => {
             if (fs.existsSync(util.vars.SERVER_UPDATE_PATH)) { // 先清空目录
-              util.removeFiles(util.vars.SERVER_UPDATE_PATH, function() {
+              util.removeFiles(util.vars.SERVER_UPDATE_PATH, () => {
                 next();
               });
             } else {
               util.mkdirSync(util.vars.SERVER_UPDATE_PATH);
               next();
             }
-          }).then(function() { // 执行 git clone
-            var iCmd = 'git clone ' + GIT_PATH + ' ' + util.vars.SERVER_UPDATE_PATH;
+          })).then(() => { // 执行 git clone
+            var iCmd = `git clone ${GIT_PATH} ${util.vars.SERVER_UPDATE_PATH}`;
             if (version) {
-              iCmd = 'git clone -b ' + version + ' ' + GIT_PATH + ' ' + util.vars.SERVER_UPDATE_PATH;
+              iCmd = `git clone -b ${version} ${GIT_PATH} ${util.vars.SERVER_UPDATE_PATH}`;
             }
 
             util.msg.info('update start...');
-            util.runCMD(iCmd, function(err) {
+            util.runCMD(iCmd, (err) => {
               if (err) {
                 console.log(err);
                 if (version) {
@@ -232,7 +233,7 @@ var
             }, util.vars.SERVER_UPDATE_PATH);
           }).start();
         }
-      }).then(function(next) { // package 校验
+      })).then((next) => { // package 校验
         var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, 'package.json');
         var basePackagePath = util.path.join(util.vars.BASE_PATH, 'package.json');
 
@@ -251,28 +252,28 @@ var
         if (basePackage.version === updatePackage.version) {
           return util.msg.warn('yyl already the latest:', updatePackage.version);
         } else {
-          Object.keys(updatePackage.dependencies).forEach(function(key) {
+          Object.keys(updatePackage.dependencies).forEach((key) => {
             if (updatePackage.dependencies[key] != basePackage.dependencies[key]) {
-              isNotMatch = 'dependencies ' + key;
+              isNotMatch = `dependencies ${  key}`;
               return true;
             }
           });
 
-          Object.keys(updatePackage.devDependencies).forEach(function(key) {
+          Object.keys(updatePackage.devDependencies).forEach((key) => {
             if (updatePackage.devDependencies[key] !=
                             basePackage.devDependencies[key]) {
-              isNotMatch = 'devDependencies ' + key;
+              isNotMatch = `devDependencies ${  key}`;
               return true;
             }
           });
 
           if (isNotMatch) {
-            return util.msg.warn('the latest yyl package ' + isNotMatch + ' changed, please run "npm i yyl -g" manual');
+            return util.msg.warn(`the latest yyl package ${isNotMatch} changed, please run "npm i yyl -g" manual`);
           } else {
             next();
           }
         }
-      }).then(function(next) { // copy files
+      }).then((next) => { // copy files
         var updatePath = util.vars.SERVER_UPDATE_PATH;
 
         if (!fs.existsSync(updatePath)) {
@@ -280,22 +281,22 @@ var
           return util.msg.warn(UPDATE_ERR_MSG);
         }
 
-        util.copyFiles(updatePath, util.vars.BASE_PATH, function(err) {
+        util.copyFiles(updatePath, util.vars.BASE_PATH, (err) => {
           if (err) {
             return util.msg.warn(UPDATE_ERR_MSG);
           } else {
             next();
           }
-        }, function(iPath) { // 除去 根目录的 package.json 和 .git, .gitignore
+        }, (iPath) => { // 除去 根目录的 package.json 和 .git, .gitignore
           if (util.path.join(iPath) == util.path.join(updatePath, 'package.json') || /(\.git$|\.gitignore$|\.git[/\\])/.test(iPath)) {
             return false;
           } else {
             return true;
           }
         }, null);
-      }).then(function(next) { // 单独 update .npmignore
+      }).then((next) => { // 单独 update .npmignore
         var cp = {};
-        util.readFilesSync(util.vars.SERVER_UPDATE_PATH, /\.gitignore/).forEach(function(iPath) {
+        util.readFilesSync(util.vars.SERVER_UPDATE_PATH, /\.gitignore/).forEach((iPath) => {
           var targetPath = util.path.join(
             util.vars.BASE_PATH,
             util.path.relative(util.vars.SERVER_UPDATE_PATH, iPath)
@@ -305,7 +306,7 @@ var
           cp[iPath] = targetPath;
         });
 
-        util.copyFiles(cp, function(err) {
+        util.copyFiles(cp, (err) => {
           if (err) {
             console.log(err);
             return util.msg.warn(UPDATE_ERR_MSG);
@@ -313,7 +314,7 @@ var
             next();
           }
         });
-      }).then(function() {
+      }).then(() => {
         util.msg.success('yyl update finished');
       }).start();
     },

@@ -1,15 +1,15 @@
 'use strict';
-var
-  util = require('./w-util.js'),
-  wServer = require('./w-server.js'),
-  path = require('path'),
-  fs = require('fs');
+var path = require('path');
+var fs = require('fs');
+
+var util = require('./w-util.js');
+var wServer = require('./w-server.js');
 
 var jade2pug = {
   init: function(op) {
-    new util.Promise(function(next) {
+    new util.Promise(((next) => {
       util.msg.info('build server config start');
-      wServer.buildConfig(op.name, op, function(err, config) { // 创建 server 端 config
+      wServer.buildConfig(op.name, op, (err, config) => { // 创建 server 端 config
         if (err) {
           return util.msg.error('build server config error:', err);
         }
@@ -18,16 +18,16 @@ var jade2pug = {
         util.printIt.init(config);
         next(config);
       });
-    }).then(function(config) {
+    })).then((config) => {
       var
-        jadeFiles = util.readFilesSync(config.alias.srcRoot, function(iPath) {
+        jadeFiles = util.readFilesSync(config.alias.srcRoot, (iPath) => {
           if (path.extname(iPath) == '.jade') {
             return true;
           }
         });
 
       // jade file 重命名
-      jadeFiles.forEach(function(iPath) {
+      jadeFiles.forEach((iPath) => {
         var pugPath = iPath.replace(/\.jade$/, '.pug');
 
         fs.writeFileSync(pugPath, fs.readFileSync(iPath));
@@ -41,9 +41,8 @@ var jade2pug = {
   },
   // 获取所有 jade 文件
   run: function() {
-    var
-      iArgv = util.makeArray(arguments),
-      op = util.envParse(iArgv);
+    var iArgv = util.makeArray(arguments);
+    var op = util.envParse(iArgv);
 
     jade2pug.init(op);
   }
