@@ -1,4 +1,7 @@
 # 版本信息
+## 2.15.32 (2018-01-18)
+* [FIX] 修复 `gulp-requirejs` 运行 `supercall` 时 在 部分电脑内报错问题(`win10`?)
+
 ## 2.15.31 (2018-01-17)
 * [FIX] 修复 `webpack-vue` 中 watch 重复执行问题
 * [FIX] 修复 `yyl concat` css 文件 加 分号导致样式问题

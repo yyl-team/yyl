@@ -30,7 +30,7 @@ module.exports = {
         "no-cond-assign": 2,
 
         // 变量声明方式
-        "one-var": [2, "never", { "var": 'never', "let": "always", "const": "always"}],
+        "one-var": [2, "never"],
 
         // template 预处理
         "prefer-template": 2,

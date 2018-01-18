@@ -149,11 +149,9 @@ var fn = {
         ].join(' ');
 
         util.msg.supercall(iCmd);
-        util.runNodeModule(iCmd, function() {
+        util.runSpawn(iCmd, function() {
             return done && done();
-        }, {
-            cwd: __dirname
-        });
+        }, __dirname);
     },
     srcRelative:  function(files, op) {
         var iPaths;
