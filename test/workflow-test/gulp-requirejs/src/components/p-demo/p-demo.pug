@@ -1,0 +1,20 @@
+extends ../w-layout/w-layout
+
+
+
+block title
+    | gulp requirejs demo
+
+block head
+    link(rel="stylesheet", href="./p-demo.scss", type="text/css")
+
+block body
+
+    // + body here
+    include ../r-demo/r-demo
+    // - body here
+
+
+append script
+    script(src="../../js/lib/requirejs/require.js", data-main="./p-demo.js")
+

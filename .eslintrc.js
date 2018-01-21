@@ -1,8 +1,9 @@
 module.exports = {
     "env": {
-        "node": true,
-        "es6": true,
-    	"amd":true
+      "node": true,
+      "es6": true,
+    	"amd": true,
+      "mocha": true
     },
     "plugins": ["node"],
     "extends": ["eslint:recommended", "plugin:node/recommended"],
@@ -68,7 +69,7 @@ module.exports = {
         "indent": [ "warn", 2 , {"SwitchCase": 1}],
 
          // 强制使用一致的换行风格
-        "linebreak-style": [ "error", "windows" ],
+        "linebreak-style": [ "error" ],
 
         // 强制使用一致的反勾号、双引号或单引号
         "quotes": [ "warn", "single" ],
@@ -86,7 +87,7 @@ module.exports = {
 
         // 一行代码最大长度
         "max-len": [1, {"code": 100, "ignoreStrings": true, "ignoreRegExpLiterals": true, "ignoreComments": true, "ignoreTemplateLiterals": true}],
-        
+
         "no-trailing-spaces": [1, {"ignoreComments": true}],
 
         // 大括号风格要求

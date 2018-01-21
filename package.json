@@ -12,7 +12,7 @@
     "yyl": "./bin/init.js"
   },
   "scripts": {
-    "test": "mocha ./test/test-ui.js"
+    "test": "mocha ./test/test.js"
   },
   "main": "index.js",
   "directories": {
