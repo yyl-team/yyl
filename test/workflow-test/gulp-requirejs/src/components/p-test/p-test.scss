@@ -1,0 +1,42 @@
+@charset "utf-8";
+.p-test-module {
+    padding: 20px;
+    .tl {
+        margin-bottom: 20px;
+        line-height: 40px;
+        background: #eee;
+        font-size: 16px;
+        text-indent: 20px;
+        display: block;
+    }
+    .cnt {
+        display: block;
+        a, iframe, span, img {
+            margin-right: 8px;
+        }
+        .box {
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            margin-right: 8px;
+            border: 1px solid #eee;
+            background-repeat: no-repeat;
+        }
+
+        .scss-style-1 {
+            background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .scss-style-2 {
+            background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .scss-style-3 {
+            background-image: url(./images/logo.png);
+        }
+        .scss-style-4 {
+            background-image: url(../../images/logo.png);
+        }
+        .scss-style-5 {
+            background-image: url(../../../../commons/components/w-test/images/logo.png);
+        }
+    }
+}

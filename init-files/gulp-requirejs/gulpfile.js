@@ -497,6 +497,25 @@ var fn = {
   }
 };
 
+var REG = {
+  HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
+  HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig,
+  HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
+  HTML_SCRIPT_TEMPLATE_REG: /type\s*=\s*['"]text\/html["']/,
+  HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
+
+  HTML_STYLE_REG: /(<style[^>]*>)([\w\W]*?)(<\/style>)/ig,
+  HTML_SRC_COMPONENT_JS_REG: /^\.\.\/components\/p-[a-zA-Z0-9-]+\/p-([a-zA-Z0-9-]+).js/g,
+
+  HTML_SRC_COMPONENT_IMG_REG: /^\.\.\/(components\/[pwr]-[a-zA-Z0-9-]+\/images)/g,
+
+  CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
+  CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
+  CSS_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
+
+  IS_HTTP: /^(http[s]?:)|(\/\/\w)/
+};
+
 var
   iStream = {
     // + html task
@@ -520,27 +539,26 @@ var
         }))
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
-          var pathReg = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
-
-          // script 匹配
-          var scriptReg = /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig;
           var dirname = util.joinFormat( vars.srcRoot, 'html');
-
 
           iCnt = iCnt
             // 隔离 script 内容
-            .replace(scriptReg, (str, $1, $2, $3) => {
-              if (/type\s*=\s*['"]text\/html["']/.test($1)) {
+            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
                 return str;
               } else {
                 return $1 + querystring.escape($2) + $3;
               }
             })
-            .replace(pathReg, (str, $1, $2, $3, $4) => {
-              var iPath = $3;
+            // 隔离 style 标签
+            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+              return $1 + querystring.escape($2) + $3;
+            })
+            .replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
+              var iPath = $4;
               var rPath = '';
 
-              iPath = iPath.replace(/\{\$(\w+)\}/g, (str, $1) => {
+              iPath = iPath.replace(REG.HTML_ALIAS_REG, (str, $1) => {
                 if (vars[$1]) {
                   return path.relative( path.dirname(file.path), vars[$1]);
                 } else {
@@ -548,7 +566,7 @@ var
                 }
               });
 
-              if (iPath.match(/^(data:image|data:webp|javascript:|#|http:|https:|\/)/) || iPath.match(/\{\{[^}]+\}\}/) || !iPath) {
+              if (iPath.match(REG.HTML_IGNORE_REG) || iPath.match(REG.IS_HTTP) || !iPath) {
                 return str;
               }
 
@@ -562,21 +580,24 @@ var
                 }
               }
 
+              rPath = util.path.join(
+                path.relative(dirname, path.dirname(file.path)),
+                iPath
+              ).replace(/\\+/g, '/').replace(/\/+/, '/');
 
-              var fDirname = path.dirname(path.relative(dirname, file.path));
-              rPath = util.joinFormat(fDirname, iPath)
-                .replace(/\\+/g, '/')
-                .replace(/\/+/, '/');
-
-              return `${$1  }=${  $2  }${rPath  }${$4}`;
+              return `${$1}${$2}${$3}${rPath}${$5}`;
             })
             // 取消隔离 script 内容
-            .replace(scriptReg, (str, $1, $2, $3) => {
-              if (/type\s*=\s*['"]text\/html["']/.test($1)) {
+            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
                 return str;
               } else {
                 return $1 + querystring.unescape($2) + $3;
               }
+            })
+            // 取消隔离 style 标签
+            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+              return $1 + querystring.unescape($2) + $3;
             });
 
           file.contents = Buffer.from(iCnt, 'utf-8');
@@ -588,7 +609,7 @@ var
           path.dirname = '';
         }))
         .pipe(prettify({indent_size: 4}));
-      // .pipe(gulp.dest(util.joinFormat(vars.srcRoot, 'html')))
+        // .pipe(gulp.dest(util.joinFormat(vars.srcRoot, 'html')));
       return rStream;
     },
     html2dest: function(stream) {
@@ -616,6 +637,9 @@ var
           )
         );
       };
+      var matchFront = function(iPath, frontPath) {
+        return iPath.substr(0, frontPath.length) === frontPath;
+      };
       var remotePath = gulp.env.remotePath;
 
 
@@ -629,16 +653,14 @@ var
         // 将用到的 commons 目录下的 images 资源引入到项目里面
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
-          var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
-          var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
           var gComponentPath = relateHtml(vars.globalcomponents);
           var copyPath = {};
 
 
-          var filterHandle = function(str, $1, $2) {
-            var iPath = $2;
+          var filterHandle = function(str, $1, $2, $3, $4) {
+            var iPath = $4;
 
-            if (iPath.match(/^(about:|data:)/)) {
+            if (iPath.match(REG.HTML_IGNORE_REG) || iPath.match(REG.IS_HTTP)) {
               return str;
             }
 
@@ -650,14 +672,10 @@ var
             var dirname = iPath.substr(gComponentPath.length);
 
             copyPath[util.joinFormat(vars.srcRoot, 'html', iPath)] = util.joinFormat(vars.imagesDest, 'globalcomponents', dirname);
-
             return str;
           };
 
-
-          iCnt
-            .replace(pathReg, filterHandle)
-            .replace(pathReg2, filterHandle);
+          iCnt.replace(REG.HTML_PATH_REG, filterHandle);
 
           this.push(file);
 
@@ -672,31 +690,99 @@ var
             next();
           }
         }))
+        .pipe(through.obj(function(file, enc, next) {
+          var iCnt = file.contents.toString();
 
-        // 替换全局 图片
-        .pipe(replacePath(
-          relateHtml(path.join(vars.globalcomponents)),
-          util.joinFormat(remotePath, fn.relateDest(vars.imagesDest), 'globalcomponents')
-        ))
-        // 替换 common 下 lib
-        .pipe(replacePath(
-          relateHtml(path.join(vars.globallib)),
-          util.joinFormat(remotePath, fn.relateDest(vars.jslibDest), 'globallib')
-        ))
-        // 替换 jslib
-        .pipe(replacePath('../js/lib', util.joinFormat(remotePath, fn.relateDest(vars.jslibDest))))
-        // 替换 js
-        .pipe(replacePath('../js', util.joinFormat(remotePath, fn.relateDest(vars.jsDest))))
-        // 替换 components 中的js
-        .pipe(replacePath(/\.\.\/components\/p-[a-zA-Z0-9-]+\/p-([a-zA-Z0-9-]+).js/g, util.joinFormat( remotePath, fn.relateDest(vars.jsDest), '/$1.js')))
+          iCnt = iCnt
+            // 隔离 script 内容
+            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
+                return str;
+              } else {
+                return $1 + querystring.escape($2) + $3;
+              }
+            })
+            // 隔离 style 标签
+            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+              return $1 + querystring.escape($2) + $3;
+            })
+            .replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
+              var iPath = $4;
+              var rPath = '';
+
+              if (iPath.match(REG.HTML_IGNORE_REG) || iPath.match(REG.IS_HTTP) || !iPath) {
+                return str;
+              }
+
+              rPath = iPath;
+
+              // 替换全局 图片
+              if (matchFront(rPath, relateHtml(vars.globalcomponents))) {
+                rPath = rPath
+                  .split(relateHtml(vars.globalcomponents))
+                  .join(util.joinFormat(remotePath, fn.relateDest(vars.imagesDest), 'globalcomponents'));
+              }
+
+              // 替换 common 下 lib
+              if (matchFront(rPath, relateHtml(vars.globallib))) {
+                rPath = rPath
+                  .split(relateHtml(vars.globallib))
+                  .join(util.joinFormat(remotePath, fn.relateDest(vars.jslibDest), 'globallib'));
+              }
+
+              // 替换 jslib
+              if (matchFront(rPath, '../js/lib')) {
+                rPath = rPath
+                  .split('../js/lib')
+                  .join(util.joinFormat(remotePath, fn.relateDest(vars.jslibDest)));
+              }
+
+              // 替换 js
+              if (matchFront(rPath, '../js')) {
+                rPath = rPath
+                  .split('../js')
+                  .join(util.joinFormat(remotePath, fn.relateDest(vars.jsDest)));
+              }
+
+              // 替换 components 中的js
+              rPath = rPath.replace(REG.HTML_SRC_COMPONENT_JS_REG, util.joinFormat( remotePath, fn.relateDest(vars.jsDest), '/$1.js'));
+
+              // 替换 css
+              if (matchFront(rPath, '../css')) {
+                rPath = rPath
+                  .split('../css')
+                  .join(util.joinFormat( remotePath, fn.relateDest(vars.cssDest)));
+              }
+
+              // 替换公用图片
+              if (matchFront(rPath, '../images')) {
+                rPath = rPath
+                  .split('../images')
+                  .join(util.joinFormat( remotePath, fn.relateDest(vars.imagesDest)));
+              }
+
+              rPath = rPath.replace(REG.HTML_SRC_COMPONENT_IMG_REG, util.joinFormat( remotePath, fn.relateDest(vars.imagesDest), '$1'));
 
 
-        .pipe(replacePath('../css', util.joinFormat( remotePath, fn.relateDest(vars.cssDest))))
+              return `${$1}${$2}${$3}${rPath}${$5}`;
+            })
+            // 取消隔离 script 内容
+            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
+                return str;
+              } else {
+                return $1 + querystring.unescape($2) + $3;
+              }
+            })
+            // 取消隔离 style 标签
+            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+              return $1 + querystring.unescape($2) + $3;
+            });
 
-        // 替换公用图片
-        .pipe(replacePath('../images', util.joinFormat( remotePath, fn.relateDest(vars.imagesDest))))
-        .pipe(replacePath(/\.\.\/(components\/[pwr]-[a-zA-Z0-9-]+\/images)/g, util.joinFormat( remotePath, fn.relateDest(vars.imagesDest), '$1')))
-
+          file.contents = Buffer.from(iCnt, 'utf-8');
+          this.push(file);
+          next();
+        }))
         // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下
         .pipe(through.obj(function(file, enc, next) {
           file.contents.toString()
@@ -755,22 +841,17 @@ var
           .pipe(sass({outputStyle: 'nested'}).on('error', sass.logError))
           .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
-            var pathReg = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
-            var pathReg2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
             var dirname = util.joinFormat(vars.srcRoot, 'css');
 
             var replaceHandle = function(str, $1, $2, $3) {
               var iPath = $2;
               var rPath = '';
 
-              if (iPath.match(/^(about:|data:)/)) {
+              if (iPath.match(REG.CSS_IGNORE_REG)) {
                 return str;
               }
 
-              if (iPath.match(/^http[s]?:/)) {
-                return str;
-              }
-              if (iPath.match(/^\/\/\w/)) {
+              if (iPath.match(REG.IS_HTTP)) {
                 return str;
               }
 
@@ -798,8 +879,8 @@ var
 
 
             iCnt = iCnt
-              .replace(pathReg, replaceHandle)
-              .replace(pathReg2, replaceHandle);
+              .replace(REG.CSS_PATH_REG, replaceHandle)
+              .replace(REG.CSS_PATH_REG2, replaceHandle);
 
             file.contents = Buffer.from(iCnt, 'utf-8');
             this.push(file);
@@ -1374,7 +1455,7 @@ gulp.task('rev-build', (done) => {
   if (!iConfig) {
     return done();
   }
-
+  // done();
   fn.supercall('rev-build', done);
 });
 
@@ -1385,6 +1466,7 @@ gulp.task('rev-update', (done) => {
     return done();
   }
 
+  // done();
   fn.supercall('rev-update', done);
 });
 

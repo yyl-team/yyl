@@ -175,6 +175,8 @@ var
               HTML_SCRIPT_TEMPLATE_REG: /type\s*=\s*['"]text\/html["']/,
               HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
 
+              HTML_STYLE_REG: /(<style[^>]*>)([\w\W]*?)(<\/style>)/ig,
+
               CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
               CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
 
@@ -198,6 +200,8 @@ var
               } else {
                 return $1 + querystring.escape($2) + $3;
               }
+            }).replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => { // 隔离 style 标签
+              return $1 + querystring.escape($2) + $3;
             }).replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
               var iPath = $4;
 
@@ -249,6 +253,8 @@ var
               } else {
                 return $1 + querystring.unescape($2) + $3;
               }
+            }).replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => { // 解除隔离 style 标签
+              return $1 + querystring.unescape($2) + $3;
             });
 
 

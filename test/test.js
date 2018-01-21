@@ -65,7 +65,7 @@ describe('yyl init test', () => {
         var rFiles = util.readFilesSync(projectPath);
         var s01Files = util.readFilesSync(sourcePath01, (iPath) => {
           var relativePath = util.joinFormat(path.relative(sourcePath01, iPath));
-          if (/readme\.md|\.gitignore/i.test(iPath) && !/node_modules/.test(relativePath)) {
+          if (/readme\.md|\.gitignore|\.eslintrc\.js|\.editorconfig/i.test(iPath) && !/node_modules/.test(relativePath)) {
             return true;
           } else {
             return false;
@@ -141,29 +141,39 @@ describe('yyl init test', () => {
 });
 
 describe('yyl all test', () => {
-  const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store/);
+  const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
+  const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
+  const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
   workflows.forEach((workflow) => {
     it(workflow, function(DONE) {
       this.timeout(0);
       fn.frag.destory();
       fn.frag.build();
+      util.mkdirSync(FRAG_WORKFLOW_PATH);
+      util.mkdirSync(FRAG_COMMONS_PATH);
       new util.Promise((next) => { // copy file to frag
-        util.copyFiles(path.join(__dirname, 'workflow-test', workflow), FRAG_PATH, () => {
+        util.copyFiles(path.join(__dirname, 'workflow-test', workflow), FRAG_WORKFLOW_PATH, () => {
           next();
         });
+      }).then((next) => { // copy commons to frag
+        util.copyFiles(path.join(__dirname, 'workflow-test/commons'), FRAG_COMMONS_PATH, () => {
+          next();
+        });
+
       }).then((next) => { // run yyl all
         yyl.run('all --silent', () => {
           next(util.getConfigSync({}));
-        }, FRAG_PATH);
+        }, FRAG_WORKFLOW_PATH);
       }).then((userConfig, next) => { // check
         const destRoot = userConfig.alias.destRoot;
-        const htmls = util.readFilesSync(path.join(FRAG_PATH, 'dist'), /\.html$/);
-        const csses = util.readFilesSync(path.join(FRAG_PATH, 'dist'), /\.css$/);
+        const htmls = util.readFilesSync(path.join(FRAG_WORKFLOW_PATH, 'dist'), /\.html$/);
+        const csses = util.readFilesSync(path.join(FRAG_WORKFLOW_PATH, 'dist'), /\.css$/);
         const HTML_PATH_REG = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
         const HTML_SCRIPT_REG = /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig;
         const CSS_PATH_REG_1 = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
         const CSS_PATH_REG_2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
         const REMOTE_SOURCE_REG = /^(http[s]?:|\/\/\w)/;
+        const NO_PROTOCOL = /^\/\/(\w)/;
         const LOCAL_SOURCE_REG = /^\/\w/;
         const localSource = [];
         const remoteSource = [];
@@ -202,7 +212,7 @@ describe('yyl all test', () => {
         });
 
         localSource.forEach((iPath) => {
-          expect(fs.existsSync(iPath)).equal(true);
+          expect([iPath, fs.existsSync(iPath)]).to.deep.equal([iPath, true]);
         });
 
         let padding = remoteSource.length;
@@ -212,7 +222,12 @@ describe('yyl all test', () => {
           }
         };
         remoteSource.forEach((iPath) => {
-          http.get(iPath, (res) => {
+          var rPath = iPath;
+          if (rPath.match(NO_PROTOCOL)) {
+            rPath = rPath.replace(NO_PROTOCOL, 'http://$1');
+          }
+
+          http.get(rPath, (res) => {
             expect(res.statusCode).equal(200);
             padding--;
             paddingCheck();

@@ -183,12 +183,12 @@ var
             '',
             ' project info',
             ' ----------------------------------------',
-            ` name             : ${  data.name}`,
-            ` platform         : ${  data.platform}`,
-            ` workflow         : ${  data.workflow || ''}`,
-            ` init             : ${  data.init || ''}`,
-            ` doc              : ${  data.doc || ''}`,
-            ` yyl version      : ${  data.version}`,
+            ` name             : ${data.name}`,
+            ` platform         : ${data.platform}`,
+            ` workflow         : ${data.workflow || ''}`,
+            ` init             : ${data.init || ''}`,
+            ` doc              : ${data.doc || ''}`,
+            ` yyl version      : ${data.version}`,
             ' ----------------------------------------',
             ` project ${  color.yellow(data.name)  } path initial like this:`,
             ''
@@ -334,7 +334,7 @@ var
               op.silent? true: false
             );
           }).then((next) => { // copy readme
-            util.msg.info('copy README, .gitignore to ', workflowName);
+            util.msg.info('copy README, .gitignore, .eslintrc, .editorconfig to ', workflowName);
             var iMap = {};
 
             iMap[path.join(vars.BASE_PATH, 'init-files', workflowName, 'README.md')] = path.join(vars.PROJECT_PATH, dirPath, 'README.md');

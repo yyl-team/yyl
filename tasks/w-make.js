@@ -26,7 +26,8 @@ var TEMPLATE = {
     ].join('\r\n'),
     'PAGE': [
       'extends ../w-layout/w-layout',
-      'block title {{name}}',
+      'block title',
+      '    | {{name}}',
       '',
       'block head',
       '    link(rel="stylesheet", href="./{{name}}.scss", type="text/css")',
@@ -133,7 +134,7 @@ var
         util.mkdirSync(widgetPath);
 
         next(widgetPath, type, srcRoot, config);
-      }).then((widgetPath, type, srcRoot, config, next) => { // scss 
+      }).then((widgetPath, type, srcRoot, config, next) => { // scss
         var scssPath = util.joinFormat(widgetPath, `${name  }.scss`);
         var iTmpl;
         // scss 部分

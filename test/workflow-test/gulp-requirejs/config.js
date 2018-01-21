@@ -1,5 +1,5 @@
 'use strict';
-var 
+var
     //+ yyl init 自动 匹配内容
     commonPath = '../commons',
     projectName = 'gulp-requirejs',
@@ -14,12 +14,12 @@ var
         },
         dest: {
             basePath: '/pc',
-            jsPath: 'js',
-            jslibPath: 'js/lib',
-            cssPath: 'css',
-            htmlPath: 'html',
-            imagesPath: 'images',
-            revPath: 'assets'
+            jsPath: 'js/test',
+            jslibPath: 'js/lib/test',
+            cssPath: 'css/test',
+            htmlPath: 'html/test',
+            imagesPath: 'images/test',
+            revPath: 'assets/test'
         },
         // 代理服务器
         proxy: {
@@ -98,7 +98,7 @@ var
 
             // src 地址
             srcRoot: './src',
-            
+
             // 项目根目录
             dirname: './',
 
@@ -219,7 +219,7 @@ var
             }
         }
         // - 此部分 不要用相对路径
-        
+
     };
 
 module.exports = config;

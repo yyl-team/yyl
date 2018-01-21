@@ -2,18 +2,15 @@
 var require = {
     // baseUrl: '../js',
     paths: {
-
-        // for demo
-        'rDemo' : '../../components/r-demo/r-demo',
         // global
-        'jquery' : '../../js/lib/jQuery/jquery-1.11.3.min'
+        'artTemplate' : '../../js/lib/artTemplate/artTemplate'
         // + yyl make
         // - yyl make
     },
     shim: {
-        // artTemplate: {
-        //     exports: 'artTemplate'
-        // }
+        artTemplate: {
+            exports: 'artTemplate'
+        }
     }
 };
 

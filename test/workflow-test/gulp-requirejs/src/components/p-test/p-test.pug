@@ -1,0 +1,106 @@
+extends ../w-layout/w-layout
+block title
+    | test page
+
+block head
+    link(rel="stylesheet", href="//yyweb.yystatic.com/pc/css/headfoot.css", type="text/css")
+    link(rel="stylesheet", href="./p-test.scss", type="text/css")
+    style.
+        .style-test-1 {
+            background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .style-test-2 {
+            background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .style-test-3 {
+            background-image: url(../../images/test/logo.png);
+        }
+
+block body
+    div.p-test-module
+        div.tl img src test
+        div.cnt
+            img(src="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="./images/logo.png")
+            img(src="../../images/logo.png")
+            img(src="../../../../commons/components/w-test/images/logo.png")
+
+    div.p-test-module
+        div.tl a href test
+        div.cnt
+            a(href="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            a(href="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            a(href="./images/logo.png") 链接测试
+            a(href="../../images/logo.png") 链接测试
+            a(href="../../../../commons/components/w-test/images/logo.png") 链接测试
+
+    div.p-test-module
+        div.tl data-main test
+        div.cnt
+            span(data-main="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            span(data-main="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            span(data-main="./images/logo.png") 链接测试
+            span(data-main="../../images/logo.png") 链接测试
+            span(data-main="../../../../commons/components/w-test/images/logo.png") 链接测试
+
+    div.p-test-module
+        div.tl iframe src test
+        div.cnt
+            iframe(width="200", height="200", src="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            iframe(width="200", height="200", src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            iframe(width="200", height="200", src="./images/logo.png")
+            iframe(width="200", height="200", src="../../images/logo.png")
+            iframe(width="200", height="200", src="../../../../commons/components/w-test/images/logo.png")
+
+    div.p-test-module
+        div.tl insert style test
+        div.cnt
+            span.box(style="background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png)") insert style
+            span.box(style="background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png)") insert style
+            span.box(style="background-image: url('../../images/test/logo.png')") insert style
+
+    div.p-test-module
+        div.tl insert style tag test
+        div.cnt
+            span.box.style-test-1 insert style tag
+            span.box.style-test-2 insert style tag
+            span.box.style-test-3 insert style tag
+
+    div.p-test-module
+        div.tl scss style test
+        div.cnt
+            span.box.scss-style-1 scss style test
+            span.box.scss-style-2 scss style test
+            span.box.scss-style-3 scss style test
+            span.box.scss-style-4 scss style test
+            span.box.scss-style-5 scss style test
+
+
+
+    div.p-test-module
+        div.tl template test
+        div#tmplCnt.cnt
+
+        script#tmpl(type="text/html")
+            img(src="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="./images/logo.png")
+            img(src="../../images/logo.png")
+            img(src="{{url}}")
+
+    div.p-test-module
+        div.tl inner script test
+        div#innerScriptCnt.cnt
+        script.
+            (function(){
+                var cntEl = document.getElementById('innerScriptCnt');
+                var imgEl = document.createElement('img');
+                var src = 'pc/images/components/w-head/images/icons-head.png';
+                imgEl.src = '//yyweb.yystatic.com/' + src;
+                cntEl.appendChild(imgEl);
+            })();
+
+
+append script
+    script(src="../../js/lib/requirejs/require.js", data-main="./p-test.js")
