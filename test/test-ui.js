@@ -1,3 +1,4 @@
+// npm i selenium-standalone -g && selenium-standalone install && selenium-standalone start
 var webdriverio = require('webdriverio');
 var options = {
     desiredCapabilities: {
