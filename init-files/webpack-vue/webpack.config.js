@@ -18,7 +18,7 @@ var webpackconfig = {
     entry: (function(){ // 未完成
 
         var iSrcRoot = path.isAbsolute(config.alias.srcRoot)? config.alias.srcRoot: path.join(__dirname, config.alias.srcRoot);
-        var 
+        var
             r = {
                 // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
             };
@@ -72,11 +72,11 @@ var webpackconfig = {
         path: config.alias.jsDest,
         filename: '[name].js',
         publicPath: util.joinFormat(
-            config.dest.basePath, 
+            config.dest.basePath,
             path.relative(
                 config.alias.root,
                 config.alias.jsDest
-            ), 
+            ),
             '/'
         ),
     },
@@ -97,7 +97,7 @@ var webpackconfig = {
             loaders: ['html-loader']
         }, {
             test: /\.scss$/,
-            loader: ExtractTextPlugin.extract("style-loader", "css!sass")
+            loader: ExtractTextPlugin.extract("style-loader", "css-loader!sass")
         }, {
             test: /\.jade$/,
             loaders: ['pug-loader']
@@ -115,8 +115,8 @@ var webpackconfig = {
         }]
 
     },
-    resolveLoader: { 
-        fallback: path.join( __dirname, "node_modules") 
+    resolveLoader: {
+        fallback: path.join( __dirname, "node_modules")
     },
     resolve: {
         fallback: path.join( __dirname, "node_modules"),
@@ -136,7 +136,7 @@ var webpackconfig = {
 };
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
-    var 
+    var
         bootPath = util.joinFormat(config.alias.srcRoot, 'boot'),
         entryPath = util.joinFormat(config.alias.srcRoot, 'entry'),
         outputPath = [],
@@ -178,7 +178,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function(){ // html 输出
                     fPath = webpackconfig.resolve.alias[fPath];
                 }
                 fPath = util.joinFormat(fPath);
-                
+
                 if(iExclude[i] == iBaseName || (fPath.substr(0, entryPath.length) != entryPath && fPath.substr(0, bootPath.length) != bootPath)){
                     iExclude.splice(i, 1);
                 } else {

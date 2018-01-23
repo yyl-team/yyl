@@ -235,14 +235,16 @@ var
 
       if (fs.existsSync(mineConfigPath)) {
         try {
+          delete require.cache[mineConfigPath];
           mineConfig = util.requireJs(mineConfigPath);
         } catch (er) {}
       }
       if (fs.existsSync(configPath)) {
+        delete require.cache[configPath];
         try {
           config = require(configPath);
         } catch (er) {
-          return done(`read config.js with error: ${  er.message}`);
+          return done(`read config.js with error: ${er.message}`);
         }
       }
 

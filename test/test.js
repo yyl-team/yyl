@@ -45,7 +45,6 @@ const fn = {
         util.removeFiles(FRAG_PATH2, true);
       }
     }
-
   }
 };
 
@@ -156,11 +155,17 @@ describe('yyl all test', () => {
   workflows.forEach((workflow) => {
     it(workflow, function(DONE) {
       this.timeout(0);
-      fn.frag.destory();
-      fn.frag.build();
-      util.mkdirSync(FRAG_WORKFLOW_PATH);
-      util.mkdirSync(FRAG_COMMONS_PATH);
-      new util.Promise((next) => { // copy file to frag
+
+
+      new util.Promise((next) => { // reset frag
+        fn.frag.destory();
+        next();
+      }).then((next) => { // build frag
+        fn.frag.build();
+        util.mkdirSync(FRAG_WORKFLOW_PATH);
+        util.mkdirSync(FRAG_COMMONS_PATH);
+        next();
+      }).then((next) => { // copy file to frag
         util.copyFiles(path.join(__dirname, 'workflow-test', workflow), FRAG_WORKFLOW_PATH, () => {
           next();
         });
@@ -294,7 +299,6 @@ describe('yyl all test', () => {
         paddingCheck();
       }).then(() => { // check
         fn.frag.destory();
-        console.log('destory!');
         DONE();
       }).start();
     });
