@@ -1,0 +1,28 @@
+@import '../../sass/base/normalize';
+@import '../../sass/base/mixin';
+
+$cssjsdate:20160620;
+$siteStyleColor: #ffdd00!default;
+$siteStyleColorHover: #fac200!default;
+
+body {
+    font:12px/1.5 Microsoft Yahei, simsun,Tahoma,Helvetica,Arial,SimHei,sans-serif;
+    min-width: 960px;
+    background: #f0f0f0;
+    a{
+    	color:#333;
+    }
+    a:hover {
+    	color:#333;
+    	text-decoration: none;
+    }
+}
+.wrapper {
+    padding-bottom:70px;
+    h3{
+        font-weight:normal;
+    }
+}
+
+
+

@@ -173,7 +173,7 @@ var fn = {
       var sameName = false;
 
       iPath.replace(/p-([a-zA-Z0-9-]+)\/p-([a-zA-Z0-9-]+)\.\w+$/, (str, $1, $2) => {
-        sameName = $1 == $2;
+        sameName = $1 === $2;
         return str;
       });
       return sameName && pagePath == iPath.substr(0, pagePath.length);
