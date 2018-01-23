@@ -6,6 +6,7 @@ const fs = require('fs');
 const util = require('yyl-util');
 const querystring = require('querystring');
 const http = require('http');
+// const webdriverio = require('webdriverio');
 
 const yyl = require('../index.js');
 const FRAG_PATH = path.join(__dirname, '__frag');
@@ -13,7 +14,14 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 
 util.cleanScreen();
 
+
+
 const fn = {
+  hideUrlTail: function(url) {
+    return url
+      .replace(/\?.*?$/g, '')
+      .replace(/#.*?$/g, '');
+  },
   frag: {
     build: function() {
       if (fs.existsSync(FRAG_PATH)) {
@@ -41,6 +49,7 @@ const fn = {
   }
 };
 
+fn.frag.destory();
 
 describe('yyl init test', () => {
   var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
@@ -159,7 +168,6 @@ describe('yyl all test', () => {
         util.copyFiles(path.join(__dirname, 'workflow-test/commons'), FRAG_COMMONS_PATH, () => {
           next();
         });
-
       }).then((next) => { // run yyl all
         yyl.run('all --silent', () => {
           next(util.getConfigSync({}));
@@ -181,7 +189,7 @@ describe('yyl all test', () => {
           if (iPath.match(REMOTE_SOURCE_REG)) {
             remoteSource.push(iPath);
           } else if (iPath.match(LOCAL_SOURCE_REG)) {
-            localSource.push(util.path.join(destRoot, iPath));
+            localSource.push(fn.hideUrlTail(util.path.join(destRoot, iPath)));
           }
         };
 
@@ -211,8 +219,49 @@ describe('yyl all test', () => {
           });
         });
 
+        const hashMap = util.requireJs(path.join(userConfig.alias.revDest, 'rev-manifest.json'));
+        // check hash map exist
+        expect(hashMap).not.equal(undefined);
+        Object.keys(hashMap).forEach((key) => {
+          if (key == 'version') {
+            return;
+          }
+          const EXPECT_TL = 'hashMap file exist';
+          const url1 = util.path.join(userConfig.alias.revRoot, key);
+          const url2 = util.path.join(userConfig.alias.revRoot, hashMap[key]);
+
+          expect([
+            EXPECT_TL,
+            url1,
+            fs.existsSync(url1)
+          ]).to.deep.equal([
+            EXPECT_TL,
+            url1,
+            true
+          ]);
+
+          expect([
+            EXPECT_TL,
+            url2,
+            fs.existsSync(url2)
+          ]).to.deep.equal([
+            EXPECT_TL,
+            url2,
+            true
+          ]);
+        });
+
         localSource.forEach((iPath) => {
-          expect([iPath, fs.existsSync(iPath)]).to.deep.equal([iPath, true]);
+          const EXPECT_TL = 'localsource exist check';
+          expect([
+            EXPECT_TL,
+            iPath,
+            fs.existsSync(iPath)
+          ]).to.deep.equal([
+            EXPECT_TL,
+            iPath,
+            true
+          ]);
         });
 
         let padding = remoteSource.length;
@@ -223,23 +272,29 @@ describe('yyl all test', () => {
         };
         remoteSource.forEach((iPath) => {
           var rPath = iPath;
+          var EXPECT_TL = 'remote url check';
           if (rPath.match(NO_PROTOCOL)) {
             rPath = rPath.replace(NO_PROTOCOL, 'http://$1');
           }
 
           http.get(rPath, (res) => {
-            expect(res.statusCode).equal(200);
+            expect([
+              EXPECT_TL,
+              rPath,
+              res.statusCode
+            ]).to.deep.equal([
+              EXPECT_TL,
+              rPath,
+              200
+            ]);
             padding--;
             paddingCheck();
           });
         });
         paddingCheck();
-
-
-
-        next();
       }).then(() => { // check
         fn.frag.destory();
+        console.log('destory!');
         DONE();
       }).start();
     });

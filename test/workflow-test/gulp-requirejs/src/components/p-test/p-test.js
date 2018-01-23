@@ -4,4 +4,5 @@ require(['artTemplate'], function(artTemplate) {
     cntEl.innerHTML = artTemplate('tmpl', {
         url: '//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png'
     });
+    window.hello();
 });

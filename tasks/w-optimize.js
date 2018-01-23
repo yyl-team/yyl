@@ -28,9 +28,9 @@ var
       if (!config.localserver.root) {
         return util.msg.error('config.localserver.root is null! please check');
       } else {
-        if (!fs.existsSync(config.localserver.root)) {
-          util.mkdirSync(config.localserver.root);
-          util.msg.create(config.localserver.root);
+        if (!fs.existsSync(config.alias.destRoot)) {
+          util.mkdirSync(config.alias.destRoot);
+          util.msg.create(config.alias.destRoot);
         }
 
         next(config);

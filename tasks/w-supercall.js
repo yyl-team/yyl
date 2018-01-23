@@ -179,6 +179,7 @@ var
 
               CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
               CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
+              CSS_IGNORE_REG: /^(about:|data:)/,
 
               IS_HTTP: /^(http[s]?:)|(\/\/\w)/
             };
@@ -264,14 +265,14 @@ var
             var filterHandle = function(str, $1, $2, $3) {
               var iPath = $2;
 
-              if (iPath.match(/^(about:|data:)/)) {
+              if (iPath.match(REG.CSS_IGNORE_REG)) {
                 return str;
               } else {
                 iPath = util.path.join($2);
                 // url absolute
                 if (!iPath.match(REG.IS_HTTP) && !path.isAbsolute(iPath)) {
                   iPath = util.path.join(
-                    config.commit.hostname,
+                    op.remotePath ? op.remotePath : config.commit.hostname,
                     util.path.relative(config.alias.destRoot, iDir),
                     iPath
                   );

@@ -7,15 +7,15 @@ html
         title
             block title
 
-        script.
-            var stat = {start: new Date()};
-        
-        
+        link(rel="stylesheet", href="{$cssDest}/color.css", type="text/css")
+
+
         block head
     body
         block body
 
         block script
+            script(src="{$jsDest}/vendors.js")
             script(src="../../js/rConfig/rConfig.js", local-usage)
-            
-            
+
+

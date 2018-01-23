@@ -19,6 +19,7 @@ var
             cssPath: 'css/test',
             htmlPath: 'html/test',
             imagesPath: 'images/test',
+            fontPath: 'font/test',
             revPath: 'assets/test'
         },
         // 代理服务器
@@ -65,11 +66,7 @@ var
         // +此部分 yyl server 端config 会进行替换
         localserver: setting.localserver,
         resource: { // 自定义项目中其他需打包的文件夹
-            /*
-            'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
-            'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
-             */
-
+            'src/font': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.fontPath)
         },
         alias: { // yyl server 路径替换地方
             // svn dev 分支地址
@@ -77,8 +74,6 @@ var
 
             // svn trunk 分支地址
             trunk: path.join('../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/trunk'),
-
-
             // 公用组件地址
             commons: commonPath,
 
@@ -120,16 +115,18 @@ var
         // + 此部分 不要用相对路径
         // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
         concat: {
-            // '{$srcRoot}/js/vendors.js': [
-            //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-            // ],
-            // '{$jsDest}/vendors.js': [
-            //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-            // ]
+            '{$jsDest}/vendors.js': [
+                '{$srcRoot}/js/lib/jQuery/jquery-1.11.1.js',
+                '{$srcRoot}/js/lib/lazyload/jquery.lazyload.js'
+            ],
+            '{$cssDest}/color.css': [
+                '{$srcRoot}/css/a.css',
+                '{$srcRoot}/css/b.css'
+            ]
         },
 
         commit: {
-             // 上线配置
+            // 上线配置
             revAddr: 'http://yyweb.yystatic.com/pc/assets/rev-manifest.json',
             hostname: 'http://yyweb.yystatic.com/',
             git: {

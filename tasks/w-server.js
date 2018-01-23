@@ -464,7 +464,7 @@ var
       }
       var lrPort = 35729;
 
-      var serverAddress = `http://${  util.vars.LOCAL_SERVER  }:${  port}`;
+      var serverAddress = `http://${util.vars.LOCAL_SERVER}:${port}`;
 
       util.msg.info('local server start');
       util.msg.info('local path:', iPath);
@@ -504,7 +504,8 @@ var
 
         .listen(port, (err) => {
           if (err) {
-            return util.msg.error(err);
+            util.msg.error(err);
+            return done(err);
           }
           tinylr().listen(lrPort);
           if (!silent) {
@@ -520,6 +521,7 @@ var
         } else {
           util.msg.error(err);
         }
+        done(err);
       });
 
       cache.server = server;
@@ -594,7 +596,7 @@ var
             util.msg.success('copy', workflowName, 'files to serverpath success');
             next();
           });
-        }).then((next) => { // npm install 
+        }).then((next) => { // npm install
           var nocmd = true;
           var modulePath = path.join(workflowPath, 'node_modules');
 
