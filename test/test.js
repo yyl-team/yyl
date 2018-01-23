@@ -224,7 +224,9 @@ describe('yyl all test', () => {
           });
         });
 
-        const hashMap = util.requireJs(path.join(userConfig.alias.revDest, 'rev-manifest.json'));
+        const revPath = path.join(userConfig.alias.revDest, 'rev-manifest.json');
+        delete require.cache[revPath];
+        const hashMap = require(revPath);
         // check hash map exist
         expect(hashMap).not.equal(undefined);
         Object.keys(hashMap).forEach((key) => {
