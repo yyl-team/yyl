@@ -1,4 +1,9 @@
 # 版本信息
+## 2.15.33 (2018-01-24)
+* [ADD] 新增 `yyl all` 自测用例
+* [FIX] 修复 `gulp-requirejs` 在`pug` 文件存在 `<style>` `style=""` 并带有图片时显示不正常问题
+* [FIX] 修复 `webpack-vue` 在 mac os 上执行出错问题
+
 ## 2.15.32 (2018-01-18)
 * [FIX] 修复 `gulp-requirejs` 运行 `supercall` 时 在 部分电脑内报错问题(`win10`?)
 
