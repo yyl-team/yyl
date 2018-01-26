@@ -146,10 +146,6 @@ module.exports = function(ctx) {
       events.jade2pug.run.apply(events, iArgv);
       break;
 
-    case 'debug':
-      events.debug.apply(events, iArgv.slice(1));
-      break;
-
     case 'info':
       events.info.run.apply(events, iArgv.slice(1));
       break;
