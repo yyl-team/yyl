@@ -5,8 +5,8 @@ var inquirer = require('inquirer');
 
 var color = require('yyl-color');
 var util = require('./w-util.js');
-var vars = util.vars;
 var wServer = require('./w-server');
+var log = require('./w-log.js');
 
 var
   events = {
@@ -27,10 +27,6 @@ var
       });
     },
     init: function(op) {
-      if (op.silent) {
-        util.msg.silent(true);
-      }
-
       // 信息收集
       new util.Promise(((next) => {
         var data = {};
@@ -44,7 +40,7 @@ var
             name: 'name',
             message: 'name',
             type: 'input',
-            default: vars.PROJECT_PATH.split('/').pop()
+            default: util.vars.PROJECT_PATH.split('/').pop()
           });
         }
 
@@ -70,7 +66,7 @@ var
         }
       })).then((data, next) => {
         if (!data.commonPath) {
-          data.commonPath = util.joinFormat(vars.PROJECT_PATH, '../commons');
+          data.commonPath = util.joinFormat(util.vars.PROJECT_PATH, '../commons');
         }
 
         data.commonPath = data.commonPath.trim();
@@ -175,7 +171,7 @@ var
           next(data);
         }
       }).then((data, next) => {
-        data.version = util.requireJs(path.join(vars.BASE_PATH, 'package.json')).version;
+        data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
 
         if (!op.silent && data.confirm) {
           // 基本信息
@@ -199,7 +195,7 @@ var
 
         if (/svn/.test(data.doc)) { // svn full path
           // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}
-          var parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop();
+          var parentDir = util.joinFormat(util.vars.PROJECT_PATH).split('/').pop();
           var name = parentDir == data.name? '': data.name;
           var branches = [ 'branches/commit', 'branches/develop', 'trunk' ];
           var subDirs1 = []; //pc, mobile
@@ -243,7 +239,7 @@ var
           if (!op.silent && data.confirm) {
             util.buildTree({
               frontPath: '',
-              path: path.join(vars.BASE_PATH, 'examples', data.workflow, data.init),
+              path: path.join(util.vars.BASE_PATH, 'examples', data.workflow, data.init),
               dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
               dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components']
             });
@@ -267,10 +263,11 @@ var
           next(data);
         }
       }).then((data) => {
-        var parentDir = util.joinFormat(vars.PROJECT_PATH).split('/').pop();
+        var parentDir = util.joinFormat(util.vars.PROJECT_PATH).split('/').pop();
         var frontPath = '';
         var initClientFlow = function(dirname, workflowName, initType, done) {
-          util.msg.info('init client', workflowName, 'start');
+          log('start', 'init');
+          log('msg', 'info', `init client ${workflowName} start`);
           var dirPath;
 
           if (~data.doc.indexOf('svn')) {
@@ -280,7 +277,7 @@ var
           }
 
           new util.Promise(((next) => { // mk dir front path
-            util.msg.info('make dir...');
+            log('msg', 'info', 'make dir...');
             if (dirPath && !fs.existsSync(dirPath)) {
               util.mkdirSync(dirPath);
             }
@@ -294,7 +291,7 @@ var
                 }
               });
               if (noEmpty && !op.f) {
-                return done(`${dirname  } directory is not empty, init fail`);
+                return done(`${dirname} directory is not empty, init fail`);
               }
             }
 
@@ -303,22 +300,24 @@ var
                 util.mkdirSync(iPath);
               });
             }
-
-            util.msg.info('done');
+            log('msg', 'info', 'make dir finished');
             next();
           })).then((next) => { // copy file to PROJECT_PATH
-            util.msg.info('copy file to ', workflowName);
+            log('msg', 'info', `copy file to ${workflowName}`);
 
-            var initPath = path.join(vars.BASE_PATH, 'examples', workflowName, initType);
+            var initPath = path.join(util.vars.BASE_PATH, 'examples', workflowName, initType);
 
             util.copyFiles(
               initPath,
-              path.join(vars.PROJECT_PATH, dirPath),
-              (err) => {
+              path.join(util.vars.PROJECT_PATH, dirPath),
+              (err, files) => {
                 if (err) {
                   return done('copy file error, init fail');
                 }
-                util.msg.info('done');
+                files.forEach((file) => {
+                  log('msg', 'create', file);
+                });
+                log('msg', 'info', 'copy file finished');
                 next();
               },
               (iPath) => {
@@ -330,49 +329,54 @@ var
                 }
               },
               null,
-              path.join(vars.PROJECT_PATH, frontPath),
-              op.silent? true: false
+              path.join(util.vars.PROJECT_PATH, frontPath),
+              true
             );
           }).then((next) => { // copy readme
-            util.msg.info('copy README, .gitignore, .eslintrc, .editorconfig to ', workflowName);
+            log('msg', 'info', `copy README, .gitignore, .eslintrc, .editorconfig to ${workflowName}`);
             var iMap = {};
 
-            iMap[path.join(vars.BASE_PATH, 'init-files', workflowName, 'README.md')] = path.join(vars.PROJECT_PATH, dirPath, 'README.md');
+            iMap[path.join(util.vars.BASE_PATH, 'init-files', workflowName, 'README.md')] = path.join(util.vars.PROJECT_PATH, dirPath, 'README.md');
 
-            var gitIgnorePath = path.join(vars.BASE_PATH, 'init-files', workflowName, '.gitignore');
-            var npmIgnorePath = path.join(vars.BASE_PATH, 'init-files', workflowName, '.npmignore');
+            var gitIgnorePath = path.join(util.vars.BASE_PATH, 'init-files', workflowName, '.gitignore');
+            var npmIgnorePath = path.join(util.vars.BASE_PATH, 'init-files', workflowName, '.npmignore');
 
             if (fs.existsSync(gitIgnorePath)) {
-              iMap[gitIgnorePath] = path.join(vars.PROJECT_PATH, dirPath, '.gitignore');
+              iMap[gitIgnorePath] = path.join(util.vars.PROJECT_PATH, dirPath, '.gitignore');
             } else if (fs.existsSync(npmIgnorePath)) {
-              iMap[npmIgnorePath] = path.join(vars.PROJECT_PATH, dirPath, '.gitignore');
+              iMap[npmIgnorePath] = path.join(util.vars.PROJECT_PATH, dirPath, '.gitignore');
             }
             util.copyFiles(
               iMap,
-              (err) => {
+              (err, files) => {
                 if (err) {
                   return done('copy file error, init fail');
                 }
-                util.msg.info('done');
+                files.forEach((file) => {
+                  log('msg', 'create', [file]);
+                });
+
+                log('msg', 'info', 'copy file finished');
                 next();
               },
               null,
               null,
-              path.join(vars.PROJECT_PATH, frontPath),
-              op.silent? true: false
+              path.join(util.vars.PROJECT_PATH, frontPath),
+              true
             );
           }).then((next) => { // create dist file
-            var iiPath = path.join(vars.PROJECT_PATH, dirPath, 'dist');
+            var iiPath = path.join(util.vars.PROJECT_PATH, dirPath, 'dist');
             if (!fs.existsSync(iiPath)) {
               fs.mkdirSync(iiPath);
+              log('msg', 'create', iiPath);
             }
             next();
           }).then((next) => { // init configfile
-            util.msg.info('init config...');
-            var configPath = path.join(vars.PROJECT_PATH, dirPath, 'config.js');
+            log('msg', 'info', 'init config...');
+            var configPath = path.join(util.vars.PROJECT_PATH, dirPath, 'config.js');
 
             if (!fs.existsSync(configPath)) {
-              util.msg.info('config.js not found');
+              log('msg', 'info', 'config.js not found');
               next();
               return;
             }
@@ -381,7 +385,7 @@ var
             var replaceFn = function(str, $1, $2, $3, $4) {
               if (key == 'commonPath') {
                 return $2 + util.joinFormat(path.relative(
-                  path.join(vars.PROJECT_PATH, dirPath),
+                  path.join(util.vars.PROJECT_PATH, dirPath),
                   data[key]
                 )) + $4;
               } else {
@@ -398,12 +402,12 @@ var
             }
 
             fs.writeFileSync(configPath, configContent);
-
-            util.msg.info('done');
+            log('msg', 'create', configPath);
+            log('msg', 'info', 'init config finished');
             next();
           }).then(() => {
-            util.msg.success('init client', workflowName, 'success');
-            done(null, path.join(vars.PROJECT_PATH, dirPath));
+            log('msg', 'info', `init client ${workflowName} finished`);
+            done(null, path.join(util.vars.PROJECT_PATH, dirPath));
           }).start();
         };
 
@@ -418,7 +422,7 @@ var
         var iPaths = [];
         var paddingCheck = function(err, currentPath) {
           if (err) {
-            util.msg.error(err);
+            log('msg', 'error', err);
           } else {
             if (currentPath) {
               iPaths.push(currentPath);
@@ -427,7 +431,7 @@ var
           padding--;
 
           if (!padding) {
-            util.msg.line().success(`${data.name  } init complete`);
+            log('finish', 'init', `${data.name} init complete`);
 
             if (iPaths.length && !op.silent) {
               util.runNodeModule('yyl', {
@@ -446,6 +450,7 @@ var
           padding += 2;
           initClientFlow( data.platform, data.workflow, data.init, paddingCheck);
           if (!op.nonpm) {
+            log('end', 'init');
             wServer.init(data.workflow, paddingCheck);
           } else {
             paddingCheck();

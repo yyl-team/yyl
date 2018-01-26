@@ -12,7 +12,6 @@ var
     test: require('./w-test'),
     commit: require('./w-commit'),
     remove: require('./w-remove'),
-    debug: require('./w-debug'),
     supercall: require('./w-supercall'),
     update: require('./w-update'),
     make: require('./w-make'),
