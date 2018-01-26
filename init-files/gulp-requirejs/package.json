@@ -39,7 +39,7 @@
     "requirejs": "~2.3.5",
     "run-sequence": "~1.1.5",
     "through2": "~2.0.1",
-    "yyl-util": "~1.10.3"
+    "yyl-util": "~1.10.5"
   },
   "dependencies": {
     "gulp": "~3.9.1"

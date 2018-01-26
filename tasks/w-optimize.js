@@ -87,16 +87,21 @@ var
       util.msg.info('run cmd start');
 
       var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
-      // var cmd = 'gulp ' + iArgv.join(' ');
-      // var cmd = util.joinFormat(workFlowPath, 'node_modules', '.bin', util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp') + ' ' + iArgv.join(' ');
-      var cmd = `gulp ${  iArgv.join(' ')}`;
+      var gulpHand = util.joinFormat(
+        workFlowPath,
+        'node_modules',
+        '.bin',
+        util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp'
+      );
+
+      var cmd = `${gulpHand} ${iArgv.join(' ')}`;
 
       if (/watch/.test(iArgv[0])) {
         wServer.start(config.localserver.root, config.localserver.port, true);
       }
 
       util.msg.info('run cmd:', cmd);
-      util.runNodeModule(cmd, (err) => {
+      util.runSpawn(cmd, (err) => {
         if (err) {
           return util.msg.error(iArgv[0], 'task run error', err);
         }
@@ -104,10 +109,7 @@ var
         if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
           setTimeout(global.YYL_RUN_CALLBACK, 0);
         }
-      }, {
-        cwd: workFlowPath,
-        nodeBinPath: util.joinFormat(workFlowPath, 'node_modules', '.bin')
-      });
+      }, workFlowPath);
     }).start();
   };
 
