@@ -450,7 +450,6 @@ var
           padding += 2;
           initClientFlow( data.platform, data.workflow, data.init, paddingCheck);
           if (!op.nonpm) {
-            log('end', 'init');
             wServer.init(data.workflow, paddingCheck);
           } else {
             paddingCheck();

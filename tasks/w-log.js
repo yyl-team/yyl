@@ -21,6 +21,11 @@ util.infoBar.init({
         color: 'white',
         bgColor: 'bgBlue'
       },
+      'server': {
+        name: 'SERVER',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
       'done': {
         name: 'DONE',
         color: 'black',
@@ -82,22 +87,44 @@ const log4Base = (module, type, argv) => {
   let iStatus = cache.status[cache.currentType];
   let cost;
 
+  if (!iStatus) {
+    return log4Detail(module, type, argv);
+  }
+
   const prinitInfo = () => {
-    let add = fn.numFormat(iStatus.adds.length);
-    let upd = fn.numFormat(iStatus.updates.length);
-    let del = fn.numFormat(iStatus.dels.length);
-    let err = fn.numFormat(iStatus.errors.length);
-    let war = fn.numFormat(iStatus.warns.length);
+    let leftArr = [];
+    let rightArr = [];
+    if (iStatus.adds.length) {
+      leftArr.push(`A ${fn.numFormat(iStatus.adds.length)}`);
+    }
+
+    if (iStatus.updates.length) {
+      leftArr.push(`U ${fn.numFormat(iStatus.updates.length)}`);
+    }
+
+    if (iStatus.dels.length) {
+      leftArr.push(`D ${fn.numFormat(iStatus.dels.length)}`);
+    }
+
+    if (iStatus.errors.length) {
+      rightArr.push(`${fn.numFormat(iStatus.errors.length)} errors`);
+    }
+
+    if (iStatus.warns.length) {
+      rightArr.push(`${fn.numFormat(iStatus.warns.length)} warning`);
+    }
+
     util.infoBar.print(cache.currentType, {
       foot: util.getTime(),
-      barLeft: `A ${add} U ${upd} D ${del}`,
-      barRight: `${err} errors, ${war} warning`
+      barLeft: leftArr.join(' '),
+      barRight: rightArr.join(' ')
     });
   };
 
   switch (module) {
     case 'start':
       console.log('');
+      util.cleanScreen();
       // util.cleanScreen();
       cache.timer[type] = new Date();
       cache.currentType = type;
