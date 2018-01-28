@@ -121,7 +121,6 @@ var
         if (err) {
           return util.msg.error(iArgv[0], 'task run error', err);
         }
-        log('msg', 'success', 'run cmd finished');
         if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
           setTimeout(global.YYL_RUN_CALLBACK, 0);
         }
