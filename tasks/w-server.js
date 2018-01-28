@@ -48,16 +48,29 @@ var
     start: function() {
       var iEnv = util.envPrase(arguments);
 
-      wServer.start(iEnv.path);
-      if (iEnv.proxy) {
-        wProxy.init({
-          port: 8887
-        }, !iEnv.silent);
-      }
+      new util.Promise((next) => {
+        log('start', 'server', 'local server init...');
+        wServer.start(iEnv.path, null, false, () => {
+          log('finish', 'local server init finished');
+          next();
+        });
+      }).then(() => {
+        if (iEnv.proxy) {
+          log('start', 'proxy', 'proxy server init...');
+          wProxy.init({
+            port: 8887,
+            function() {
+              log('finish', 'proxy server init finished');
+            }
+          }, !iEnv.silent);
+        }
+      }).start();
     },
     rebuild: function(name) {
       var type;
       var iWorkflows = util.readdirSync(path.join( util.vars.SERVER_WORKFLOW_PATH));
+
+      log('start', 'rebuild');
       if (name) {
         type = name;
       } else {
@@ -73,30 +86,37 @@ var
             });
           }
           if (!userConfig) {
-            return util.msg.error('yyl rebuild fail', 'user config parse error');
+            log('msg', 'error', 'yyl rebuild fail', 'user config parse error');
+            return log('finish');
           }
         } else {
-          return util.msg.error('yyl rebuild fail', 'no user config file in current cwd');
+          log('msg', 'error', 'yyl rebuild fail', 'no user config file in current cwd');
+          return log('finish');
         }
       }
 
       if (~iWorkflows.indexOf(type)) {
         var targetPath = path.join(util.vars.SERVER_WORKFLOW_PATH, type, 'node_modules');
         if (fs.existsSync(targetPath)) {
-          util.msg.info('start remove server files:');
-          util.msg.info(targetPath);
+          log('msg', 'info', 'start remove server files:');
+          log('msg', 'info', targetPath);
           util.removeFiles(targetPath, () => {
-            util.msg.success('done');
-            util.msg.info('start run npm install');
+            log('msg', 'success', 'remove server files finished');
+            log('msg', 'info', 'start run npm install');
+            log('end');
             util.runCMD('npm install', () => {
-              util.msg.success('yyl rebuild success');
+              log('msg', 'success', 'run npm install success');
+              log('msg', 'success', 'yyl rebuild success');
+              log('finish');
             }, path.join(targetPath, '../'));
           });
         } else {
-          return util.msg.success('yyl rebuild success');
+          log('msg', 'success', 'yyl rebuild success');
+          return log('finish');
         }
       } else {
-        return util.msg.warn('yyl rebuild success', type, 'is not in', iWorkflows.join('|'));
+        log('msg', 'warn', `yyl rebuild success, ${type} is not in ${iWorkflows.join('|')}`);
+        return log('finish');
       }
     },
     init: function(workflowName) {
@@ -203,23 +223,7 @@ var
         return data[key];
       }
     },
-    // // 构建 服务端 webpackconfig
-    // buildWebpackConfig: function(workflowName, done){
-    //     var
-    //         webpackConfigPath = path.join(util.vars.PROJECT_PATH, 'webpack.config.js'),
-    //         serverPath = path.join(util.vars.SERVER_WORKFLOW_PATH, workflowName);
 
-    //     if(!fs.existsSync(serverPath)){
-    //         return done('serverPath not exist, break', serverPath);
-    //     }
-
-    //     if(!fs.existsSync(webpackConfigPath)){
-    //         return done('no webpack.config.js, break', webpackConfigPath);
-    //     }
-
-
-
-    // },
     // 构建 服务端 config
     buildConfig: function(name, env, done) {
       var configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
@@ -495,19 +499,9 @@ var
           }
         });
       }).then(() => {
-        util.infoBar.end();
-        util.infoBar.print('server', {
-          barLeft: `local path : ${iPath}`,
-          foot: util.getTime()
-        }).end();
-        util.infoBar.print('server', {
-          barLeft: `address    : ${serverAddress}`,
-          foot: util.getTime()
-        }).end();
-        util.infoBar.print('server', {
-          barLeft: `lr port    : ${lrPort}`,
-          foot: util.getTime()
-        }).end();
+        log('msg', 'success', `local path : ${iPath}`);
+        log('msg', 'success', `   address : ${serverAddress}`);
+        log('msg', 'success', `   lr port : ${lrPort}`);
 
         var server = connect()
 
@@ -538,11 +532,9 @@ var
             }
           }))
           .use(serveIndex(iPath))
-
-
           .listen(port, (err) => {
             if (err) {
-              util.msg.error(err);
+              log('msg', 'error', err);
               return done(err);
             }
             tinylr().listen(lrPort);
@@ -554,11 +546,7 @@ var
             }
           });
         server.on('error', (err) => {
-          if (err.code == 'EADDRINUSE') {
-            util.msg.error('local server start fail:', port, 'is occupied, please check');
-          } else {
-            util.msg.error(err);
-          }
+          log('msg', 'error', err);
           done(err);
         });
 

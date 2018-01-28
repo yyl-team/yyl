@@ -263,10 +263,10 @@ var
           next(data);
         }
       }).then((data) => {
+        log('start', 'init');
         var parentDir = util.joinFormat(util.vars.PROJECT_PATH).split('/').pop();
         var frontPath = '';
         var initClientFlow = function(dirname, workflowName, initType, done) {
-          log('start', 'init');
           log('msg', 'info', `init client ${workflowName} start`);
           var dirPath;
 
@@ -431,12 +431,10 @@ var
           padding--;
 
           if (!padding) {
-            log('finish', 'init', `${data.name} init complete`);
+            log('msg', 'success', `${data.name} init complete`);
+            log('finish');
 
             if (iPaths.length && !op.silent) {
-              util.runNodeModule('yyl', {
-                cwd: __dirname
-              });
               util.openPath(iPaths[0]);
             }
 

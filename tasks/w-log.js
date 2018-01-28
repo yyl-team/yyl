@@ -22,14 +22,34 @@ util.infoBar.init({
         bgColor: 'bgBlue'
       },
       'server': {
-        name: 'SERVER',
+        name: 'SERV',
         color: 'white',
         bgColor: 'bgBlue'
+      },
+      'rebuild': {
+        name: 'REBU',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'proxy': {
+        name: 'PROX',
+        color: 'white',
+        bgColor: 'bgRed'
       },
       'done': {
         name: 'DONE',
         color: 'black',
         bgColor: 'bgGreen'
+      },
+      'warn': {
+        name: 'WARN',
+        color: 'white',
+        bgColor: 'bgYellow'
+      },
+      'success': {
+        name: 'PASS',
+        color: 'white',
+        bgColor: 'bgBlue'
       }
     }
   }
@@ -84,8 +104,28 @@ const log4Detail = (module, type, argv) => {
 };
 
 const log4Base = (module, type, argv) => {
-  let iStatus = cache.status[cache.currentType];
+  let iStatus;
   let cost;
+
+  if (module == 'start') {
+    cache.timer[type] = new Date();
+    cache.currentType = type;
+    iStatus = cache.status[cache.currentType] = {
+      errors: [],
+      warns: [],
+      adds: [],
+      success: [],
+      updates: [],
+      dels: [],
+      defaultText: argv.join(' ')
+    };
+  } else {
+    iStatus = cache.status[cache.currentType];
+  }
+
+  if (module == 'finish' && type) {
+    argv = [type].concat(argv);
+  }
 
   if (!iStatus) {
     return log4Detail(module, type, argv);
@@ -116,36 +156,45 @@ const log4Base = (module, type, argv) => {
 
     util.infoBar.print(cache.currentType, {
       foot: util.getTime(),
-      barLeft: leftArr.join(' '),
+      barLeft: leftArr.join(' ') || iStatus.defaultText,
       barRight: rightArr.join(' ')
     });
   };
 
   switch (module) {
     case 'start':
-      console.log('');
+      util.infoBar.end();
       util.cleanScreen();
-      // util.cleanScreen();
-      cache.timer[type] = new Date();
-      cache.currentType = type;
-      iStatus = cache.status[cache.currentType] = {
-        errors: [],
-        warns: [],
-        adds: [],
-        updates: [],
-        dels: []
-      };
       prinitInfo();
       break;
 
     case 'finish':
       util.infoBar.end();
-      cost = new Date() - cache.timer[type];
-      util.infoBar.print('done', {
-        barLeft: argv.join(' '),
-        barRight: `cost ${fn.costFormat(cost)}`,
-        foot: util.getTime()
+      cost = new Date() - cache.timer[cache.currentType];
+      if (iStatus.errors.length) {
+        util.infoBar.print('error', {
+          barRight: `cost ${fn.costFormat(cost)}`,
+          foot: util.getTime()
+        }).end();
+        iStatus.errors.forEach((argv) => {
+          console.error.apply(console, argv);
+        });
+      } else {
+        util.infoBar.print('done', {
+          barLeft: argv.join(' '),
+          barRight: `cost ${fn.costFormat(cost)}`
+        }).end();
+        util.infoBar.print('success', {
+          barLeft: iStatus.success.map((a) => a.join(' '))
+        }).end();
+      }
+
+      util.infoBar.print('warn', {
+        barLeft: iStatus.warns.map((a) => a.join(' '))
       }).end();
+
+      delete cache.status[cache.currentType];
+      cache.currentType = null;
       break;
 
     case 'end':
@@ -166,6 +215,10 @@ const log4Base = (module, type, argv) => {
           iStatus.dels.push(argv);
           break;
 
+        case 'success':
+          iStatus.success.push(argv);
+          break;
+
         case 'error':
           iStatus.errors.push(argv);
           break;
@@ -183,7 +236,10 @@ const log4Base = (module, type, argv) => {
 };
 
 const log = (module, type, argv) => {
-  const iArgv = util.type(argv) !== 'array' ? [argv] : argv;
+  let iArgv = [];
+  if (argv) {
+    iArgv = util.type(argv) !== 'array' ? [argv] : argv;
+  }
   let logLevel = 1; // 临时
   return logLevel < 2 ?
     log4Base(module, type, iArgv) :
