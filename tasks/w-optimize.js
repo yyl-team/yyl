@@ -5,6 +5,7 @@ var fs = require('fs');
 var util = require('./w-util.js');
 var wServer = require('./w-server');
 var wProxy = require('./w-proxy');
+var log = require('./w-log');
 var vars = util.vars;
 
 var
@@ -13,36 +14,40 @@ var
     var iEnv = util.envPrase(iArgv);
 
     new util.Promise(((next) => {
-      util.msg.info('build server config start');
+      log('start', 'server', 'server init...');
+      log('msg', 'info', 'build server config start');
       wServer.buildConfig(iEnv.name, iEnv, (err, config) => { // 创建 server 端 config
         if (err) {
-          return util.msg.error('build server config error:', err);
+          log('msg', 'error', ['build server config error:', err]);
+          return log('finish');
         }
 
-        util.msg.success('build server config done');
+        log('msg', 'success', 'build server config finished')
         next(config);
       });
     })).then((config, next) => { // 检测 localserver.root 是否存在
-      util.msg.info('check localserver.root exist:', config.localserver.root);
+      log('msg', 'info', `check localserver.root exist: ${config.localserver.root}`);
 
       if (!config.localserver.root) {
-        return util.msg.error('config.localserver.root is null! please check');
+        log('msg', 'error', 'config.localserver.root is null! please check');
+        return log('finish');
       } else {
         if (!fs.existsSync(config.alias.destRoot)) {
           util.mkdirSync(config.alias.destRoot);
-          util.msg.create(config.alias.destRoot);
+          log('msg', 'create', config.alias.destRoot);
         }
 
         next(config);
       }
     }).then((config, next) => { // server init
-      util.msg.info('server init start');
+      log('msg', 'info', 'server init start');
       wServer.init(config.workflow, (err) => {
         if (err) {
-          return util.msg.error('server init error', err);
+          log('msg', 'error', ['server init error', err]);
+          return log('finish');
         }
 
-        util.msg.success('server init done');
+        log('msg', 'success', 'server init finished');
         next(config);
       });
     }).then((config, next) => { // 代理服务初始化
@@ -63,28 +68,42 @@ var
           iProxyConfig.localRemote[key] = val;
         }
 
+        log('msg', 'info', 'proxy init start');
         wProxy.init(iProxyConfig, (err) => {
           if (err) {
-            util.msg.warn('proxy init error', err);
+            log('msg', 'warn', `proxy init error: ${err.message}`);
           }
+          log('msg', 'success', 'proxy init finished');
           next(config);
         }, iEnv.logLevel > 1);
       } else {
-        util.msg.info('no proxy, next');
+        log('msg', 'success', 'no proxy, next');
         next(config);
       }
     }).then((config, next) => { // 清除 localserver 目录下原有文件
       if (fs.existsSync(config.localserver.root)) {
-        util.msg.info('clean Path start:', config.localserver.root);
+        log('msg', 'info', `clean Path start: ${config.localserver.root}`);
         util.removeFiles(config.localserver.root, () => {
-          util.msg.success('clean Path done:', config.localserver.root);
+          log('msg', 'success', `clean path finished: ${config.localserver.root}`);
           next(config);
         });
       } else {
         next(config);
       }
+    }).then((config, next) => { // localserver
+      if (/watch/.test(iArgv[0])) {
+        log('msg', 'info', 'local server init start');
+        wServer.start(config.localserver.root, config.localserver.port, true, (err) => {
+          if (err) {
+            log('msg', 'error', ['local server init failed', err]);
+          } else {
+            log('msg', 'success', 'local server init finished');
+          }
+          next(config);
+        });
+      }
     }).then((config) => { // 运行命令
-      util.msg.info('run cmd start');
+      log('msg', 'info', 'run cmd start');
 
       var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
       var gulpHand = util.joinFormat(
@@ -96,16 +115,13 @@ var
 
       var cmd = `${gulpHand} ${iArgv.join(' ')}`;
 
-      if (/watch/.test(iArgv[0])) {
-        wServer.start(config.localserver.root, config.localserver.port, true);
-      }
-
-      util.msg.info('run cmd:', cmd);
+      log('msg', 'info', `run cmd: ${cmd}`);
+      log('finish');
       util.runSpawn(cmd, (err) => {
         if (err) {
           return util.msg.error(iArgv[0], 'task run error', err);
         }
-        util.msg.success('run cmd done');
+        log('msg', 'success', 'run cmd finished');
         if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
           setTimeout(global.YYL_RUN_CALLBACK, 0);
         }
