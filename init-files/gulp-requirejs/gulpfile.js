@@ -183,6 +183,7 @@ var fn = {
         // 文件路径: [被引用的文件路径列表]
         // r-demo: [p-demo, r-demo2]
       },
+      // 生成 w-demo: [p-a, p-b] 形式
       set: function(source, iPath) {
         if (!rMap.source[iPath]) {
           rMap.source[iPath] = [];
@@ -191,8 +192,40 @@ var fn = {
           rMap.source[iPath].push(source);
         }
       },
+      // 数据整理, 将 w-demo: [p-a, p-b], p-a: [p-c, p-d],
+      // 整理      为 w-demo: [p-a, p-c, p-d, p-b], p-a: [p-c, p-d]
+      arrange: function() {
+        const deepIt = (arr) => {
+          let r = [].concat(arr);
+          let newArr = [];
+          for (let i = 0; i < r.length;) {
+            let iPath = r[i];
+            if (rMap.source[iPath]) {
+              rMap.source[iPath].forEach((fPath) => {
+                if (!~r.indexOf(fPath) && !~newArr.indexOf(fPath)) {
+                  newArr.push(fPath);
+                }
+              });
+              r.splice(i, 1);
+            } else {
+              i++;
+            }
+          }
+          if (newArr.length) {
+            newArr = deepIt(newArr);
+            r = r.concat(newArr);
+          }
+          return r;
+        };
+        Object.keys(rMap.source).forEach((key) => {
+          rMap.source[key] = deepIt(rMap.source[key]);
+        });
+      },
       findPages: function(iPath) {
         var cache = {};
+
+        rMap.arrange();
+
         var findit = function(iPath) {
           var r = [];
           var rs = rMap.source[iPath];
