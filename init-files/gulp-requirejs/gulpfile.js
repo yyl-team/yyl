@@ -191,14 +191,6 @@ var fn = {
         if (!~rMap.source[iPath].indexOf(source)) {
           rMap.source[iPath].push(source);
         }
-
-        // if (rMap.source[source]) {
-        //   rMap.source[source].forEach((fPath) => {
-        //     if (!~rMap.source[iPath].indexOf(fPath)) {
-        //       rMap.source[iPath].push(fPath);
-        //     }
-        //   });
-        // }
       },
       // 数据整理, 将 w-demo: [p-a, p-b], p-a: [p-c, p-d],
       // 整理      为 w-demo: [p-a, p-c, p-d, p-b], p-a: [p-c, p-d]
