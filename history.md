@@ -1,4 +1,7 @@
 # 版本信息
+## 2.15.34 (2018-01-29)
+* [FIX] `gulp-requirejs` `p-xx` 也同样需要监听 被其他 `p-xx` 调用的情况
+
 ## 2.15.33 (2018-01-24)
 * [ADD] 新增 `yyl all` 自测用例
 * [FIX] 修复 `gulp-requirejs` 在`pug` 文件存在 `<style>` `style=""` 并带有图片时显示不正常问题
