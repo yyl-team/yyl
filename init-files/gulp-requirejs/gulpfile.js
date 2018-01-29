@@ -213,21 +213,21 @@ var fn = {
           }
 
           if (isPage(iPath)) {
-            return [iPath];
-          } else {
-            rs.forEach((rPath) => {
-              if (isPage(rPath)) {
-                // console.log('findit('+ iPath +')','=== run 1', rPath);
-                r.push(rPath);
-              } else {
-                // console.log('findit('+ iPath +')','=== run findit('+ rPath +')');
-                r = r.concat(findit(rPath));
-              }
-              // 去重
-              r = Array.from(new Set(r));
-            });
-            return r;
+            r.push(iPath);
           }
+
+          rs.forEach((rPath) => {
+            if (isPage(rPath)) {
+              // console.log('findit('+ iPath +')','=== run 1', rPath);
+              r.push(rPath);
+            } else {
+              // console.log('findit('+ iPath +')','=== run findit('+ rPath +')');
+              r = r.concat(findit(rPath));
+            }
+            // 去重
+            r = Array.from(new Set(r));
+          });
+          return r;
         };
         return findit(iPath);
       }
@@ -285,7 +285,7 @@ var fn = {
           sourceFiles.forEach((iSource) => {
             var iCnt = fs.readFileSync(iSource).toString();
             iCnt.replace(/(extends|include) ([^ \r\n\t]+)/g, (str, $1, $2) => {
-              var myPath = util.joinFormat(path.dirname(iSource), `${$2  }.pug`);
+              var myPath = util.joinFormat(path.dirname(iSource), `${$2}.pug`);
               rMap.set(iSource, myPath);
               return str;
             });
