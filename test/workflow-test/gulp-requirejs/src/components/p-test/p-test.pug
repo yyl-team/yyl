@@ -15,6 +15,9 @@ block head
         .style-test-3 {
             background-image: url(../../images/test/logo.png);
         }
+        .style-test-4 {
+            background-image: url(/pc/images/test/logo.png);
+        }
 
 block body
     div.p-test-module
@@ -40,6 +43,7 @@ block body
             span.box.scss-style-3
             span.box.scss-style-4
             span.box.scss-style-5
+            span.box.scss-style-6
 
     div.p-test-module
         div.tl html img src test
@@ -48,7 +52,7 @@ block body
             img(src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
             img(src="./images/logo.png")
             img(src="../../images/logo.png")
-            img(src="../../../../commons/components/w-test/images/logo.png")
+            img(src="/pc/images/test/logo.png")
 
     div.p-test-module
         div.tl html a href test
@@ -58,6 +62,7 @@ block body
             a(href="./images/logo.png") 链接测试
             a(href="../../images/logo.png") 链接测试
             a(href="../../../../commons/components/w-test/images/logo.png") 链接测试
+            a(href="/pc/images/test/logo.png") 链接测试
 
     div.p-test-module
         div.tl html data-main test
@@ -67,6 +72,7 @@ block body
             span(data-main="./images/logo.png") 链接测试
             span(data-main="../../images/logo.png") 链接测试
             span(data-main="../../../../commons/components/w-test/images/logo.png") 链接测试
+            span(data-main="/pc/images/test/logo.png") 链接测试
 
     div.p-test-module
         div.tl html iframe src test
@@ -76,6 +82,7 @@ block body
             iframe(width="200", height="200", src="./images/logo.png")
             iframe(width="200", height="200", src="../../images/logo.png")
             iframe(width="200", height="200", src="../../../../commons/components/w-test/images/logo.png")
+            iframe(width="200", height="200", src="/pc/images/test/logo.png")
 
     div.p-test-module
         div.tl html insert style test
@@ -83,6 +90,7 @@ block body
             span.box(style="background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png)")
             span.box(style="background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png)")
             span.box(style="background-image: url('../../images/test/logo.png')")
+            span.box(style="background-image: url('/pc/images/test/logo.png')")
 
     div.p-test-module
         div.tl html insert style tag test
@@ -90,6 +98,7 @@ block body
             span.box.style-test-1
             span.box.style-test-2
             span.box.style-test-3
+            span.box.style-test-4
 
 
 
@@ -104,6 +113,7 @@ block body
             img(src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
             img(src="./images/logo.png")
             img(src="../../images/logo.png")
+            img(src="/pc/images/test/logo.png")
             img(src="{{url}}")
 
     div.p-test-module

@@ -109,8 +109,8 @@ var fn = {
   },
 
   /**
-     * task 执行前初始化函数
-     */
+   * task 执行前初始化函数
+   */
   taskInit: function() {
     var commands = process.argv[2];
     var iConfig;
@@ -195,7 +195,10 @@ var fn = {
       // 数据整理, 将 w-demo: [p-a, p-b], p-a: [p-c, p-d],
       // 整理      为 w-demo: [p-a, p-c, p-d, p-b], p-a: [p-c, p-d]
       arrange: function() {
-        const deepIt = (arr) => {
+        const deepIt = (arr, times) => {
+          if (times > 5) {
+            return arr;
+          }
           let r = [].concat(arr);
           let newArr = [];
           for (let i = 0; i < r.length;) {
@@ -212,13 +215,13 @@ var fn = {
             }
           }
           if (newArr.length) {
-            newArr = deepIt(newArr);
+            newArr = deepIt(newArr, times + 1);
             r = r.concat(newArr);
           }
           return r;
         };
         Object.keys(rMap.source).forEach((key) => {
-          rMap.source[key] = deepIt(rMap.source[key]);
+          rMap.source[key] = deepIt(rMap.source[key], 0);
         });
       },
       findPages: function(iPath) {
@@ -545,6 +548,7 @@ var REG = {
   HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
   HTML_SCRIPT_TEMPLATE_REG: /type\s*=\s*['"]text\/html["']/,
   HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
+  HTML_IS_ABSLUTE: /^\//,
 
   HTML_STYLE_REG: /(<style[^>]*>)([\w\W]*?)(<\/style>)/ig,
   HTML_SRC_COMPONENT_JS_REG: /^\.\.\/components\/p-[a-zA-Z0-9-]+\/p-([a-zA-Z0-9-]+).js/g,
@@ -608,7 +612,12 @@ var
                 }
               });
 
-              if (iPath.match(REG.HTML_IGNORE_REG) || iPath.match(REG.IS_HTTP) || !iPath) {
+              if (
+                iPath.match(REG.HTML_IGNORE_REG) ||
+                iPath.match(REG.IS_HTTP) ||
+                !iPath ||
+                iPath.match(REG.HTML_IS_ABSLUTE)
+              ) {
                 return str;
               }
 
