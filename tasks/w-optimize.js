@@ -89,7 +89,7 @@ var
       var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
       // var cmd = 'gulp ' + iArgv.join(' ');
       // var cmd = util.joinFormat(workFlowPath, 'node_modules', '.bin', util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp') + ' ' + iArgv.join(' ');
-      var cmd = `gulp ${  iArgv.join(' ')}`;
+      var cmd = `gulp ${iArgv.join(' ')}`;
 
       if (/watch/.test(iArgv[0])) {
         wServer.start(config.localserver.root, config.localserver.port, true);

@@ -36,6 +36,7 @@ Options:
     -h, --help    帮助信息
     -v, --version 版本信息
     -p, --path    本程序目录
+    --config      自定义 config 文件
 ```
 
 ### 项目初始化相关命令
@@ -98,6 +99,7 @@ Options:
                      在 watch 时 生成和服务器 rev-manifest 一样资源文件
 
     --nosvn          不执行 svn 相关操作
+    --config         自定义 config 文件
 ```
 
 ### 本地服务相关命令

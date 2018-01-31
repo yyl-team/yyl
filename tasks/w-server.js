@@ -57,7 +57,7 @@ var
     },
     rebuild: function(name) {
       var type;
-      var iWorkflows = util.readdirSync(path.join( util.vars.SERVER_WORKFLOW_PATH));
+      var iWorkflows = util.readdirSync(path.join(util.vars.SERVER_WORKFLOW_PATH));
       if (name) {
         type = name;
       } else {
@@ -223,15 +223,24 @@ var
     // 构建 服务端 config
     buildConfig: function(name, env, done) {
       var configPath = path.join(vars.PROJECT_PATH, 'config.js');
-      var mineConfigPath = path.join(vars.PROJECT_PATH, 'config.mine.js');
+      var mineConfigPath;
       var config;
       var mineConfig;
 
+      // 自定义 --config
+      if (env.config) {
+        if (path.isAbsolute(env.config)) {
+          configPath = env.config;
+        } else {
+          configPath = path.join(vars.PROJECT_PATH, env.config);
+        }
+      }
+      mineConfigPath = configPath.replace(/\.js$/, '.mine.js');
+
       // 获取 config, config.mine 文件内容
       if (!fs.existsSync(configPath)) {
-        return done('config.js not found');
+        return done(`config.js not found: ${configPath}`);
       }
-
 
       if (fs.existsSync(mineConfigPath)) {
         try {
@@ -341,13 +350,13 @@ var
 
       // 路径替换
       (function deep(obj) {
-        for ( var key in obj ) {
+        for (var key in obj) {
           if (obj.hasOwnProperty(key)) {
             switch (util.type(obj[key])) {
               case 'object':
                 if (key == 'alias') { // 替换 val
                   obj[key] = relateHere(obj[key]);
-                } else if (key  == 'resource') {
+                } else if (key == 'resource') {
                   obj[key] = relateHere(obj[key], true);
                 } else {
                   deep(obj[key]);
@@ -475,13 +484,13 @@ var
 
       var server = connect()
 
-        .use(livereload({
-          port: lrPort,
-          src: 'http://localhost:35729/livereload.js?snipver=1'
-        }))
+      .use(livereload({
+        port: lrPort,
+        src: 'http://localhost:35729/livereload.js?snipver=1'
+      }))
 
-        // 执行 post 请求本地服务器时处理
-        .use((req, res, next) => {
+      // 执行 post 请求本地服务器时处理
+      .use((req, res, next) => {
           if (req.method == 'POST') {
             var filePath = path.join(iPath, url.parse(req.url).pathname);
 
@@ -504,19 +513,19 @@ var
         .use(serveIndex(iPath))
 
 
-        .listen(port, (err) => {
-          if (err) {
-            util.msg.error(err);
-            return done(err);
-          }
-          tinylr().listen(lrPort);
-          if (!silent) {
-            util.openBrowser(serverAddress);
-          }
-          if (done) {
-            done();
-          }
-        });
+      .listen(port, (err) => {
+        if (err) {
+          util.msg.error(err);
+          return done(err);
+        }
+        tinylr().listen(lrPort);
+        if (!silent) {
+          util.openBrowser(serverAddress);
+        }
+        if (done) {
+          done();
+        }
+      });
       server.on('error', (err) => {
         if (err.code == 'EADDRINUSE') {
           util.msg.error('local server start fail:', port, 'is occupied, please check');

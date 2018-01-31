@@ -171,10 +171,11 @@ util = util.extend(true, util, {
       cache.config = null;
       return false;
     }
+
     try {
-      userConfig = require(userConfigPath);
+      userConfig = util.requireJs(userConfigPath);
     } catch (er) {
-      util.msg.warn('getConfig fail', `require(${ userConfigPath }) parse fail`);
+      util.msg.warn('getConfig fail', `require(${userConfigPath}) parse fail`);
       cache.config = null;
       return false;
     }
@@ -202,7 +203,7 @@ util = util.extend(true, util, {
       return false;
     }
 
-    iConfig = require(serverConfigPath);
+    iConfig = util.requireJs(serverConfigPath);
 
     if (op.name) {
       if (iConfig[op.name]) {
