@@ -68,7 +68,7 @@ var
     },
     rebuild: function(name) {
       var type;
-      var iWorkflows = util.readdirSync(path.join( util.vars.SERVER_WORKFLOW_PATH));
+      var iWorkflows = util.readdirSync(path.join(util.vars.SERVER_WORKFLOW_PATH));
 
       log('start', 'rebuild');
       if (name) {
@@ -227,26 +227,33 @@ var
     // 构建 服务端 config
     buildConfig: function(name, env, done) {
       var configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
-      var mineConfigPath = path.join(util.vars.PROJECT_PATH, 'config.mine.js');
+      var mineConfigPath;
       var config;
       var mineConfig;
 
+      // 自定义 --config
+      if (env.config) {
+        if (path.isAbsolute(env.config)) {
+          configPath = env.config;
+        } else {
+          configPath = path.join(util.vars.PROJECT_PATH, env.config);
+        }
+      }
+      mineConfigPath = configPath.replace(/\.js$/, '.mine.js');
+
       // 获取 config, config.mine 文件内容
       if (!fs.existsSync(configPath)) {
-        return done('config.js not found');
+        return done(`config.js not found: ${configPath}`);
       }
-
 
       if (fs.existsSync(mineConfigPath)) {
         try {
-          delete require.cache[mineConfigPath];
           mineConfig = util.requireJs(mineConfigPath);
         } catch (er) {}
       }
       if (fs.existsSync(configPath)) {
-        delete require.cache[configPath];
         try {
-          config = require(configPath);
+          config = util.requireJs(configPath);
         } catch (er) {
           return done(`read config.js with error: ${er.message}`);
         }
@@ -345,13 +352,13 @@ var
 
       // 路径替换
       (function deep(obj) {
-        for ( var key in obj ) {
+        for (var key in obj) {
           if (obj.hasOwnProperty(key)) {
             switch (util.type(obj[key])) {
               case 'object':
                 if (key == 'alias') { // 替换 val
                   obj[key] = relateHere(obj[key]);
-                } else if (key  == 'resource') {
+                } else if (key == 'resource') {
                   obj[key] = relateHere(obj[key], true);
                 } else {
                   deep(obj[key]);
@@ -504,7 +511,6 @@ var
         log('msg', 'success', `   lr port : ${lrPort}`);
 
         var server = connect()
-
           .use(livereload({
             port: lrPort,
             src: 'http://localhost:35729/livereload.js?snipver=1'

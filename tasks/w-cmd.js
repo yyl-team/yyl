@@ -36,7 +36,8 @@ var
           '-h, --help': 'print usage information',
           '-v, --version': 'print yyl version',
           '-p, --path': 'show the yyl command local path',
-          '--logLevel': 'log level'
+          '--logLevel': 'log level',
+          '--config': 'change the config file to the setting'
         }
       });
     },

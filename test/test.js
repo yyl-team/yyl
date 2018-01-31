@@ -14,8 +14,6 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 
 util.cleanScreen();
 
-
-
 const fn = {
   hideUrlTail: function(url) {
     return url
@@ -307,3 +305,80 @@ describe('yyl all test', () => {
   });
 });
 
+describe('yyl all --config test', () => {
+  const WORKFLOW_PATH = path.join(__dirname, 'workflow-test/gulp-requirejs');
+  const COMMON_PATH = path.join(__dirname, 'workflow-test/commons');
+  const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
+  const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
+  const ABSOLUTE_CONFIG_PATH = util.path.join(WORKFLOW_PATH, 'config.test.js');
+  const RELATIVE_CONFIG_PATH = 'config.test.js';
+
+  it(`yyl all --config ${ABSOLUTE_CONFIG_PATH} test`, function(done) {
+    this.timeout(0);
+    new util.Promise((next) => { // 项目文件初始化
+      fn.frag.destory();
+      fn.frag.build();
+      util.mkdirSync(FRAG_WORKFLOW_PATH);
+      util.mkdirSync(FRAG_COMMONS_PATH);
+      const obj = {};
+      obj[WORKFLOW_PATH] = FRAG_WORKFLOW_PATH;
+      obj[COMMON_PATH] = FRAG_COMMONS_PATH;
+      util.copyFiles(obj, () => {
+        next();
+      });
+    }).then(() => { // 项目执行
+      yyl.run(`all --silent --config ${ABSOLUTE_CONFIG_PATH}`, () => {
+        var serverConfig = util.getConfigSync({});
+        var
+          localConfig = util.extend(
+            true,
+            util.requireJs(path.join(FRAG_WORKFLOW_PATH, 'config.test.js')),
+            util.requireJs(path.join(FRAG_WORKFLOW_PATH, './config.test.mine.js'))
+          );
+        var serverAlias = serverConfig.alias;
+        var localAlias = localConfig.alias;
+        Object.keys(serverAlias).forEach((key) => {
+          expect(util.path.join(serverAlias[key]))
+            .to.equal(util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]));
+        });
+        fn.frag.destory();
+        done();
+      }, FRAG_WORKFLOW_PATH);
+    }).start();
+  });
+
+
+  it(`yyl all --config ${RELATIVE_CONFIG_PATH}  test`, function(done) {
+    this.timeout(0);
+    new util.Promise((next) => { // 项目文件初始化
+      fn.frag.destory();
+      fn.frag.build();
+      util.mkdirSync(FRAG_WORKFLOW_PATH);
+      util.mkdirSync(FRAG_COMMONS_PATH);
+      const obj = {};
+      obj[WORKFLOW_PATH] = FRAG_WORKFLOW_PATH;
+      obj[COMMON_PATH] = FRAG_COMMONS_PATH;
+      util.copyFiles(obj, () => {
+        next();
+      });
+    }).then(() => { // 项目执行
+      yyl.run(`all --silent --config ${RELATIVE_CONFIG_PATH}`, () => {
+        var serverConfig = util.getConfigSync({});
+        var
+          localConfig = util.extend(
+            true,
+            util.requireJs(path.join(FRAG_WORKFLOW_PATH, 'config.test.js')),
+            util.requireJs(path.join(FRAG_WORKFLOW_PATH, './config.test.mine.js'))
+          );
+        var serverAlias = serverConfig.alias;
+        var localAlias = localConfig.alias;
+        Object.keys(serverAlias).forEach((key) => {
+          expect(util.path.join(serverAlias[key]))
+            .to.equal(util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]));
+        });
+        fn.frag.destory();
+        done();
+      }, FRAG_WORKFLOW_PATH);
+    }).start();
+  });
+});
