@@ -511,28 +511,28 @@ var
           }
         }))
         .use(serveIndex(iPath))
-
-
-      .listen(port, (err) => {
-        if (err) {
-          util.msg.error(err);
-          return done(err);
-        }
-        tinylr().listen(lrPort);
-        if (!silent) {
-          util.openBrowser(serverAddress);
-        }
-        if (done) {
-          done();
-        }
-      });
+        .listen(port, (err) => {
+          if (err) {
+            util.msg.error(err);
+            return done(err);
+          }
+          tinylr().listen(lrPort);
+          if (!silent) {
+            util.openBrowser(serverAddress);
+          }
+          if (done) {
+            done();
+          }
+        });
       server.on('error', (err) => {
         if (err.code == 'EADDRINUSE') {
           util.msg.error('local server start fail:', port, 'is occupied, please check');
         } else {
           util.msg.error(err);
         }
-        done(err);
+        if (done) {
+          done(err);
+        }
       });
 
       cache.server = server;
