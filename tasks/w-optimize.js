@@ -22,7 +22,7 @@ var
           return log('finish');
         }
 
-        log('msg', 'success', 'build server config finished')
+        log('msg', 'success', 'build server config finished');
         next(config);
       });
     })).then((config, next) => { // 检测 localserver.root 是否存在
@@ -101,30 +101,39 @@ var
           }
           next(config);
         });
+      } else {
+        next(config);
       }
     }).then((config) => { // 运行命令
-      log('msg', 'info', 'run cmd start');
+      console.log('???', config.workflow)
+      if (config.workflow == 'gulp-requirejs') {
+        log('finish');
+        const opzer = util.requireJs(path.join(__dirname, '../init-files', config.workflow, 'index.js'));
+        opzer(config, iArgv[0], iEnv);
+      } else {
+        log('msg', 'info', 'run cmd start');
 
-      var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
-      var gulpHand = util.joinFormat(
-        workFlowPath,
-        'node_modules',
-        '.bin',
-        util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp'
-      );
+        var workFlowPath = path.join(vars.SERVER_WORKFLOW_PATH, config.workflow);
+        var gulpHand = util.joinFormat(
+          workFlowPath,
+          'node_modules',
+          '.bin',
+          util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp'
+        );
 
-      var cmd = `${gulpHand} ${iArgv.join(' ')}`;
+        var cmd = `${gulpHand} ${iArgv.join(' ')}`;
 
-      log('msg', 'info', `run cmd: ${cmd}`);
-      log('finish');
-      util.runSpawn(cmd, (err) => {
-        if (err) {
-          return util.msg.error(iArgv[0], 'task run error', err);
-        }
-        if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
-          setTimeout(global.YYL_RUN_CALLBACK, 0);
-        }
-      }, workFlowPath);
+        log('msg', 'info', `run cmd: ${cmd}`);
+        log('finish');
+        util.runSpawn(cmd, (err) => {
+          if (err) {
+            return util.msg.error(iArgv[0], 'task run error', err);
+          }
+          if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
+            setTimeout(global.YYL_RUN_CALLBACK, 0);
+          }
+        }, workFlowPath);
+      }
     }).start();
   };
 

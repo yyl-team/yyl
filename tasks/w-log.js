@@ -1,5 +1,6 @@
 'use strict';
 const util = require('./w-util.js');
+const chalk = require('chalk');
 
 const cache = {
   timer: {},
@@ -89,15 +90,20 @@ const log4Detail = (module, type, argv) => {
     case 'start':
       util.cleanScreen();
       cache.timer[type] = new Date();
+      cache.currentType = type;
+      util.msg.info(`[${type}] task start`);
       break;
 
     case 'finish':
-      cost = new Date() - cache.timer[type];
-      argv.push(`cost ${fn.costFormat(cost)}`);
+      cost = new Date() - cache.timer[cache.currentType];
+      argv.push(`[${cache.currentType}] task finished, cost ${fn.costFormat(cost)}`);
       util.msg.success.apply(util.msg, argv);
       break;
 
     case 'msg':
+      if (!util.msg[type]) {
+        type = 'info';
+      }
       util.msg[type].apply(util.msg, argv);
       break;
   }
@@ -135,23 +141,23 @@ const log4Base = (module, type, argv) => {
     let leftArr = [];
     let rightArr = [];
     if (iStatus.adds.length) {
-      leftArr.push(`A ${fn.numFormat(iStatus.adds.length)}`);
+      leftArr.push(chalk.cyan(`ADD ${fn.numFormat(iStatus.adds.length)}`));
     }
 
     if (iStatus.updates.length) {
-      leftArr.push(`U ${fn.numFormat(iStatus.updates.length)}`);
+      leftArr.push(chalk.yellow(`UPDATE ${fn.numFormat(iStatus.updates.length)}`));
     }
 
     if (iStatus.dels.length) {
-      leftArr.push(`D ${fn.numFormat(iStatus.dels.length)}`);
+      leftArr.push(chalk.gray(`DEL ${fn.numFormat(iStatus.dels.length)}`));
     }
 
     if (iStatus.errors.length) {
-      rightArr.push(`${fn.numFormat(iStatus.errors.length)} errors`);
+      rightArr.push(chalk.red(`${fn.numFormat(iStatus.errors.length)} errors`));
     }
 
     if (iStatus.warns.length) {
-      rightArr.push(`${fn.numFormat(iStatus.warns.length)} warning`);
+      rightArr.push(chalk.yellow(`${fn.numFormat(iStatus.warns.length)} warning`));
     }
 
     util.infoBar.print(cache.currentType, {
@@ -240,7 +246,7 @@ const log = (module, type, argv) => {
   if (argv) {
     iArgv = util.type(argv) !== 'array' ? [argv] : argv;
   }
-  let logLevel = 1; // 临时
+  let logLevel = 2; // 临时
   return logLevel < 2 ?
     log4Base(module, type, iArgv) :
     log4Detail(module, type, iArgv);
