@@ -2,6 +2,7 @@
 ## 2.16.0 (2018-01-26)
 * [DEL] 去掉 `yyl` 对 全局 `gulp` 的依赖
 * [DEL] 去掉 `yyl debug`
+* [TODO] 添加版本检测， 如果发现 config 中 version 高于当前构建工具version 则需要提示 用户 update yyl 后再使用
 
 ## 2.15.39 (2018-02-01)
 * [FIX] `server error` bugfix
