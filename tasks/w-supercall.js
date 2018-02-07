@@ -611,7 +611,9 @@ var
     resource: function(op) {
       var config = util.getConfigSync(op);
 
-      util.copyFiles(config.resource);
+      if (config.resource) {
+        util.copyFiles(config.resource);
+      }
     },
 
     livereload: function() {
