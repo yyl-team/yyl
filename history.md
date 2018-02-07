@@ -2,7 +2,11 @@
 ## 2.16.0 (2018-01-26)
 * [DEL] 去掉 `yyl` 对 全局 `gulp` 的依赖
 * [DEL] 去掉 `yyl debug`
-* [TODO] 添加版本检测， 如果发现 config 中 version 高于当前构建工具version 则需要提示 用户 update yyl 后再使用
+## 2.15.41 (2018-02-07)
+* [ADD] 新增 `yyl optimize` 时 对项目版本要求的检查
+
+## 2.15.40 (2018-02-07)
+* [FIX] 修复 `config.resource` 为 null 时 构建报错问题
 
 ## 2.15.39 (2018-02-01)
 * [FIX] `server error` bugfix

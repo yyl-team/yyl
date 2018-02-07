@@ -25,7 +25,18 @@ var
         log('msg', 'success', 'build server config finished');
         next(config);
       });
-    })).then((config, next) => { // 检测 localserver.root 是否存在
+
+    }).then((config, next) => { // 检测 版本
+      const yylPkg = util.requireJs(util.path.join(__dirname, '../package.json'));
+      if (util.compareVersion(config.version, yylPkg.version) > 0) {
+        log('msg', 'error', `optimize fail, project require yyl at least ${config.version}`);
+        log('msg', 'warn', 'please update your yyl: npm install yyl -g');
+        log('finish');
+        return;
+      } else {
+        next(config);
+      }
+    }).then((config, next) => { // 检测 localserver.root 是否存在
       log('msg', 'info', `check localserver.root exist: ${config.localserver.root}`);
 
       if (!config.localserver.root) {

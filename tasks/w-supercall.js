@@ -634,12 +634,14 @@ var
       return new Promise((next, err) => {
         const config = util.getConfigSync(op);
 
-        util.copyFiles(config.resource, (er) => {
-          if (er) {
-            return err(er);
-          }
-          next();
-        });
+        if (config.resource) {
+          util.copyFiles(config.resource, (er) => {
+            if (er) {
+              return err(er);
+            }
+            next();
+          });
+        }
       });
     },
 
