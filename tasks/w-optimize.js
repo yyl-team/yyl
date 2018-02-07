@@ -12,7 +12,7 @@ var
     var iArgv = util.makeArray(arguments);
     var iEnv = util.envPrase(iArgv);
 
-    new util.Promise(((next) => {
+    new util.Promise((next) => {
       util.msg.info('build server config start');
       wServer.buildConfig(iEnv.name, iEnv, (err, config) => { // 创建 server 端 config
         if (err) {
@@ -22,7 +22,16 @@ var
         util.msg.success('build server config done');
         next(config);
       });
-    })).then((config, next) => { // 检测 localserver.root 是否存在
+    }).then((config, next) => { // 检测 版本
+      const yylPkg = util.requireJs(util.path.join(__dirname, '../package.json'));
+      if (util.compareVersion(config.version, yylPkg.version) > 0) {
+        util.msg.error(`optimize fail, project require yyl at least ${config.version}`);
+        util.msg.warn('please update your yyl: npm install yyl -g');
+        return;
+      } else {
+        next(config);
+      }
+    }).then((config, next) => { // 检测 localserver.root 是否存在
       util.msg.info('check localserver.root exist:', config.localserver.root);
 
       if (!config.localserver.root) {
