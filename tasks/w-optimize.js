@@ -13,7 +13,7 @@ var
     var iArgv = util.makeArray(arguments);
     var iEnv = util.envPrase(iArgv);
 
-    new util.Promise(((next) => {
+    new util.Promise((next) => {
       log('start', 'server', 'server init...');
       log('msg', 'info', 'build server config start');
       wServer.buildConfig(iEnv.name, iEnv, (err, config) => { // 创建 server 端 config
@@ -25,7 +25,6 @@ var
         log('msg', 'success', 'build server config finished');
         next(config);
       });
-
     }).then((config, next) => { // 检测 版本
       const yylPkg = util.requireJs(util.path.join(__dirname, '../package.json'));
       if (util.compareVersion(config.version, yylPkg.version) > 0) {
@@ -116,7 +115,6 @@ var
         next(config);
       }
     }).then((config) => { // 运行命令
-      console.log('???', config.workflow)
       if (config.workflow == 'gulp-requirejs') {
         log('finish');
         const opzer = util.requireJs(path.join(__dirname, '../init-files', config.workflow, 'index.js'));
