@@ -12,7 +12,7 @@ var serveStatic = require('serve-static');
 var livereload = require('connect-livereload');
 var wRemove = require('./w-remove.js');
 var wProxy = require('./w-proxy.js');
-var log = require('./w-log.js');
+var log = require('./w-log');
 
 var cache = {};
 
@@ -375,7 +375,6 @@ var
       })(config);
 
 
-
       new util.Promise(((next) => {
         if (name) {
           next(config[name]);
@@ -558,6 +557,11 @@ var
 
         cache.server = server;
       }).start();
+    },
+    setLogLevel: function(level) {
+      wServer.profile('logLevel', level);
+      log.update(level);
+      log('msg', 'success', `change logLevel: ${level}`);
     },
     // 服务器目录初始化
     init: function(workflowName, done, forceInstall) {

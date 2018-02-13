@@ -40,23 +40,19 @@ var
 
           util.mkdirSync(path.dirname(dest));
           fs.writeFileSync(dest, concat.content);
-          log('msg', 'concat', [
-            dest,
-            srcs.map((p) => {
-              return util.printIt(p);
-            })
-          ]);
+          log('msg', 'concat', [dest].concat(srcs));
         };
         if (config.concat) {
+          log('msg', 'info', `concat ${op.concatType || ''} start`);
           for (var dist in config.concat) {
             if (config.concat.hasOwnProperty(dist)) {
               concatIt(dist, config.concat[dist]);
             }
           }
-          log('msg', 'success', 'concat finished');
+          log('msg', 'success', `concat ${op.concatType || ''} finished`);
           next();
         } else {
-          log('msg', 'success', 'concat finished, config.concat is null');
+          log('msg', 'success', `concat ${op.concatType || ''} finished, config.concat is null`);
           next();
         }
       });
@@ -165,10 +161,10 @@ var
           },
           print: function() {
             var source = this.source;
-            util.msg.rev([
-              chalk.green('create: ') + source.create.length,
-              chalk.cyan('update: ') + source.update.length,
-              chalk.gray('other: ') + source.other.length
+            log('msg', 'rev', [
+              chalk.green('create: ') + chalk.yellow(source.create.length),
+              chalk.cyan('update: ') + chalk.yellow(source.update.length),
+              chalk.gray('other: ') + chalk.yellow(source.other.length)
             ].join(', '));
           }
         },

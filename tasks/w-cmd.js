@@ -79,6 +79,10 @@ module.exports = function(ctx) {
       events.version();
       break;
 
+    case '--logLevel':
+      events.server.setLogLevel(iArgv[1]);
+      break;
+
 
     case '-h':
     case '--help':

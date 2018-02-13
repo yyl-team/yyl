@@ -13,6 +13,10 @@ var
     var iArgv = util.makeArray(arguments);
     var iEnv = util.envPrase(iArgv);
 
+    if (iEnv.logLevel) {
+      wServer.setLogLevel(iEnv.logLevel);
+    }
+
     new util.Promise((next) => {
       log('start', 'server', 'server init...');
       log('msg', 'info', 'build server config start');
@@ -82,10 +86,11 @@ var
         wProxy.init(iProxyConfig, (err) => {
           if (err) {
             log('msg', 'warn', `proxy init error: ${err.message}`);
+          } else {
+            log('msg', 'success', 'proxy init finished');
           }
-          log('msg', 'success', 'proxy init finished');
           next(config);
-        }, iEnv.logLevel > 1);
+        }, true);
       } else {
         log('msg', 'success', 'no proxy, next');
         next(config);

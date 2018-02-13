@@ -5,6 +5,7 @@ var net = require('net');
 var fs = require('fs');
 var url = require('url');
 
+var log = require('./w-log.js');
 var util = require('./w-util.js');
 
 var MIME_TYPE_MAP = {
@@ -64,7 +65,7 @@ var fn = {
       }
 
       iUrl = lines.join(`\n${  fn.blank(20)}`);
-      util.msg.proxyTo(iUrl);
+      log('msg', 'proxyTo', iUrl);
     },
 
     back: function(status, url) {
@@ -84,7 +85,7 @@ var fn = {
 
       iUrl = lines.join(`\n${  fn.blank(20)}`);
 
-      util.msg.proxyBack(iUrl);
+      log('msg', 'proxyBack', iUrl);
     }
   }
 };
@@ -94,8 +95,6 @@ var
     init: function(op, done, showlog) {
       var
         iPort = op.port || 8887;
-
-      util.msg.silent(!showlog);
 
       var
         server = http.createServer((req, res) => {
@@ -157,7 +156,7 @@ var
               var vRequest = http.request(vOpts, (vRes) => {
                 if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
                   vRes.on('end', () => {
-                    util.msg.proxyBack('proxy local server not found, to remote');
+                    log('msg', 'proxyBack', 'proxy local server not found, to remote');
                     linkit(req.url, iBuffer);
                   });
 
@@ -219,9 +218,11 @@ var
           }
         });
 
-      util.msg.success('proxy server start');
-      util.msg.success('proxy config localRemote:', JSON.stringify(op.localRemote, null, 4));
-      util.msg.success('proxy server port:', iPort);
+      log('msg', 'success', 'proxy server start');
+      Object.keys(op.localRemote).forEach((key) => {
+        log('msg', 'success', `proxy map: ${key} => ${op.localRemote[key]}`);
+      });
+      log('msg', 'success', `proxy server port: ${iPort}`);
 
       server.listen(iPort);
 
@@ -251,9 +252,9 @@ var
 
       server.on('error', (err) => {
         if (err.code == 'EADDRINUSE') {
-          util.msg.error('proxy server start fail:', iPort, 'is occupied, please check');
+          log('msg', 'error', `proxy server start fail: ${iPort} is occupied, please check`);
         } else {
-          util.msg.error('proxy server error', err);
+          log('msg', 'error', ['proxy server error', err]);
         }
       });
 

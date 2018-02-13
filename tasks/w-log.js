@@ -5,6 +5,7 @@ const chalk = require('chalk');
 const cache = {
   timer: {},
   currentType: null,
+  logLevel: -1,
   status: {
     // 'name': {
     //   'error': [],
@@ -26,6 +27,16 @@ util.infoBar.init({
         name: 'SERV',
         color: 'white',
         bgColor: 'bgBlue'
+      },
+      'watch': {
+        name: 'WATC',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'optimize': {
+        name: 'OPTI',
+        color: 'white',
+        bgColor: 'bgRed'
       },
       'rebuild': {
         name: 'REBU',
@@ -73,14 +84,6 @@ const fn = {
       us = cost % 1000;
       return `${min} min ${sec} s ${us} ms`;
     }
-  },
-  numFormat(num) {
-    const numStr = `${num}`;
-    if (numStr.length < 2) {
-      return `0${num}`;
-    } else {
-      return `${num}`;
-    }
   }
 };
 
@@ -100,11 +103,30 @@ const log4Detail = (module, type, argv) => {
       util.msg.success.apply(util.msg, argv);
       break;
 
+
     case 'msg':
       if (!util.msg[type]) {
         type = 'info';
       }
-      util.msg[type].apply(util.msg, argv);
+      switch (type) {
+        case 'optimize':
+        case 'create':
+        case 'del':
+        case 'update':
+          util.msg[type](util.path.relative(util.vars.PROJECT_PATH, argv[0]));
+          break;
+
+        case 'concat':
+          argv = argv.map((src) => {
+            return util.path.relative(util.vars.PROJECT_PATH, src);
+          });
+          util.msg[type](`${argv[0]} <= [${argv.slice(1).join(',')}]`);
+          break;
+
+        default:
+          util.msg[type].apply(util.msg, argv);
+          break;
+      }
       break;
   }
 };
@@ -123,6 +145,8 @@ const log4Base = (module, type, argv) => {
       success: [],
       updates: [],
       dels: [],
+      rev: [],
+      optimizes: [],
       defaultText: argv.join(' ')
     };
   } else {
@@ -140,24 +164,28 @@ const log4Base = (module, type, argv) => {
   const prinitInfo = () => {
     let leftArr = [];
     let rightArr = [];
+    if (iStatus.optimizes.length) {
+      leftArr.push(`${chalk.red('OPTIMIZE')} ${chalk.yellow(iStatus.optimizes.length)}`);
+    }
+
     if (iStatus.adds.length) {
-      leftArr.push(chalk.cyan(`ADD ${fn.numFormat(iStatus.adds.length)}`));
+      leftArr.push(`${chalk.green('ADD')} ${chalk.yellow(iStatus.adds.length)}`);
     }
 
     if (iStatus.updates.length) {
-      leftArr.push(chalk.yellow(`UPDATE ${fn.numFormat(iStatus.updates.length)}`));
+      leftArr.push(`${chalk.cyan('UPDATE')} ${chalk.yellow(iStatus.updates.length)}`);
     }
 
     if (iStatus.dels.length) {
-      leftArr.push(chalk.gray(`DEL ${fn.numFormat(iStatus.dels.length)}`));
+      leftArr.push(`${chalk.gray('DEL')} ${chalk.yellow(iStatus.dels.length)}`);
     }
 
     if (iStatus.errors.length) {
-      rightArr.push(chalk.red(`${fn.numFormat(iStatus.errors.length)} errors`));
+      rightArr.push(chalk.red(`${iStatus.errors.length} errors`));
     }
 
     if (iStatus.warns.length) {
-      rightArr.push(chalk.yellow(`${fn.numFormat(iStatus.warns.length)} warning`));
+      rightArr.push(chalk.yellow(`${iStatus.warns.length} warning`));
     }
 
     util.infoBar.print(cache.currentType, {
@@ -191,7 +219,7 @@ const log4Base = (module, type, argv) => {
           barRight: `cost ${fn.costFormat(cost)}`
         }).end();
         util.infoBar.print('success', {
-          barLeft: iStatus.success.map((a) => a.join(' '))
+          barLeft: iStatus.success.concat(iStatus.rev).map((a) => a.join(' '))
         }).end();
       }
 
@@ -233,6 +261,22 @@ const log4Base = (module, type, argv) => {
           iStatus.warns.push(argv);
           break;
 
+        case 'rev':
+          iStatus.success.push(['rev:'].concat(argv));
+          break;
+
+        case 'optimize':
+          iStatus.optimizes.push(argv);
+          break;
+
+        case 'concat':
+          argv = argv.map((src) => {
+            return util.path.relative(util.vars.PROJECT_PATH, src);
+          });
+          iStatus.success.push([`concat: ${argv[0]}`]);
+          iStatus.success.push([`<= [${argv.slice(1).join(',')}]`]);
+          break;
+
         default:
           break;
       }
@@ -246,10 +290,15 @@ const log = (module, type, argv) => {
   if (argv) {
     iArgv = util.type(argv) !== 'array' ? [argv] : argv;
   }
-  let logLevel = 2; // 临时
-  return logLevel < 2 ?
+  if (!~cache.logLevel) {
+    cache.logLevel = 1;
+  }
+  return cache.logLevel < 2 ?
     log4Base(module, type, iArgv) :
     log4Detail(module, type, iArgv);
+};
+log.update = (lv) => {
+  cache.logLevel = lv;
 };
 
 module.exports = log;

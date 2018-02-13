@@ -45,6 +45,9 @@ const mod = {};
 })();
 
 var fn = {
+  logDest: function(iPath) {
+    log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
+  },
   matchFront: function(iPath, frontPath) {
     return iPath.substr(0, frontPath.length) === frontPath;
   },
@@ -56,7 +59,7 @@ var fn = {
   blankPipe: function(fn) {
     return mod.through.obj((file, enc, next) => {
       if (typeof fn == 'function') {
-        fn();
+        fn(file);
       }
       next(null, file);
     });
@@ -474,13 +477,15 @@ var
       var rStream = stream
         .pipe(mod.plumber())
         .pipe(mod.through.obj(function(file, enc, next) {
-          log('msg', 'optimize', file.relative);
+          log('msg', 'optimize', util.path.join(file.base, file.relative));
           this.push(file);
           next();
         }))
         .pipe(mod.gulpPug({
           pretty: false,
           client: false
+        }).on('error', (er) => {
+          log('msg', 'error', er);
         }))
         .pipe(mod.through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
@@ -560,6 +565,7 @@ var
         }))
         .pipe(mod.prettify({indent_size: 4}));
         // .pipe(gulp.dest(util.joinFormat(config.alias.srcRoot, 'html')));
+
       return rStream;
     },
     html2dest: function(stream) {
@@ -780,7 +786,7 @@ var
       var
         rStream = stream
           .pipe(mod.through.obj(function(file, enc, next) {
-            log('msg', 'optimize', file.relative);
+            log('msg', 'optimize', util.path.join(file.base, file.relative));
             this.push(file);
             next();
           }))
@@ -974,7 +980,7 @@ var
           .pipe(mod.plumber())
           .pipe(mod.filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
           .pipe(mod.through.obj(function(file, enc, next) {
-            log('msg', 'optimize', file.relative);
+            log('msg', 'optimize', util.path.join(file.base, file.relative));
             this.push(file);
             next();
           }))
@@ -1011,8 +1017,7 @@ var
               }
             };
 
-            log('msg', 'optimize', file.relative);
-
+            log('msg', 'optimize', util.path.join(file.base, file.relative));
             mod.requirejs.optimize(optimizeOptions, null, (err) => {
               if (err) {
                 log('msg', 'error', `Optimize js error: ${file.relative}`);
@@ -1077,7 +1082,11 @@ var
             rStream = iStream.pug2dest(gulp.src([iPath], {
               base: util.joinFormat(config.alias.srcRoot)
             }));
-            rStream = rStream.pipe(gulp.dest(config.alias.htmlDest));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
+              }))
+              .pipe(gulp.dest(config.alias.htmlDest));
           }
           break;
 
@@ -1086,7 +1095,11 @@ var
             rStream = iStream.html2dest(gulp.src([iPath], {
               base: util.joinFormat(config.alias.srcRoot, 'html')
             }));
-            rStream = rStream.pipe(gulp.dest(config.alias.htmlDest));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
+              }))
+              .pipe(gulp.dest(config.alias.htmlDest));
           }
           break;
 
@@ -1101,7 +1114,11 @@ var
               base: path.join(config.alias.srcRoot)
             }));
 
-            rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.cssDest, file.relative));
+              }))
+              .pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
           }
           break;
         case 'css':
@@ -1109,7 +1126,11 @@ var
             rStream = iStream.css2dest(gulp.src([iPath], {
               base: util.joinFormat(config.alias.srcRoot, 'css')
             }));
-            rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.cssDest, file.relative));
+              }))
+              .pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
           }
           break;
 
@@ -1118,12 +1139,20 @@ var
             rStream = iStream.requirejs2dest(gulp.src([iPath], {
               base: config.alias.srcRoot
             }));
-            rStream = rStream.pipe(gulp.dest(util.joinFormat(config.alias.jsDest)));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.jsDest, file.relative));
+              }))
+              .pipe(gulp.dest(util.joinFormat(config.alias.jsDest)));
           } else if (inside('js/lib')) { // jslib-task
             rStream = iStream.js2dest(gulp.src([iPath], {
               base: util.joinFormat(config.alias.srcRoot, 'js/lib')
             }));
-            rStream = rStream.pipe(gulp.dest(config.alias.jslibDest));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.jslibDest, file.relative));
+              }))
+              .pipe(gulp.dest(config.alias.jslibDest));
           }
           break;
 
@@ -1133,7 +1162,11 @@ var
               base : util.joinFormat(config.alias.srcRoot, 'js')
             });
 
-            rStream = rStream.pipe(gulp.dest( config.alias.jsDest ));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.jsDest, file.relative));
+              }))
+              .pipe(gulp.dest(config.alias.jsDest));
           }
           break;
 
@@ -1144,12 +1177,20 @@ var
                 base: util.joinFormat( config.alias.srcRoot, 'components')
               }));
 
-              rStream = rStream.pipe(gulp.dest( util.joinFormat( config.alias.imagesDest, 'components')));
+              rStream = rStream
+                .pipe(fn.blankPipe((file) => {
+                  fn.logDest(util.path.join(config.alias.imagesDest, file.relative));
+                }))
+                .pipe(gulp.dest( util.joinFormat( config.alias.imagesDest, 'components')));
             } else if (inside('images')) { // images-base-task
               rStream = iStream.image2dest(gulp.src([iPath], {
                 base: util.joinFormat( config.alias.srcRoot, 'images')
               }));
-              rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.imagesDest)));
+              rStream = rStream
+                .pipe(fn.blankPipe((file) => {
+                  fn.logDest(util.path.join(config.alias.imagesDest, file.relative));
+                }))
+                .pipe(gulp.dest( util.joinFormat(config.alias.imagesDest)));
             }
           }
           break;
@@ -1171,7 +1212,12 @@ gulp.task('pug-to-dest-task', () => {
     util.joinFormat(config.alias.srcRoot, 'components/@(p-)*/*.pug'),
     util.joinFormat(config.alias.srcRoot, 'components/@(p-)*/*.jade')
   ]));
-  rStream = rStream.pipe(gulp.dest(config.alias.htmlDest));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.htmlDest));
+
 
   return rStream;
 });
@@ -1180,7 +1226,11 @@ gulp.task('html-to-dest-task', () => {
   var rStream;
 
   rStream = iStream.html2dest(gulp.src(util.joinFormat(config.alias.srcRoot, 'html/*.html')));
-  rStream = rStream.pipe(gulp.dest(config.alias.htmlDest));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.htmlDest));
 
   return rStream;
 });
@@ -1199,7 +1249,11 @@ gulp.task('sass-component-to-dest', () => {
     })
   );
 
-  rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.cssDest, file.relative));
+    }))
+    .pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
 
   return rStream;
 });
@@ -1212,7 +1266,11 @@ gulp.task('sass-base-to-dest', () => {
     `!${  util.joinFormat(config.alias.srcRoot, 'sass/base/**/*.*')}`
   ]));
 
-  rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.cssDest, file.relative));
+    }))
+    .pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
 
   return rStream;
 });
@@ -1221,7 +1279,11 @@ gulp.task('css-to-dest', () => {
   var rStream;
 
   rStream = iStream.css2dest(gulp.src(path.join(config.alias.srcRoot, 'css', '**/*.css')));
-  rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.cssDest, file.relative));
+    }))
+    .pipe(gulp.dest( util.joinFormat(config.alias.cssDest)));
 
   return rStream;
 });
@@ -1235,7 +1297,11 @@ gulp.task('images-base-task', () => {
   var rStream;
 
   rStream = iStream.image2dest(gulp.src([ util.joinFormat( config.alias.srcRoot, 'images/**/*.*')], {base: util.joinFormat( config.alias.srcRoot, 'images')}));
-  rStream = rStream.pipe(gulp.dest( util.joinFormat(config.alias.imagesDest)));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.imagesDest, file.relative));
+    }))
+    .pipe(gulp.dest( util.joinFormat(config.alias.imagesDest)));
 
   return rStream;
 });
@@ -1246,7 +1312,11 @@ gulp.task('images-component-task', () => {
     base: util.joinFormat( config.alias.srcRoot, 'components')
   }));
 
-  rStream = rStream.pipe(gulp.dest( util.joinFormat( config.alias.imagesDest, 'components')));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.imagesDest, 'components', file.relative));
+    }))
+    .pipe(gulp.dest( util.joinFormat( config.alias.imagesDest, 'components')));
 
   return rStream;
 });
@@ -1271,6 +1341,9 @@ gulp.task('requirejs-task', (done) => {
   }));
 
   rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.jsDest, file.relative));
+    }))
     .pipe(gulp.dest(util.joinFormat(config.alias.jsDest)));
   rStream.on('finish', () => {
     done();
@@ -1280,13 +1353,20 @@ gulp.task('requirejs-task', (done) => {
 gulp.task('jslib-task', () => {
   var rStream;
   rStream = iStream.js2dest(gulp.src(util.joinFormat(config.alias.srcRoot, 'js/lib/**/*.js')));
-  rStream = rStream.pipe(gulp.dest(config.alias.jslibDest));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.jslibDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.jslibDest));
 
   return rStream;
 });
 
 gulp.task('data-task', () => {
   return gulp.src([util.joinFormat(config.alias.srcRoot, 'js/**/*.json')])
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.jsDest, file.relative));
+    }))
     .pipe(gulp.dest( config.alias.jsDest ));
 });
 
@@ -1445,22 +1525,40 @@ const opzer = {
     });
   },
   js: function() {
-    gulp.start('js');
+    log('start', 'optimize');
+    gulp.start('js', () => {
+      log('finish');
+    });
   },
   html: function() {
-    gulp.start('html');
+    log('start', 'optimize');
+    gulp.start('html', () => {
+      log('finish');
+    });
   },
   css: function() {
-    gulp.start('css');
+    log('start', 'optimize');
+    gulp.start('css', () => {
+      log('finish');
+    });
   },
   images: function() {
-    gulp.start('images');
+    log('start', 'optimize');
+    gulp.start('images', () => {
+      log('finish');
+    });
   },
   all: function() {
-    gulp.start('all');
+    log('start', 'optimize');
+    gulp.start('all', () => {
+      log('finish');
+    });
   },
   watch: function() {
-    gulp.start('watch');
+    log('start', 'watch');
+    gulp.start('watch', () => {
+      log('finish');
+    });
   }
 };
 
