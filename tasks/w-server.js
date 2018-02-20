@@ -632,6 +632,10 @@ var
       log.update(level);
       log('msg', 'success', `change logLevel: ${level}`);
     },
+    getLogLevel: function() {
+      const level = wServer.profile('logLevel');
+      log('msg', 'info', `yyl logLevel: ${level}`);
+    },
     // 服务器目录初始化
     init: function(workflowName, done, forceInstall) {
       log('msg', 'info', `init server ${workflowName} start`);

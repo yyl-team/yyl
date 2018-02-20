@@ -80,7 +80,11 @@ module.exports = function(ctx) {
       break;
 
     case '--logLevel':
-      events.server.setLogLevel(iArgv[1]);
+      if (iArgv[1]) {
+        events.server.setLogLevel(iArgv[1]);
+      } else {
+        events.server.getLogLevel();
+      }
       break;
 
 

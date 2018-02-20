@@ -426,11 +426,11 @@ var fn = {
       var rPaths = [];
       if (op.htmlDest == iPath.substr(0, op.htmlDest.length) && path.extname(iPath) == '.html') { // html
         rPaths.push(util.joinFormat(op.srcRoot, 'html', path.basename(iPath)));
-        rPaths.push(util.joinFormat(op.srcRoot, 'components', `p-${  filename}`, `p-${  filename  }.pug`));
+        rPaths.push(util.joinFormat(op.srcRoot, 'components', `p-${filename}`, `p-${filename}.pug`));
       } else if (op.cssDest == iPath.substr(0, op.cssDest.length) && path.extname(iPath) == '.css') { // css
         rPaths.push(util.joinFormat(op.srcRoot, 'css', path.basename(iPath)));
-        rPaths.push(util.joinFormat(op.srcRoot, 'sass', `${filename  }scss`));
-        rPaths.push(util.joinFormat(op.srcRoot, 'components', `p-${  filename}`, `p-${  filename  }.scss`));
+        rPaths.push(util.joinFormat(op.srcRoot, 'sass', `${filename}scss`));
+        rPaths.push(util.joinFormat(op.srcRoot, 'components', `p-${filename}`, `p-${filename}.scss`));
       }
 
       rPaths.forEach((rPath) => {
@@ -779,7 +779,9 @@ var
       var
         rStream = stream
           .pipe(mod.plumber())
-          .pipe(mod.sass({outputStyle: 'nested'}).on('error', mod.sass.logError));
+          .pipe(mod.sass({outputStyle: 'nested'}).on('error', (err) => {
+            log('msg', 'error', err.message);
+          }));
       return rStream;
     },
     sassComponent2css: function(stream) {
@@ -790,7 +792,9 @@ var
             this.push(file);
             next();
           }))
-          .pipe(mod.sass({outputStyle: 'nested'}).on('error', mod.sass.logError))
+          .pipe(mod.sass({outputStyle: 'nested'}).on('error', (err) => {
+            log('msg', 'error', err.message);
+          }))
           .pipe(mod.through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
             var dirname = util.joinFormat(config.alias.srcRoot, 'css');
@@ -1020,8 +1024,7 @@ var
             log('msg', 'optimize', util.path.join(file.base, file.relative));
             mod.requirejs.optimize(optimizeOptions, null, (err) => {
               if (err) {
-                log('msg', 'error', `Optimize js error: ${file.relative}`);
-                log('msg', 'error', err);
+                log('msg', 'error', err.originalError.message);
               }
               cb();
             });
@@ -1443,6 +1446,8 @@ gulp.task('watch', ['all'], () => {
     };
 
   watchit(util.joinFormat(config.alias.srcRoot, '**/**.*'), (file) => {
+    log('clear');
+    log('start', 'watch');
     var runtimeFiles = fn.srcRelative(file.history, {
       base: config.alias.srcRoot,
       jslib: util.joinFormat(config.alias.srcRoot, 'js/lib'),
@@ -1454,6 +1459,7 @@ gulp.task('watch', ['all'], () => {
         mod.runSequence(['concat', 'resource'], 'rev-update', () => {
           supercall.livereload();
           log('msg', 'success', 'watch task finished');
+          log('finish');
         });
       }
     };

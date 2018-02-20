@@ -6,6 +6,7 @@ const cache = {
   timer: {},
   currentType: null,
   logLevel: -1,
+  isEnd: false,
   status: {
     // 'name': {
     //   'error': [],
@@ -96,15 +97,12 @@ const log4Detail = (module, type, argv) => {
       util.msg.info(`[${type}] task start`);
       break;
 
-    case 'clear':
-    case 'clean':
-      util.cleanScreen();
-      break;
-
     case 'finish':
-      cost = new Date() - cache.timer[cache.currentType];
-      argv.push(`[${cache.currentType}] task finished, cost ${fn.costFormat(cost)}`);
-      util.msg.success.apply(util.msg, argv);
+      if (cache.currentType) {
+        cost = new Date() - cache.timer[cache.currentType];
+        argv.push(`[${cache.currentType}] task finished, cost ${fn.costFormat(cost)}`);
+        util.msg.success.apply(util.msg, argv);
+      }
       break;
 
 
@@ -161,7 +159,7 @@ const log4Base = (module, type, argv) => {
     argv = [type].concat(argv);
   }
 
-  if (!iStatus) {
+  if (!iStatus && module != 'clear') {
     return log4Detail(module, type, argv);
   }
 
@@ -201,16 +199,19 @@ const log4Base = (module, type, argv) => {
 
   switch (module) {
     case 'start':
-      util.infoBar.end();
+      if (!cache.isEnd) {
+        util.infoBar.end();
+      }
       prinitInfo();
       break;
 
     case 'clear':
-    case 'clean':
+      cache.isEnd = true;
       util.cleanScreen();
       break;
 
     case 'finish':
+      cache.isEnd = true;
       util.infoBar.end();
       cost = new Date() - cache.timer[cache.currentType];
       if (iStatus.errors.length) {
@@ -240,10 +241,12 @@ const log4Base = (module, type, argv) => {
       break;
 
     case 'end':
+      cache.isEnd = true;
       util.infoBar.end();
       break;
 
     case 'msg':
+      cache.isEnd = false;
       switch (type) {
         case 'create':
           iStatus.adds.push(argv);
