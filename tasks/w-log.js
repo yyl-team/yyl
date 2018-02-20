@@ -304,9 +304,13 @@ const log = (module, type, argv) => {
   if (!~cache.logLevel) {
     cache.logLevel = 1;
   }
-  return cache.logLevel < 2 ?
-    log4Base(module, type, iArgv) :
-    log4Detail(module, type, iArgv);
+  if (cache.logLevel === 0) {
+    return function() {};
+  } else {
+    return cache.logLevel < 2 ?
+      log4Base(module, type, iArgv) :
+      log4Detail(module, type, iArgv);
+  }
 };
 log.update = (lv) => {
   cache.logLevel = lv;

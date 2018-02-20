@@ -627,8 +627,10 @@ var
         cache.server = server;
       }).start();
     },
-    setLogLevel: function(level) {
-      wServer.profile('logLevel', level);
+    setLogLevel: function(level, notSave) {
+      if (!notSave) {
+        wServer.profile('logLevel', level);
+      }
       log.update(level);
       log('msg', 'success', `change logLevel: ${level}`);
     },
@@ -675,8 +677,8 @@ var
 
           switch (workflowName) {
             case 'gulp-requirejs':
-            case 'rollup-babel':
-              files = ['package.json', 'gulpfile.js'];
+            case 'rollup':
+              files = ['package.json'];
               break;
 
 

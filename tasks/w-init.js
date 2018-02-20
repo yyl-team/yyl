@@ -27,6 +27,9 @@ var
       });
     },
     init: function(op) {
+      if (op.silent) {
+        wServer.setLogLevel(0, true);
+      }
       // 信息收集
       new util.Promise(((next) => {
         var data = {};

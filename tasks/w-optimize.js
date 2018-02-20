@@ -12,7 +12,11 @@ var
     var iEnv = util.envPrase(iArgv);
 
     if (iEnv.logLevel) {
-      wServer.setLogLevel(iEnv.logLevel);
+      wServer.setLogLevel(iEnv.logLevel, true);
+    }
+
+    if (iEnv.silent) {
+      wServer.setLogLevel(0, true);
     }
 
     new util.Promise((next) => {
