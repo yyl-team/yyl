@@ -49,26 +49,30 @@ var
         next(config);
       }
     }).then((config, next) => { // server init
-      if (config.localserver.port) {
-        util.checkPortUseage(config.localserver.port, (canUse) => {
-          if (canUse) {
-            util.runCMD('yyl server start', () => {
+      if (/watch/.test(iArgv[0])) {
+        if (config.localserver.port) {
+          util.checkPortUseage(config.localserver.port, (canUse) => {
+            if (canUse) {
+              util.runCMD('yyl server start', () => {
+                next(config);
+              }, util.vars.PROJECT_PATH, true, true);
+            } else {
+              log('msg', 'warn', `port ${config.localserver.port} is occupied, yyl server start failed`);
               next(config);
-            }, util.vars.PROJECT_PATH, true, true);
-          } else {
-            log('msg', 'warn', `port ${config.localserver.port} is occupied, localserver will not initial`);
-            next(config);
-          }
-        });
+            }
+          });
+        } else {
+          log('msg', 'info', 'config.localserver.port is not setted, next');
+          next(config);
+        }
       } else {
-        log('msg', 'warn', 'config.localserver.port is not setted, localserver will not initial');
         next(config);
       }
-      log('msg', 'info', `check localserver.root exist: ${config.localserver.root}`);
     }).then((config) => { // 运行命令
-      if (config.workflow == 'gulp-requirejs') {
+      const initPath = util.path.join(__dirname, '../init-files', config.workflow, 'index.js');
+      if (fs.existsSync(initPath)) {
         log('finish');
-        const opzer = util.requireJs(path.join(__dirname, '../init-files', config.workflow, 'index.js'));
+        const opzer = require(initPath);
         opzer(config, iArgv[0], iEnv);
       } else {
         log('msg', 'info', 'run cmd start');

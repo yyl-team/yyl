@@ -23,14 +23,14 @@ const MODULE_MAP = {
   'replacePath': 'gulp-replace-path',
 
   'babel': 'gulp-babel',
+  'rollup': 'rollup',
   'rollupBabel': 'rollup-plugin-babel',
   'rollupCommonjs': 'rollup-plugin-commonjs',
-  'rollup': 'gulp-rollup-stream',
   'rollupAlias': 'rollup-plugin-alias',
 
   'inlinesource': 'gulp-inline-source',
   'filter': 'gulp-filter',
-  'gulpPug': 'gulp-pug',
+  'gulpJade': 'gulp-jade',
   'plumber': 'gulp-plumber',
   'runSequence': 'run-sequence',
   'prettify': 'gulp-prettify',
@@ -38,13 +38,12 @@ const MODULE_MAP = {
   'watch': 'gulp-watch'
 };
 const mod = {};
-
+const NODE_MODULE_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'rollup/node_modules');
 // 组件引入
 (function() {
-  const nodeModulePath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs/node_modules');
   for ( let key in MODULE_MAP ) {
     if (MODULE_MAP.hasOwnProperty(key)) {
-      mod[key] = require(util.path.join(nodeModulePath, MODULE_MAP[key]));
+      mod[key] = require(util.path.join(NODE_MODULE_PATH, MODULE_MAP[key]));
     }
   }
   mod.runSequence = mod.runSequence.use(gulp);
@@ -168,10 +167,8 @@ var fn = {
 
           rs.forEach((rPath) => {
             if (isPage(rPath)) {
-              // console.log('findit('+ iPath +')','=== run 1', rPath);
               r.push(rPath);
             } else {
-              // console.log('findit('+ iPath +')','=== run findit('+ rPath +')');
               r = r.concat(findit(rPath));
             }
             // 去重
@@ -487,7 +484,7 @@ var
           this.push(file);
           next();
         }))
-        .pipe(mod.gulpPug({
+        .pipe(mod.gulpJade({
           pretty: false,
           client: false
         }).on('error', (er) => {
@@ -1005,33 +1002,40 @@ var
     // - image task
     // + js task
     rollup2dest: function(stream) {
-      var iConfig = fn.taskInit();
-      if (!iConfig) {
-        return;
-      }
-
       // 更新 alias
-
       var rStream = stream
         .pipe(mod.filter('**/*.js'))
         .pipe(mod.plumber())
         .pipe(mod.jshint.reporter('default'))
         .pipe(mod.jshint())
-        .pipe(mod.through.obj(function(file, enc, next) {
-          util.msg.optimize('js  ', file.relative);
-          this.push(file);
-          next();
-        }))
-        .pipe(mod.rollup({
-          plugins: [
-            mod.rollupCommonjs(),
-            mod.rollupBabel(),
-            mod.rollupAlias(iConfig.alias)
-          ],
-          format: 'umd'
+        .pipe(mod.through.obj(function(file, enc, cb) {
+          const self = this;
+          const iPath = util.path.join(file.base, file.relative);
+          log('msg', 'optimize', util.path.join(file.base, file.relative));
+          mod.rollup.rollup({
+            entry: iPath,
+            plugins: [
+              mod.rollupCommonjs(),
+              mod.rollupBabel(),
+              mod.rollupAlias(config.alias)
+            ]
+          }).then((bundle) => {
+            const result = bundle.generate({
+              moduleName: 'main',
+              format: 'umd'
+            });
+            file.contents = Buffer.from(result.code, 'utf-8');
+            self.push(file);
+            cb();
+          }).catch((er) => {
+            log('msg', 'error', er);
+            cb();
+          });
         }))
         .pipe(mod.babel({
-          presets: ['babel-preset-es2015'].map(require.resolve)
+          presets: ['babel-preset-es2015'].map((str) => {
+            return util.path.join(util.path.relative(__dirname, NODE_MODULE_PATH), str);
+          })
         }))
         .pipe(iEnv.isCommit?mod.uglify(): fn.blankPipe())
         .pipe(mod.rename((path) => {
@@ -1085,7 +1089,7 @@ var
       switch (iExt) {
         case 'jade':
           if (inside('components')) { // pug-to-dest-task
-            rStream = iStream.jade2dest(gulp.src([iPath], {
+            rStream = iStream.pug2dest(gulp.src([iPath], {
               base: util.joinFormat(config.alias.srcRoot)
             }));
             rStream = rStream
