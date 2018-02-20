@@ -32,13 +32,12 @@ const MODULE_MAP = {
   'watch': 'gulp-watch'
 };
 const mod = {};
-
+const NODE_MODULE_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs/node_modules');
 // 组件引入
 (function() {
-  const nodeModulePath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs/node_modules');
   for ( let key in MODULE_MAP ) {
     if (MODULE_MAP.hasOwnProperty(key)) {
-      mod[key] = require(util.path.join(nodeModulePath, MODULE_MAP[key]));
+      mod[key] = require(util.path.join(NODE_MODULE_PATH, MODULE_MAP[key]));
     }
   }
   mod.runSequence = mod.runSequence.use(gulp);
@@ -162,10 +161,8 @@ var fn = {
 
           rs.forEach((rPath) => {
             if (isPage(rPath)) {
-              // console.log('findit('+ iPath +')','=== run 1', rPath);
               r.push(rPath);
             } else {
-              // console.log('findit('+ iPath +')','=== run findit('+ rPath +')');
               r = r.concat(findit(rPath));
             }
             // 去重
@@ -466,6 +463,7 @@ var REG = {
   CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
   CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
   CSS_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
+  CSS_IS_ABSLURE: /^\//,
 
   IS_HTTP: /^(http[s]?:)|(\/\/\w)/
 };
@@ -814,7 +812,7 @@ var
                 return str;
               }
 
-              if (iPath.match(REG.IS_HTTP)) {
+              if (iPath.match(REG.IS_HTTP) || iPath.match(REG.CSS_IS_ABSLURE)) {
                 return str;
               }
 

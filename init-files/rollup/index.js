@@ -469,6 +469,7 @@ var REG = {
   CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
   CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
   CSS_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
+  CSS_IS_ABSLURE: /^\//,
 
   IS_HTTP: /^(http[s]?:)|(\/\/\w)/
 };
@@ -817,7 +818,7 @@ var
                 return str;
               }
 
-              if (iPath.match(REG.IS_HTTP)) {
+              if (iPath.match(REG.IS_HTTP) || iPath.match(REG.CSS_IS_ABSLURE)) {
                 return str;
               }
 
@@ -833,7 +834,7 @@ var
                 return str;
               } else {
                 log('msg', 'warn', `css url replace error, ${path.basename(file.history.toString())}`);
-                log('msg', 'warn', `    path not found: ${util.joinFormat(dirname, rPath)}`);
+                log('msg', 'warn', `    path not found: ${util.path.relative(util.vars.PROJECT_PATH, util.joinFormat(dirname, rPath))}`);
                 return str;
               }
             };
@@ -904,10 +905,18 @@ var
 
             // 复制
             if (Object.keys(copyPath).length) {
-              util.copyFiles(copyPath, () => {
-                log('msg', 'success', `copy file finished ${copyPath}`);
+              util.copyFiles(copyPath, (err, files) => {
+                if (err) {
+                  log('msg', 'error', ['copy file error', err]);
+                  return next();
+                }
+                files.forEach((file) => {
+                  log('msg', 'create', file);
+                });
+
+                log('msg', 'info', 'copy file finished');
                 next();
-              }, null, null, config.alias.dirname);
+              }, null, null, config.alias.dirname, true);
             } else {
               next();
             }
