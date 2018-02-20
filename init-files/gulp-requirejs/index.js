@@ -1498,7 +1498,7 @@ gulp.task('watch', ['all'], () => {
 
 // + all
 gulp.task('all', (done) => {
-  mod.runSequence(['js', 'css', 'images', 'html', 'resource'], 'concat', 'rev-build',  () => {
+  mod.runSequence(['js', 'css', 'images', 'html', 'resource'], 'rev-build',  () => {
     if (!iEnv.silent) {
       util.pop('all task done');
     }

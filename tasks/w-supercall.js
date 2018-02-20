@@ -42,6 +42,7 @@ var
           fs.writeFileSync(dest, concat.content);
           log('msg', 'concat', [dest].concat(srcs));
         };
+        const taskType = op.concatType ? `${op.concatType} ` : '';
         if (config.concat) {
           log('msg', 'info', `concat ${op.concatType || ''} start`);
           for (var dist in config.concat) {
@@ -49,10 +50,10 @@ var
               concatIt(dist, config.concat[dist]);
             }
           }
-          log('msg', 'success', `concat ${op.concatType || ''} finished`);
+          log('msg', 'success', `concat ${taskType}finished`);
           next();
         } else {
-          log('msg', 'success', `concat ${op.concatType || ''} finished, config.concat is null`);
+          log('msg', 'success', `concat ${taskType}finished, config.concat is null`);
           next();
         }
       });
