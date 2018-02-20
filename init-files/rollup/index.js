@@ -623,10 +623,17 @@ var
           // 复制
           if (Object.keys(copyPath).length) {
             log('msg', 'info', `copy file start: ${copyPath}`);
-            util.copyFiles(copyPath, () => {
-              log('msg', 'success', `copy file finished: ${copyPath}`);
+            util.copyFiles(copyPath, (err, files) => {
+              if (err) {
+                log('msg', 'error', ['copy file error', err]);
+              }
+              files.forEach((file) => {
+                log('msg', 'create', file);
+              });
+
+              log('msg', 'info', 'copy file finished');
               next();
-            });
+            }, null, null, config.alias.dirname, true);
           } else {
             next();
           }
