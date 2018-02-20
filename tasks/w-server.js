@@ -83,6 +83,9 @@ var
         }
         util.checkPortUseage(setting.port, (canUse) => {
           if (canUse) {
+            if (!fs.existsSync(setting.root)) {
+              util.mkdirSync(setting.root);
+            }
             wServer.start(setting.root, setting.port, false, () => {
               log('finish', 'local server init finished');
               next(config);
@@ -100,19 +103,35 @@ var
         } else if (iEnv.proxy) {
           setting.port = 8887;
         }
+
         if (setting.port) {
           log('start', 'proxy', 'proxy server init...');
+
+          if (config.commit.hostname) {
+            if (!setting.localRemote) {
+              setting.localRemote = {};
+            }
+            var key = config.commit.hostname.replace(/[\\/]$/, '');
+
+            // 处理 hostname 中 不带 协议的情况
+            if (/^[/]{2}\w/.test(key)) {
+              key = `http:${key}`;
+            }
+
+            var val = util.joinFormat(`http://127.0.0.1:${config.localserver.port}`);
+            setting.localRemote[key] = val;
+          }
+
           util.checkPortUseage(setting.port, (canUse) => {
-            if (!canUse) {
-              log('msg', 'error', `port ${setting.port} is occupied, please check`);
-              log('finish', 'proxy server init finished');
-            } else {
+            if (canUse) {
               wProxy.init(setting, () => {
                 log('finish', 'proxy server init finished');
-              }, !iEnv.silent);
+              });
+            } else {
+              log('msg', 'error', `port ${setting.port} is occupied, please check`);
+              log('finish', 'proxy server init finished');
             }
           });
-
         }
       }).start();
     },
