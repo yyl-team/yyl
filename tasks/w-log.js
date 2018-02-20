@@ -91,10 +91,14 @@ const log4Detail = (module, type, argv) => {
   let cost;
   switch (module) {
     case 'start':
-      util.cleanScreen();
       cache.timer[type] = new Date();
       cache.currentType = type;
       util.msg.info(`[${type}] task start`);
+      break;
+
+    case 'clear':
+    case 'clean':
+      util.cleanScreen();
       break;
 
     case 'finish':
@@ -198,8 +202,12 @@ const log4Base = (module, type, argv) => {
   switch (module) {
     case 'start':
       util.infoBar.end();
-      util.cleanScreen();
       prinitInfo();
+      break;
+
+    case 'clear':
+    case 'clean':
+      util.cleanScreen();
       break;
 
     case 'finish':

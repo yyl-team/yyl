@@ -46,23 +46,73 @@ var
     },
 
     start: function() {
-      var iEnv = util.envPrase(arguments);
+      const iEnv = util.envPrase(arguments);
 
+      log('clear');
       new util.Promise((next) => {
         log('start', 'server', 'local server init...');
-        wServer.start(iEnv.path, null, false, () => {
-          log('finish', 'local server init finished');
-          next();
+        const configPath = util.path.join(util.vars.PROJECT_PATH, 'config.js');
+        if (fs.existsSync(configPath)) {
+          const config = util.requireJs(configPath);
+          if (config) {
+            log('msg', 'info', 'use local config setting');
+            wServer.buildConfig(iEnv.name, iEnv, (err, iConfig) => {
+              if (err) {
+                log('msg', 'error', err);
+                next(null);
+              } else {
+                next(iConfig);
+              }
+            });
+          } else {
+            log('msg', 'info', 'local config parse fail, not to use');
+            next(null);
+          }
+        } else {
+          log('msg', 'info', 'local config is not exist, not to use');
+          next(null);
+        }
+      }).then((config, next) => {
+        let setting = {};
+        if (config && config.localserver) {
+          setting = config.localserver;
+        }
+
+        if (iEnv.path) {
+          setting.root = iEnv.path;
+        }
+        util.checkPortUseage(setting.port, (canUse) => {
+          if (canUse) {
+            wServer.start(setting.root, setting.port, false, () => {
+              log('finish', 'local server init finished');
+              next(config);
+            });
+          } else {
+            log('msg', 'error', `port ${setting.port} is occupied, please check`);
+            log('finish', 'local server init finished');
+            next(config);
+          }
         });
-      }).then(() => {
-        if (iEnv.proxy) {
+      }).then((config) => {
+        let setting = {};
+        if (config.proxy) {
+          setting = config.proxy;
+        } else if (iEnv.proxy) {
+          setting.port = 8887;
+        }
+        if (setting.port) {
           log('start', 'proxy', 'proxy server init...');
-          wProxy.init({
-            port: 8887,
-            function() {
+          util.checkPortUseage(setting.port, (canUse) => {
+            if (!canUse) {
+              log('msg', 'error', `port ${setting.port} is occupied, please check`);
               log('finish', 'proxy server init finished');
+            } else {
+              wProxy.init(setting, () => {
+                log('finish', 'proxy server init finished');
+              }, !iEnv.silent);
             }
-          }, !iEnv.silent);
+          });
+
         }
       }).start();
     },
