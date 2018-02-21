@@ -44,6 +44,9 @@ const NODE_MODULE_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-re
 })();
 
 var fn = {
+  finishCallback: function() {
+    return global.YYL_RUN_CALLBACK && global.YYL_RUN_CALLBACK();
+  },
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
   },
@@ -621,14 +624,14 @@ var
             util.copyFiles(copyPath, (err, files) => {
               if (err) {
                 log('msg', 'error', ['copy file error', err]);
-                return next();
               }
               files.forEach((file) => {
                 log('msg', 'create', file);
               });
+
               log('msg', 'info', 'copy file finished');
               next();
-            });
+            }, null, null, config.alias.dirname, true);
           } else {
             next();
           }
@@ -1525,74 +1528,101 @@ gulp.task('watchAll', ['watch']);
 
 const opzer = {
   help: function() {
-    util.help({
-      usage: 'yyl',
-      commands: {
-        'all': 'optimize task',
-        'js': 'optimize task',
-        'css': 'optimize task',
-        'images': 'optimize task',
-        'watch': 'watch task'
-      },
-      options: {
-        '--remote' : 'use remote revfile',
-        '--sub': 'svn branches',
-        '--nooptimize': 'commit the project to svn without optimize',
-        '--name': 'name of projects',
-        '--config': 'use the val config path'
-      }
+    return new Promise((next) => {
+      util.help({
+        usage: 'yyl',
+        commands: {
+          'all': 'optimize task',
+          'js': 'optimize task',
+          'css': 'optimize task',
+          'images': 'optimize task',
+          'watch': 'watch task'
+        },
+        options: {
+          '--remote' : 'use remote revfile',
+          '--sub': 'svn branches',
+          '--nooptimize': 'commit the project to svn without optimize',
+          '--name': 'name of projects',
+          '--config': 'use the val config path'
+        }
+      });
+      next();
     });
   },
   js: function() {
-    log('start', 'optimize');
-    gulp.start('js', () => {
-      log('finish');
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('js', () => {
+        log('finish');
+        next();
+      });
     });
   },
   html: function() {
-    log('start', 'optimize');
-    gulp.start('html', () => {
-      log('finish');
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('html', () => {
+        log('finish');
+        next();
+      });
     });
   },
   css: function() {
-    log('start', 'optimize');
-    gulp.start('css', () => {
-      log('finish');
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('css', () => {
+        log('finish');
+        next();
+      });
     });
   },
   images: function() {
-    log('start', 'optimize');
-    gulp.start('images', () => {
-      log('finish');
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('images', () => {
+        log('finish');
+        next();
+      });
     });
   },
   all: function() {
-    log('start', 'optimize');
-    gulp.start('all', () => {
-      log('finish');
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('all', () => {
+        log('finish');
+        next();
+      });
     });
   },
   watch: function() {
-    log('start', 'watch');
-    gulp.start('watch', () => {
-      log('finish');
+    return new Promise((next) => {
+      log('start', 'watch');
+      gulp.start('watch', () => {
+        log('finish');
+        next();
+      });
     });
   }
 };
 
 module.exports = function(iconfig, cmd, op) {
-  config = iconfig;
-  iEnv = op;
-  if (iEnv.ver == 'remote') {
-    iEnv.remote = true;
-  }
+  return new Promise((next) => {
+    config = iconfig;
+    iEnv = op;
+    if (iEnv.ver == 'remote') {
+      iEnv.remote = true;
+    }
 
-  iEnv.remotePath = iEnv.remote || iEnv.isCommit ? config.commit.hostname : '/';
+    iEnv.remotePath = iEnv.remote || iEnv.isCommit ? config.commit.hostname : '/';
 
-  if ( cmd in opzer ) {
-    opzer[cmd](iEnv);
-  } else {
-    opzer.help();
-  }
+    if ( cmd in opzer ) {
+      opzer[cmd](iEnv).then(() => {
+        next();
+      });
+    } else {
+      opzer.help().then(() => {
+        next();
+      });
+    }
+  });
 };

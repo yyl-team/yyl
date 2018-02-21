@@ -48,6 +48,7 @@ const fn = {
 
 fn.frag.destory();
 
+/**
 describe('yyl init test', () => {
   var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
   var copyTask = function(workflow, init) {
@@ -126,24 +127,6 @@ describe('yyl init test', () => {
       copyTask(workflow, init);
     });
   });
-
-
-
-  // it('yyl init --doc svn test', function(done){
-  //     // TODO
-  //     done();
-  // });
-
-  // it('yyl init --platform moble test', function(done){
-  //     // TODO
-  //     done();
-  // });
-
-
-  // it('yyl init --name any test', function(done){
-  //     // TODO
-  //     done();
-  // });
 });
 
 describe('yyl all test', () => {
@@ -304,6 +287,7 @@ describe('yyl all test', () => {
     });
   });
 });
+**/
 
 describe('yyl all --config test', () => {
   const WORKFLOW_PATH = path.join(__dirname, 'workflow-test/gulp-requirejs');
@@ -329,12 +313,11 @@ describe('yyl all --config test', () => {
     }).then(() => { // 项目执行
       yyl.run(`all --silent --config ${ABSOLUTE_CONFIG_PATH}`, () => {
         var serverConfig = util.getConfigSync({});
-        var
-          localConfig = util.extend(
-            true,
-            util.requireJs(path.join(FRAG_WORKFLOW_PATH, 'config.test.js')),
-            util.requireJs(path.join(FRAG_WORKFLOW_PATH, './config.test.mine.js'))
-          );
+        var localConfig = util.extend(
+          true,
+          util.requireJs(path.join(FRAG_WORKFLOW_PATH, 'config.test.js')),
+          util.requireJs(path.join(FRAG_WORKFLOW_PATH, './config.test.mine.js'))
+        );
         var serverAlias = serverConfig.alias;
         var localAlias = localConfig.alias;
         Object.keys(serverAlias).forEach((key) => {

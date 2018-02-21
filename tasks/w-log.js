@@ -296,6 +296,19 @@ const log4Base = (module, type, argv) => {
   }
 };
 
+const log4Silent = (module, type, argv) => {
+  switch (module) {
+    case 'msg':
+      switch (type) {
+        case 'warn':
+        case 'error':
+          util.msg[type].apply(util.msg, argv);
+          break;
+      }
+      break;
+  }
+};
+
 const log = (module, type, argv) => {
   let iArgv = [];
   if (argv) {
@@ -304,12 +317,13 @@ const log = (module, type, argv) => {
   if (!~cache.logLevel) {
     cache.logLevel = 1;
   }
-  if (cache.logLevel === 0) {
-    return function() {};
-  } else {
-    return cache.logLevel < 2 ?
-      log4Base(module, type, iArgv) :
-      log4Detail(module, type, iArgv);
+  switch (cache.logLevel) {
+    case 0:
+      return log4Silent(module, type, iArgv);
+    case 1:
+      return log4Base(module, type, iArgv);
+    case 2:
+      return log4Detail(module, type, iArgv);
   }
 };
 log.update = (lv) => {

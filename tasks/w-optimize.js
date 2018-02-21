@@ -16,7 +16,7 @@ var
     }
 
     if (iEnv.silent) {
-      wServer.setLogLevel(0, true);
+      wServer.setLogLevel(2, true);
     }
 
     new util.Promise((next) => {
@@ -77,7 +77,11 @@ var
       if (fs.existsSync(initPath)) {
         log('finish');
         const opzer = require(initPath);
-        opzer(config, iArgv[0], iEnv);
+        opzer(config, iArgv[0], iEnv).then(() => {
+          if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
+            setTimeout(global.YYL_RUN_CALLBACK, 0);
+          }
+        });
       } else {
         log('msg', 'info', 'run cmd start');
 
