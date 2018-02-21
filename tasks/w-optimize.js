@@ -16,7 +16,7 @@ var
     }
 
     if (iEnv.silent) {
-      wServer.setLogLevel(2, true);
+      wServer.setLogLevel(0, true);
     }
 
     new util.Promise((next) => {

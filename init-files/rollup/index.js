@@ -1036,12 +1036,16 @@ var
               mod.rollupAlias(config.alias)
             ]
           }).then((bundle) => {
-            const result = bundle.generate({
+            bundle.generate({
               format: 'umd'
+            }).then((result) => {
+              file.contents = Buffer.from(result.code, 'utf-8');
+              self.push(file);
+              cb();
+            }).catch((er) => {
+              log('msg', 'error', er);
+              cb();
             });
-            file.contents = Buffer.from(result.code, 'utf-8');
-            self.push(file);
-            cb();
           }).catch((er) => {
             log('msg', 'error', er);
             cb();
@@ -1049,7 +1053,7 @@ var
         }))
         .pipe(mod.babel({
           presets: ['babel-preset-es2015'].map((str) => {
-            return util.path.join(util.path.relative(__dirname, NODE_MODULE_PATH), str);
+            return require(util.path.join(util.path.relative(__dirname, NODE_MODULE_PATH), str));
           })
         }))
         .pipe(iEnv.isCommit?mod.uglify(): fn.blankPipe())

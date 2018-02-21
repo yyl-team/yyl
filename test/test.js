@@ -48,7 +48,6 @@ const fn = {
 
 fn.frag.destory();
 
-/**
 describe('yyl init test', () => {
   var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
   var copyTask = function(workflow, init) {
@@ -287,6 +286,7 @@ describe('yyl all test', () => {
     });
   });
 });
+/**
 **/
 
 describe('yyl all --config test', () => {
@@ -294,7 +294,7 @@ describe('yyl all --config test', () => {
   const COMMON_PATH = path.join(__dirname, 'workflow-test/commons');
   const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
   const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
-  const ABSOLUTE_CONFIG_PATH = util.path.join(WORKFLOW_PATH, 'config.test.js');
+  const ABSOLUTE_CONFIG_PATH = util.path.join(FRAG_WORKFLOW_PATH, 'config.test.js');
   const RELATIVE_CONFIG_PATH = 'config.test.js';
 
   it(`yyl all --config ${ABSOLUTE_CONFIG_PATH} test`, function(done) {
@@ -321,8 +321,13 @@ describe('yyl all --config test', () => {
         var serverAlias = serverConfig.alias;
         var localAlias = localConfig.alias;
         Object.keys(serverAlias).forEach((key) => {
-          expect(util.path.join(serverAlias[key]))
-            .to.equal(util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]));
+          expect({
+            key: key,
+            val: util.path.join(serverAlias[key])
+          }).to.deep.equal({
+            key: key,
+            val: util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]).replace(/\/$/, '')
+          });
         });
         fn.frag.destory();
         done();
@@ -357,7 +362,7 @@ describe('yyl all --config test', () => {
         var localAlias = localConfig.alias;
         Object.keys(serverAlias).forEach((key) => {
           expect(util.path.join(serverAlias[key]))
-            .to.equal(util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]));
+            .to.equal(util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]).replace(/\/$/, ''));
         });
         fn.frag.destory();
         done();
