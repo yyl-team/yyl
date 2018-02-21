@@ -327,7 +327,6 @@ var
           return done(`read config.js with error: ${er.message}`);
         }
       }
-      console.log('===', config.workflow)
 
       if (!config) {
         return done('nothing in config.js');

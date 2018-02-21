@@ -76,7 +76,7 @@ var
       const initPath = util.path.join(__dirname, '../init-files', config.workflow, 'index.js');
       if (fs.existsSync(initPath)) {
         log('finish');
-        const opzer = require(initPath);
+        const opzer = util.requireJs(initPath);
         opzer(config, iArgv[0], iEnv).then(() => {
           if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
             setTimeout(global.YYL_RUN_CALLBACK, 0);
