@@ -8,13 +8,11 @@ const util = require('../../tasks/w-util.js');
 let config;
 
 
-const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue/config.js');
+const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue2/config.js');
 
 if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
 }
-
-
 
 
 const webpackconfig = {
