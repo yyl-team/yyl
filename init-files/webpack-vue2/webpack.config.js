@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ManifestPlugin = require('webpack-manifest-plugin');
 const util = require('../../tasks/w-util.js');
 let config;
 
@@ -71,7 +70,7 @@ const webpackconfig = {
   })(),
   output: {
     path: config.alias.jsDest,
-    filename: '[name]-[chunkhash:8].js',
+    filename: '[name].js',
     publicPath: util.joinFormat(
       config.dest.basePath,
       path.relative(
@@ -132,7 +131,7 @@ const webpackconfig = {
           name: util.joinFormat(
             path.relative(
               config.alias.jsDest,
-              path.join(config.alias.imagesDest, '[name]-[hash:8].[ext]')
+              path.join(config.alias.imagesDest, '[name].[ext]')
             )
           )
         }
@@ -175,19 +174,13 @@ const webpackconfig = {
       filename: util.joinFormat(
         path.relative(
           config.alias.jsDest,
-          path.join(config.alias.cssDest, '[name]-[chunkhash:8].css')
+          path.join(config.alias.cssDest, '[name].css')
         )
       )
     })
   ]
 };
 
-if (config.commit.revAddr) {
-  webpackconfig.plugins.push(new ManifestPlugin({
-    fileName: path.relative(config.alias.jsDest, path.join(config.alias.revDest, 'rev-manifest.json')),
-    basePath: ''
-  }));
-}
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输出
   const bootPath = util.joinFormat(config.alias.srcRoot, 'boot');

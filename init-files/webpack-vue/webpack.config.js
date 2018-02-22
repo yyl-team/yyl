@@ -18,11 +18,11 @@ if (fs.existsSync(CONFIG_PATH)) {
 
 const webpackconfig = {
   entry: (function() {
-    var iSrcRoot = path.isAbsolute(config.alias.srcRoot) ?
+    const iSrcRoot = path.isAbsolute(config.alias.srcRoot) ?
       config.alias.srcRoot :
       path.join(__dirname, config.alias.srcRoot);
 
-    var r = {
+    let r = {
       // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
     };
 

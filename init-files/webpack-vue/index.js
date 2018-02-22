@@ -18,19 +18,12 @@ const watch = require('gulp-watch');
 let config;
 let iEnv;
 
-// const fn = {
-//   logDest: function(iPath) {
-//     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
-//   },
-//   blankPipe: function(fn) {
-//     return mod.through.obj((file, enc, next) => {
-//       if (typeof fn == 'function') {
-//         fn(file);
-//       }
-//       next(null, file);
-//     });
-//   }
-// };
+const fn = {
+  logDest: function(iPath) {
+    log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
+  }
+};
+
 
 // + webpack
 gulp.task('webpack', (done) => {
@@ -93,6 +86,18 @@ gulp.task('webpack', (done) => {
       log('msg', 'success', 'webpack run pass');
     }
     log('msg', 'info', stats.toString());
+
+    const compilation = stats.compilation;
+    const basePath = compilation.outputOptions.path;
+    Object.keys(compilation.assets).forEach((key) => {
+      fn.logDest(util.path.join(basePath, key));
+    });
+    compilation.errors.forEach((err) => {
+      log('msg', 'error', err);
+    });
+    compilation.warnings.forEach((warn) => {
+      log('msg', 'warn', warn);
+    });
     done();
   });
 });
