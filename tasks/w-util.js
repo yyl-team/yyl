@@ -13,6 +13,9 @@ util = util.extend(true, util, {
     // 本程序根目录
     BASE_PATH: path.join(__dirname, '..'),
 
+    // init-files path
+    INIT_FILE_PATH: path.join(__dirname, '../init-files'),
+
     IS_WINDOWS: process.platform == 'win32',
 
     // svn rev 文件保留多少个版本

@@ -8,6 +8,7 @@ var util = require('./w-util.js');
 var wServer = require('./w-server');
 var log = require('./w-log.js');
 
+
 var
   events = {
     help: function() {
@@ -266,6 +267,7 @@ var
           next(data);
         }
       }).then((data) => {
+        log('clear');
         log('start', 'init');
         var parentDir = util.joinFormat(util.vars.PROJECT_PATH).split('/').pop();
         var frontPath = '';
@@ -448,13 +450,14 @@ var
         };
 
         if (data.workflow) {
-          padding += 2;
-          initClientFlow( data.platform, data.workflow, data.init, paddingCheck);
-          if (!op.nonpm) {
-            wServer.init(data.workflow, paddingCheck);
-          } else {
-            paddingCheck();
-          }
+          padding += 1;
+          initClientFlow( data.platform, data.workflow, data.init, () => {
+            if (!op.nonpm) {
+              wServer.init(data.workflow, paddingCheck);
+            } else {
+              paddingCheck();
+            }
+          });
         }
       }).start();
     }

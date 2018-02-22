@@ -1,5 +1,4 @@
 'use strict';
-var path = require('path');
 var fs = require('fs');
 
 var util = require('./w-util.js');
@@ -13,10 +12,6 @@ var
 
     if (iEnv.logLevel) {
       wServer.setLogLevel(iEnv.logLevel, true);
-    }
-
-    if (iEnv.silent) {
-      wServer.setLogLevel(0, true);
     }
 
     new util.Promise((next) => {
@@ -57,7 +52,7 @@ var
         if (config.localserver.port) {
           util.checkPortUseage(config.localserver.port, (canUse) => {
             if (canUse) {
-              util.runCMD('yyl server start', () => {
+              util.runCMD('yyl server start --silent', () => {
                 next(config);
               }, util.vars.PROJECT_PATH, true, true);
             } else {
@@ -72,40 +67,24 @@ var
       } else {
         next(config);
       }
+    }).then((config, next) => { // check node_modules was installed
+      wServer.updateNodeModules(config.workflow).then((err) => {
+        if (err) {
+          log('msg', 'error', err);
+          log('finish');
+        } else {
+          next(config);
+        }
+      });
     }).then((config) => { // 运行命令
-      const initPath = util.path.join(__dirname, '../init-files', config.workflow, 'index.js');
-      if (fs.existsSync(initPath)) {
-        log('finish');
-        const opzer = util.requireJs(initPath);
-        opzer(config, iArgv[0], iEnv).then(() => {
-          if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
-            setTimeout(global.YYL_RUN_CALLBACK, 0);
-          }
-        });
-      } else {
-        log('msg', 'info', 'run cmd start');
-
-        var workFlowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, config.workflow);
-        var gulpHand = util.joinFormat(
-          workFlowPath,
-          'node_modules',
-          '.bin',
-          util.vars.IS_WINDOWS? 'gulp.cmd': 'gulp'
-        );
-
-        var cmd = `${gulpHand} ${iArgv.join(' ')}`;
-
-        log('msg', 'info', `run cmd: ${cmd}`);
-        log('finish');
-        util.runSpawn(cmd, (err) => {
-          if (err) {
-            return util.msg.error(iArgv[0], 'task run error', err);
-          }
-          if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
-            setTimeout(global.YYL_RUN_CALLBACK, 0);
-          }
-        }, workFlowPath);
-      }
+      const initPath = util.path.join(util.vars.INIT_FILE_PATH, config.workflow, 'index.js');
+      log('finish');
+      const opzer = require(initPath);
+      opzer(config, iArgv[0], iEnv).then(() => {
+        if (global.YYL_RUN_CALLBACK) { // yyl.run 用 callback
+          setTimeout(global.YYL_RUN_CALLBACK, 0);
+        }
+      });
     }).start();
   };
 

@@ -10,44 +10,32 @@ const util = require('../../tasks/w-util.js');
 const supercall = require('../../tasks/w-supercall.js');
 const log = require('../../tasks/w-log.js');
 
+// + self module
+const sass = require('gulp-sass');
+const minifycss = require('gulp-minify-css');
+const jshint = require('gulp-jshint');
+const uglify = require('gulp-uglify');
+const imagemin = require('gulp-imagemin');
+const rename = require('gulp-rename');
+const replacePath = require('gulp-replace-path');
+
+const babel = require('gulp-babel');
+const rollup = require('rollup');
+const rollupBabel = require('rollup-plugin-babel');
+const rollupCommonjs = require('rollup-plugin-commonjs');
+const rollupAlias = require('rollup-plugin-alias');
+
+const inlinesource = require('gulp-inline-source');
+const filter = require('gulp-filter');
+const gulpJade = require('gulp-jade');
+const plumber = require('gulp-plumber');
+const runSequence = require('run-sequence').use(gulp);
+const prettify = require('gulp-prettify');
+const through = require('through2');
+const watch = require('gulp-watch');
+// - self module
 let config;
 let iEnv;
-
-const MODULE_MAP = {
-  'sass': 'gulp-sass',
-  'minifycss': 'gulp-minify-css',
-  'jshint': 'gulp-jshint',
-  'uglify': 'gulp-uglify',
-  'imagemin': 'gulp-imagemin',
-  'rename': 'gulp-rename',
-  'replacePath': 'gulp-replace-path',
-
-  'babel': 'gulp-babel',
-  'rollup': 'rollup',
-  'rollupBabel': 'rollup-plugin-babel',
-  'rollupCommonjs': 'rollup-plugin-commonjs',
-  'rollupAlias': 'rollup-plugin-alias',
-
-  'inlinesource': 'gulp-inline-source',
-  'filter': 'gulp-filter',
-  'gulpJade': 'gulp-jade',
-  'plumber': 'gulp-plumber',
-  'runSequence': 'run-sequence',
-  'prettify': 'gulp-prettify',
-  'through': 'through2',
-  'watch': 'gulp-watch'
-};
-const mod = {};
-const NODE_MODULE_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'rollup/node_modules');
-// 组件引入
-(function() {
-  for ( let key in MODULE_MAP ) {
-    if (MODULE_MAP.hasOwnProperty(key)) {
-      mod[key] = require(util.path.join(NODE_MODULE_PATH, MODULE_MAP[key]));
-    }
-  }
-  mod.runSequence = mod.runSequence.use(gulp);
-})();
 
 var fn = {
   logDest: function(iPath) {
@@ -62,7 +50,7 @@ var fn = {
       .replace(/#.*?$/g, '');
   },
   blankPipe: function(fn) {
-    return mod.through.obj((file, enc, next) => {
+    return through.obj((file, enc, next) => {
       if (typeof fn == 'function') {
         fn(file);
       }
@@ -479,19 +467,19 @@ var
     // + html task
     pug2html: function(stream) {
       var rStream = stream
-        .pipe(mod.plumber())
-        .pipe(mod.through.obj(function(file, enc, next) {
+        .pipe(plumber())
+        .pipe(through.obj(function(file, enc, next) {
           log('msg', 'optimize', util.path.join(file.base, file.relative));
           this.push(file);
           next();
         }))
-        .pipe(mod.gulpJade({
+        .pipe(gulpJade({
           pretty: false,
           client: false
         }).on('error', (er) => {
           log('msg', 'error', er);
         }))
-        .pipe(mod.through.obj(function(file, enc, next) {
+        .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
           var dirname = util.joinFormat( config.alias.srcRoot, 'html');
 
@@ -563,11 +551,11 @@ var
           this.push(file);
           next();
         }))
-        .pipe(mod.rename((path) => {
+        .pipe(rename((path) => {
           path.basename = path.basename.replace(/^p-/g, '');
           path.dirname = '';
         }))
-        .pipe(mod.prettify({indent_size: 4}));
+        .pipe(prettify({indent_size: 4}));
         // .pipe(gulp.dest(util.joinFormat(config.alias.srcRoot, 'html')));
 
       return rStream;
@@ -587,13 +575,13 @@ var
 
       // html task
       var rStream = stream
-        .pipe(mod.plumber())
-        .pipe(mod.inlinesource())
+        .pipe(plumber())
+        .pipe(inlinesource())
         // 删除requirejs的配置文件引用
-        .pipe(mod.replacePath(/<script [^<]*local-usage><\/script>/g, ''))
+        .pipe(replacePath(/<script [^<]*local-usage><\/script>/g, ''))
 
         // 将用到的 commons 目录下的 images 资源引入到项目里面
-        .pipe(mod.through.obj(function(file, enc, next) {
+        .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
           var gComponentPath = relateHtml(config.alias.globalcomponents);
           var copyPath = {};
@@ -639,7 +627,7 @@ var
             next();
           }
         }))
-        .pipe(mod.through.obj(function(file, enc, next) {
+        .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
 
           iCnt = iCnt
@@ -753,7 +741,7 @@ var
           next();
         }))
         // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下
-        .pipe(mod.through.obj(function(file, enc, next) {
+        .pipe(through.obj(function(file, enc, next) {
           file.contents.toString()
             .replace(new RegExp(`['"]${ util.joinFormat(remotePath, fn.relateDest(config.alias.jslibDest), 'globallib') }([^'"]*)["']`, 'g'), (str, $1) => {
               var sourcePath = util.joinFormat(config.alias.globallib, $1);
@@ -789,8 +777,8 @@ var
     sassBase2css: function(stream) {
       var
         rStream = stream
-          .pipe(mod.plumber())
-          .pipe(mod.sass({outputStyle: 'nested'}).on('error', (err) => {
+          .pipe(plumber())
+          .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
             log('msg', 'error', err.message);
           }));
       return rStream;
@@ -798,15 +786,15 @@ var
     sassComponent2css: function(stream) {
       var
         rStream = stream
-          .pipe(mod.through.obj(function(file, enc, next) {
+          .pipe(through.obj(function(file, enc, next) {
             log('msg', 'optimize', util.path.join(file.base, file.relative));
             this.push(file);
             next();
           }))
-          .pipe(mod.sass({outputStyle: 'nested'}).on('error', (err) => {
+          .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
             log('msg', 'error', err.message);
           }))
-          .pipe(mod.through.obj(function(file, enc, next) {
+          .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
             var dirname = util.joinFormat(config.alias.srcRoot, 'css');
 
@@ -848,7 +836,7 @@ var
             this.push(file);
             next();
           }))
-          .pipe(mod.rename((path) => {
+          .pipe(rename((path) => {
             path.dirname = '';
             path.basename = path.basename.replace(/^p-/, '');
           }));
@@ -868,9 +856,9 @@ var
 
       var
         rStream = stream
-          .pipe(mod.plumber())
+          .pipe(plumber())
           // 将commons components 目录下的 图片 引入到 globalcomponents 里面
-          .pipe(mod.through.obj(function(file, enc, next) {
+          .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
             var gComponentPath = relateCss(config.alias.globalcomponents);
             var copyPath = {};
@@ -921,7 +909,7 @@ var
               next();
             }
           }))
-          .pipe(mod.through.obj(function(file, enc, next) {
+          .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
             var filterHandle = function(str, $1, $2, $3) {
               var iPath = $2;
@@ -976,7 +964,7 @@ var
             this.push(file);
             next();
           }))
-          .pipe(iEnv.isCommit?mod.minifycss({
+          .pipe(iEnv.isCommit?minifycss({
             compatibility: 'ie7'
           }): fn.blankPipe());
       return rStream;
@@ -1000,16 +988,16 @@ var
     image2dest: function(stream) {
       var
         rStream = stream
-          .pipe(mod.plumber())
-          .pipe(mod.filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
-          .pipe(mod.through.obj(function(file, enc, next) {
+          .pipe(plumber())
+          .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
+          .pipe(through.obj(function(file, enc, next) {
             log('msg', 'optimize', util.path.join(file.base, file.relative));
             this.push(file);
             next();
           }))
           .pipe(
             iEnv.isCommit?
-              mod.imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }):
+              imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }):
               fn.blankPipe()
           );
 
@@ -1020,20 +1008,20 @@ var
     rollup2dest: function(stream) {
       // 更新 alias
       var rStream = stream
-        .pipe(mod.filter('**/*.js'))
-        .pipe(mod.plumber())
-        .pipe(mod.jshint.reporter('default'))
-        .pipe(mod.jshint())
-        .pipe(mod.through.obj(function(file, enc, cb) {
+        .pipe(filter('**/*.js'))
+        .pipe(plumber())
+        .pipe(jshint.reporter('default'))
+        .pipe(jshint())
+        .pipe(through.obj(function(file, enc, cb) {
           const self = this;
           const iPath = util.path.join(file.base, file.relative);
           log('msg', 'optimize', util.path.join(file.base, file.relative));
-          mod.rollup.rollup({
+          rollup.rollup({
             input: iPath,
             plugins: [
-              mod.rollupCommonjs(),
-              mod.rollupBabel(),
-              mod.rollupAlias(config.alias)
+              rollupCommonjs(),
+              rollupBabel(),
+              rollupAlias(config.alias)
             ]
           }).then((bundle) => {
             bundle.generate({
@@ -1051,13 +1039,13 @@ var
             cb();
           });
         }))
-        .pipe(mod.babel({
+        .pipe(babel({
           presets: ['babel-preset-es2015'].map((str) => {
-            return require(util.path.join(util.path.relative(__dirname, NODE_MODULE_PATH), str));
+            return require(str);
           })
         }))
-        .pipe(iEnv.isCommit?mod.uglify(): fn.blankPipe())
-        .pipe(mod.rename((path) => {
+        .pipe(iEnv.isCommit?uglify(): fn.blankPipe())
+        .pipe(rename((path) => {
           path.basename = path.basename.replace(/^[pj]-/g, '');
           path.dirname = '';
         }));
@@ -1066,8 +1054,8 @@ var
     js2dest: function(stream) {
       var
         rStream = stream
-          .pipe(mod.plumber())
-          .pipe(iEnv.isCommit?mod.uglify():fn.blankPipe());
+          .pipe(plumber())
+          .pipe(iEnv.isCommit?uglify():fn.blankPipe());
 
       return rStream;
     },
@@ -1076,7 +1064,7 @@ var
     // 从 dest 生成的一个文件找到关联的其他 src 文件， 然后再重新生成到 dest
     dest2dest: function(stream, op) {
       var rStream;
-      rStream = stream.pipe(mod.through.obj((file, enc, next) => {
+      rStream = stream.pipe(through.obj((file, enc, next) => {
         var relativeFiles = fn.destRelative(util.joinFormat(file.base, file.relative), op);
         var total = relativeFiles.length;
         var streamCheck = function() {
@@ -1267,7 +1255,7 @@ gulp.task('html-to-dest-task', () => {
 
 // + css task
 gulp.task('css', ['sass-component-to-dest', 'sass-base-to-dest', 'css-to-dest'], (done) => {
-  mod.runSequence('concat-css', done);
+  runSequence('concat-css', done);
 });
 gulp.task('sass-component-to-dest', () => {
   var rStream;
@@ -1353,7 +1341,7 @@ gulp.task('images-component-task', () => {
 
 // + js task
 gulp.task('js', ['rollup-task', 'jslib-task', 'data-task'], (done) => {
-  mod.runSequence('concat-js', done);
+  runSequence('concat-js', done);
 });
 
 gulp.task('rollup-task', (done) => {
@@ -1464,10 +1452,10 @@ gulp.task('watch', ['all'], () => {
   var
     watchit = function(glob, op, fn) {
       if (arguments.length == 3) {
-        return mod.watch(glob, op, util.debounce(fn, 500));
+        return watch(glob, op, util.debounce(fn, 500));
       } else {
         fn = op;
-        return mod.watch(glob, util.debounce(fn, 500));
+        return watch(glob, util.debounce(fn, 500));
       }
     };
 
@@ -1482,7 +1470,7 @@ gulp.task('watch', ['all'], () => {
     var streamCheck = function() {
       if (!total) {
         log('msg', 'success', 'optimize finished');
-        mod.runSequence(['concat', 'resource'], 'rev-update', () => {
+        runSequence(['concat', 'resource'], 'rev-update', () => {
           supercall.livereload();
           log('msg', 'success', 'watch task finished');
           log('finish');
@@ -1524,7 +1512,7 @@ gulp.task('watch', ['all'], () => {
 
 // + all
 gulp.task('all', (done) => {
-  mod.runSequence(['js', 'css', 'images', 'html', 'resource'], 'rev-build',  () => {
+  runSequence(['js', 'css', 'images', 'html', 'resource'], 'rev-build',  () => {
     if (!iEnv.silent) {
       util.pop('all task done');
     }

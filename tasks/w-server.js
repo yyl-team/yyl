@@ -24,8 +24,7 @@ var
         commands: {
           'start': 'start local server',
           'init': 'init server ref',
-          'clear': 'empty the server path',
-          'rebuild': 'reinstall the server node_modules'
+          'clear': 'empty the server path'
         },
         options: {
           '--proxy': 'start with proxy server',
@@ -86,7 +85,7 @@ var
             if (!fs.existsSync(setting.root)) {
               util.mkdirSync(setting.root);
             }
-            wServer.start(setting.root, setting.port, false, () => {
+            wServer.start(setting.root, setting.port, iEnv.silent, () => {
               log('finish', 'local server init finished');
               next(config);
             });
@@ -135,59 +134,7 @@ var
         }
       }).start();
     },
-    rebuild: function(name) {
-      var type;
-      var iWorkflows = util.readdirSync(path.join(util.vars.SERVER_WORKFLOW_PATH));
 
-      log('start', 'rebuild');
-      if (name) {
-        type = name;
-      } else {
-        if (fs.existsSync(util.vars.USER_CONFIG_FILE)) {
-          var userConfig = util.requireJs(util.vars.USER_CONFIG_FILE);
-          type = userConfig.workflow;
-          if (!type) {
-            Object.keys(userConfig).forEach((key) => {
-              if (userConfig[key].workflow) {
-                type = userConfig[key].workflow;
-                return true;
-              }
-            });
-          }
-          if (!userConfig) {
-            log('msg', 'error', 'yyl rebuild fail', 'user config parse error');
-            return log('finish');
-          }
-        } else {
-          log('msg', 'error', 'yyl rebuild fail', 'no user config file in current cwd');
-          return log('finish');
-        }
-      }
-
-      if (~iWorkflows.indexOf(type)) {
-        var targetPath = path.join(util.vars.SERVER_WORKFLOW_PATH, type, 'node_modules');
-        if (fs.existsSync(targetPath)) {
-          log('msg', 'info', 'start remove server files:');
-          log('msg', 'info', targetPath);
-          util.removeFiles(targetPath, () => {
-            log('msg', 'success', 'remove server files finished');
-            log('msg', 'info', 'start run npm install');
-            log('end');
-            util.runCMD('npm install', () => {
-              log('msg', 'success', 'run npm install success');
-              log('msg', 'success', 'yyl rebuild success');
-              log('finish');
-            }, path.join(targetPath, '../'));
-          });
-        } else {
-          log('msg', 'success', 'yyl rebuild success');
-          return log('finish');
-        }
-      } else {
-        log('msg', 'warn', `yyl rebuild success, ${type} is not in ${iWorkflows.join('|')}`);
-        return log('finish');
-      }
-    },
     init: function(workflowName) {
       wServer.init(workflowName, (err) => {
         if (err) {
@@ -197,25 +144,24 @@ var
     },
 
     // 服务器清空
-    clear: function(done, silent) {
-      util.msg.silent(silent);
+    clear: function(done) {
       new util.Promise(((next) => { // clear data file
-        util.msg.info('start clear server data path:', util.vars.SERVER_DATA_PATH);
+        log('msg', 'info', `start clear server data path: ${util.vars.SERVER_DATA_PATH}`);
         if (fs.existsSync(util.vars.SERVER_DATA_PATH)) {
           util.removeFiles(util.vars.SERVER_DATA_PATH, () => {
-            util.msg.info('done');
+            log('msg', 'success', 'clear server data path finished');
             next();
           });
         } else {
-          util.msg.info('done');
+          log('msg', 'success', 'clear server data path finished');
           next();
         }
       })).then((NEXT) => { // clear workflowFile
-        util.msg.info('start clear server workflow path', util.vars.SERVER_WORKFLOW_PATH);
-        if (fs.existsSync(util.vars.SERVER_WORKFLOW_PATH)) {
+        log('msg', 'info', `clear server workflow path start: ${util.vars.INIT_FILE_PATH}`);
+        if (fs.existsSync(util.vars.INIT_FILE_PATH)) {
           var iPromise = new util.Promise();
-          fs.readdirSync(util.vars.SERVER_WORKFLOW_PATH).forEach((str) => {
-            var iPath = util.joinFormat(util.vars.SERVER_WORKFLOW_PATH, str);
+          fs.readdirSync(util.vars.INIT_FILE_PATH).forEach((str) => {
+            var iPath = util.joinFormat(util.vars.INIT_FILE_PATH, str);
             var nodeModulePath = util.joinFormat(iPath, 'node_modules');
 
             if (fs.existsSync(nodeModulePath)) {
@@ -241,12 +187,13 @@ var
           NEXT();
         }
       }).then((next) => {
-        util.msg.info('start clear server path', util.vars.SERVER_PATH);
+        log('msg', 'info', `start clear server path: ${util.vars.SERVER_PATH}`);
         wRemove(util.vars.SERVER_PATH, () => {
+          log('msg', 'success', 'clear server path finished');
           next();
         });
       }).then(() => {
-        util.msg.success('clear task done');
+        log('msg', 'success', 'clear task finished');
         return done && done();
       }).start();
     }
@@ -471,7 +418,7 @@ var
         next(iConfig);
       }).then((iConfig, next) => { // 更新 config 内 插件
         if (iConfig.plugins && iConfig.plugins.length) {
-          var iPkgPath = path.join(util.vars.SERVER_WORKFLOW_PATH, iConfig.workflow, 'package.json');
+          var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
           var installLists = [];
 
           iConfig.plugins.forEach((str) => {
@@ -503,19 +450,18 @@ var
               fs.writeFileSync(iPkgPath, '{}');
             }
 
-
-            var cmd = `npm install ${  installLists.join(' ')}`;
-            util.msg.info('run cmd:', cmd);
+            var cmd = `npm install ${installLists.join(' ')}`;
+            log('msg', 'info' `run cmd ${cmd}`);
             process.chdir(workFlowPath);
 
+            log('end');
             util.runCMD(cmd, (err) => {
               if (err) {
                 return done(err, iConfig);
               }
-              process.chdir(util.vars.PROJECT_PATH);
 
               next(iConfig);
-            }, path.join(util.vars.SERVER_WORKFLOW_PATH, iConfig.workflow));
+            }, path.join(util.vars.INIT_FILE_PATH, iConfig.workflow));
           } else {
             next(iConfig);
           }
@@ -661,129 +607,73 @@ var
 
       workflows.forEach((workflowName) => {
         var workflowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, workflowName);
-        var workflowBasePath = path.join(util.vars.BASE_PATH, 'init-files', workflowName);
+        var workflowBasePath = path.join(util.vars.INIT_FILE_PATH, workflowName);
 
         if (!fs.existsSync(workflowBasePath)) {
           return done(`${workflowName} is not the right command`);
         }
 
-        new util.Promise(((next) => { // server init
+        new util.Promise((next) => { // server init
           util.mkdirSync(util.vars.SERVER_PATH);
           util.mkdirSync(workflowPath);
           next();
-        })).then((next) => { // copy files to server
-          var files = [];
-          var fileParam = {};
-
-          switch (workflowName) {
-            case 'gulp-requirejs':
-            case 'rollup':
-              files = ['package.json'];
-              break;
-
-
-            case 'webpack-vue':
-              files = ['package.json', 'gulpfile.js', 'webpack.config.js'];
-              break;
-
-            case 'webpack-vue2':
-              files = ['package.json', 'gulpfile.js', 'webpack.config.js'];
-              break;
-
-            default:
-              files = ['package.json', 'gulpfile.js'];
-              break;
-          }
-          files.forEach((filePath) => {
-            fileParam[path.join(util.vars.BASE_PATH, 'init-files', workflowName, filePath)] = path.join(workflowPath, filePath);
-          });
-
-          util.copyFiles(fileParam, (err, files) => {
+        }).then((next) => { // npm install
+          wServer.updateNodeModules(workflowName, forceInstall).then((err) => {
             if (err) {
-              log('msg', 'error', [`copy ${workflowName} files to serverpath fail:`, err]);
+              log('msg', 'error', 'npm install fail on server!');
               return;
             }
-            files.forEach((file) => {
-              log('msg', 'create', file);
-            });
-            log('msg', 'success', `copy ${workflowName} files to serverpath finished`);
+            log('msg', 'success', 'npm install finished');
             next();
           });
-        }).then((next) => { // npm install
-          var nocmd = true;
-          var modulePath = path.join(workflowPath, 'node_modules');
-
-          if (!forceInstall) {
-            if (!fs.existsSync(modulePath)) {
-              nocmd = false;
-            } else {
-              var dirs = fs.readdirSync(modulePath);
-              var pkg = util.requireJs(path.join(workflowPath, 'package.json'));
-              var devs = pkg.devDependencies;
-              var ds = pkg.dependencies;
-              var checkDev = function(devs) {
-                var modulePkgPath;
-                var modulePkg;
-                var moduleVer;
-                var key;
-
-                for (key in devs) {
-                  if (devs.hasOwnProperty(key)) {
-                    if (!~dirs.indexOf(key)) {
-                      nocmd = false;
-                      break;
-                    } else {
-                      modulePkgPath = path.join(modulePath, key, 'package.json');
-
-                      if (fs.existsSync(modulePkgPath)) {
-                        modulePkg = util.requireJs(modulePkgPath);
-                        moduleVer = modulePkg.version;
-                        if (util.compareVersion(devs[key], moduleVer) > 0) {
-                          nocmd = false;
-                          break;
-                        }
-                      }
-                    }
-                  }
-                }
-              };
-
-              if (nocmd) {
-                checkDev(devs);
-              }
-
-              if (nocmd) {
-                checkDev(ds);
-              }
-            }
-          }
-
-
-          if (nocmd && !forceInstall) {
-            next();
-          } else {
-            if (fs.existsSync(path.join(workflowPath, 'package.json'))) {
-              process.chdir(workflowPath);
-              log('end');
-              util.runCMD('npm install', (err) => {
-                if (err) {
-                  log('msg', 'error', 'npm install fail on server!');
-                  return;
-                }
-                log('msg', 'success', 'npm install finished');
-                process.chdir(util.vars.PROJECT_PATH);
-                next();
-              }, workflowPath);
-            } else {
-              log('msg', 'warn', `package.json not exist, continue: ${workflowPath}`);
-              next();
-            }
-          }
         }).then((next) => { // back to dirPath
           log('msg', 'success', `init server ${workflowName} finished`);
           paddingCheck();
           next();
         }).start();
+      });
+    },
+
+    updateNodeModules: function(workflow, forceInstall) {
+      const workflowPath = util.path.join(util.vars.INIT_FILE_PATH, workflow);
+      const pkgPath = util.path.join(workflowPath, 'package.json');
+      const nodeModulePath = util.path.join(workflowPath, 'node_modules');
+
+      return new Promise((next) => {
+        if (!fs.existsSync(pkgPath)) {
+          next();
+        } else {
+          let needRun = false;
+          if (!fs.existsSync(nodeModulePath) || forceInstall) {
+            needRun = true;
+          } else {
+            const pkg = util.requireJs(pkgPath);
+            const iModule = util.extend({}, pkg.devDependencies, pkg.dependencies);
+            Object.keys(iModule).some((key) => {
+              const modulePath = util.path.join(nodeModulePath, key);
+              if (fs.existsSync(modulePath)) {
+                const modulePkgPath = util.path.join(modulePath, 'package.json');
+                const iPkg = util.requireJs(modulePkgPath);
+
+                if (util.compareVersion(iPkg.version, iModule[key]) < 0) {
+                  needRun = true;
+                  return true;
+                }
+              } else {
+                needRun = true;
+                return true;
+              }
+            });
+          }
+          if (needRun) {
+            log('end');
+            util.runCMD('npm install', (err) => {
+              next(err);
+            }, workflowPath);
+          } else {
+            next();
+          }
+        }
       });
     },
 
@@ -809,10 +699,6 @@ var
 
         case 'init':
           events.init.apply(events, iArgv.slice(2));
-          break;
-
-        case 'rebuild':
-          events.rebuild.apply(events, iArgv.slice(2));
           break;
 
         case '--h':

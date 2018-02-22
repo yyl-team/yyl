@@ -154,7 +154,7 @@ describe('yyl all test', () => {
           next();
         });
       }).then((next) => { // run yyl all
-        yyl.run('all --silent', () => {
+        yyl.run('all --silent --logLevel 0', () => {
           next(util.getConfigSync({}));
         }, FRAG_WORKFLOW_PATH);
       }).then((userConfig, next) => { // check

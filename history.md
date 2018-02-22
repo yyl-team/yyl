@@ -2,6 +2,8 @@
 ## 2.16.0 (2018-01-26)
 * [DEL] 去掉 `yyl` 对 全局 `gulp` 的依赖
 * [DEL] 去掉 `yyl debug`
+* [DEL] 去掉 `yyl server rebuild` 方法
+
 ## 2.15.41 (2018-02-07)
 * [ADD] 新增 `yyl optimize` 时 对项目版本要求的检查
 
