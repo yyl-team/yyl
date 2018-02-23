@@ -2,12 +2,13 @@
 var cmd = require('./tasks/w-cmd.js');
 var util = require('./tasks/w-util.js');
 var r = {
-  run: function(ctx, done, cwd) {
+  run: function(ctx, cwd) {
     var iArgv = ctx.split(/\s+/);
 
     if (iArgv[0] == 'yyl') {
       iArgv = iArgv.slice(1);
     }
+    iArgv.push('--nocatch');
 
     var CWD = cwd || process.cwd();
 
@@ -16,12 +17,7 @@ var r = {
     util.vars.USER_CONFIG_FILE = util.joinFormat(CWD, 'config.js');
     util.vars.USER_PKG_FILE = util.joinFormat(CWD, 'package.json');
 
-    global.YYL_RUN_CALLBACK = function() {
-      global.YYL_RUN_CALLBACK = null;
-      return done && done();
-    };
-
-    cmd.apply(global, iArgv);
+    return cmd.apply(global, iArgv);
   },
   server: require('./tasks/w-server.js')
 

@@ -24,6 +24,7 @@ util.infoBar.init({
         color: 'white',
         bgColor: 'bgBlue'
       },
+
       'server': {
         name: 'SERV',
         color: 'white',
@@ -63,7 +64,57 @@ util.infoBar.init({
         name: 'PASS',
         color: 'white',
         bgColor: 'bgBlue'
-      }
+      },
+      // + w-jade2pug
+      'jade2pug': {
+        name: 'JTOP',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-jade2pug
+      // + w-commit
+      'commit-copy': {
+        name: 'COPY',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'commit-step01': {
+        name: 'ST01',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'commit-step02': {
+        name: 'ST02',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'commit-step03': {
+        name: 'ST03',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-commit
+      // + make
+      'make': {
+        name: 'MAKE',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - make
+      // + w-remove
+      'remove': {
+        name: 'RM',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-remove
+      // + w-update
+      'update': {
+        name: 'UPDT',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-update
     }
   }
 });

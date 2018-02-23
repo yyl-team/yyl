@@ -370,3 +370,11 @@ describe('yyl all --config test', () => {
     }).start();
   });
 });
+describe('yyl server test', () => {
+  it('yyl server start', (done) => {
+
+  });
+  it('yyl server clear', (done) => {
+
+  });
+});

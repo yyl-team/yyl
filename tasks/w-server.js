@@ -32,6 +32,7 @@ var
           '-p, --path': 'show the yyl server local path'
         }
       });
+      return Promise.resolve(null);
     },
     path: function() {
       console.log([
@@ -42,6 +43,7 @@ var
       ].join('\n'));
 
       util.openPath(util.vars.SERVER_PATH);
+      return Promise.resolve(util.vars.SERVER_PATH);
     },
 
     start: function() {
@@ -55,13 +57,11 @@ var
           const config = util.requireJs(configPath);
           if (config) {
             log('msg', 'info', 'use local config setting');
-            wServer.buildConfig(iEnv.name, iEnv, (err, iConfig) => {
-              if (err) {
-                log('msg', 'error', err);
-                next(null);
-              } else {
-                next(iConfig);
-              }
+            wServer.buildConfig(iEnv.name, iEnv).then((iConfig) => {
+              next(iConfig);
+            }).catch((err) => {
+              log('msg', 'error', err);
+              next(null);
             });
           } else {
             log('msg', 'info', 'local config parse fail, not to use');
@@ -136,11 +136,11 @@ var
     },
 
     init: function(workflowName) {
-      wServer.init(workflowName, (err) => {
-        if (err) {
-          log('msg', 'error', err);
-        }
-      }, true);
+      wServer.init(workflowName, true).then(() => {
+
+      }).catch((err) => {
+        log('msg', 'error', err);
+      });
     },
 
     // 服务器清空
@@ -201,8 +201,10 @@ var
 
 var
   wServer = {
-    clear: function(done) {
-      events.clear(done);
+    clear: function() {
+      return new Promise((next) => {
+        events.clear(next);
+      });
     },
     // 获取
     profile: function(key, val) {
@@ -241,247 +243,257 @@ var
     },
 
     // 构建 服务端 config
-    buildConfig: function(name, env, done) {
-      var configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
-      var mineConfigPath;
-      var config;
-      var mineConfig;
+    buildConfig: function(name, env) {
+      const runner = (done) => {
+        var configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
+        var mineConfigPath;
+        var config;
+        var mineConfig;
 
-      // 自定义 --config
-      if (env.config) {
-        if (path.isAbsolute(env.config)) {
-          configPath = env.config;
-        } else {
-          configPath = path.join(util.vars.PROJECT_PATH, env.config);
+        // 自定义 --config
+        if (env.config) {
+          if (path.isAbsolute(env.config)) {
+            configPath = env.config;
+          } else {
+            configPath = path.join(util.vars.PROJECT_PATH, env.config);
+          }
         }
-      }
-      mineConfigPath = configPath.replace(/\.js$/, '.mine.js');
+        mineConfigPath = configPath.replace(/\.js$/, '.mine.js');
 
-      // 获取 config, config.mine 文件内容
-      if (!fs.existsSync(configPath)) {
-        return done(`config.js not found: ${configPath}`);
-      }
-
-      if (fs.existsSync(mineConfigPath)) {
-        try {
-          mineConfig = util.requireJs(mineConfigPath);
-        } catch (er) {}
-      }
-      if (fs.existsSync(configPath)) {
-        try {
-          config = util.requireJs(configPath);
-        } catch (er) {
-          return done(`read config.js with error: ${er.message}`);
-        }
-      }
-
-      if (!config) {
-        return done('nothing in config.js');
-      }
-
-      config = util.extend(true, config, mineConfig);
-
-      var iWorkFlows = fs.readdirSync(path.join(util.vars.BASE_PATH, 'init-files'));
-      var workFlowPath;
-      var nameList = (function() {
-        var r = [];
-        if (config.workflow) {
-          return r;
+        // 获取 config, config.mine 文件内容
+        if (!fs.existsSync(configPath)) {
+          throw new Error(`config.js not found: ${configPath}`);
         }
 
-        for (var key in config) {
-          if (config.hasOwnProperty(key)) {
-            if ('workflow' in config[key]) {
-              r.push(key);
+        if (fs.existsSync(mineConfigPath)) {
+          try {
+            mineConfig = util.requireJs(mineConfigPath);
+          } catch (er) {}
+        }
+        if (fs.existsSync(configPath)) {
+          try {
+            config = util.requireJs(configPath);
+          } catch (er) {
+            throw new Error(`read config.js with error: ${er.message}`);
+          }
+        }
+
+        if (!config) {
+          throw new Error('nothing in config.js');
+        }
+
+        config = util.extend(true, config, mineConfig);
+
+        var iWorkFlows = fs.readdirSync(path.join(util.vars.BASE_PATH, 'init-files'));
+        var workFlowPath;
+        var nameList = (function() {
+          var r = [];
+          if (config.workflow) {
+            return r;
+          }
+
+          for (var key in config) {
+            if (config.hasOwnProperty(key)) {
+              if ('workflow' in config[key]) {
+                r.push(key);
+              }
             }
           }
-        }
-        return r;
-      })();
+          return r;
+        })();
 
-      if (name) {
-        if (!config[name] ||
-          !config[name].workflow ||
-          !~iWorkFlows.indexOf(config[name].workflow)
-        ) {
-          if (nameList.length) {
-            return done(`you need to use --name ${nameList.join(' or ')}`);
-          } else {
-            return done(`config[${name}].workflow is not exist`);
+        if (name) {
+          if (!config[name] ||
+            !config[name].workflow ||
+            !~iWorkFlows.indexOf(config[name].workflow)
+          ) {
+            if (nameList.length) {
+              throw new Error(`you need to use --name ${nameList.join(' or ')}`);
+            } else {
+              throw new Error(`config[${name}].workflow is not exist`);
+            }
           }
-        }
 
-        workFlowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, config[name].workflow);
-      } else {
-        if (!config.workflow || !~iWorkFlows.indexOf(config.workflow)) {
-          if (nameList.length) {
-            return done(`add env: --name ${nameList.join('|')}`);
-          } else {
-            return done('config.workflow is not exist');
-          }
-        }
-
-        workFlowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, config.workflow);
-      }
-
-
-      var pathTrans = function(iPath) {
-        if (path.isAbsolute(iPath)) {
-          return iPath;
+          workFlowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, config[name].workflow);
         } else {
-          if (util.vars.PROJECT_PATH.substr(0, 3) != workFlowPath.substr(0, 3)) { // 不同盘
-            return util.joinFormat(util.vars.PROJECT_PATH, iPath);
+          if (!config.workflow || !~iWorkFlows.indexOf(config.workflow)) {
+            if (nameList.length) {
+              throw new Error(`add env: --name ${nameList.join('|')}`);
+            } else {
+              throw new Error('config.workflow is not exist');
+            }
+          }
+
+          workFlowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, config.workflow);
+        }
+
+
+        var pathTrans = function(iPath) {
+          if (path.isAbsolute(iPath)) {
+            return iPath;
           } else {
-            return util.joinFormat(
-              workFlowPath,
-              path.relative(
+            if (util.vars.PROJECT_PATH.substr(0, 3) != workFlowPath.substr(0, 3)) { // 不同盘
+              return util.joinFormat(util.vars.PROJECT_PATH, iPath);
+            } else {
+              return util.joinFormat(
                 workFlowPath,
-                path.join(util.vars.PROJECT_PATH, iPath)
-              )
-            );
+                path.relative(
+                  workFlowPath,
+                  path.join(util.vars.PROJECT_PATH, iPath)
+                )
+              );
+            }
           }
-        }
-      };
-      var relateHere = function(obj, changeKey) {
-        var iSrc;
-        for (var key in obj) {
-          switch (util.type(obj[key])) {
-            case 'string':
-              if (changeKey) {
-                iSrc = pathTrans(key);
-                obj[iSrc] = pathTrans(obj[key]);
-                if (iSrc != key) {
-                  delete obj[key];
-                }
-              } else {
-                obj[key] = pathTrans(obj[key]);
-              }
-              break;
-
-            default:
-              break;
-          }
-        }
-        return obj;
-      };
-
-
-      // 路径替换
-      (function deep(obj) {
-        for (var key in obj) {
-          if (obj.hasOwnProperty(key)) {
+        };
+        var relateHere = function(obj, changeKey) {
+          var iSrc;
+          for (var key in obj) {
             switch (util.type(obj[key])) {
-              case 'object':
-                if (key == 'alias') { // 替换 val
-                  obj[key] = relateHere(obj[key]);
-                } else if (key == 'resource') {
-                  obj[key] = relateHere(obj[key], true);
-                } else {
-                  deep(obj[key]);
-                }
-                break;
               case 'string':
+                if (changeKey) {
+                  iSrc = pathTrans(key);
+                  obj[iSrc] = pathTrans(obj[key]);
+                  if (iSrc != key) {
+                    delete obj[key];
+                  }
+                } else {
+                  obj[key] = pathTrans(obj[key]);
+                }
                 break;
 
               default:
                 break;
             }
           }
-        }
-      })(config);
+          return obj;
+        };
 
 
-      new util.Promise(((next) => {
-        if (name) {
-          next(config[name]);
-        } else {
-          next(config);
-        }
-      })).then((iConfig, next) => { // 自定义 config
-        if (typeof iConfig.onInitConfig == 'function') {
-          log('msg', 'info', 'run config.onInitConfig function');
-          iConfig.onInitConfig(iConfig, env, next);
-        } else {
-          next(iConfig);
-        }
-      }).then((iConfig, next) => { // 更新 config 文件
-        if (name) {
-          config[name] = iConfig;
-        } else {
-          config = iConfig;
-        }
+        // 路径替换
+        (function deep(obj) {
+          for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              switch (util.type(obj[key])) {
+                case 'object':
+                  if (key == 'alias') { // 替换 val
+                    obj[key] = relateHere(obj[key]);
+                  } else if (key == 'resource') {
+                    obj[key] = relateHere(obj[key], true);
+                  } else {
+                    deep(obj[key]);
+                  }
+                  break;
+                case 'string':
+                  break;
 
-        var fileStr = `module.exports=${JSON.stringify(config, null, 4)}`;
-
-        util.mkdirSync(workFlowPath);
-        fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
-        next(iConfig);
-      }).then((iConfig, next) => { // 更新 config 内 插件
-        if (iConfig.plugins && iConfig.plugins.length) {
-          var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
-          var installLists = [];
-
-          iConfig.plugins.forEach((str) => {
-            var iDir;
-            var iVer;
-            if (~str.indexOf('@')) {
-              iDir = str.split('@')[0];
-              iVer = str.split('@')[1];
-            } else {
-              iDir = str;
-            }
-            var iPath = path.join(workFlowPath, 'node_modules', iDir);
-            var iPkgPath = path.join(iPath, 'package.json');
-            var iPkg;
-            if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
-              if (iVer) {
-                iPkg = require(iPkgPath);
-                if (iPkg.version != iVer) {
-                  installLists.push(str);
-                }
+                default:
+                  break;
               }
-            } else {
-              installLists.push(str);
             }
-          });
+          }
+        })(config);
 
-          if (installLists.length) {
-            if (!fs.existsSync(iPkgPath)) {
-              fs.writeFileSync(iPkgPath, '{}');
-            }
 
-            var cmd = `npm install ${installLists.join(' ')}`;
-            log('msg', 'info' `run cmd ${cmd}`);
-            process.chdir(workFlowPath);
-
-            log('end');
-            util.runCMD(cmd, (err) => {
-              if (err) {
-                return done(err, iConfig);
-              }
-
-              next(iConfig);
-            }, path.join(util.vars.INIT_FILE_PATH, iConfig.workflow));
+        new util.Promise(((next) => {
+          if (name) {
+            next(config[name]);
+          } else {
+            next(config);
+          }
+        })).then((iConfig, next) => { // 自定义 config
+          if (typeof iConfig.onInitConfig == 'function') {
+            log('msg', 'info', 'run config.onInitConfig function');
+            iConfig.onInitConfig(iConfig, env, next);
           } else {
             next(iConfig);
           }
-        } else {
+        }).then((iConfig, next) => { // 更新 config 文件
+          if (name) {
+            config[name] = iConfig;
+          } else {
+            config = iConfig;
+          }
+
+          var fileStr = `module.exports=${JSON.stringify(config, null, 4)}`;
+
+          util.mkdirSync(workFlowPath);
+          fs.writeFileSync(path.join(workFlowPath, 'config.js'), fileStr);
           next(iConfig);
-        }
-      }).then((iConfig, next) => {
-        done(null, iConfig);
-        next();
-      }).start();
+        }).then((iConfig, next) => { // 更新 config 内 插件
+          if (iConfig.plugins && iConfig.plugins.length) {
+            var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
+            var installLists = [];
+
+            iConfig.plugins.forEach((str) => {
+              var iDir;
+              var iVer;
+              if (~str.indexOf('@')) {
+                iDir = str.split('@')[0];
+                iVer = str.split('@')[1];
+              } else {
+                iDir = str;
+              }
+              var iPath = path.join(workFlowPath, 'node_modules', iDir);
+              var iPkgPath = path.join(iPath, 'package.json');
+              var iPkg;
+              if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
+                if (iVer) {
+                  iPkg = require(iPkgPath);
+                  if (iPkg.version != iVer) {
+                    installLists.push(str);
+                  }
+                }
+              } else {
+                installLists.push(str);
+              }
+            });
+
+            if (installLists.length) {
+              if (!fs.existsSync(iPkgPath)) {
+                fs.writeFileSync(iPkgPath, '{}');
+              }
+
+              var cmd = `npm install ${installLists.join(' ')}`;
+              log('msg', 'info' `run cmd ${cmd}`);
+              process.chdir(workFlowPath);
+
+              log('end');
+              util.runCMD(cmd, (err) => {
+                if (err) {
+                  return done(err, iConfig);
+                }
+
+                next(iConfig);
+              }, path.join(util.vars.INIT_FILE_PATH, iConfig.workflow));
+            } else {
+              next(iConfig);
+            }
+          } else {
+            next(iConfig);
+          }
+        }).then((iConfig, next) => {
+          done(null, iConfig);
+          next();
+        }).start();
+      };
+
+      return new Promise((next) => {
+        runner(next);
+      });
     },
-    abort: function(done) {
+    abort: function() {
       if (cache.server) {
-        cache.server.close(() => {
-          return done && done();
+        return new Promise((next) => {
+          cache.server.close(() => {
+            return next();
+          });
         });
+      } else {
+        return Promise.resolve(null);
       }
     },
     // 服务器启动
-    start: function(iPath, port, silent, done) {
+    start: function(iPath, port, silent) {
       if (!iPath || !fs.existsSync(iPath)) {
         iPath = util.vars.PROJECT_PATH;
       }
@@ -493,85 +505,90 @@ var
 
       var serverAddress = `http://${util.vars.LOCAL_SERVER}:${port}`;
 
-      new util.Promise((next) => {
-        util.checkPortUseage(port, (canUse) => {
-          if (!canUse) {
-            const errMsg = `server port ${port} is be occupied, please check`;
-            if (done) {
-              done(errMsg);
-            } else {
-              log('msg', 'error', errMsg);
-            }
-          } else {
-            next();
-          }
-        });
-      }).then((next) => {
-        util.checkPortUseage(lrPort, (canUse) => {
-          if (!canUse) {
-            const errMsg = `livereload port ${lrPort} is be occupied, please check`;
-            if (done) {
-              done(errMsg);
-            } else {
-              log('msg', 'error', errMsg);
-            }
-          } else {
-            next();
-          }
-        });
-      }).then(() => {
-        log('msg', 'success', `local path : ${iPath}`);
-        log('msg', 'success', `   address : ${serverAddress}`);
-        log('msg', 'success', `   lr port : ${lrPort}`);
-
-        var server = connect()
-          .use(livereload({
-            port: lrPort,
-            src: 'http://localhost:35729/livereload.js?snipver=1'
-          }))
-
-          // 执行 post 请求本地服务器时处理
-          .use((req, res, next) => {
-            if (req.method == 'POST') {
-              var filePath = path.join(iPath, url.parse(req.url).pathname);
-
-              if (fs.existsSync(filePath)) {
-                res.write(fs.readFileSync(filePath));
+      const runner = (done) => {
+        new util.Promise((next) => {
+          util.checkPortUseage(port, (canUse) => {
+            if (!canUse) {
+              const errMsg = `server port ${port} is be occupied, please check`;
+              if (done) {
+                done(errMsg);
               } else {
-                res.statusCode = 404;
+                log('msg', 'error', errMsg);
               }
-
-              res.end();
             } else {
               next();
             }
-          })
-          .use(serveStatic(iPath, {
-            'setHeaders': function(res) {
-              res.setHeader('Cache-Control', 'no-cache');
-            }
-          }))
-          .use(serveIndex(iPath))
-          .listen(port, (err) => {
-            if (err) {
-              log('msg', 'error', err);
-              return done(err);
-            }
-            tinylr().listen(lrPort);
-            if (!silent) {
-              util.openBrowser(serverAddress);
-            }
-            if (done) {
-              done();
+          });
+        }).then((next) => {
+          util.checkPortUseage(lrPort, (canUse) => {
+            if (!canUse) {
+              const errMsg = `livereload port ${lrPort} is be occupied, please check`;
+              if (done) {
+                done(errMsg);
+              } else {
+                log('msg', 'error', errMsg);
+              }
+            } else {
+              next();
             }
           });
-        server.on('error', (err) => {
-          log('msg', 'error', err);
-          done(err);
-        });
+        }).then(() => {
+          log('msg', 'success', `local path : ${iPath}`);
+          log('msg', 'success', `   address : ${serverAddress}`);
+          log('msg', 'success', `   lr port : ${lrPort}`);
 
-        cache.server = server;
-      }).start();
+          var server = connect()
+            .use(livereload({
+              port: lrPort,
+              src: 'http://localhost:35729/livereload.js?snipver=1'
+            }))
+
+            // 执行 post 请求本地服务器时处理
+            .use((req, res, next) => {
+              if (req.method == 'POST') {
+                var filePath = path.join(iPath, url.parse(req.url).pathname);
+
+                if (fs.existsSync(filePath)) {
+                  res.write(fs.readFileSync(filePath));
+                } else {
+                  res.statusCode = 404;
+                }
+
+                res.end();
+              } else {
+                next();
+              }
+            })
+            .use(serveStatic(iPath, {
+              'setHeaders': function(res) {
+                res.setHeader('Cache-Control', 'no-cache');
+              }
+            }))
+            .use(serveIndex(iPath))
+            .listen(port, (err) => {
+              if (err) {
+                log('msg', 'error', err);
+                return done(err);
+              }
+              tinylr().listen(lrPort);
+              if (!silent) {
+                util.openBrowser(serverAddress);
+              }
+              if (done) {
+                done();
+              }
+            });
+          server.on('error', (err) => {
+            log('msg', 'error', err);
+            done(err);
+          });
+
+          cache.server = server;
+        }).start();
+      };
+      return new Promise((next) => {
+        runner(next);
+      });
     },
     setLogLevel: function(level, notSave) {
       if (!notSave) {
@@ -585,52 +602,55 @@ var
       log('msg', 'info', `yyl logLevel: ${level}`);
     },
     // 服务器目录初始化
-    init: function(workflowName, done, forceInstall) {
-      log('msg', 'info', `init server ${workflowName} start`);
-      var workflows = [];
-      if (!workflowName) {
-        workflows = fs.readdirSync(path.join(util.vars.BASE_PATH, 'init-files'));
-        // return done('workflow is empty');
-      } else {
-        workflows.push(workflowName);
-      }
-
-      var padding = workflows.length;
-      var paddingCheck = function() {
-        padding--;
-        if (!padding) {
-          if (done) {
-            done();
-          }
-        }
-      };
-
-      workflows.forEach((workflowName) => {
-        var workflowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, workflowName);
-        var workflowBasePath = path.join(util.vars.INIT_FILE_PATH, workflowName);
-
-        if (!fs.existsSync(workflowBasePath)) {
-          return done(`${workflowName} is not the right command`);
+    init: function(workflowName, forceInstall) {
+      const runner = (done) => {
+        log('msg', 'info', `init server ${workflowName} start`);
+        var workflows = [];
+        if (!workflowName) {
+          workflows = fs.readdirSync(path.join(util.vars.BASE_PATH, 'init-files'));
+          // return done('workflow is empty');
+        } else {
+          workflows.push(workflowName);
         }
 
-        new util.Promise((next) => { // server init
-          util.mkdirSync(util.vars.SERVER_PATH);
-          util.mkdirSync(workflowPath);
-          next();
-        }).then((next) => { // npm install
-          wServer.updateNodeModules(workflowName, forceInstall).then((err) => {
-            if (err) {
-              log('msg', 'error', 'npm install fail on server!');
-              return;
+        var padding = workflows.length;
+        var paddingCheck = function() {
+          padding--;
+          if (!padding) {
+            if (done) {
+              done();
             }
-            log('msg', 'success', 'npm install finished');
+          }
+        };
+
+        workflows.forEach((workflowName) => {
+          var workflowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, workflowName);
+          var workflowBasePath = path.join(util.vars.INIT_FILE_PATH, workflowName);
+
+          if (!fs.existsSync(workflowBasePath)) {
+            throw new Error(`${workflowName} is not the right command`);
+          }
+
+          new util.Promise((next) => { // server init
+            util.mkdirSync(util.vars.SERVER_PATH);
+            util.mkdirSync(workflowPath);
             next();
-          });
-        }).then((next) => { // back to dirPath
-          log('msg', 'success', `init server ${workflowName} finished`);
-          paddingCheck();
-          next();
-        }).start();
+          }).then((next) => { // npm install
+            wServer.updateNodeModules(workflowName, forceInstall).then(() => {
+              log('msg', 'success', 'npm install finished');
+              next();
+            }).catch((er) => {
+              log('msg', 'error', ['npm install fail on server!', er]);
+            });
+          }).then((next) => { // back to dirPath
+            log('msg', 'success', `init server ${workflowName} finished`);
+            paddingCheck();
+            next();
+          }).start();
+        });
+      };
+      return new Promise((next) => {
+        runner(next);
       });
     },
 
@@ -668,7 +688,10 @@ var
           if (needRun) {
             log('end');
             util.runCMD('npm install', (err) => {
-              next(err);
+              if (err) {
+                throw new Error(err);
+              }
+              next();
             }, workflowPath);
           } else {
             next();
@@ -685,30 +708,24 @@ var
       switch (ctx) {
         case '--path':
         case '-p':
-          events.path();
-          break;
+          return events.path();
 
         case 'start':
-          events.start.apply(events, iArgv.slice(2));
-          break;
+          return events.start.apply(events, iArgv.slice(2));
 
         case 'clear':
         case 'clean':
-          events.clear();
-          break;
+          return events.clear();
 
         case 'init':
-          events.init.apply(events, iArgv.slice(2));
-          break;
+          return events.init.apply(events, iArgv.slice(2));
 
         case '--h':
         case '--help':
-          events.help();
-          break;
+          return events.help();
 
         default:
-          events.help();
-          break;
+          return events.help();
       }
     }
 
