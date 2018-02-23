@@ -355,7 +355,7 @@ const wCommit = {
         } else {
           next();
         }
-      }).then((next) => { // svn update
+      }).then((next) => { // optimize
         wOptimize('all --isCommit').then((config) => {
           next(config);
         }).catch((er) => {

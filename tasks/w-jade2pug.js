@@ -18,6 +18,8 @@ var jade2pug = {
           log('msg', 'success', 'build server config finished');
           next(config);
         }).catch((err) => {
+          log('msg', 'error', ['build server config fail', err]);
+          log('finish');
           throw new Error(err);
         });
       })).then((config) => {

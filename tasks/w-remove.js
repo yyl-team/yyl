@@ -20,6 +20,7 @@ var
       var iBaseName = path.basename(tPath);
 
       if (!fs.existsSync(tPath)) {
+        log('msg', 'error', `${tPath} is not exists`);
         log('finish');
         throw new Error(`${tPath} is not exists`);
       }

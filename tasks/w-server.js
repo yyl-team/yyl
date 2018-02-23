@@ -262,6 +262,7 @@ var
 
         // 获取 config, config.mine 文件内容
         if (!fs.existsSync(configPath)) {
+          log('finish');
           throw new Error(`config.js not found: ${configPath}`);
         }
 

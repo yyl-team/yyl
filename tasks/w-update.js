@@ -227,8 +227,12 @@ var
               util.runCMD(iCmd, (err) => {
                 if (err) {
                   if (version) {
+                    log('msg', 'error', `version is not exist: ${version}`);
+                    log('finish');
                     throw new Error(`version is not exist: ${version}`);
                   } else {
+                    log('msg', 'warn', UPDATE_ERR_MSG);
+                    log('finish');
                     throw new Error(UPDATE_ERR_MSG);
                   }
                 } else {
@@ -240,11 +244,18 @@ var
         })).then((next) => { // package 校验
           var updatePackagePath = util.path.join(util.vars.SERVER_UPDATE_PATH, 'package.json');
           var basePackagePath = util.path.join(util.vars.BASE_PATH, 'package.json');
+          let errMsg;
 
           if (!fs.existsSync(updatePackagePath)) {
-            throw new Error(`path is not exists ${updatePackagePath}, ${UPDATE_ERR_MSG}`);
+            errMsg = `path is not exists ${updatePackagePath}, ${UPDATE_ERR_MSG}`;
+            log('msg', 'error', errMsg);
+            log('finish');
+            throw new Error(errMsg);
           } else if (!fs.existsSync(basePackagePath)) {
-            throw new Error(`path is not exists ${basePackagePath}, ${UPDATE_ERR_MSG}`);
+            errMsg = `path is not exists ${basePackagePath}, ${UPDATE_ERR_MSG}`;
+            log('msg', 'error', errMsg);
+            log('finish');
+            throw new Error(errMsg);
           }
 
           var updatePackage = util.requireJs(updatePackagePath);
@@ -252,7 +263,10 @@ var
           var isNotMatch = false;
 
           if (basePackage.version === updatePackage.version) {
-            throw new Error(`yyl already the latest: ${updatePackage.version}`);
+            errMsg = `yyl already the latest: ${updatePackage.version}`;
+            log('msg', 'error', errMsg);
+            log('finish');
+            throw new Error(errMsg);
           } else {
             Object.keys(updatePackage.dependencies).forEach((key) => {
               if (updatePackage.dependencies[key] != basePackage.dependencies[key]) {
@@ -270,21 +284,30 @@ var
             });
 
             if (isNotMatch) {
-              throw new Error(`the latest yyl package ${isNotMatch} changed, please run "npm i yyl -g" manual`);
+              errMsg = `the latest yyl package ${isNotMatch} changed, please run "npm i yyl -g" manual`;
+              log('msg', 'error', errMsg);
+              log('finish');
+              throw new Error(errMsg);
             } else {
               next();
             }
           }
         }).then((next) => { // copy files
           var updatePath = util.vars.SERVER_UPDATE_PATH;
+          let errMsg;
 
           if (!fs.existsSync(updatePath)) {
-            throw new Error(`path is not exists: ${updatePath}, ${UPDATE_ERR_MSG}`);
+            errMsg = `path is not exists: ${updatePath}, ${UPDATE_ERR_MSG}`;
+            log('msg', 'error', errMsg);
+            log('finish');
+            throw new Error(errMsg);
           }
 
           util.copyFiles(updatePath, util.vars.BASE_PATH, (err) => {
             if (err) {
-              return util.msg.warn(UPDATE_ERR_MSG);
+              log('msg', 'warn', UPDATE_ERR_MSG);
+              log('finish');
+              throw new Error(UPDATE_ERR_MSG);
             } else {
               next();
             }
@@ -309,6 +332,8 @@ var
 
           util.copyFiles(cp, (err) => {
             if (err) {
+              log('msg', 'error', err);
+              log('finish');
               throw new Error(err);
             } else {
               next();
@@ -316,6 +341,7 @@ var
           });
         }).then(() => {
           log('msg', 'success', 'yyl update finished');
+          log('finish');
           done();
         }).start();
 

@@ -170,8 +170,6 @@ module.exports = function(ctx) {
   }
 
   if (!iEnv.nocatch) {
-    r.catch((er) => {
-      util.msg.error(er);
-    });
+    r.catch(() => {});
   }
 };
