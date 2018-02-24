@@ -1,5 +1,8 @@
 # 版本信息
 ## 2.16.0 (2018-01-26)
+* [ADD] `yyl` 新增 `--logLevel` 参数
+* [EDIT] 分离 `yyl watch` 中 `server` 与 `optimize` 到 两个独立的窗口
+* [EDIT] `yyl` 构建方式改成内联，不再通过 `util.runCMD(gulp watch)` 的方式进行调用
 * [DEL] 去掉 `yyl` 对 全局 `gulp` 的依赖
 * [DEL] 去掉 `yyl debug`
 * [DEL] 去掉 `yyl server rebuild` 方法

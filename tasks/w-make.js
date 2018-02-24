@@ -1,9 +1,10 @@
 'use strict';
-var path = require('path');
-var fs = require('fs');
+const path = require('path');
+const fs = require('fs');
 
-var util = require('./w-util.js');
-var wServer = require('./w-server.js');
+const util = require('./w-util.js');
+const wServer = require('./w-server.js');
+const log = require('./w-log.js');
 
 
 var TEMPLATE = {
@@ -95,243 +96,255 @@ var
 var
   wMake = {
     init: function(name, op) {
-      new util.Promise(((next) => {
-        util.msg.info('build server config start');
-        wServer.buildConfig(op.name, op, (err, config) => { // 创建 server 端 config
-          if (err) {
-            return util.msg.error('build server config error:', err);
+      const runner = (done) => {
+        new util.Promise(((next) => {
+          log('start', 'make');
+          log('msg', 'info', 'build server config start');
+          wServer.buildConfig(op.name, op).then((config) => {
+            log('msg', 'success', 'build server config finished');
+            next(config);
+          }).catch((err) => {
+            log('msg', 'error', ['build server config fail', err]);
+            log('finish');
+            throw new Error(err);
+          });
+        })).then((config, next) => {
+          var srcRoot = config.alias.srcRoot;
+          var widgetPath = '';
+          var type = '';
+
+          console.log(name);
+
+
+          if (/^p-/.test(name)) { // 页面级 组件
+            widgetPath = util.joinFormat(srcRoot, 'components/page');
+            type = 'page';
+          } else if (/^[wr]-/.test(name)) { // 模块级 组件
+            widgetPath = util.joinFormat(srcRoot, 'components/widget');
+            type = 'widget';
+          } else { // 不执行
+            log('msg', 'warn', 'yyl make fail');
+            log('msg', 'warn', `${name} is not a widget(w-xx|r-xx) or page(p-) components`);
+            return done(null);
           }
 
-          util.msg.success('build server config done');
-          util.printIt.init(config);
-          next(config);
-        });
-      })).then((config, next) => {
-        var srcRoot = config.alias.srcRoot;
-        var widgetPath = '';
-        var type = '';
+          if (!fs.existsSync(widgetPath)) {
+            widgetPath = util.joinFormat(srcRoot, 'components');
+          }
 
-        console.log(name);
+          widgetPath = util.joinFormat(widgetPath, name);
+          util.mkdirSync(widgetPath);
 
-
-        if (/^p-/.test(name)) { // 页面级 组件
-          widgetPath = util.joinFormat(srcRoot, 'components/page');
-          type = 'page';
-        } else if (/^[wr]-/.test(name)) { // 模块级 组件
-          widgetPath = util.joinFormat(srcRoot, 'components/widget');
-          type = 'widget';
-        } else { // 不执行
-          util.msg.warn('yyl make fail');
-          util.msg.warn(name, 'is not a widget(w-xx|r-xx) or page(p-) components');
-          return;
-        }
-
-        if (!fs.existsSync(widgetPath)) {
-          widgetPath = util.joinFormat(srcRoot, 'components');
-        }
-
-        widgetPath = util.joinFormat(widgetPath, name);
-        util.mkdirSync(widgetPath);
-
-        next(widgetPath, type, srcRoot, config);
-      }).then((widgetPath, type, srcRoot, config, next) => { // scss
-        var scssPath = util.joinFormat(widgetPath, `${name  }.scss`);
-        var iTmpl;
-        // scss 部分
-        if (fs.existsSync(scssPath)) {
-          util.msg.warn(util.printIt(scssPath), 'is exists', 'make it fail');
-        } else {
-          if (type == 'page') {
-            iTmpl = TEMPLATE.SCSS.PAGE;
-          } else if (type == 'widget') {
-            iTmpl = TEMPLATE.SCSS.WIDGET;
+          next(widgetPath, type, srcRoot, config);
+        }).then((widgetPath, type, srcRoot, config, next) => { // scss
+          var scssPath = util.joinFormat(widgetPath, `${name  }.scss`);
+          var iTmpl;
+          // scss 部分
+          if (fs.existsSync(scssPath)) {
+            log('msg', 'warn', `scss file exists, make fail: ${scssPath}`);
           } else {
-            iTmpl = TEMPLATE.SCSS.DEFAULT;
-          }
-
-          fs.writeFileSync(scssPath, fn.render(iTmpl, { 'name': name }));
-          util.msg.create(util.printIt(scssPath));
-        }
-
-        next(widgetPath, type, srcRoot, config);
-      }).then((widgetPath, type, srcRoot, config, next) => { // jade
-        var jadePath;
-        if (config.workflow == 'gulp-requirejs') {
-          jadePath = util.joinFormat(widgetPath, `${name  }.pug`);
-        } else {
-          jadePath = util.joinFormat(widgetPath, `${name  }.jade`);
-        }
-        var iTmpl;
-
-        // jade 部分
-        if (fs.existsSync(jadePath)) {
-          util.msg.warn(util.printIt(jadePath), 'is exists', 'make it fail');
-        } else {
-          if (type == 'page') {
-            iTmpl = TEMPLATE.JADE.PAGE;
-          } else if (name == 'w-layout') {
-            iTmpl = TEMPLATE.JADE.LAYOUT;
-          } else if (type == 'widget') {
-            iTmpl = TEMPLATE.JADE.WIDGET;
-          } else {
-            iTmpl = TEMPLATE.JADE.DEFAULT;
-          }
-
-          fs.writeFileSync(jadePath, fn.render(iTmpl, {
-            'name': name
-          }));
-          util.msg.create(util.printIt(jadePath));
-        }
-
-        next(widgetPath, type, srcRoot, config);
-      }).then((widgetPath, type, srcRoot, config, next) => { // js
-        var jsPath = util.joinFormat(widgetPath, `${name  }.js`);
-        var iTmpl;
-        // js 部分
-        if (fs.existsSync(jsPath)) {
-          util.msg.warn(util.printIt(jsPath), 'is exists', 'make it fail');
-        } else {
-          if (config.workflow == 'gulp-requirejs') {
             if (type == 'page') {
-              iTmpl = TEMPLATE.JS.PAGE;
+              iTmpl = TEMPLATE.SCSS.PAGE;
             } else if (type == 'widget') {
-              iTmpl = TEMPLATE.JS.WIDGET;
+              iTmpl = TEMPLATE.SCSS.WIDGET;
+            } else {
+              iTmpl = TEMPLATE.SCSS.DEFAULT;
+            }
+
+            fs.writeFileSync(scssPath, fn.render(iTmpl, { 'name': name }));
+            log('msg', 'create', scssPath);
+          }
+
+          next(widgetPath, type, srcRoot, config);
+        }).then((widgetPath, type, srcRoot, config, next) => { // jade
+          var jadePath;
+          if (config.workflow == 'gulp-requirejs') {
+            jadePath = util.joinFormat(widgetPath, `${name  }.pug`);
+          } else {
+            jadePath = util.joinFormat(widgetPath, `${name  }.jade`);
+          }
+          var iTmpl;
+
+          // jade 部分
+          if (fs.existsSync(jadePath)) {
+            log('msg', 'warn', `jade file is exists, make fail: ${jadePath}`);
+          } else {
+            if (type == 'page') {
+              iTmpl = TEMPLATE.JADE.PAGE;
+            } else if (name == 'w-layout') {
+              iTmpl = TEMPLATE.JADE.LAYOUT;
+            } else if (type == 'widget') {
+              iTmpl = TEMPLATE.JADE.WIDGET;
+            } else {
+              iTmpl = TEMPLATE.JADE.DEFAULT;
+            }
+
+            fs.writeFileSync(jadePath, fn.render(iTmpl, {
+              'name': name
+            }));
+            log('msg', 'create', jadePath);
+          }
+
+          next(widgetPath, type, srcRoot, config);
+        }).then((widgetPath, type, srcRoot, config, next) => { // js
+          var jsPath = util.joinFormat(widgetPath, `${name  }.js`);
+          var iTmpl;
+          // js 部分
+          if (fs.existsSync(jsPath)) {
+            log('msg', 'warn', `js file is exist, make fail: ${jsPath}`);
+          } else {
+            if (config.workflow == 'gulp-requirejs') {
+              if (type == 'page') {
+                iTmpl = TEMPLATE.JS.PAGE;
+              } else if (type == 'widget') {
+                iTmpl = TEMPLATE.JS.WIDGET;
+              } else {
+                iTmpl = TEMPLATE.JS.DEFAULT;
+              }
             } else {
               iTmpl = TEMPLATE.JS.DEFAULT;
             }
-          } else {
-            iTmpl = TEMPLATE.JS.DEFAULT;
+
+            fs.writeFileSync(jsPath, fn.render(iTmpl, {
+              'name': name
+            }));
+            log('msg', 'create', jsPath);
           }
 
-          fs.writeFileSync(jsPath, fn.render(iTmpl, {
-            'name': name
-          }));
-          util.msg.create(util.printIt(jsPath));
-        }
+          next(widgetPath, type, srcRoot, config);
+        }).then((widgetPath, type, srcRoot, config) => { // alias
+          var configPath;
+          var configCnts;
 
-        next(widgetPath, type, srcRoot, config);
-      }).then((widgetPath, type, srcRoot, config) => { // alias
-        var configPath;
-        var configCnts;
+          // alias 部分
+          if (config.workflow == 'gulp-requirejs') {
+            configPath = util.joinFormat(srcRoot, 'js/rConfig/rConfig.js');
+          } else if (/^(gulp-rollup|webpack-vue|webpack-vue2)$/.test(config.workflow)) {
+            configPath = util.joinFormat( util.vars.PROJECT_PATH, 'config.js');
+          }
 
-        // alias 部分
-        if (config.workflow == 'gulp-requirejs') {
-          configPath = util.joinFormat(srcRoot, 'js/rConfig/rConfig.js');
-        } else if (/^(gulp-rollup|webpack-vue|webpack-vue2)$/.test(config.workflow)) {
-          configPath = util.joinFormat( util.vars.PROJECT_PATH, 'config.js');
-        }
+          if (type == 'widget' && configPath && fs.existsSync(configPath)) {
+            configCnts = fs.readFileSync(configPath).toString().split(/[\r\n]+/);
+            // 查找标记位置
+            var startIndex = -1;
+            var endIndex = -1;
+            var prefix = '';
 
-        if (type == 'widget' && configPath && fs.existsSync(configPath)) {
-          configCnts = fs.readFileSync(configPath).toString().split(/[\r\n]+/);
-          // 查找标记位置
-          var startIndex = -1;
-          var endIndex = -1;
-          var prefix = '';
+            configCnts.forEach((str, i) => {
+              if (!str) {
+                return;
+              }
 
-          configCnts.forEach((str, i) => {
-            if (!str) {
-              return;
-            }
-
-            if (str.match(TEMPLATE.ALIAS.START_REG)) { // 开始 标记
-              startIndex = i;
-            } else if (str.match(TEMPLATE.ALIAS.END_REG)) { // 结束 标记
-              endIndex = i;
-            }
-          });
-          if (~startIndex) { // 插入模块
-            prefix = configCnts[startIndex].replace(TEMPLATE.ALIAS.START_REG, '$1');
-            var moduleName = name.replace(/(^[rw])(-)(\w)(.*$)/, (str, $1, $2, $3, $4) => {
-              return $1 + $3.toUpperCase() + $4;
-            });
-            var modulePath = util.joinFormat(path.relative(
-              path.dirname(configPath),
-              util.joinFormat(widgetPath, name)
-            ));
-            var insertStr;
-
-            switch (config.workflow) {
-              case 'gulp-requirejs':
-                break;
-
-              default:
-                modulePath += '.js';
-                break;
-            }
-
-            insertStr = `${prefix  }'${ moduleName }' : '${ modulePath }',`;
-
-            // 查找是否已经添加过了
-            var added = false;
-            var isBeforeBracket = false; // 是否后面就跟着 花括号了
-            var bracketReg = /^[\s\t]*\}[\s\t]*[,]?[\s\t]*$/;
-            var commaReg = /,[\s\t]*$/;
-            configCnts.slice(startIndex, endIndex).forEach((str) => {
-              if (str.replace(commaReg, '') == insertStr.replace(commaReg, '')) {
-                added = true;
-                return true;
+              if (str.match(TEMPLATE.ALIAS.START_REG)) { // 开始 标记
+                startIndex = i;
+              } else if (str.match(TEMPLATE.ALIAS.END_REG)) { // 结束 标记
+                endIndex = i;
               }
             });
+            if (~startIndex) { // 插入模块
+              prefix = configCnts[startIndex].replace(TEMPLATE.ALIAS.START_REG, '$1');
+              var moduleName = name.replace(/(^[rw])(-)(\w)(.*$)/, (str, $1, $2, $3, $4) => {
+                return $1 + $3.toUpperCase() + $4;
+              });
+              var modulePath = util.joinFormat(path.relative(
+                path.dirname(configPath),
+                util.joinFormat(widgetPath, name)
+              ));
+              var insertStr;
 
-            if (added) {
-              return util.msg.warn(moduleName, 'was added to the config path before yyl make run');
-            }
+              switch (config.workflow) {
+                case 'gulp-requirejs':
+                  break;
 
-            configCnts.splice(startIndex + 1, 0, insertStr); // 插入
-            endIndex += 1;
-            if (~endIndex) { // 那就帮忙排个序吧
-              isBeforeBracket = bracketReg.test(configCnts[endIndex + 1]);
-              var sortArr = configCnts.slice(startIndex + 1, endIndex);
-              sortArr.sort((a, b) => {
-                return b.localeCompare(a);
+                default:
+                  modulePath += '.js';
+                  break;
+              }
+
+              insertStr = `${prefix}'${moduleName}' : '${modulePath}',`;
+
+              // 查找是否已经添加过了
+              var added = false;
+              var isBeforeBracket = false; // 是否后面就跟着 花括号了
+              var bracketReg = /^[\s\t]*\}[\s\t]*[,]?[\s\t]*$/;
+              var commaReg = /,[\s\t]*$/;
+              configCnts.slice(startIndex, endIndex).forEach((str) => {
+                if (str.replace(commaReg, '') == insertStr.replace(commaReg, '')) {
+                  added = true;
+                  return true;
+                }
               });
 
-
-              // 解决逗号问题
-              if (isBeforeBracket) {
-                if (!configCnts[startIndex - 1].match(commaReg)) {
-                  configCnts[startIndex - 1] = `${configCnts[startIndex - 1]  },`;
-                }
+              if (added) {
+                log('msg', 'warn', `${moduleName} was added to the config path before yyl make run`);
+                log('finish');
+                return done();
               }
-              configCnts = configCnts.map((str, i) => {
-                var r;
-                if (i >= startIndex + 1 && i < endIndex) {
-                  r = sortArr[i - startIndex - 1];
-                  if (isBeforeBracket) {
-                    if ( i == endIndex - 1 ) { // 最后一个
-                      r = r.replace(commaReg, '');
-                    } else {
-                      if (!r.match(commaReg)) {
-                        r = `${r  },`;
+
+              configCnts.splice(startIndex + 1, 0, insertStr); // 插入
+              endIndex += 1;
+              if (~endIndex) { // 那就帮忙排个序吧
+                isBeforeBracket = bracketReg.test(configCnts[endIndex + 1]);
+                var sortArr = configCnts.slice(startIndex + 1, endIndex);
+                sortArr.sort((a, b) => {
+                  return b.localeCompare(a);
+                });
+
+
+                // 解决逗号问题
+                if (isBeforeBracket) {
+                  if (!configCnts[startIndex - 1].match(commaReg)) {
+                    configCnts[startIndex - 1] = `${configCnts[startIndex - 1]  },`;
+                  }
+                }
+                configCnts = configCnts.map((str, i) => {
+                  var r;
+                  if (i >= startIndex + 1 && i < endIndex) {
+                    r = sortArr[i - startIndex - 1];
+                    if (isBeforeBracket) {
+                      if ( i == endIndex - 1 ) { // 最后一个
+                        r = r.replace(commaReg, '');
+                      } else {
+                        if (!r.match(commaReg)) {
+                          r = `${r  },`;
+                        }
                       }
                     }
+                  } else {
+                    r = str;
                   }
-                } else {
-                  r = str;
+                  return r;
+                });
+              } else {
+                // 解决逗号问题
+                isBeforeBracket = bracketReg.test(configCnts[startIndex + 2]);
+                if (isBeforeBracket) {
+                  if (!configCnts[startIndex - 1].match(commaReg)) {
+                    configCnts[startIndex - 1] = `${configCnts[startIndex - 1]  },`;
+                  }
+                  configCnts[startIndex + 1] = configCnts[startIndex + 1].replace(commaReg, '');
                 }
-                return r;
-              });
-            } else {
-              // 解决逗号问题
-              isBeforeBracket = bracketReg.test(configCnts[startIndex + 2]);
-              if (isBeforeBracket) {
-                if (!configCnts[startIndex - 1].match(commaReg)) {
-                  configCnts[startIndex - 1] = `${configCnts[startIndex - 1]  },`;
-                }
-                configCnts[startIndex + 1] = configCnts[startIndex + 1].replace(commaReg, '');
               }
-            }
 
-            fs.writeFileSync(configPath, configCnts.join('\r\n'));
-            util.msg.update(util.printIt(configPath));
-            util.msg.update(insertStr.substr(prefix.length));
-          } else {
-            util.msg.warn('add alias fail,', 'config haven\'t the mark:');
-            util.msg.warn(TEMPLATE.ALIAS.START);
-            util.msg.warn('in config file:', util.printIt(configPath));
+              fs.writeFileSync(configPath, configCnts.join('\r\n'));
+              log('msg', 'update', configPath);
+              log('msg', 'update', insertStr.substr(prefix.length));
+              log('finish');
+              done();
+            } else {
+              log('msg', 'warn', 'add alias fail,', 'config haven\'t the mark:');
+              log('msg', 'warn', TEMPLATE.ALIAS.START);
+              log('msg', 'warn', `in config file: ${configPath}`);
+              log('finish');
+              done();
+            }
           }
-        }
-      }).start();
+        }).start();
+      };
+
+      return new Promise((next) => {
+        runner(next);
+      });
     },
     help: function() {
       util.help({
@@ -347,9 +360,9 @@ var
       var op = util.envParse(iArgv.slice(1));
 
       if (!ctx) {
-        wMake.help();
+        return wMake.help();
       } else {
-        wMake.init(ctx, op);
+        return wMake.init(ctx, op);
       }
     }
 

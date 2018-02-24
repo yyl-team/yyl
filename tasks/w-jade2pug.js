@@ -1,50 +1,61 @@
 'use strict';
-var path = require('path');
-var fs = require('fs');
+const path = require('path');
+const fs = require('fs');
 
-var util = require('./w-util.js');
-var wServer = require('./w-server.js');
+const util = require('./w-util.js');
+const wServer = require('./w-server.js');
+const log = require('./w-log.js');
 
 var jade2pug = {
   init: function(op) {
-    new util.Promise(((next) => {
-      util.msg.info('build server config start');
-      wServer.buildConfig(op.name, op, (err, config) => { // 创建 server 端 config
-        if (err) {
-          return util.msg.error('build server config error:', err);
-        }
+    const runner = (done) => {
+      new util.Promise(((next) => {
+        log('start', 'jade2pug');
+        log('msg', 'info', 'build server config start');
 
-        util.msg.success('build server config done');
-        util.printIt.init(config);
-        next(config);
-      });
-    })).then((config) => {
-      var
-        jadeFiles = util.readFilesSync(config.alias.srcRoot, (iPath) => {
-          if (path.extname(iPath) == '.jade') {
-            return true;
-          }
+        // 创建 server 端 config
+        wServer.buildConfig(op.name, op).then((config) => {
+          log('msg', 'success', 'build server config finished');
+          next(config);
+        }).catch((err) => {
+          log('msg', 'error', ['build server config fail', err]);
+          log('finish');
+          throw new Error(err);
+        });
+      })).then((config) => {
+        var
+          jadeFiles = util.readFilesSync(config.alias.srcRoot, (iPath) => {
+            if (path.extname(iPath) == '.jade') {
+              return true;
+            }
+          });
+
+        // jade file 重命名
+        jadeFiles.forEach((iPath) => {
+          var pugPath = iPath.replace(/\.jade$/, '.pug');
+
+          fs.writeFileSync(pugPath, fs.readFileSync(iPath));
+          util.removeFiles(iPath);
+          log('msg', 'del', iPath);
+          log('msg', 'create', pugPath);
         });
 
-      // jade file 重命名
-      jadeFiles.forEach((iPath) => {
-        var pugPath = iPath.replace(/\.jade$/, '.pug');
+        log('msg', 'success', 'yyl pug2dest finished');
+        log('finish');
+        done();
+      }).start();
+    };
 
-        fs.writeFileSync(pugPath, fs.readFileSync(iPath));
-        util.removeFiles(iPath);
-        util.msg.del(util.printIt(iPath));
-        util.msg.create(util.printIt(pugPath));
-      });
-
-      util.msg.success('yyl pug2dest finished');
-    }).start();
+    return new Promise((next) => {
+      runner(next);
+    });
   },
   // 获取所有 jade 文件
   run: function() {
     var iArgv = util.makeArray(arguments);
     var op = util.envParse(iArgv);
 
-    jade2pug.init(op);
+    return jade2pug.init(op);
   }
 };
 

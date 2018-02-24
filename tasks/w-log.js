@@ -7,6 +7,7 @@ const cache = {
   currentType: null,
   logLevel: -1,
   isEnd: false,
+  timeIntervalKey: 0,
   status: {
     // 'name': {
     //   'error': [],
@@ -24,6 +25,7 @@ util.infoBar.init({
         color: 'white',
         bgColor: 'bgBlue'
       },
+
       'server': {
         name: 'SERV',
         color: 'white',
@@ -63,7 +65,57 @@ util.infoBar.init({
         name: 'PASS',
         color: 'white',
         bgColor: 'bgBlue'
-      }
+      },
+      // + w-jade2pug
+      'jade2pug': {
+        name: 'JTOP',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-jade2pug
+      // + w-commit
+      'commit-copy': {
+        name: 'COPY',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'commit-step01': {
+        name: 'ST01',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'commit-step02': {
+        name: 'ST02',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'commit-step03': {
+        name: 'ST03',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-commit
+      // + make
+      'make': {
+        name: 'MAKE',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - make
+      // + w-remove
+      'remove': {
+        name: 'RM',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-remove
+      // + w-update
+      'update': {
+        name: 'UPDT',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      // - w-update
     }
   }
 });
@@ -164,6 +216,9 @@ const log4Base = (module, type, argv) => {
   }
 
   const prinitInfo = () => {
+    if (cache.isEnd) {
+      return;
+    }
     let leftArr = [];
     let rightArr = [];
     if (iStatus.optimizes.length) {
@@ -202,6 +257,10 @@ const log4Base = (module, type, argv) => {
       if (!cache.isEnd) {
         util.infoBar.end();
       }
+      clearInterval(cache.timeIntervalKey);
+      cache.timeIntervalKey = setInterval(() => {
+        prinitInfo();
+      }, 1000);
       prinitInfo();
       break;
 
@@ -213,6 +272,7 @@ const log4Base = (module, type, argv) => {
     case 'finish':
       cache.isEnd = true;
       util.infoBar.end();
+      clearInterval(cache.timeIntervalKey);
       cost = new Date() - cache.timer[cache.currentType];
       if (iStatus.errors.length) {
         util.infoBar.print('error', {
