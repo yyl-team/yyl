@@ -7,6 +7,7 @@ const cache = {
   currentType: null,
   logLevel: -1,
   isEnd: false,
+  timeIntervalKey: 0,
   status: {
     // 'name': {
     //   'error': [],
@@ -215,6 +216,9 @@ const log4Base = (module, type, argv) => {
   }
 
   const prinitInfo = () => {
+    if (cache.isEnd) {
+      return;
+    }
     let leftArr = [];
     let rightArr = [];
     if (iStatus.optimizes.length) {
@@ -253,6 +257,10 @@ const log4Base = (module, type, argv) => {
       if (!cache.isEnd) {
         util.infoBar.end();
       }
+      clearInterval(cache.timeIntervalKey);
+      cache.timeIntervalKey = setInterval(() => {
+        prinitInfo();
+      }, 1000);
       prinitInfo();
       break;
 
@@ -264,6 +272,7 @@ const log4Base = (module, type, argv) => {
     case 'finish':
       cache.isEnd = true;
       util.infoBar.end();
+      clearInterval(cache.timeIntervalKey);
       cost = new Date() - cache.timer[cache.currentType];
       if (iStatus.errors.length) {
         util.infoBar.print('error', {

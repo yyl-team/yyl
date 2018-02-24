@@ -59,15 +59,16 @@ describe('yyl init test', () => {
       var sourcePath01 = path.join(__dirname, '../init-files', workflow);
       var sourcePath02 = path.join(__dirname, '../examples', workflow, init);
       var projectPath = FRAG_PATH;
-
-      yyl.run(`init ${util.envStringify({
+      const cmd = `init ${util.envStringify({
         name: FRAG_PATH.split(/[/\\]+/).pop(),
         platform: 'pc',
         workflow: workflow,
         init: init,
         doc: 'git',
         silent: true
-      })}`, () => { // 文件校验
+      })}`;
+
+      yyl.run(cmd, FRAG_PATH).then(() => { // 文件校验
         var rFiles = util.readFilesSync(projectPath);
         var s01Files = util.readFilesSync(sourcePath01, (iPath) => {
           var relativePath = util.joinFormat(path.relative(sourcePath01, iPath));
@@ -116,7 +117,11 @@ describe('yyl init test', () => {
 
         fn.frag.destory();
         done();
-      }, FRAG_PATH);
+      }).catch((er) => {
+        expect(er).equal(undefined);
+        fn.frag.destory();
+        done();
+      });
     });
   };
 
@@ -136,7 +141,6 @@ describe('yyl all test', () => {
     it(workflow, function(DONE) {
       this.timeout(0);
 
-
       new util.Promise((next) => { // reset frag
         fn.frag.destory();
         next();
@@ -154,9 +158,13 @@ describe('yyl all test', () => {
           next();
         });
       }).then((next) => { // run yyl all
-        yyl.run('all --silent --logLevel 0', () => {
+        yyl.run('all --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
           next(util.getConfigSync({}));
-        }, FRAG_WORKFLOW_PATH);
+        }).catch((er) => {
+          expect(er).equal(undefined);
+          fn.frag.destory();
+          DONE();
+        });
       }).then((userConfig, next) => { // check
         const destRoot = userConfig.alias.destRoot;
         const htmls = util.readFilesSync(path.join(FRAG_WORKFLOW_PATH, 'dist'), /\.html$/);
@@ -286,8 +294,6 @@ describe('yyl all test', () => {
     });
   });
 });
-/**
-**/
 
 describe('yyl all --config test', () => {
   const WORKFLOW_PATH = path.join(__dirname, 'workflow-test/gulp-requirejs');
@@ -311,7 +317,7 @@ describe('yyl all --config test', () => {
         next();
       });
     }).then(() => { // 项目执行
-      yyl.run(`all --silent --config ${ABSOLUTE_CONFIG_PATH}`, () => {
+      yyl.run(`all --silent --config ${ABSOLUTE_CONFIG_PATH}`, FRAG_WORKFLOW_PATH).then(() => {
         var serverConfig = util.getConfigSync({});
         var localConfig = util.extend(
           true,
@@ -331,7 +337,11 @@ describe('yyl all --config test', () => {
         });
         fn.frag.destory();
         done();
-      }, FRAG_WORKFLOW_PATH);
+      }).catch((er) => {
+        expect(er).equal(undefined);
+        fn.frag.destory();
+        done();
+      });
     }).start();
   });
 
@@ -350,7 +360,7 @@ describe('yyl all --config test', () => {
         next();
       });
     }).then(() => { // 项目执行
-      yyl.run(`all --silent --config ${RELATIVE_CONFIG_PATH}`, () => {
+      yyl.run(`all --silent --config ${RELATIVE_CONFIG_PATH}`, FRAG_WORKFLOW_PATH).then(() => {
         var serverConfig = util.getConfigSync({});
         var
           localConfig = util.extend(
@@ -366,15 +376,26 @@ describe('yyl all --config test', () => {
         });
         fn.frag.destory();
         done();
-      }, FRAG_WORKFLOW_PATH);
+      }).catch((er) => {
+        expect(er).equal(undefined);
+        fn.frag.destory();
+        done();
+      });
     }).start();
   });
 });
-describe('yyl server test', () => {
-  it('yyl server start', (done) => {
+// describe('yyl server test', () => {
+//   it('yyl server start', (done) => {
+//     yyl.run('server start --logLevel 0').then((config) => {
+//       expect(config).not.equal(undefined);
+//       done();
+//     }).catch((er) => {
+//       expect(er).equal(undefined);
+//       done();
+//     })
 
-  });
-  it('yyl server clear', (done) => {
+//   });
+//   it('yyl server clear', (done) => {
 
-  });
-});
+//   });
+// });

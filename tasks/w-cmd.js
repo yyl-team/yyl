@@ -78,6 +78,10 @@ module.exports = function(ctx) {
     return util.msg.error('please makesure your node >= 4.0.0');
   }
 
+  if (iEnv.logLevel) {
+    events.server.setLogLevel(iEnv.logLevel, true);
+  }
+
   let r;
   switch (ctx) {
     case '-v':
@@ -172,4 +176,5 @@ module.exports = function(ctx) {
   if (!iEnv.nocatch) {
     r.catch(() => {});
   }
+  return r;
 };

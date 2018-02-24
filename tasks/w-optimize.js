@@ -10,10 +10,6 @@ var
     var iArgv = util.makeArray(arguments);
     var iEnv = util.envPrase(iArgv);
 
-    if (iEnv.logLevel) {
-      wServer.setLogLevel(iEnv.logLevel, true);
-    }
-
     const runner = (done) => {
       new util.Promise((next) => {
         log('clear');
