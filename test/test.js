@@ -17,7 +17,7 @@ util.cleanScreen();
 const TEST_CTRL = {
   SERVER: true,
   SERVER_INIT: true,
-  SERVER_CLEAR: true,
+  // SERVER_CLEAR: true,
   INIT: true,
   ALL: true,
   VERSION: true,
@@ -180,7 +180,7 @@ if (TEST_CTRL.SERVER) {
           const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs');
           expect([
             initPath,
-            fs.readdirSync(initPath) > 0
+            fs.readdirSync(initPath).length > 0
           ]).to.deep.equal([
             initPath,
             true
