@@ -59,6 +59,177 @@ const fn = {
 };
 
 fn.frag.destory();
+if (TEST_CTRL.SERVER) {
+  describe('yyl server test', () => {
+    it('yyl server -h', (done) => {
+      yyl.run('server -h --silent', __dirname).then((h) => {
+        expect(h).not.equal(undefined);
+        done();
+      });
+    });
+    it('yyl server --help', (done) => {
+      yyl.run('server --help --silent', __dirname).then((h) => {
+        expect(h).not.equal(undefined);
+        done();
+      });
+    });
+    it('yyl server start', function(done) {
+      this.timeout(0);
+
+      yyl.run('server start --logLevel 0 --silent', __dirname).then((config) => {
+        expect(config.server).not.equal(false);
+        const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
+        http.get(testPath, (res) => {
+          expect(res.statusCode).equal(200);
+          yyl.run('server abort').then(() => {
+            done();
+          });
+        });
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+
+    it(`yyl server start --path ${__dirname}`, (done) => {
+      yyl.run(`server start --logLevel 0 --silent --path ${__dirname}`).then((config) => {
+        expect(config.server).not.equal(false);
+        const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
+        http.get(testPath, (res) => {
+          expect(res.statusCode).equal(200);
+          yyl.run('server abort').then(() => {
+            done();
+          });
+        });
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+
+    it('yyl server start --path ./', (done) => {
+      yyl.run('server start --logLevel 0 --silent --path ./', __dirname).then((config) => {
+        expect(config.server).not.equal(false);
+        const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
+        http.get(testPath, (res) => {
+          expect(res.statusCode).equal(200);
+          yyl.run('server abort').then(() => {
+            done();
+          });
+        });
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+    it('yyl server -p', (done) => {
+      yyl.run('server -p --silent', __dirname).then((iPath) => {
+        expect(iPath).to.equal(util.vars.SERVER_PATH);
+        done();
+      });
+    });
+    it('yyl server --path', (done) => {
+      yyl.run('server --path --silent', __dirname).then((iPath) => {
+        expect(iPath).to.equal(util.vars.SERVER_PATH);
+        done();
+      });
+    });
+
+    it('yyl server clear <workflow>', function(done) {
+      this.timeout(0);
+      yyl.run('server clear gulp-requirejs').then(() => {
+        const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
+        expect([
+          initPath,
+          !fs.existsSync(initPath) || fs.readdirSync(initPath).length == 0
+        ]).to.deep.equal([
+          initPath,
+          true
+        ]);
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+    it('yyl server clear', function(done) {
+      this.timeout(0);
+      yyl.run('server clear').then(() => {
+        const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
+        workflows.forEach((workflow) => {
+          const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
+          expect([
+            initPath,
+            !fs.existsSync(initPath) || fs.readdirSync(initPath).length == 0
+          ]).to.deep.equal([
+            initPath,
+            true
+          ]);
+        });
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+
+    it('yyl server init <workflow>', function(done) {
+      this.timeout(0);
+      yyl.run('server init gulp-requirejs').then(() => {
+        const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
+        const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs');
+        expect([
+          initPath,
+          fs.readdirSync(initPath) > 0
+        ]).to.deep.equal([
+          initPath,
+          true
+        ]);
+        expect([
+          workflowPath,
+          fs.existsSync(workflowPath)
+        ]).to.deep.equal([
+          workflowPath,
+          true
+        ]);
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+    it('yyl server init', function(done) {
+      this.timeout(0);
+      yyl.run('server init').then(() => {
+        expect([
+          util.vars.SERVER_PATH,
+          fs.existsSync(util.vars.SERVER_PATH)
+        ]).to.deep.equal([
+          util.vars.SERVER_PATH,
+          true
+        ]);
+        const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
+        workflows.forEach((workflow) => {
+          const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
+          const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, workflow);
+          expect([
+            initPath,
+            fs.readdirSync(initPath).length > 0
+          ]).to.deep.equal([
+            initPath,
+            true
+          ]);
+          expect([
+            workflowPath,
+            fs.existsSync(workflowPath)
+          ]).to.deep.equal([
+            workflowPath,
+            true
+          ]);
+        });
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+  });
+}
+
+
 if (TEST_CTRL.INIT) {
   describe('yyl init test', () => {
     var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
@@ -93,7 +264,7 @@ if (TEST_CTRL.INIT) {
           var s02Files = util.readFilesSync(
             sourcePath02,
             (iPath) => {
-              if (/package\.json|gulpfile\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g.test(iPath)) {
+              if (/package\.json|gulple\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g.test(iPath)) {
                 return false;
               } else {
                 return true;
@@ -402,190 +573,7 @@ if (TEST_CTRL.ALL) {
 
 
 
-if (TEST_CTRL.SERVER) {
-  describe('yyl server test', () => {
-    it('yyl server -h', (done) => {
-      yyl.run('server -h --silent', __dirname).then((h) => {
-        expect(h).not.equal(undefined);
-        done();
-      });
-    });
-    it('yyl server --help', (done) => {
-      yyl.run('server --help --silent', __dirname).then((h) => {
-        expect(h).not.equal(undefined);
-        done();
-      });
-    });
-    it('yyl server start', function(done) {
-      this.timeout(0);
 
-      yyl.run('server start --logLevel 0 --silent', __dirname).then((config) => {
-        expect(config.server).not.equal(false);
-        const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
-        http.get(testPath, (res) => {
-          expect(res.statusCode).equal(200);
-          yyl.run('server abort').then(() => {
-            done();
-          });
-        });
-      }).catch((er) => {
-        expect(er).equal(undefined);
-        done();
-      });
-    });
-
-    it(`yyl server start --path ${__dirname}`, (done) => {
-      yyl.run(`server start --logLevel 0 --silent --path ${__dirname}`).then((config) => {
-        expect(config.server).not.equal(false);
-        const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
-        http.get(testPath, (res) => {
-          expect(res.statusCode).equal(200);
-          yyl.run('server abort').then(() => {
-            done();
-          });
-        });
-      }).catch((er) => {
-        expect(er).equal(undefined);
-        done();
-      });
-    });
-
-    it('yyl server start --path ./', (done) => {
-      yyl.run('server start --logLevel 0 --silent --path ./', __dirname).then((config) => {
-        expect(config.server).not.equal(false);
-        const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
-        http.get(testPath, (res) => {
-          expect(res.statusCode).equal(200);
-          yyl.run('server abort').then(() => {
-            done();
-          });
-        });
-      }).catch((er) => {
-        expect(er).equal(undefined);
-        done();
-      });
-    });
-    it('yyl server -p', (done) => {
-      yyl.run('server -p --silent', __dirname).then((iPath) => {
-        expect(iPath).to.equal(util.vars.SERVER_PATH);
-        done();
-      });
-    });
-    it('yyl server --path', (done) => {
-      yyl.run('server --path --silent', __dirname).then((iPath) => {
-        expect(iPath).to.equal(util.vars.SERVER_PATH);
-        done();
-      });
-    });
-
-    it('yyl server clear <workflow>', function(done) {
-      this.timeout(0);
-      yyl.run('server clear gulp-requirejs').then(() => {
-        const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
-        expect([
-          util.vars.SERVER_PATH,
-          fs.readdirSync(util.vars.SERVER_PATH).length,
-          initPath,
-          fs.existsSync(initPath)
-        ]).to.deep.equal([
-          util.vars.SERVER_PATH,
-          0,
-          initPath,
-          false
-        ]);
-        done();
-      }).catch((er) => {
-        expect(er).to.equal(undefined);
-        done();
-      });
-    });
-    it('yyl server clear', function(done) {
-      this.timeout(0);
-      yyl.run('server clear').then(() => {
-        expect([
-          util.vars.SERVER_PATH,
-          fs.readdirSync(util.vars.SERVER_PATH).length
-        ]).to.deep.equal([
-          util.vars.SERVER_PATH,
-          0
-        ]);
-        const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
-        workflows.forEach((workflow) => {
-          const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
-          expect([
-            initPath,
-            fs.existsSync(initPath)
-          ]).to.deep.equal([
-            initPath,
-            false
-          ]);
-        });
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-
-    it('yyl server init <workflow>', function(done) {
-      this.timeout(0);
-      yyl.run('server init gulp-requirejs').then(() => {
-        const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
-        const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs');
-        expect([
-          initPath,
-          fs.existsSync(initPath)
-        ]).to.deep.equal([
-          initPath,
-          true
-        ]);
-        expect([
-          workflowPath,
-          fs.existsSync(workflowPath)
-        ]).to.deep.equal([
-          workflowPath,
-          true
-        ]);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-    it('yyl server init', function(done) {
-      this.timeout(0);
-      yyl.run('server init').then(() => {
-        expect([
-          util.vars.SERVER_PATH,
-          fs.existsSync(util.vars.SERVER_PATH)
-        ]).to.deep.equal([
-          util.vars.SERVER_PATH,
-          true
-        ]);
-        const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
-        workflows.forEach((workflow) => {
-          const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
-          const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, workflow);
-          expect([
-            initPath,
-            fs.existsSync(initPath)
-          ]).to.deep.equal([
-            initPath,
-            true
-          ]);
-          expect([
-            workflowPath,
-            fs.existsSync(workflowPath)
-          ]).to.deep.equal([
-            workflowPath,
-            true
-          ]);
-        });
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-  });
-}
 
 if (TEST_CTRL.VERSION) {
   describe('yyl -v test', () => {
