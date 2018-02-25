@@ -19,7 +19,8 @@ var
     info: require('./w-info'),
     jade2pug: require('./w-jade2pug'),
     help: function() {
-      util.help({
+      const iEnv = util.envPrase(arguments);
+      const h = {
         usage: 'yyl',
         commands: {
           'init': 'init commands',
@@ -40,30 +41,38 @@ var
           '--logLevel': 'log level',
           '--config': 'change the config file to the setting'
         }
-      });
-      return Promise.resolve(null);
+      };
+      if (!iEnv.silent) {
+        util.help(h);
+      }
+      return Promise.resolve(h);
     },
     path: function() {
-      console.log([
-        '',
-        'yyl command path:',
-        chalk.yellow(util.vars.BASE_PATH),
-        ''
-      ].join('\n'));
-
-      util.openPath(util.vars.BASE_PATH);
+      const iEnv = util.envPrase(arguments);
+      if (!iEnv.silent) {
+        console.log([
+          '',
+          'yyl command path:',
+          chalk.yellow(util.vars.BASE_PATH),
+          ''
+        ].join('\n'));
+        util.openPath(util.vars.BASE_PATH);
+      }
       return Promise.resolve(util.vars.BASE_PATH);
     },
     examples: function() {
+      const iEnv = util.envParse(arguments);
       var iPath = util.joinFormat(util.vars.BASE_PATH, 'examples');
-      console.log([
-        '',
-        'yyl examples:',
-        chalk.yellow(iPath),
-        ''
-      ].join('\n'));
+      if (!iEnv.silent) {
+        console.log([
+          '',
+          'yyl examples:',
+          chalk.yellow(iPath),
+          ''
+        ].join('\n'));
+        util.openPath(iPath);
+      }
 
-      util.openPath(iPath);
       return Promise.resolve(iPath);
     }
   };
@@ -86,7 +95,7 @@ module.exports = function(ctx) {
   switch (ctx) {
     case '-v':
     case '--version':
-      r = events.version();
+      r = events.version.apply(events, iArgv.slice(1));
       break;
 
     case '--logLevel':
@@ -100,12 +109,12 @@ module.exports = function(ctx) {
 
     case '-h':
     case '--help':
-      r = events.help();
+      r = events.help.apply(events, iArgv.slice(1));
       break;
 
     case '--path':
     case '-p':
-      r = events.path();
+      r = events.path.apply(events, iArgv.slice(1));
       break;
 
     case 'init':
@@ -137,7 +146,7 @@ module.exports = function(ctx) {
 
     case 'examples':
     case 'example':
-      r = events.examples();
+      r = events.examples.apply(events.examples, iArgv.slice(1));
       break;
 
     case 'rm':

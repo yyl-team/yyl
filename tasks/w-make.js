@@ -113,8 +113,6 @@ var
           var widgetPath = '';
           var type = '';
 
-          console.log(name);
-
 
           if (/^p-/.test(name)) { // 页面级 组件
             widgetPath = util.joinFormat(srcRoot, 'components/page');
@@ -137,7 +135,7 @@ var
 
           next(widgetPath, type, srcRoot, config);
         }).then((widgetPath, type, srcRoot, config, next) => { // scss
-          var scssPath = util.joinFormat(widgetPath, `${name  }.scss`);
+          var scssPath = util.joinFormat(widgetPath, `${name}.scss`);
           var iTmpl;
           // scss 部分
           if (fs.existsSync(scssPath)) {
@@ -332,12 +330,15 @@ var
               log('finish');
               done();
             } else {
-              log('msg', 'warn', 'add alias fail,', 'config haven\'t the mark:');
+              log('msg', 'warn', ['add alias fail,', 'config haven\'t the mark:']);
               log('msg', 'warn', TEMPLATE.ALIAS.START);
               log('msg', 'warn', `in config file: ${configPath}`);
               log('finish');
               done();
             }
+          } else {
+            log('finish');
+            done();
           }
         }).start();
       };

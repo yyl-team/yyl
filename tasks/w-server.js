@@ -22,7 +22,8 @@ const cache = {
 
 const events = {
   help: function() {
-    util.help({
+    const iEnv = util.envPrase(arguments);
+    const h = {
       usage: 'yyl server',
       commands: {
         'start': 'start local server',
@@ -34,18 +35,24 @@ const events = {
         '-h, --help': 'print usage information',
         '-p, --path': 'show the yyl server local path'
       }
-    });
-    return Promise.resolve(null);
+    };
+    if (!iEnv.silent) {
+      util.help(h);
+    }
+    return Promise.resolve(h);
   },
   path: function() {
-    console.log([
-      '',
-      'yyl server path:',
-      color.yellow(util.vars.SERVER_PATH),
-      ''
-    ].join('\n'));
+    const iEnv = util.envPrase(arguments);
+    if (!iEnv.silent) {
+      console.log([
+        '',
+        'yyl server path:',
+        color.yellow(util.vars.SERVER_PATH),
+        ''
+      ].join('\n'));
+      util.openPath(util.vars.SERVER_PATH);
+    }
 
-    util.openPath(util.vars.SERVER_PATH);
     return Promise.resolve(util.vars.SERVER_PATH);
   },
 
@@ -173,66 +180,74 @@ const events = {
   },
 
   init: function(workflowName) {
-    wServer.init(workflowName, true).then(() => {
-
-    }).catch((err) => {
-      log('msg', 'error', err);
-    });
+    if (/^--/.test(workflowName)) {
+      workflowName = '';
+    }
+    return wServer.init(workflowName, true);
   },
 
   // 服务器清空
-  clear: function(done) {
-    new util.Promise(((next) => { // clear data file
-      log('msg', 'info', `start clear server data path: ${util.vars.SERVER_DATA_PATH}`);
-      if (fs.existsSync(util.vars.SERVER_DATA_PATH)) {
-        util.removeFiles(util.vars.SERVER_DATA_PATH, () => {
+  clear: function(workflow) {
+    const runner = (done) => {
+      new util.Promise(((next) => { // clear data file
+        log('msg', 'info', `start clear server data path: ${util.vars.SERVER_DATA_PATH}`);
+        if (fs.existsSync(util.vars.SERVER_DATA_PATH)) {
+          util.removeFiles(util.vars.SERVER_DATA_PATH, () => {
+            log('msg', 'success', 'clear server data path finished');
+            next();
+          });
+        } else {
           log('msg', 'success', 'clear server data path finished');
           next();
-        });
-      } else {
-        log('msg', 'success', 'clear server data path finished');
-        next();
-      }
-    })).then((NEXT) => { // clear workflowFile
-      log('msg', 'info', `clear server workflow path start: ${util.vars.INIT_FILE_PATH}`);
-      if (fs.existsSync(util.vars.INIT_FILE_PATH)) {
-        var iPromise = new util.Promise();
-        fs.readdirSync(util.vars.INIT_FILE_PATH).forEach((str) => {
-          var iPath = util.joinFormat(util.vars.INIT_FILE_PATH, str);
-          var nodeModulePath = util.joinFormat(iPath, 'node_modules');
-
-          if (fs.existsSync(nodeModulePath)) {
-            iPromise.then((next) => {
-              wRemove(nodeModulePath, () => {
-                next();
-              });
-            });
+        }
+      })).then((NEXT) => { // clear workflowFile
+        log('msg', 'info', `clear server workflow path start: ${util.vars.INIT_FILE_PATH}`);
+        if (fs.existsSync(util.vars.INIT_FILE_PATH)) {
+          const iPromise = new util.Promise();
+          let dirs = fs.readdirSync(util.vars.INIT_FILE_PATH);
+          if (workflow && ~dirs.indexOf(workflow)) {
+            dirs = [workflow];
           }
 
-          iPromise.then((next) => {
-            wRemove(iPath, () => {
-              next();
-            });
-          });
-        });
+          dirs.forEach((str) => {
+            const nodeModulePath = util.joinFormat(util.vars.INIT_FILE_PATH, str, 'node_modules');
 
-        iPromise.then(() => {
+            if (fs.existsSync(nodeModulePath)) {
+              iPromise.then((next) => {
+                wRemove(nodeModulePath).then(() => {
+                  next();
+                }).catch((er) => {
+                  log('msg', 'error', er);
+                  next();
+                });
+              });
+            }
+          });
+
+          iPromise.then(() => {
+            NEXT();
+          });
+          iPromise.start();
+        } else {
           NEXT();
+        }
+      }).then((next) => {
+        log('msg', 'info', `start clear server path: ${util.vars.SERVER_PATH}`);
+        wRemove(util.vars.SERVER_PATH).then(() => {
+          log('msg', 'success', 'clear server path finished');
+          next();
+        }).catch((er) => {
+          log('msg', 'error', er);
+          next();
         });
-        iPromise.start();
-      } else {
-        NEXT();
-      }
-    }).then((next) => {
-      log('msg', 'info', `start clear server path: ${util.vars.SERVER_PATH}`);
-      wRemove(util.vars.SERVER_PATH, () => {
-        log('msg', 'success', 'clear server path finished');
-        next();
-      });
-    }).then(() => {
-      log('msg', 'success', 'clear task finished');
-      return done && done();
-    }).start();
+      }).then(() => {
+        log('msg', 'success', 'clear task finished');
+        return done();
+      }).start();
+    };
+    return new Promise((next) => {
+      runner(next);
+    });
   },
   abort: function() {
     return wServer.abort();
@@ -240,10 +255,8 @@ const events = {
 };
 
 const wServer = {
-  clear: function() {
-    return new Promise((next) => {
-      events.clear(next);
-    });
+  clear: function(workflow) {
+    return events.clear(workflow);
   },
   // 获取
   profile: function(key, val) {
@@ -689,9 +702,12 @@ const wServer = {
       workflows.forEach((workflowName) => {
         var workflowPath = path.join(util.vars.SERVER_WORKFLOW_PATH, workflowName);
         var workflowBasePath = path.join(util.vars.INIT_FILE_PATH, workflowName);
+        let errMsg;
 
         if (!fs.existsSync(workflowBasePath)) {
-          throw new Error(`${workflowName} is not the right command`);
+          errMsg = `${workflowName} is not the right command`;
+          log('msg', 'error', errMsg);
+          throw new Error(errMsg);
         }
 
         new util.Promise((next) => { // server init
@@ -771,14 +787,14 @@ const wServer = {
     switch (ctx) {
       case '--path':
       case '-p':
-        return events.path();
+        return events.path.apply(events, iArgv.slice(2));
 
       case 'start':
         return events.start.apply(events, iArgv.slice(2));
 
       case 'clear':
       case 'clean':
-        return events.clear();
+        return events.clear.apply(events, iArgv.slice(2));
 
       case 'init':
         return events.init.apply(events, iArgv.slice(2));
@@ -788,10 +804,10 @@ const wServer = {
 
       case '--h':
       case '--help':
-        return events.help();
+        return events.help.apply(events, iArgv.slice(2));
 
       default:
-        return events.help();
+        return events.help.apply(events, iArgv.slice(2));
     }
   }
 
