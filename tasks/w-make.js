@@ -185,7 +185,7 @@ var
 
           next(widgetPath, type, srcRoot, config);
         }).then((widgetPath, type, srcRoot, config, next) => { // js
-          var jsPath = util.joinFormat(widgetPath, `${name  }.js`);
+          var jsPath = util.joinFormat(widgetPath, `${name}.js`);
           var iTmpl;
           // js 部分
           if (fs.existsSync(jsPath)) {
@@ -217,7 +217,7 @@ var
           // alias 部分
           if (config.workflow == 'gulp-requirejs') {
             configPath = util.joinFormat(srcRoot, 'js/rConfig/rConfig.js');
-          } else if (/^(gulp-rollup|webpack-vue|webpack-vue2)$/.test(config.workflow)) {
+          } else if (/^(rollup|webpack-vue|webpack-vue2)$/.test(config.workflow)) {
             configPath = util.joinFormat( util.vars.PROJECT_PATH, 'config.js');
           }
 

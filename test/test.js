@@ -15,9 +15,9 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 util.cleanScreen();
 
 const TEST_CTRL = {
-  // SERVER: true,
-  // INIT: true,
-  // ALL: true,
+  SERVER: true,
+  INIT: true,
+  ALL: true,
   VERSION: true,
   HELP: true,
   PATH: true,
@@ -702,7 +702,11 @@ if (TEST_CTRL.MAKE) {
           });
         }).then((next) => {
           yyl.run('make w-makedemo --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
-            const widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components', 'w-makedemo');
+            let widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components', 'w-makedemo');
+            if (/webpack-vue|webpack-vue2/.test(workflow)) {
+              widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components/widget', 'w-makedemo');
+            }
+
             const jsPath = util.path.join(widgetPath, 'w-makedemo.js');
             const scssPath = util.path.join(widgetPath, 'w-makedemo.scss');
             let pugPath;
@@ -711,17 +715,16 @@ if (TEST_CTRL.MAKE) {
               let rConfigPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/js/rConfig/rConfig.js');
               let rConfig = util.requireJs(rConfigPath);
               expect(rConfig.paths.wMakedemo).to.equal(util.path.relative(
-                util.path.join(FRAG_WORKFLOW_PATH, 'js/rConfig'),
-                util.path.join(FRAG_WORKFLOW_PATH, 'components', 'w-makedemo/w-makedemo')
+                util.path.join(FRAG_WORKFLOW_PATH, 'src/js/rConfig'),
+                util.path.join(FRAG_WORKFLOW_PATH, 'src/components', 'w-makedemo/w-makedemo')
               ));
             } else {
               pugPath = util.path.join(widgetPath, 'w-makedemo.jade');
               let configPath = util.path.join(FRAG_WORKFLOW_PATH, 'config.js');
               let config = util.requireJs(configPath);
-              console.log('===', config)
               expect(config.alias.wMakedemo).to.equal(util.path.relative(
                 util.path.join(FRAG_WORKFLOW_PATH),
-                util.path.join(FRAG_WORKFLOW_PATH, 'components', 'w-makedemo/w-makedemo')
+                util.path.join(widgetPath, 'w-makedemo.js')
               ));
             }
 
@@ -755,7 +758,10 @@ if (TEST_CTRL.MAKE) {
           });
         }).then((next) => {
           yyl.run('make p-makedemo --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
-            const widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components', 'p-makedemo');
+            let widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components', 'p-makedemo');
+            if (/webpack-vue|webpack-vue2/.test(workflow)) {
+              widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components/page', 'p-makedemo');
+            }
             expect([
               fs.existsSync(util.path.join(widgetPath, 'p-makedemo.js')),
               fs.existsSync(util.path.join(widgetPath, `p-makedemo.${workflow == 'gulp-requirejs' ? 'pug': 'jade'}`)),
