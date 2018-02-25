@@ -78,7 +78,7 @@ module.exports = function(ctx) {
     return util.msg.error('please makesure your node >= 4.0.0');
   }
 
-  if (iEnv.logLevel) {
+  if (!isNaN(iEnv.logLevel)) {
     events.server.setLogLevel(iEnv.logLevel, true);
   }
 

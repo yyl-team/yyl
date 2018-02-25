@@ -90,176 +90,193 @@ var fn = {
   }
 };
 
-var
-  wProxy = {
-    init: function(op, done, showlog) {
-      var
-        iPort = op.port || 8887;
+const cache = {
+  server: null
+};
 
-      var
-        server = http.createServer((req, res) => {
-          var reqUrl = req.url;
-          var iAddrs = Object.keys(op.localRemote || {});
+var wProxy = {
+  init: function(op, done) {
+    var
+      iPort = op.port || 8887;
 
-          // 本地代理
-          var remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
-          var localData;
-          var localUrl;
-          var httpRemoteUrl;
+    var
+      server = http.createServer((req, res) => {
+        var reqUrl = req.url;
+        var iAddrs = Object.keys(op.localRemote || {});
 
-          iAddrs.forEach((addr) => {
-            var localAddr = op.localRemote[addr];
+        // 本地代理
+        var remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
+        var localData;
+        var localUrl;
+        var httpRemoteUrl;
 
-            if (!localAddr) {
-              return true;
+        iAddrs.forEach((addr) => {
+          var localAddr = op.localRemote[addr];
+
+          if (!localAddr) {
+            return true;
+          }
+
+
+          if (addr === remoteUrl.substr(0, addr.length)) {
+            var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
+
+            if (/^http(s)?:/.test(localAddr)) {
+              httpRemoteUrl = subAddr;
+              return false;
             }
 
-
-            if (addr === remoteUrl.substr(0, addr.length)) {
-              var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
-
-              if (/^http(s)?:/.test(localAddr)) {
-                httpRemoteUrl = subAddr;
-                return false;
-              }
-
-              if (fs.existsSync(subAddr)) {
-                localData = fs.readFileSync(subAddr);
-                localUrl = subAddr;
-                return false;
-              }
+            if (fs.existsSync(subAddr)) {
+              localData = fs.readFileSync(subAddr);
+              localUrl = subAddr;
+              return false;
             }
-          });
-
-          if (localData) { // 存在本地文件
-            fn.log.to(req.url);
-            fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
-
-            var iExt = path.extname(req.url).replace(/^\./, '');
-            if (MIME_TYPE_MAP[iExt]) {
-              res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-            }
-
-            res.write(localData);
-            res.end();
-          } else { // 透传 or 转发
-            fn.log.to(req.url);
-            var iUrl = httpRemoteUrl || req.url;
-            var body = [];
-            var linkit = function(iUrl, iBuffer) {
-              var vOpts = url.parse(iUrl);
-              vOpts.method = req.method;
-              vOpts.headers = req.headers;
-              vOpts.body = body;
-
-
-              var vRequest = http.request(vOpts, (vRes) => {
-                if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
-                  vRes.on('end', () => {
-                    log('msg', 'proxyBack', 'proxy local server not found, to remote');
-                    linkit(req.url, iBuffer);
-                  });
-
-                  return vRequest.abort();
-                }
-
-                vRes.on('data', (chunk) => {
-                  res.write(chunk, 'binary');
-                });
-
-                vRes.on('end', () => {
-                  if (iUrl != req.url) {
-                    fn.log.back(vRes.statusCode, iUrl);
-                  }
-
-                  // if(/text\/html/.test(res.getHeader('content-type'))){
-                  //     res.write(PROXY_INFO_HTML);
-                  // }
-                  res.end();
-                });
-                vRes.on('error', () => {
-                  res.end();
-                });
-
-                var iHeader = util.extend(true, {}, vRes.headers);
-
-                // 设置 header
-                var iType = vRes.headers['content-type'];
-                if (iType) {
-                  res.setHeader('Content-Type', iType);
-                } else {
-                  var iExt = path.extname(req.url).replace(/^\./, '');
-
-                  if (MIME_TYPE_MAP[iExt]) {
-                    res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-                  }
-                }
-
-                res.writeHead(vRes.statusCode, iHeader);
-              });
-
-              vRequest.on('error', () => {
-                res.end();
-              });
-
-              vRequest.write(body);
-              vRequest.end();
-            };
-
-            req.on('data', (chunk) => {
-              body.push(chunk);
-            });
-
-
-            req.on('end', () => {
-              body = Buffer.concat(body).toString();
-              linkit(iUrl, body);
-            });
           }
         });
 
-      log('msg', 'success', 'proxy server start');
-      Object.keys(op.localRemote).forEach((key) => {
-        log('msg', 'success', `proxy map: ${key} => ${op.localRemote[key]}`);
-      });
-      log('msg', 'success', `proxy server port: ${iPort}`);
+        if (localData) { // 存在本地文件
+          fn.log.to(req.url);
+          fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
 
-      server.listen(iPort);
+          var iExt = path.extname(req.url).replace(/^\./, '');
+          if (MIME_TYPE_MAP[iExt]) {
+            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+          }
 
-      // ws 监听, 转发
-      server.on('connect', (req, socket) => {
-        var addr = req.url.split(':');
-        //creating TCP connection to remote server
-        var conn = net.connect(addr[1] || 443, addr[0], () => {
-          // tell the client that the connection is established
-          socket.write(`HTTP/${  req.httpVersion  } 200 OK\r\n\r\n`, 'UTF-8', () => {
-            // creating pipes in both ends
-            conn.pipe(socket);
-            socket.pipe(conn);
+          res.write(localData);
+          res.end();
+        } else { // 透传 or 转发
+          fn.log.to(req.url);
+          var iUrl = httpRemoteUrl || req.url;
+          var body = [];
+          var linkit = function(iUrl, iBuffer) {
+            var vOpts = url.parse(iUrl);
+            vOpts.method = req.method;
+            vOpts.headers = req.headers;
+            vOpts.body = body;
+
+
+            var vRequest = http.request(vOpts, (vRes) => {
+              if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
+                vRes.on('end', () => {
+                  log('msg', 'proxyBack', 'proxy local server not found, to remote');
+                  linkit(req.url, iBuffer);
+                });
+
+                return vRequest.abort();
+              }
+
+              vRes.on('data', (chunk) => {
+                res.write(chunk, 'binary');
+              });
+
+              vRes.on('end', () => {
+                if (iUrl != req.url) {
+                  fn.log.back(vRes.statusCode, iUrl);
+                }
+
+                // if(/text\/html/.test(res.getHeader('content-type'))){
+                //     res.write(PROXY_INFO_HTML);
+                // }
+                res.end();
+              });
+              vRes.on('error', () => {
+                res.end();
+              });
+
+              var iHeader = util.extend(true, {}, vRes.headers);
+
+              // 设置 header
+              var iType = vRes.headers['content-type'];
+              if (iType) {
+                res.setHeader('Content-Type', iType);
+              } else {
+                var iExt = path.extname(req.url).replace(/^\./, '');
+
+                if (MIME_TYPE_MAP[iExt]) {
+                  res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+                }
+              }
+
+              res.writeHead(vRes.statusCode, iHeader);
+            });
+
+            vRequest.on('error', () => {
+              res.end();
+            });
+
+            vRequest.write(body);
+            vRequest.end();
+          };
+
+          req.on('data', (chunk) => {
+            body.push(chunk);
           });
-        });
 
-        socket.on('error', () => {
-          socket.end();
-          conn.end();
-        });
 
-        conn.on('error', () => {
-          socket.end();
-          conn.end();
-        });
-      });
-
-      server.on('error', (err) => {
-        if (err.code == 'EADDRINUSE') {
-          log('msg', 'error', `proxy server start fail: ${iPort} is occupied, please check`);
-        } else {
-          log('msg', 'error', ['proxy server error', err]);
+          req.on('end', () => {
+            body = Buffer.concat(body).toString();
+            linkit(iUrl, body);
+          });
         }
       });
 
-      return done && done();
+    log('msg', 'success', 'proxy server start');
+    Object.keys(op.localRemote).forEach((key) => {
+      log('msg', 'success', `proxy map: ${key} => ${op.localRemote[key]}`);
+    });
+    log('msg', 'success', `proxy server port: ${iPort}`);
+
+    server.listen(iPort);
+
+    // ws 监听, 转发
+    server.on('connect', (req, socket) => {
+      var addr = req.url.split(':');
+      //creating TCP connection to remote server
+      var conn = net.connect(addr[1] || 443, addr[0], () => {
+        // tell the client that the connection is established
+        socket.write(`HTTP/${  req.httpVersion  } 200 OK\r\n\r\n`, 'UTF-8', () => {
+          // creating pipes in both ends
+          conn.pipe(socket);
+          socket.pipe(conn);
+        });
+      });
+
+      socket.on('error', () => {
+        socket.end();
+        conn.end();
+      });
+
+      conn.on('error', () => {
+        socket.end();
+        conn.end();
+      });
+    });
+
+    server.on('error', (err) => {
+      if (err.code == 'EADDRINUSE') {
+        log('msg', 'error', `proxy server start fail: ${iPort} is occupied, please check`);
+      } else {
+        log('msg', 'error', ['proxy server error', err]);
+      }
+    });
+
+    cache.server = server;
+
+    return done && done();
+  },
+  abort: function() {
+    if (cache.server) {
+      return new Promise((next) => {
+        cache.server.close(() => {
+          cache.server = null;
+          return next();
+        });
+      });
+    } else {
+      return Promise.resolve(null);
     }
-  };
+  }
+};
 
 module.exports = wProxy;

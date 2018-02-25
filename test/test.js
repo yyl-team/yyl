@@ -47,7 +47,7 @@ const fn = {
 };
 
 fn.frag.destory();
-
+/*
 describe('yyl init test', () => {
   var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
   var copyTask = function(workflow, init) {
@@ -384,18 +384,55 @@ describe('yyl all --config test', () => {
     }).start();
   });
 });
-// describe('yyl server test', () => {
-//   it('yyl server start', (done) => {
-//     yyl.run('server start --logLevel 0').then((config) => {
-//       expect(config).not.equal(undefined);
-//       done();
-//     }).catch((er) => {
-//       expect(er).equal(undefined);
-//       done();
-//     })
+*/
+describe('yyl server test', () => {
+  it('yyl server start', function(done) {
+    this.timeout(0);
 
-//   });
-//   it('yyl server clear', (done) => {
+    yyl.run('server start --logLevel 0 --silent', __dirname).then((config) => {
+      expect(config.server).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
+      http.get(testPath, (res) => {
+        expect(res.statusCode).equal(200);
+        yyl.run('server abort').then(() => {
+          done();
+        });
+      });
+    }).catch((er) => {
+      expect(er).equal(undefined);
+      done();
+    });
+  });
 
-//   });
-// });
+  it(`yyl server start --path ${__dirname}`, (done) => {
+    yyl.run(`server start --logLevel 0 --silent --path ${__dirname}`).then((config) => {
+      expect(config.server).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
+      http.get(testPath, (res) => {
+        expect(res.statusCode).equal(200);
+        yyl.run('server abort').then(() => {
+          done();
+        });
+      });
+    }).catch((er) => {
+      expect(er).equal(undefined);
+      done();
+    });
+  });
+
+  it('yyl server start --path ./', (done) => {
+    yyl.run('server start --logLevel 0 --silent --path ./', __dirname).then((config) => {
+      expect(config.server).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}/test.js`;
+      http.get(testPath, (res) => {
+        expect(res.statusCode).equal(200);
+        yyl.run('server abort').then(() => {
+          done();
+        });
+      });
+    }).catch((er) => {
+      expect(er).equal(undefined);
+      done();
+    });
+  });
+});
