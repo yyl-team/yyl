@@ -16,6 +16,8 @@ util.cleanScreen();
 
 const TEST_CTRL = {
   SERVER: true,
+  SERVER_INIT: true,
+  SERVER_CLEAR: true,
   INIT: true,
   ALL: true,
   VERSION: true,
@@ -132,28 +134,11 @@ if (TEST_CTRL.SERVER) {
       });
     });
 
-    it('yyl server clear <workflow>', function(done) {
-      this.timeout(0);
-      yyl.run('server clear gulp-requirejs').then(() => {
-        const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
-        expect([
-          initPath,
-          !fs.existsSync(initPath) || fs.readdirSync(initPath).length == 0
-        ]).to.deep.equal([
-          initPath,
-          true
-        ]);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-    it('yyl server clear', function(done) {
-      this.timeout(0);
-      yyl.run('server clear').then(() => {
-        const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
-        workflows.forEach((workflow) => {
-          const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
+    if (TEST_CTRL.SERVER_CLEAR) {
+      it('yyl server clear <workflow>', function(done) {
+        this.timeout(0);
+        yyl.run('server clear gulp-requirejs').then(() => {
+          const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
           expect([
             initPath,
             !fs.existsSync(initPath) || fs.readdirSync(initPath).length == 0
@@ -161,54 +146,41 @@ if (TEST_CTRL.SERVER) {
             initPath,
             true
           ]);
+          done();
+        }).catch((er) => {
+          throw new Error(er);
         });
-        done();
-      }).catch((er) => {
-        throw new Error(er);
       });
-    });
+      it('yyl server clear', function(done) {
+        this.timeout(0);
+        yyl.run('server clear').then(() => {
+          const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
+          workflows.forEach((workflow) => {
+            const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
+            expect([
+              initPath,
+              !fs.existsSync(initPath) || fs.readdirSync(initPath).length == 0
+            ]).to.deep.equal([
+              initPath,
+              true
+            ]);
+          });
+          done();
+        }).catch((er) => {
+          throw new Error(er);
+        });
+      });
+    }
 
-    it('yyl server init <workflow>', function(done) {
-      this.timeout(0);
-      yyl.run('server init gulp-requirejs').then(() => {
-        const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
-        const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs');
-        expect([
-          initPath,
-          fs.readdirSync(initPath) > 0
-        ]).to.deep.equal([
-          initPath,
-          true
-        ]);
-        expect([
-          workflowPath,
-          fs.existsSync(workflowPath)
-        ]).to.deep.equal([
-          workflowPath,
-          true
-        ]);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-    it('yyl server init', function(done) {
-      this.timeout(0);
-      yyl.run('server init').then(() => {
-        expect([
-          util.vars.SERVER_PATH,
-          fs.existsSync(util.vars.SERVER_PATH)
-        ]).to.deep.equal([
-          util.vars.SERVER_PATH,
-          true
-        ]);
-        const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
-        workflows.forEach((workflow) => {
-          const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
-          const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, workflow);
+    if (TEST_CTRL.SERVER_INIT) {
+      it('yyl server init <workflow>', function(done) {
+        this.timeout(0);
+        yyl.run('server init gulp-requirejs').then(() => {
+          const initPath = util.path.join(util.vars.INIT_FILE_PATH, 'gulp-requirejs/node_modules');
+          const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'gulp-requirejs');
           expect([
             initPath,
-            fs.readdirSync(initPath).length > 0
+            fs.readdirSync(initPath) > 0
           ]).to.deep.equal([
             initPath,
             true
@@ -220,12 +192,46 @@ if (TEST_CTRL.SERVER) {
             workflowPath,
             true
           ]);
+          done();
+        }).catch((er) => {
+          throw new Error(er);
         });
-        done();
-      }).catch((er) => {
-        throw new Error(er);
       });
-    });
+      it('yyl server init', function(done) {
+        this.timeout(0);
+        yyl.run('server init').then(() => {
+          expect([
+            util.vars.SERVER_PATH,
+            fs.existsSync(util.vars.SERVER_PATH)
+          ]).to.deep.equal([
+            util.vars.SERVER_PATH,
+            true
+          ]);
+          const workflows = fs.readdirSync(util.vars.INIT_FILE_PATH);
+          workflows.forEach((workflow) => {
+            const initPath = util.path.join(util.vars.INIT_FILE_PATH, workflow, 'node_modules');
+            const workflowPath = util.path.join(util.vars.SERVER_WORKFLOW_PATH, workflow);
+            expect([
+              initPath,
+              fs.readdirSync(initPath).length > 0
+            ]).to.deep.equal([
+              initPath,
+              true
+            ]);
+            expect([
+              workflowPath,
+              fs.existsSync(workflowPath)
+            ]).to.deep.equal([
+              workflowPath,
+              true
+            ]);
+          });
+          done();
+        }).catch((er) => {
+          throw new Error(er);
+        });
+      });
+    }
   });
 }
 
