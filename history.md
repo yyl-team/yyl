@@ -1,4 +1,7 @@
 # 版本信息
+## 2.15.42 (2018-02-07)
+* [FIX] 修复 `gulp-requirejs` 执行 `yyl watch` 时, `inline-source` 路径不对问题
+
 ## 2.15.41 (2018-02-07)
 * [ADD] 新增 `yyl optimize` 时 对项目版本要求的检查
 

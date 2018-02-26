@@ -1211,7 +1211,7 @@ var
         case 'jade':
           if (inside('components')) { // pug-to-dest-task
             rStream = iStream.pug2dest(gulp.src([iPath], {
-              base: util.joinFormat(vars.srcRoot)
+              base: util.joinFormat(vars.srcRoot, 'components')
             }));
             rStream = rStream.pipe(gulp.dest(vars.htmlDest));
           }
