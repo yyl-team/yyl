@@ -183,7 +183,7 @@ const events = {
     if (/^--/.test(workflowName)) {
       workflowName = '';
     }
-    return wServer.init(workflowName, true);
+    return wServer.init(workflowName);
   },
 
   // 服务器清空
