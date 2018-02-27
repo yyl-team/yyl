@@ -998,7 +998,7 @@ var
           }))
           .pipe(
             iEnv.isCommit?
-              imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }):
+              imagemin({ optimizationLevel: 3, progressive: true, interlaced: true}):
               fn.blankPipe()
           );
 

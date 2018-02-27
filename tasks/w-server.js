@@ -461,11 +461,7 @@ const wServer = {
           next(iConfig);
         }
       }).then((iConfig, next) => { // 更新 config 文件
-        if (name) {
-          config[name] = iConfig;
-        } else {
-          config = iConfig;
-        }
+        config = util.initConfig(iConfig);
 
         var fileStr = `module.exports=${JSON.stringify(config, null, 4)}`;
 

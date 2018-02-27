@@ -114,7 +114,7 @@ util.infoBar.init({
         name: 'UPDT',
         color: 'white',
         bgColor: 'bgBlue'
-      },
+      }
       // - w-update
     }
   }
@@ -257,6 +257,7 @@ const log4Base = (module, type, argv) => {
       if (!cache.isEnd) {
         util.infoBar.end();
       }
+      cache.isEnd = false;
       clearInterval(cache.timeIntervalKey);
       cache.timeIntervalKey = setInterval(() => {
         prinitInfo();
@@ -278,7 +279,7 @@ const log4Base = (module, type, argv) => {
         util.infoBar.print('error', {
           barRight: `cost ${fn.costFormat(cost)}`,
           foot: util.getTime()
-        }).end();
+        });
         iStatus.errors.forEach((argv) => {
           console.error.apply(console, argv);
         });
@@ -286,10 +287,10 @@ const log4Base = (module, type, argv) => {
         util.infoBar.print('done', {
           barLeft: argv.join(' '),
           barRight: `cost ${fn.costFormat(cost)}`
-        }).end();
+        });
         util.infoBar.print('success', {
           barLeft: iStatus.success.concat(iStatus.rev).map((a) => a.join(' '))
-        }).end();
+        });
       }
 
       util.infoBar.print('warn', {
@@ -306,17 +307,19 @@ const log4Base = (module, type, argv) => {
       break;
 
     case 'msg':
-      cache.isEnd = false;
       switch (type) {
         case 'create':
+          cache.isEnd = false;
           iStatus.adds.push(argv);
           break;
 
         case 'update':
+          cache.isEnd = false;
           iStatus.updates.push(argv);
           break;
 
         case 'del':
+          cache.isEnd = false;
           iStatus.dels.push(argv);
           break;
 
@@ -325,10 +328,12 @@ const log4Base = (module, type, argv) => {
           break;
 
         case 'error':
+          cache.isEnd = false;
           iStatus.errors.push(argv);
           break;
 
         case 'warn':
+          cache.isEnd = false;
           iStatus.warns.push(argv);
           break;
 
@@ -337,6 +342,7 @@ const log4Base = (module, type, argv) => {
           break;
 
         case 'optimize':
+          cache.isEnd = false;
           iStatus.optimizes.push(argv);
           break;
 

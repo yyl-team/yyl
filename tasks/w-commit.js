@@ -137,7 +137,7 @@ const wCommit = {
         });
 
         done(files);
-      }, /\.sass-cache|\.DS_Store|node_modules/, null, util.vars.PROJECT_PATH);
+      }, /\.sass-cache|\.DS_Store|node_modules/, null, util.vars.PROJECT_PATH, true);
     };
 
     return new Promise((next) => {
@@ -356,7 +356,7 @@ const wCommit = {
           next();
         }
       }).then((next) => { // optimize
-        wOptimize('all --isCommit').then((config) => {
+        wOptimize('all', '--isCommit').then((config) => {
           next(config);
         }).catch((er) => {
           log('msg', 'error', er);
@@ -412,6 +412,7 @@ const wCommit = {
         var sec = Math.floor(cost / 1000) % 60;
         var us = cost % 1000;
         log('msg', 'success', `total ${min} m ${sec} s ${us}ms`);
+        log('finish');
         done(config);
       }).start();
     };

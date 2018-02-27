@@ -23,7 +23,7 @@
     "colors": "~1.1.2",
     "gulp": "~3.9.1",
     "gulp-filter": "~2.0.2",
-    "gulp-imagemin": "~2.2.1",
+    "gulp-imagemin": "~4.1.0",
     "gulp-inline-source": "~2.1.0",
     "gulp-jshint": "~1.9.4",
     "gulp-minify-css": "~1.0.0",
