@@ -15,17 +15,18 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 util.cleanScreen();
 
 const TEST_CTRL = {
-  SERVER: true,
-  SERVER_INIT: true,
+  // SERVER: true,
+  // SERVER_INIT: true,
   // SERVER_CLEAR: true,
-  INIT: true,
-  ALL: true,
-  VERSION: true,
-  HELP: true,
-  PATH: true,
-  INFO: true,
-  EXAMPLE: true,
-  MAKE: true
+  // INIT: true,
+  // ALL: true,
+  // VERSION: true,
+  // HELP: true,
+  // PATH: true,
+  // INFO: true,
+  // EXAMPLE: true,
+  // MAKE: true,
+  COMMIT: true
 };
 
 const fn = {
@@ -775,5 +776,57 @@ if (TEST_CTRL.MAKE) {
         }).start();
       });
     });
+  });
+}
+
+if (TEST_CTRL.COMMIT) {
+  describe('yyl commit test', () => {
+    const workflows = ['gulp-requirejs'];
+    workflows.forEach((workflow) => {
+      it(`yyl commit for ${workflow}`, function(done) {
+        this.timeout(0);
+        const WORKFLOW_PATH = path.join(__dirname, 'workflow-test', workflow);
+        const COMMON_PATH = path.join(__dirname, 'workflow-test/commons');
+        const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
+        const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
+        new util.Promise((next) => {
+          fn.frag.destory();
+          fn.frag.build();
+          util.mkdirSync(FRAG_WORKFLOW_PATH);
+          util.mkdirSync(FRAG_COMMONS_PATH);
+          const obj = {};
+          obj[WORKFLOW_PATH] = FRAG_WORKFLOW_PATH;
+          obj[COMMON_PATH] = FRAG_COMMONS_PATH;
+          util.copyFiles(obj, () => {
+            setTimeout(() => {
+              next();
+            }, 100);
+          });
+        }).then((next) => { // svn init
+          const svnPath = 'https://svn.yy.com/yy-music/static/project/workflow_demo';
+          const svnDir = util.path.join(FRAG_WORKFLOW_PATH, '../__committest');
+          util.mkdirSync(svnDir);
+          util.runCMD(`svn checkout ${svnPath}`, (err) => {
+            if(err) {
+              throw new Error(err);
+            }
+            next();
+          }, svnDir);
+        }).then((next) => {
+          yyl.run('commit --sub dev --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
+            expect(true).equal(true);
+            next();
+          }).catch((er) => {
+            throw new Error(er);
+          });
+
+        }).then(() => {
+          fn.frag.destory();
+          done();
+        }).start();
+      });
+    });
+
+
   });
 }
