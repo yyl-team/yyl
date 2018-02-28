@@ -460,6 +460,8 @@ var REG = {
   CSS_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
   CSS_IS_ABSLURE: /^\//,
 
+  JS_DISABLE_AMD: /\/\*\s*amd\s*:\s*disabled\s*\*\//,
+
   IS_HTTP: /^(http[s]?:)|(\/\/\w)/
 };
 
@@ -1015,27 +1017,35 @@ var
           .pipe(jshint())
           .pipe(through.obj(function(file, enc, cb) {
             var self = this;
-            var optimizeOptions = {
-              mainConfigFile: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js'),
-              logLevel: 2,
-              baseUrl: path.dirname(util.joinFormat(config.alias.srcRoot, file.relative)),
-              generateSourceMaps: false,
-              optimize: 'none',
-              include: util.joinFormat(path.relative(util.joinFormat(config.alias.srcRoot, 'js/rConfig'), util.joinFormat(config.alias.srcRoot, file.relative))),
-              out: function(text) {
-                file.contents = Buffer.from(text, 'utf-8');
-                self.push(file);
-                cb();
-              }
-            };
 
-            log('msg', 'optimize', util.path.join(file.base, file.relative));
-            requirejs.optimize(optimizeOptions, null, (err) => {
-              if (err) {
-                log('msg', 'error', err.originalError.message);
-              }
+            var iCnt = file.contents.toString();
+            if (iCnt.split(REG.JS_DISABLE_AMD).length > 1) {
+              log('msg', 'optimize', util.path.join(file.base, file.relative));
+              self.push(file);
               cb();
-            });
+            } else {
+              var optimizeOptions = {
+                mainConfigFile: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js'),
+                logLevel: 2,
+                baseUrl: path.dirname(util.joinFormat(config.alias.srcRoot, file.relative)),
+                generateSourceMaps: false,
+                optimize: 'none',
+                include: util.joinFormat(path.relative(util.joinFormat(config.alias.srcRoot, 'js/rConfig'), util.joinFormat(config.alias.srcRoot, file.relative))),
+                out: function(text) {
+                  file.contents = Buffer.from(text, 'utf-8');
+                  self.push(file);
+                  cb();
+                }
+              };
+
+              log('msg', 'optimize', util.path.join(file.base, file.relative));
+              requirejs.optimize(optimizeOptions, null, (err) => {
+                if (err) {
+                  log('msg', 'error', err.originalError.message);
+                }
+                cb();
+              });
+            }
           }))
           .pipe(iEnv.isCommit ? uglify() : fn.blankPipe())
           .pipe(rename((path) => {

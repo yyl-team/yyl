@@ -28,7 +28,8 @@ const TEST_CTRL = {
   INFO: true,
   EXAMPLE: true,
   MAKE: true,
-  COMMIT: true
+  COMMIT: true,
+  UPDATE: true
 };
 
 const fn = {
@@ -837,6 +838,30 @@ if (TEST_CTRL.COMMIT) {
             done();
           });
         }).start();
+      });
+    });
+  });
+}
+
+if (TEST_CTRL.UPDATE) {
+  describe('yyl update test', () => {
+    it('yyl update', function(done) {
+      this.timeout(0);
+      yyl.run('update --silent --logLevel 0').then(() => {
+        expect(true).equal(true);
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+
+    it('yyl update 2.16.0', function(done) {
+      this.timeout(0);
+      yyl.run('update 2.16.0 --silent --logLevel 0').then(() => {
+        expect(true).equal(true);
+        done();
+      }).catch((er) => {
+        throw new Error(er);
       });
     });
   });
