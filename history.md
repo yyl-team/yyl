@@ -1,4 +1,7 @@
 # 版本信息
+## 2.15.43 (2018-02-28)
+* [ADD] `gulp-requirejs` 执行 `js` 压缩时，如遇到 注释 `/*amd:disabled*/` 则不去进行 amd 压缩操作
+
 ## 2.15.42 (2018-02-07)
 * [FIX] 修复 `gulp-requirejs` 执行 `yyl watch` 时, `inline-source` 路径不对问题
 

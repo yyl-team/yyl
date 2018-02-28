@@ -544,7 +544,7 @@ var fn = {
 
 var REG = {
   HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
-  HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig,
+  HML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig,
   HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
   HTML_SCRIPT_TEMPLATE_REG: /type\s*=\s*['"]text\/html["']/,
   HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
@@ -558,6 +558,8 @@ var REG = {
   CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
   CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
   CSS_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
+
+  JS_DISABLE_AMD: /\/\*\s*amd\s*:\s*disabled\s*\*\//,
 
   IS_HTTP: /^(http[s]?:)|(\/\/\w)/
 };
@@ -1132,29 +1134,34 @@ var
           .pipe(jshint())
           .pipe(through.obj(function(file, enc, cb) {
             var self = this;
-            var optimizeOptions = {
-              mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js'),
-              logLevel: 2,
-              baseUrl: path.dirname(util.joinFormat(vars.srcRoot, file.relative)),
-              generateSourceMaps: false,
-              optimize: 'none',
-              include: util.joinFormat(path.relative(util.joinFormat(vars.srcRoot, 'js/rConfig'), util.joinFormat(vars.srcRoot, file.relative))),
-              out: function(text) {
-                file.contents = Buffer.from(text, 'utf-8');
-                self.push(file);
-                cb();
-              }
-            };
-
+            var iCnt = file.contents.toString();
             util.msg.optimize('js  ', file.relative);
 
-            requirejs.optimize(optimizeOptions, null, (err) => {
-              if (err) {
-                util.msg.error('Optimize js error', file.relative);
-                util.msg.error(err);
-              }
+            if (iCnt.split(REG.JS_DISABLE_AMD).length > 1) {
+              self.push(file);
               cb();
-            });
+            } else {
+              var optimizeOptions = {
+                mainConfigFile: util.joinFormat(vars.srcRoot, 'js/rConfig/rConfig.js'),
+                logLevel: 2,
+                baseUrl: path.dirname(util.joinFormat(vars.srcRoot, file.relative)),
+                generateSourceMaps: false,
+                optimize: 'none',
+                include: util.joinFormat(path.relative(util.joinFormat(vars.srcRoot, 'js/rConfig'), util.joinFormat(vars.srcRoot, file.relative))),
+                out: function(text) {
+                  file.contents = Buffer.from(text, 'utf-8');
+                  self.push(file);
+                  cb();
+                }
+              };
+              requirejs.optimize(optimizeOptions, null, (err) => {
+                if (err) {
+                  util.msg.error('Optimize js error', file.relative);
+                  util.msg.error(err);
+                }
+                cb();
+              });
+            }
           }))
           .pipe(gulp.env.isCommit?uglify(): fn.blankPipe())
           .pipe(rename((path) => {
