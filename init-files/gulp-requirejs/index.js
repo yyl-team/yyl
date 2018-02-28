@@ -480,7 +480,7 @@ var
           pretty: false,
           client: false
         }).on('error', (er) => {
-          log('msg', 'error', er);
+          log('msg', 'error', er.message);
         }))
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
