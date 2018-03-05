@@ -824,8 +824,10 @@ var
               } else if (fs.existsSync(fn.hideUrlTail(rPath2))) { // 如果直接是根据生成的 css 目录去匹配 也允许
                 return str;
               } else {
-                log('msg', 'warn', `css url replace error, ${path.basename(file.history.toString())}`);
-                log('msg', 'warn', `    path not found: ${util.path.relative(util.vars.PROJECT_PATH, util.joinFormat(dirname, rPath))}`);
+                log('msg', 'warn', [
+                  `css url replace error, ${path.basename(file.history.toString())}`,
+                  `  path not found: ${util.path.relative(util.vars.PROJECT_PATH, util.joinFormat(dirname, rPath))}`
+                ].join('\n'));
                 return str;
               }
             };
