@@ -1610,6 +1610,9 @@ module.exports = function(iconfig, cmd, op) {
     if (iEnv.ver == 'remote') {
       iEnv.remote = true;
     }
+    if (iEnv.remote) {
+      iEnv.ver = 'remote';
+    }
 
     iEnv.remotePath = iEnv.remote || iEnv.isCommit ? config.commit.hostname : '/';
 

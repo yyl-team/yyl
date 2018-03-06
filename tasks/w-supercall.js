@@ -499,7 +499,7 @@ var
                     iCnt = JSON.parse(content.toString());
                     log('msg', 'success', 'get remote finished');
                   } catch (er) {
-                    log('msg', 'warn', ['get remote rev fail'], er);
+                    log('msg', 'warn', ['get remote rev fail', er]);
                   }
                   next(iCnt);
                 });
