@@ -257,7 +257,7 @@ const wCommit = {
               if (iEnv.nosvn) {
                 handle();
               } else {
-                util.runSpawn(`svn del ${path.basename(src)}`, () => {
+                util.runSpawn(`svn del ${path.basename(src)} -q`, () => {
                   log('msg', 'del', src);
                   handle();
                 }, path.dirname(src));
@@ -321,7 +321,6 @@ const wCommit = {
         });
 
         iPromise.then((next) => {
-          util.msg.info('start svn commit:', iPath);
           log('msg', 'info', `start svn commit: ${iPath}`);
           util.runSpawn('svn commit -m gulpAutoCommit', (err) => {
             if (err) {
@@ -360,6 +359,7 @@ const wCommit = {
           next(config);
         }).catch((er) => {
           log('msg', 'error', er);
+          log('finish');
         });
       }).then((config, next) => { // svn update
         if (iEnv.nosvn) {

@@ -477,7 +477,9 @@ var
           pretty: false,
           client: false
         }).on('error', (er) => {
-          log('msg', 'error', er);
+          log('msg', 'error', er.message);
+          log('finish');
+          process.exit(1);
         }))
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
@@ -780,12 +782,15 @@ var
           .pipe(plumber())
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
             log('msg', 'error', err.message);
+            log('finish');
+            process.exit(1);
           }));
       return rStream;
     },
     sassComponent2css: function(stream) {
       var
         rStream = stream
+          .pipe(plumber())
           .pipe(through.obj(function(file, enc, next) {
             log('msg', 'optimize', util.path.join(file.base, file.relative));
             this.push(file);
@@ -793,6 +798,8 @@ var
           }))
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
             log('msg', 'error', err.message);
+            log('finish');
+            process.exit(1);
           }))
           .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
@@ -821,8 +828,10 @@ var
               } else if (fs.existsSync(fn.hideUrlTail(rPath2))) { // 如果直接是根据生成的 css 目录去匹配 也允许
                 return str;
               } else {
-                log('msg', 'warn', `css url replace error, ${path.basename(file.history.toString())}`);
-                log('msg', 'warn', `    path not found: ${util.path.relative(util.vars.PROJECT_PATH, util.joinFormat(dirname, rPath))}`);
+                log('msg', 'warn', [
+                  `css url replace error, ${path.basename(file.history.toString())}`,
+                  `  path not found: ${util.path.relative(util.vars.PROJECT_PATH, util.joinFormat(dirname, rPath))}`
+                ].join('\n'));
                 return str;
               }
             };
@@ -1032,11 +1041,13 @@ var
               cb();
             }).catch((er) => {
               log('msg', 'error', er);
-              cb();
+              log('finish');
+              process.exit(1);
             });
           }).catch((er) => {
             log('msg', 'error', er);
-            cb();
+            log('finish');
+            process.exit(1);
           });
         }))
         .pipe(babel({

@@ -481,6 +481,8 @@ var
           client: false
         }).on('error', (er) => {
           log('msg', 'error', er.message);
+          log('finish');
+          process.exit(1);
         }))
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
@@ -783,12 +785,15 @@ var
           .pipe(plumber())
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
             log('msg', 'error', err.message);
+            log('finish');
+            process.exit(1);
           }));
       return rStream;
     },
     sassComponent2css: function(stream) {
       var
         rStream = stream
+          .pipe(plumber())
           .pipe(through.obj(function(file, enc, next) {
             log('msg', 'optimize', util.path.join(file.base, file.relative));
             this.push(file);
@@ -796,6 +801,8 @@ var
           }))
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
             log('msg', 'error', err.message);
+            log('finish');
+            process.exit(1);
           }))
           .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
@@ -1044,6 +1051,8 @@ var
               requirejs.optimize(optimizeOptions, null, (err) => {
                 if (err) {
                   log('msg', 'error', err.originalError.message);
+                  log('finish');
+                  process.exit(1);
                 }
                 cb();
               });

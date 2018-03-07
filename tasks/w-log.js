@@ -279,7 +279,7 @@ const log4Base = (module, type, argv) => {
         util.infoBar.print('error', {
           barRight: `cost ${fn.costFormat(cost)}`,
           foot: util.getTime()
-        });
+        }).end();
         iStatus.errors.forEach((argv) => {
           console.error.apply(console, argv);
         });
