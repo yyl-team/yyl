@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const http = require('http');
+const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const color = require('yyl-color');
@@ -114,11 +115,11 @@ const events = {
               r.localserver = false;
               log('msg', 'error', er);
               log('finish');
-              throw new Error(er);
+              process.exit(1);
             });
           } else {
             r.localserver = false;
-            log('msg', 'error', `port ${setting.port} is occupied, please check`);
+            log('msg', 'error', `port ${chalk(setting.port)} is occupied, please check`);
             log('finish', 'local server init finished');
             next(config);
           }
@@ -161,7 +162,7 @@ const events = {
               });
             } else {
               r.proxy = false;
-              log('msg', 'error', `port ${setting.port} is occupied, please check`);
+              log('msg', 'error', `port ${chalk.yellow(setting.port)} is occupied, please check`);
               log('finish', 'proxy server init finished');
               done(r);
             }
@@ -602,9 +603,9 @@ const wServer = {
           }
         });
       }).then(() => {
-        log('msg', 'success', `local path : ${iPath}`);
-        log('msg', 'success', `   address : ${serverAddress}`);
-        log('msg', 'success', `   lr port : ${lrPort}`);
+        log('msg', 'success', `local path : ${chalk.yellow(iPath)}`);
+        log('msg', 'success', `   address : ${chalk.yellow(serverAddress)}`);
+        log('msg', 'success', `   lr port : ${chalk.yellow(lrPort)}`);
 
         var app = connect();
         app.use(livereload({

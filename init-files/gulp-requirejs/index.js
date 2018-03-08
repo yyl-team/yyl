@@ -838,7 +838,7 @@ var
               } else {
                 log('msg', 'warn', [
                   `css url replace error, ${path.basename(file.history.toString())}`,
-                  `  path not found: ${util.path.relative(util.vars.PROJECT_PATH, util.joinFormat(dirname, rPath))}`
+                  `  path not found: ${util.path.relative(util.vars.PROJECT_PATH, fn.hideUrlTail(util.joinFormat(dirname, rPath)))}`
                 ].join('\n'));
                 return str;
               }

@@ -64,7 +64,7 @@ util.infoBar.init({
       'success': {
         name: 'PASS',
         color: 'white',
-        bgColor: 'bgBlue'
+        bgColor: 'bgCyan'
       },
       // + w-jade2pug
       'jade2pug': {

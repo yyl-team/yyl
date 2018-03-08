@@ -4,6 +4,7 @@ var http = require('http');
 var net = require('net');
 var fs = require('fs');
 var url = require('url');
+var chalk = require('chalk');
 
 var log = require('./w-log.js');
 var util = require('./w-util.js');
@@ -109,6 +110,11 @@ var wProxy = {
         var localData;
         var localUrl;
         var httpRemoteUrl;
+        var proxyIgnore = false;
+
+        if(op.ignores && ~op.ignores.indexOf(remoteUrl)) {
+          proxyIgnore = true;
+        }
 
         iAddrs.forEach((addr) => {
           var localAddr = op.localRemote[addr];
@@ -134,7 +140,7 @@ var wProxy = {
           }
         });
 
-        if (localData) { // 存在本地文件
+        if (localData && !proxyIgnore) { // 存在本地文件
           fn.log.to(req.url);
           fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
 
@@ -148,6 +154,9 @@ var wProxy = {
         } else { // 透传 or 转发
           fn.log.to(req.url);
           var iUrl = httpRemoteUrl || req.url;
+          if (proxyIgnore) {
+            iUrl = req.url;
+          }
           var body = [];
           var linkit = function(iUrl, iBuffer) {
             var vOpts = url.parse(iUrl);
@@ -223,9 +232,9 @@ var wProxy = {
 
     log('msg', 'success', 'proxy server start');
     Object.keys(op.localRemote).forEach((key) => {
-      log('msg', 'success', `proxy map: ${key} => ${op.localRemote[key]}`);
+      log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(op.localRemote[key])}`);
     });
-    log('msg', 'success', `proxy server port: ${iPort}`);
+    log('msg', 'success', `proxy server port: ${chalk.yellow(iPort)}`);
 
     server.listen(iPort);
 
@@ -255,7 +264,7 @@ var wProxy = {
 
     server.on('error', (err) => {
       if (err.code == 'EADDRINUSE') {
-        log('msg', 'error', `proxy server start fail: ${iPort} is occupied, please check`);
+        log('msg', 'error', `proxy server start fail: ${chalk.yellow(iPort)} is occupied, please check`);
       } else {
         log('msg', 'error', ['proxy server error', err]);
       }
