@@ -55,7 +55,8 @@ var
       }
 
       if (!version.match(REG.IS_VERSION)) {
-        return util.msg.error('version is not meet the rules:', version);
+        log('msg', 'error', `version is not meet the rules: ${version}`);
+        return Promise.resolve();
       }
 
       var packages = [];
@@ -86,7 +87,7 @@ var
         }
 
         if (pkg.dependencies) {
-          Object.keys(pkg.dependencies).forEach((key) => {
+          Object.keys(pkg.dependencies).some((key) => {
             if (key == name) {
               var r = fn.render(INTERFACE.VERSION, { 'version': version });
               if (pkg.dependencies[key] != r) {
@@ -99,7 +100,7 @@ var
         }
 
         if (pkg.devDependencies) {
-          Object.keys(pkg.devDependencies).forEach((key) => {
+          Object.keys(pkg.devDependencies).some((key) => {
             if (key == name) {
               var r = fn.render(INTERFACE.VERSION, { 'version': version });
               if (pkg.devDependencies[key] != r) {
@@ -131,7 +132,7 @@ var
         }
 
         if (pkg.dependencies) {
-          Object.keys(pkg.dependencies).forEach((key) => {
+          Object.keys(pkg.dependencies).some((key) => {
             if (key == name) {
               if (pkg.dependencies[key].version != version) {
                 pkg.dependencies[key].version = version;
@@ -153,7 +154,7 @@ var
         }
 
         if (pkg.devDependencies) {
-          Object.keys(pkg.devDependencies).forEach((key) => {
+          Object.keys(pkg.devDependencies).some((key) => {
             if (key == name) {
               if (pkg.devDependencies[key].version != version) {
                 pkg.devDependencies[key].version = version;
@@ -180,11 +181,12 @@ var
         }
       });
 
-      util.msg.line().info('update finished');
-      util.msg.success(`updated ${count} files`);
-      util.msg.warn('please input the following cmd by yourself:');
-      util.msg.warn(fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version }));
-
+      log('msg', 'info', 'update finished');
+      log('msg', 'success', `updated ${count} files`)
+      log('msg', 'warn', [
+        'please input the following cmd by yourself:''please input the following cmd by yourself:'
+        fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version })
+      ].join('\n'));
       return Promise.resolve(count);
     },
     yyl: function(version) {
@@ -223,17 +225,16 @@ var
                 iCmd = `git clone -b ${version} ${GIT_PATH} ${util.vars.SERVER_UPDATE_PATH}`;
               }
 
-              util.msg.info('update start...');
               util.runCMD(iCmd, (err) => {
                 if (err) {
                   if (version) {
                     log('msg', 'error', `version is not exist: ${version}`);
                     log('finish');
-                    throw new Error(`version is not exist: ${version}`);
+                    process.exit(1);
                   } else {
                     log('msg', 'warn', UPDATE_ERR_MSG);
                     log('finish');
-                    throw new Error(UPDATE_ERR_MSG);
+                    process.exit(1);
                   }
                 } else {
                   NEXT();
@@ -250,12 +251,12 @@ var
             errMsg = `path is not exists ${updatePackagePath}, ${UPDATE_ERR_MSG}`;
             log('msg', 'error', errMsg);
             log('finish');
-            throw new Error(errMsg);
+            process.exit(1);
           } else if (!fs.existsSync(basePackagePath)) {
             errMsg = `path is not exists ${basePackagePath}, ${UPDATE_ERR_MSG}`;
             log('msg', 'error', errMsg);
             log('finish');
-            throw new Error(errMsg);
+            process.exit(1);
           }
 
           var updatePackage = util.requireJs(updatePackagePath);
@@ -266,7 +267,7 @@ var
             errMsg = `yyl already the latest: ${updatePackage.version}`;
             log('msg', 'error', errMsg);
             log('finish');
-            throw new Error(errMsg);
+            process.exit(1);
           } else {
             Object.keys(updatePackage.dependencies).forEach((key) => {
               if (updatePackage.dependencies[key] != basePackage.dependencies[key]) {
@@ -287,7 +288,7 @@ var
               errMsg = `the latest yyl package ${isNotMatch} changed, please run "npm i yyl -g" manual`;
               log('msg', 'error', errMsg);
               log('finish');
-              throw new Error(errMsg);
+              process.exit(1);
             } else {
               next();
             }
@@ -300,14 +301,14 @@ var
             errMsg = `path is not exists: ${updatePath}, ${UPDATE_ERR_MSG}`;
             log('msg', 'error', errMsg);
             log('finish');
-            throw new Error(errMsg);
+            process.exit(1);
           }
 
           util.copyFiles(updatePath, util.vars.BASE_PATH, (err) => {
             if (err) {
               log('msg', 'warn', UPDATE_ERR_MSG);
               log('finish');
-              throw new Error(UPDATE_ERR_MSG);
+              process.exit(1);
             } else {
               next();
             }
@@ -334,7 +335,7 @@ var
             if (err) {
               log('msg', 'error', err);
               log('finish');
-              throw new Error(err);
+              process.exit(1);
             } else {
               next();
             }
