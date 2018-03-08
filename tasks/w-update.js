@@ -182,9 +182,9 @@ var
       });
 
       log('msg', 'info', 'update finished');
-      log('msg', 'success', `updated ${count} files`)
+      log('msg', 'success', `updated ${count} files`);
       log('msg', 'warn', [
-        'please input the following cmd by yourself:''please input the following cmd by yourself:'
+        'please input the following cmd by yourself:',
         fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version })
       ].join('\n'));
       return Promise.resolve(count);
