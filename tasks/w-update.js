@@ -287,7 +287,7 @@ var
             });
 
             if (isNotMatch) {
-              errMsg = `the latest yyl package ${isNotMatch} changed, please run "npm i yyl -g" manual`;
+              errMsg = `the latest yyl package ${isNotMatch} changed,\n please run "npm i yyl -g" manual`;
               log('msg', 'warn', errMsg);
               log('finish');
               process.exit(1);
