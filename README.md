@@ -1,6 +1,6 @@
 # yylive work flow 说明文档
 ## 环境说明
-项目基于 `node, gulp, svn, git` 搭建, 需要在 `node >= 4.0.0` 环境下运行
+项目基于 `node, svn, git` 搭建, 需要在 `node >= 4.0.0` 环境下运行
 * 需要 node  `>= 4.0.0`
 * 需要 svn `命令行安装` (在 cmd/终端 操作 输入 `svn` 有东西)
 * 需要 git `命令行安装` (在 cmd/终端 操作 输入 `git` 有东西)
@@ -142,9 +142,9 @@ Usage: yyl update <version>
 
 
 ## 程序工作机制说明
-1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在 一个存放本程序资源的地方 (~/.yyl) 里面创建对应架构类型的文件夹如(~/.yyl/init-file/gulp-requirejs/), 并在里面 根据架构依赖进行 npm install, 从而达到多个项目共用同一份 node_modlues 目的
+1. 在执行 程序初始化时, 根据你选的架构类型, 程序会在程序里面进行二次初始化， 将选中的的架构类型进行组件初始化
 
-2. 在执行压缩(all)、提交操作(commit)时, 程序会根据当前项目中的 config.js, config.mine.js 中的内容 替换里面的路径(如 程序中的 ./src 会替换成 h:/work/proj01/src) 在 本程序资源目录中生成一份如(~/.yyl/init-file/gulp-requirejs/config.js), 压缩、 提交操作 实际上是通过 程序资源目录中的 gulp 来执行。 这样就可以实现在项目中保持目录简洁的需求。
+2. 在执行压缩(all)、提交操作(commit)时, 程序会根据当前项目中的 config.js, config.mine.js 中的内容 替换里面的路径(如 程序中的 ./src 会替换成 h:/work/proj01/src) 在 本程序资源目录中生成一份如(~/.yyl/init-file/gulp-requirejs/config.js)， 再根据架构类型进行 构建。
 
 
 
@@ -161,18 +161,6 @@ requirejs 技术架构, 适用于 PC 端开发
 * [引入公用库资源](./examples/gulp-requirejs/with-global-component)
 * [一个项目集成多个子工程例子](./examples/gulp-requirejs/multi-project)
 * [非 components 模式开发例子](./examples/gulp-requirejs/no-components)
-
-### browserify-babel
-es6 + browserify 技术架构, 适用于 PC 端开发
-
-#### 说明文档
-* [说明文档](./init-files/browserify-babel/README.md)
-
-#### 例子
-* [hello world](./examples/browserify-babel/single-project)
-* [引入公用库资源](./examples/browserify-babel/with-global-component)
-* [一个项目集成多个子工程例子](./examples/browserify-babel/multi-project)
-* [非 components 模式开发例子](./examples/browserify-babel/no-components)
 
 ### rollup
 rollup + es6 技术架构, 适用于 PC 端开发
