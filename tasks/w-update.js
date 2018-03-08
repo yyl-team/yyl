@@ -54,8 +54,12 @@ var
         return update.help();
       }
 
+      log('clear');
+      log('start', 'update', `update ${name} start...`);
+
       if (!version.match(REG.IS_VERSION)) {
         log('msg', 'error', `version is not meet the rules: ${version}`);
+        log('finish');
         return Promise.resolve();
       }
 
@@ -114,7 +118,7 @@ var
 
         if (isUpdate) {
           fs.writeFileSync(iPath, JSON.stringify(pkg, null, 2));
-          util.msg.update(fn.printIt(iPath));
+          log('msg', 'update', iPath);
           count++;
         }
       });
@@ -176,7 +180,7 @@ var
 
         if (isUpdate) {
           fs.writeFileSync(iPath, JSON.stringify(pkg, null, 2));
-          util.msg.update(fn.printIt(iPath));
+          log('msg', 'update', iPath);
           count++;
         }
       });
@@ -187,6 +191,7 @@ var
         'please input the following cmd by yourself:',
         fn.render(INTERFACE.NPM_INSTALL, { 'name': name, 'version': version })
       ].join('\n'));
+      log('finish');
       return Promise.resolve(count);
     },
     yyl: function(version) {
@@ -199,6 +204,7 @@ var
             if (version) {
               iCmd = `git checkout ${version} & git pull`;
             }
+            log('clear');
             log('start', 'update', 'update start...');
             log('end');
             util.runCMD(iCmd, (err) => {
