@@ -39,7 +39,7 @@
     "vue-html-loader": "~1.2.3",
     "vue-loader": "~8.5.3",
     "vue-style-loader": "~1.0.0",
-    "yyl-util": "~1.11.1"
+    "yyl-util": "~1.13.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

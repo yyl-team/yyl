@@ -1,7 +1,8 @@
 'use strict';
-var color = require('yyl-color');
-var util = require('./w-util.js');
-var vars = util.vars;
+const util = require('./w-util.js');
+const chalk = require('chalk');
+
+
 
 var
   events = {
@@ -12,14 +13,14 @@ var
     test: require('./w-test'),
     commit: require('./w-commit'),
     remove: require('./w-remove'),
-    debug: require('./w-debug'),
     supercall: require('./w-supercall'),
     update: require('./w-update'),
     make: require('./w-make'),
     info: require('./w-info'),
     jade2pug: require('./w-jade2pug'),
     help: function() {
-      util.help({
+      const iEnv = util.envPrase(arguments);
+      const h = {
         usage: 'yyl',
         commands: {
           'init': 'init commands',
@@ -40,59 +41,84 @@ var
           '--logLevel': 'log level',
           '--config': 'change the config file to the setting'
         }
-      });
+      };
+      if (!iEnv.silent) {
+        util.help(h);
+      }
+      return Promise.resolve(h);
     },
     path: function() {
-      console.log([
-        '',
-        'yyl command path:',
-        color.yellow(vars.BASE_PATH),
-        ''
-      ].join('\n'));
-
-      util.openPath(vars.BASE_PATH);
+      const iEnv = util.envPrase(arguments);
+      if (!iEnv.silent) {
+        console.log([
+          '',
+          'yyl command path:',
+          chalk.yellow(util.vars.BASE_PATH),
+          ''
+        ].join('\n'));
+        util.openPath(util.vars.BASE_PATH);
+      }
+      return Promise.resolve(util.vars.BASE_PATH);
     },
     examples: function() {
-      var iPath = util.joinFormat(vars.BASE_PATH, 'examples');
-      console.log([
-        '',
-        'yyl examples:',
-        color.yellow(iPath),
-        ''
-      ].join('\n'));
+      const iEnv = util.envParse(arguments);
+      var iPath = util.joinFormat(util.vars.BASE_PATH, 'examples');
+      if (!iEnv.silent) {
+        console.log([
+          '',
+          'yyl examples:',
+          chalk.yellow(iPath),
+          ''
+        ].join('\n'));
+        util.openPath(iPath);
+      }
 
-      util.openPath(iPath);
+      return Promise.resolve(iPath);
     }
   };
 
 
 module.exports = function(ctx) {
-  var
-    iArgv = util.makeArray(arguments);
+  var iArgv = util.makeArray(arguments);
+  var iEnv = util.envPrase(arguments);
 
   var iVer = process.versions.node;
   if (iVer.localeCompare('4.0.0') < 0) {
     return util.msg.error('please makesure your node >= 4.0.0');
   }
+
+  if (!isNaN(iEnv.logLevel)) {
+    events.server.setLogLevel(iEnv.logLevel, true);
+  }
+
+  let r;
   switch (ctx) {
     case '-v':
     case '--version':
-      events.version();
+      r = events.version.apply(events, iArgv.slice(1));
+      break;
+
+    case '--logLevel':
+      if (iArgv[1]) {
+        r = events.server.setLogLevel(iArgv[1]);
+      } else {
+        r = events.server.getLogLevel();
+      }
       break;
 
 
     case '-h':
     case '--help':
-      events.help();
+      r = events.help.apply(events, iArgv.slice(1));
       break;
 
     case '--path':
     case '-p':
-      events.path();
+      r = events.path.apply(events, iArgv.slice(1));
       break;
 
     case 'init':
-      events.init.apply(events, iArgv);
+      r = events.init.apply(events, iArgv);
       break;
 
 
@@ -107,56 +133,57 @@ module.exports = function(ctx) {
     case 'concat':
     case 'rev':
     case 'resource':
-      events.optimize.apply(events, iArgv);
+      r = events.optimize.apply(events, iArgv);
       break;
 
     case 'server':
-      events.server.run.apply(events.server, iArgv);
+      r = events.server.run.apply(events.server, iArgv);
       break;
 
     case 'commit':
-      events.commit.run.apply(events.commit, iArgv);
+      r = events.commit.run.apply(events.commit, iArgv);
       break;
 
     case 'examples':
     case 'example':
-      events.examples();
+      r = events.examples.apply(events.examples, iArgv.slice(1));
       break;
 
     case 'rm':
-      events.remove.apply(events, iArgv.slice(1));
+      r = events.remove.apply(events, iArgv.slice(1));
       break;
 
     case 'test':
-      events.test();
+      r = events.test();
       break;
 
     case 'supercall':
-      events.supercall.run.apply(events.supercall, iArgv);
+      r = events.supercall.run.apply(events.supercall, iArgv);
       break;
 
     case 'update':
-      events.update.run.apply(events.update, iArgv.slice(1));
+      r = events.update.run.apply(events.update, iArgv.slice(1));
       break;
 
     case 'make':
-      events.make.run.apply(events, iArgv.slice(1));
+      r = events.make.run.apply(events, iArgv.slice(1));
       break;
 
     case 'jade2pug':
-      events.jade2pug.run.apply(events, iArgv);
-      break;
-
-    case 'debug':
-      events.debug.apply(events, iArgv.slice(1));
+      r = events.jade2pug.run.apply(events, iArgv);
       break;
 
     case 'info':
-      events.info.run.apply(events, iArgv.slice(1));
+      r = events.info.run.apply(events, iArgv.slice(1));
       break;
 
     default:
-      events.help();
+      r = events.help();
       break;
   }
+
+  if (!iEnv.nocatch) {
+    r.catch(() => {});
+  }
+  return r;
 };

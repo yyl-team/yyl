@@ -62,8 +62,8 @@ yyl commit --sub trunk
         port: 8887,
         localRemote: {
             'http://www.yy.com': './dist'
-        }
-
+        },
+        ignores: []
     }
 }
 ```
@@ -122,7 +122,11 @@ var
                 'http://www.yy.com/': './dist/',
                 // 也可以绝对路径
                 'http://www.yy.com/': 'http://127.0.0.1:5000/'
-            }
+            },
+            // 不进行代理的地址列表
+            ignores: [
+              'http://www.yy.com/'
+            ]
         },
         // + 此部分 yyl server 端config 会进行替换
         // 本地服务器配置

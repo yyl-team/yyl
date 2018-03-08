@@ -1,9 +1,13 @@
 # 版本信息
-## 2.15.43 (2018-02-28)
-* [ADD] `gulp-requirejs` 执行 `js` 压缩时，如遇到 注释 `/*amd:disabled*/` 则不去进行 amd 压缩操作
-
-## 2.15.42 (2018-02-07)
-* [FIX] 修复 `gulp-requirejs` 执行 `yyl watch` 时, `inline-source` 路径不对问题
+## 2.16.0 (2018-01-26)
+* [ADD] `yyl` 新增 `--logLevel` 参数
+* [ADD] `yyl` `config` 新增 `config.proxy.ignores` 参数
+* [EDIT] 简化 构建工具 `optimize` 时界面
+* [EDIT] 分离 `yyl watch` 中 `server` 与 `optimize` 到 两个独立的窗口
+* [EDIT] `yyl` 构建方式改成内联，不再通过 `util.runCMD(gulp watch)` 的方式进行调用
+* [DEL] 去掉 `yyl` 对 全局 `gulp` 的依赖
+* [DEL] 去掉 `yyl debug`
+* [DEL] 去掉 `yyl server rebuild` 方法
 
 ## 2.15.41 (2018-02-07)
 * [ADD] 新增 `yyl optimize` 时 对项目版本要求的检查
@@ -25,7 +29,6 @@
 
 ## 2.15.35 (2018-01-29)
 * [FIX] `gulp-requirejs` `p-xx` 也同样需要监听 被其他 `p-xx` 调用的情况
-
 ## 2.15.34 (2018-01-29)
 * [FIX] `gulp-requirejs` `p-xx` 也同样需要监听 被其他 `p-xx` 调用的情况
 

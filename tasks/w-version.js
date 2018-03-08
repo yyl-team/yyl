@@ -1,10 +1,11 @@
 'use strict';
-var
-  color = require('yyl-color');
+const chalk = require('chalk');
+const util = require('./w-util.js');
+const wVersion = function() {
+  const iEnv = util.envPrase(arguments);
 
-var
-  wVersion = function() {
-    var iVer = require('../package.json').version;
+  var iVer = require('../package.json').version;
+  if (!iEnv.silent) {
     console.log([
       '',
       '                  :                  ',
@@ -28,8 +29,11 @@ var
       '        +ooooooooooooooooo/```-::`   ',
       '         `sooossssoooo+:             ',
       '',
-      `        ${color.yellow(`yyl version: ${iVer}`)}`
+      `        ${chalk.yellow(`yyl version: ${iVer}`)}`
     ].join('\n'));
-  };
+  }
+
+  return Promise.resolve(iVer);
+};
 
 module.exports = wVersion;
