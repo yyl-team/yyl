@@ -344,11 +344,10 @@ var
           log('finish');
           done();
         }).start();
-
-        return new Promise((next) => {
-          runner(next);
-        });
       };
+      return new Promise((next) => {
+        runner(next);
+      });
     },
     run: function(ctx, version) {
       if (ctx) {
