@@ -15,7 +15,12 @@ const sass = require('gulp-sass');
 const minifycss = require('gulp-minify-css');
 const jshint = require('gulp-jshint');
 const uglify = require('gulp-uglify');
-const imagemin = require('gulp-imagemin');
+const imagemin = require('imagemin');
+const imageminJpegtran = require('imagemin-jpegtran');
+const imageminGifsicle = require('imagemin-gifsicle');
+const imageminOptipng = require('imagemin-optipng');
+const imageminSvgo = require('imagemin-svgo');
+
 const rename = require('gulp-rename');
 const replacePath = require('gulp-replace-path');
 
@@ -1001,14 +1006,24 @@ var
           .pipe(filter(['**/*.jpg', '**/*.jpeg', '**/*.png', '**/*.bmp', '**/*.gif', '**/*.webp']))
           .pipe(through.obj(function(file, enc, next) {
             log('msg', 'optimize', util.path.join(file.base, file.relative));
-            this.push(file);
-            next();
-          }))
-          .pipe(
-            iEnv.isCommit?
-              imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }):
-              fn.blankPipe()
-          );
+            if (iEnv.isCommit) {
+              imagemin.buffer(file.contents, {
+                use: [
+                  imageminJpegtran({progressive: true}),
+                  imageminGifsicle({optimizationLevel: 3, interlaced: true}),
+                  imageminOptipng({optimizationLevel: 0}),
+                  imageminSvgo()
+                ]
+              }).then((data) => {
+                file.contents = data;
+                this.push(file);
+                next();
+              });
+            } else {
+              this.push(file);
+              next();
+            }
+          }));
 
       return rStream;
     },
