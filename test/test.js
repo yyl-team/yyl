@@ -15,21 +15,21 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 util.cleanScreen();
 
 const TEST_CTRL = {
-  // SERVER: true,
-  // SERVER_INIT: true,
-  // // SERVER_CLEAR: true,
-  // INIT: true,
-  // ALL: true,
-  // ALL_MAIN: true,
-  // ALL_CONFIG: true,
-  // VERSION: true,
-  // HELP: true,
-  // PATH: true,
-  // INFO: true,
-  // EXAMPLE: true,
-  // MAKE: true,
-  // COMMIT: true,
-  UPDATE: true
+  SERVER: true,
+  SERVER_INIT: true,
+  // SERVER_CLEAR: true,
+  INIT: true,
+  ALL: true,
+  ALL_MAIN: true,
+  ALL_CONFIG: true,
+  VERSION: true,
+  HELP: true,
+  PATH: true,
+  INFO: true,
+  EXAMPLE: true,
+  MAKE: true,
+  COMMIT: true
+  // UPDATE: true
 };
 
 const fn = {
@@ -845,9 +845,9 @@ if (TEST_CTRL.COMMIT) {
 
 if (TEST_CTRL.UPDATE) {
   describe('yyl update test', () => {
-    it('yyl update', function(done) {
+    it('yyl update 2.15.0', function(done) {
       this.timeout(0);
-      yyl.run('update --silent --logLevel 0').then(() => {
+      yyl.run('update 2.15.0 --silent --logLevel 0').then(() => {
         expect(true).equal(true);
         done();
       }).catch((er) => {
@@ -855,9 +855,9 @@ if (TEST_CTRL.UPDATE) {
       });
     });
 
-    it('yyl update 2.16.0', function(done) {
+    it('yyl update', function(done) {
       this.timeout(0);
-      yyl.run('update 2.16.0 --silent --logLevel 0').then(() => {
+      yyl.run('update --silent --logLevel 0').then(() => {
         expect(true).equal(true);
         done();
       }).catch((er) => {
