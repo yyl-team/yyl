@@ -363,7 +363,9 @@ var
                   });
 
                   log('msg', 'info', 'copy file finished');
-                  next();
+                  setTimeout(() => { // 部分机型拷贝文件更新不及时
+                    next();
+                  }, 100);
                 },
                 null,
                 null,
