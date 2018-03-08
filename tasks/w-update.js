@@ -200,6 +200,7 @@ var
               iCmd = `git checkout ${version} & git pull`;
             }
             log('start', 'update', 'update start...');
+            log('end');
             util.runCMD(iCmd, (err) => {
               if (err) { // 出错则需要清空后重试
                 util.removeFiles(util.vars.SERVER_UPDATE_PATH, () => {
@@ -225,6 +226,7 @@ var
                 iCmd = `git clone -b ${version} ${GIT_PATH} ${util.vars.SERVER_UPDATE_PATH}`;
               }
 
+              log('end');
               util.runCMD(iCmd, (err) => {
                 if (err) {
                   if (version) {
@@ -265,7 +267,7 @@ var
 
           if (basePackage.version === updatePackage.version) {
             errMsg = `yyl already the latest: ${updatePackage.version}`;
-            log('msg', 'error', errMsg);
+            log('msg', 'warn', errMsg);
             log('finish');
             process.exit(1);
           } else {
@@ -286,7 +288,7 @@ var
 
             if (isNotMatch) {
               errMsg = `the latest yyl package ${isNotMatch} changed, please run "npm i yyl -g" manual`;
-              log('msg', 'error', errMsg);
+              log('msg', 'warn', errMsg);
               log('finish');
               process.exit(1);
             } else {
