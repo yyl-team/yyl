@@ -243,6 +243,7 @@ const events = {
         });
       }).then(() => {
         log('msg', 'success', 'clear task finished');
+        log('finish');
         return done();
       }).start();
     };
@@ -503,7 +504,7 @@ const wServer = {
               fs.writeFileSync(iPkgPath, '{}');
             }
 
-            var cmd = `npm install ${installLists.join(' ')}`;
+            var cmd = `npm install ${installLists.join(' ')} --loglevel http`;
             log('msg', 'info' `run cmd ${cmd}`);
             process.chdir(workFlowPath);
 
@@ -763,7 +764,7 @@ const wServer = {
         }
         if (needRun) {
           log('end');
-          util.runCMD('npm install', (err) => {
+          util.runCMD('npm install --loglevel http', (err) => {
             if (err) {
               throw new Error(err);
             }

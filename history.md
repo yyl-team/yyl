@@ -1,4 +1,8 @@
 # 版本信息
+## 2.16.1 (2018-01-26)
+* [FIX] 修复 `yyl server clear` 不会结束问题
+* [EDIT] 优化执行 `npm install ` 时看上去像没反应的问题
+
 ## 2.16.0 (2018-01-26)
 * [ADD] `yyl` 新增 `--logLevel` 参数
 * [ADD] `yyl` `config` 新增 `config.proxy.ignores` 参数
