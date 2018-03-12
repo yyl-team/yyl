@@ -2,6 +2,7 @@
 const path = require('path');
 const fs = require('fs');
 const querystring = require('querystring');
+const chalk = require('chalk');
 
 const gulp = require('gulp');
 // const gutil = require('gulp-util');
@@ -838,7 +839,7 @@ var
               } else {
                 log('msg', 'warn', [
                   `css url replace error, ${path.basename(file.history.toString())}`,
-                  `  path not found: ${util.path.relative(util.vars.PROJECT_PATH, fn.hideUrlTail(util.joinFormat(dirname, rPath)))}`
+                  `  path not found: ${chalk.yellow(util.path.relative(util.vars.PROJECT_PATH, fn.hideUrlTail(util.joinFormat(dirname, rPath))))}`
                 ].join('\n'));
                 return str;
               }

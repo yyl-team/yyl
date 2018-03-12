@@ -128,7 +128,7 @@ var
           }
 
           log('msg', 'success', 'open addr:');
-          log('msg', 'success', addr);
+          log('msg', 'success', chalk.cyan(addr));
           util.openBrowser(addr);
           if (op.debug) {
             log('msg', 'success', 'open debug addr:');

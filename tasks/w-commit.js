@@ -411,7 +411,7 @@ const wCommit = {
         var min = Math.floor(cost / 1000 / 60);
         var sec = Math.floor(cost / 1000) % 60;
         var us = cost % 1000;
-        log('msg', 'success', `total ${min} m ${sec} s ${us}ms`);
+        log('msg', 'success', `total ${chalk.cyan(min)} m ${chalk.cyan(sec)} s ${chalk.cyan(us)}ms`);
         log('finish');
         done(config);
       }).start();
