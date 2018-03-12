@@ -1,5 +1,6 @@
 'use strict';
 var fs = require('fs');
+var chalk = require('chalk');
 
 var util = require('./w-util.js');
 var wServer = require('./w-server');
@@ -37,7 +38,7 @@ var
         if (fs.existsSync(config.localserver.root)) {
           log('msg', 'info', `clean Path start: ${config.localserver.root}`);
           util.removeFiles(config.localserver.root, () => {
-            log('msg', 'success', `clean path finished: ${config.localserver.root}`);
+            log('msg', 'success', `clean path finished: ${chalk.yellow(config.localserver.root)}`);
             next(config);
           });
         } else {
@@ -53,7 +54,7 @@ var
                   next(config);
                 }, util.vars.PROJECT_PATH, true, true);
               } else {
-                log('msg', 'warn', `port ${config.localserver.port} is occupied, yyl server start failed`);
+                log('msg', 'warn', `port ${chalk.yellow(config.localserver.port)} is occupied, yyl server start failed`);
                 next(config);
               }
             });

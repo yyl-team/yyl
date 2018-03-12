@@ -174,7 +174,7 @@ const log4Detail = (module, type, argv) => {
           argv = argv.map((src) => {
             return util.path.relative(util.vars.PROJECT_PATH, src);
           });
-          util.msg[type](`${argv[0]} <= [${argv.slice(1).join(',')}]`);
+          util.msg[type](`${chalk.cyan(argv[0])} <= [${chalk.yellow(argv.slice(1).join(','))}]`);
           break;
 
         default:
@@ -350,8 +350,8 @@ const log4Base = (module, type, argv) => {
           argv = argv.map((src) => {
             return util.path.relative(util.vars.PROJECT_PATH, src);
           });
-          iStatus.success.push([`concat: ${argv[0]}`]);
-          iStatus.success.push([`<= [${argv.slice(1).join(',')}]`]);
+          iStatus.success.push([`concat: ${chalk.cyan(argv[0])}`]);
+          iStatus.success.push([`<= [${chalk.yellow(argv.slice(1).join(','))}]`]);
           break;
 
         default:

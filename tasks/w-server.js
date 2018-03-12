@@ -119,7 +119,7 @@ const events = {
             });
           } else {
             r.localserver = false;
-            log('msg', 'error', `port ${chalk(setting.port)} is occupied, please check`);
+            log('msg', 'error', `port ${chalk.yellow(setting.port)} is occupied, please check`);
             log('finish', 'local server init finished');
             next(config);
           }
@@ -580,7 +580,7 @@ const wServer = {
       new util.Promise((next) => {
         util.checkPortUseage(port, (canUse) => {
           if (!canUse) {
-            const errMsg = `server port ${port} is be occupied, please check`;
+            const errMsg = `server port ${chalk.yellow(port)} is be occupied, please check`;
             if (done) {
               done(errMsg);
             } else {
@@ -593,7 +593,7 @@ const wServer = {
       }).then((next) => {
         util.checkPortUseage(lrPort, (canUse) => {
           if (!canUse) {
-            const errMsg = `livereload port ${lrPort} is be occupied, please check`;
+            const errMsg = `livereload port ${chalk.yellow(lrPort)} is be occupied, please check`;
             if (done) {
               done(errMsg);
             } else {
