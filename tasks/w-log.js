@@ -121,6 +121,13 @@ util.infoBar.init({
 });
 
 const fn = {
+  matchKey(str, word, r) {
+    return str
+      .replace(new RegExp(` ${word}$`, 'g'), ` ${r}`)
+      .replace(new RegExp(`^${word} `, 'g'), `${r} `)
+      .replace(new RegExp(` ${word} `, 'g'), ` ${r} `)
+      .replace(new RegExp(` ${word}([:,.]+)`, 'g'), ` ${r}$1`);
+  },
   costFormat(cost) {
     let min;
     let sec;
@@ -307,6 +314,15 @@ const log4Base = (module, type, argv) => {
       break;
 
     case 'msg':
+      argv = argv.map((ctx) => {
+        let r = ctx;
+        if (typeof ctx == 'string') {
+          r = fn.matchKey(r, 'finished', chalk.green('finished'));
+          r = fn.matchKey(r, 'failed', chalk.red('failed'));
+          r = fn.matchKey(r, 'error', chalk.red('error'));
+        }
+        return r;
+      });
       switch (type) {
         case 'create':
           cache.isEnd = false;
