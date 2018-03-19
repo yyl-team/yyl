@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
+const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const log = require('./w-log.js');

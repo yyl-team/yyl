@@ -14,10 +14,11 @@ var
     const runner = (done) => {
       new util.Promise((next) => {
         log('clear');
-        log('start', 'server', 'server init...');
+        log('cmd', `yyl ${iArgv.join(' ')}`);
+        log('start', 'server', 'init config...');
         log('msg', 'info', 'build server config start');
         wServer.buildConfig(iEnv.name, iEnv).then((config) => {
-          log('msg', 'success', 'build server config finished');
+          log('msg', 'success', 'init config finished');
           next(config);
         }).catch((err) => {
           log('msg', 'error', ['build server config error:', err]);

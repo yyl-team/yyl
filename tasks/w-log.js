@@ -20,6 +20,7 @@ const cache = {
 util.infoBar.init({
   head: {
     key: {
+
       'init': {
         name: 'INIT',
         color: 'white',
@@ -114,6 +115,11 @@ util.infoBar.init({
         name: 'UPDT',
         color: 'white',
         bgColor: 'bgBlue'
+      },
+      'cmd': {
+        name: 'CMD>',
+        color: 'white',
+        bgColor: 'bgBlack'
       }
       // - w-update
     }
@@ -162,6 +168,10 @@ const log4Detail = (module, type, argv) => {
         argv.push(`[${cache.currentType}] task finished, cost ${fn.costFormat(cost)}`);
         util.msg.success.apply(util.msg, argv);
       }
+      break;
+
+    case 'cmd':
+      util.msg.cmd.apply(util.msg, argv);
       break;
 
 
@@ -218,7 +228,7 @@ const log4Base = (module, type, argv) => {
     argv = [type].concat(argv);
   }
 
-  if (!iStatus && module != 'clear') {
+  if (!iStatus && module != 'clear' && module != 'cmd') {
     return log4Detail(module, type, argv);
   }
 
@@ -275,6 +285,17 @@ const log4Base = (module, type, argv) => {
     case 'clear':
       cache.isEnd = true;
       util.cleanScreen();
+      break;
+
+    case 'cmd':
+      cache.isEnd = true;
+      if (!argv.length) {
+        argv = [type];
+      }
+      util.infoBar.print('cmd', {
+        barLeft: chalk.cyan(argv.join(' ')),
+        foot: util.getTime()
+      }).end();
       break;
 
     case 'finish':
