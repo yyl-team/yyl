@@ -673,7 +673,8 @@ const wServer = {
     return Promise.resolve(level);
   },
   getLogLevel: function() {
-    const level = wServer.profile('logLevel');
+    const level = wServer.profile('logLevel') ||  1;
+    log.update(+level);
     log('msg', 'success', `yyl logLevel: ${level}`);
     return Promise.resolve(level);
   },
