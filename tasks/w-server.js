@@ -670,10 +670,12 @@ const wServer = {
     }
     log.update(level);
     log('msg', 'success', `change logLevel: ${level}`);
+    return Promise.resolve(level);
   },
   getLogLevel: function() {
     const level = wServer.profile('logLevel');
-    log('msg', 'info', `yyl logLevel: ${level}`);
+    log('msg', 'success', `yyl logLevel: ${level}`);
+    return Promise.resolve(level);
   },
   // 服务器目录初始化
   init: function(workflowName, forceInstall) {

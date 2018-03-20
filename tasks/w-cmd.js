@@ -182,7 +182,8 @@ module.exports = function(ctx) {
       break;
   }
 
-  if (!iEnv.nocatch) {
+  if (!iEnv.nocatch
+  ) {
     r.catch(() => {});
   }
   return r;

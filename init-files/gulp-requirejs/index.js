@@ -27,7 +27,7 @@ const replacePath = require('gulp-replace-path');
 
 const requirejs = require('requirejs');
 
-const inlinesource = require('gulp-inline-source');
+const inlinesource = require('yyl-inlinesource');
 const filter = require('gulp-filter');
 const gulpPug = require('gulp-pug');
 const plumber = require('gulp-plumber');
@@ -491,76 +491,31 @@ var
           process.exit(1);
         }))
         .pipe(through.obj(function(file, enc, next) {
-          var iCnt = file.contents.toString();
           var dirname = util.joinFormat( config.alias.srcRoot, 'html');
 
-          iCnt = iCnt
-            // 隔离 script 内容
-            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
-              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
-                return str;
-              } else {
-                return $1 + querystring.escape($2) + $3;
-              }
-            })
-            // 隔离 style 标签
-            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
-              return $1 + querystring.escape($2) + $3;
-            })
-            .replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
-              var iPath = $4;
-              var rPath = '';
-
-              iPath = iPath.replace(REG.HTML_ALIAS_REG, (str, $1, $2) => {
-                if (config.alias[$2]) {
-                  return path.relative( path.dirname(file.path), config.alias[$2]);
-                } else {
-                  return str;
-                }
-              });
-
-              if (
-                iPath.match(REG.HTML_IGNORE_REG) ||
-                iPath.match(REG.IS_HTTP) ||
-                !iPath ||
-                iPath.match(REG.HTML_IS_ABSLUTE)
-              ) {
-                return str;
-              }
-
+          inlinesource({
+            content: file.contents,
+            baseUrl: path.dirname(path.join(file.base, file.relative)),
+            publishPath: dirname,
+            type: 'html',
+            alias: config.alias,
+            onReplacePath: function (iPath) {
               if (path.extname(iPath) == '.scss') { // 纠正 p-xx.scss 路径
-                var filename = path.basename(iPath, path.extname(iPath));
+                const filename = path.basename(iPath, path.extname(iPath));
                 if (/^p-/.test(filename)) {
-                  iPath = util.joinFormat(path.relative(
-                    path.dirname(file.path),
-                    path.join(config.alias.srcRoot, 'css', `${filename.replace(/^p-/, '')  }.css`))
+                  iPath = util.path.relative(
+                    dirname,
+                    path.join(config.alias.srcRoot, 'css', `${filename.replace(/^p-/, '')  }.css`)
                   );
                 }
               }
-
-              rPath = util.path.join(
-                path.relative(dirname, path.dirname(file.path)),
-                iPath
-              ).replace(/\\+/g, '/').replace(/\/+/, '/');
-
-              return `${$1}${$2}${$3}${rPath}${$5}`;
-            })
-            // 取消隔离 script 内容
-            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
-              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
-                return str;
-              } else {
-                return $1 + querystring.unescape($2) + $3;
-              }
-            })
-            // 取消隔离 style 标签
-            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
-              return $1 + querystring.unescape($2) + $3;
-            });
-
-          file.contents = Buffer.from(iCnt, 'utf-8');
-          this.push(file);
-          next();
+              return iPath;
+            }
+          }).then((iCnt) => {
+            file.contents = Buffer.from(iCnt, 'utf-8');
+            this.push(file);
+            next();
+          });
         }))
         .pipe(rename((path) => {
           path.basename = path.basename.replace(/^p-/g, '');
@@ -587,7 +542,6 @@ var
       // html task
       var rStream = stream
         .pipe(plumber())
-        .pipe(inlinesource())
         // 删除requirejs的配置文件引用
         .pipe(replacePath(/<script [^<]*local-usage><\/script>/g, ''))
 

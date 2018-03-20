@@ -76,7 +76,7 @@ gulp.task('webpack', (done) => {
       config.commit.hostname,
       iWconfig.output.publicPath
     );
-    util.msg.info('change webpack publicPath =>', iWconfig.output.publicPath);
+    log('msg', 'success', `change webpack publicPath => ${iWconfig.output.publicPath}`);
   }
 
   webpack(iWconfig, (err, stats) => {
