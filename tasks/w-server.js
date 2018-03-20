@@ -325,12 +325,10 @@ const wServer = {
           mineConfig = util.requireJs(mineConfigPath);
         } catch (er) {}
       }
-      if (fs.existsSync(configPath)) {
-        try {
-          config = util.requireJs(configPath);
-        } catch (er) {
-          throw new Error(`read config.js with error: ${er.message}`);
-        }
+      try {
+        config = util.requireJs(configPath);
+      } catch (er) {
+        throw new Error(`read config.js with error: ${er.message}`);
       }
 
       if (!config) {

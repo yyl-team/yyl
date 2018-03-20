@@ -747,6 +747,26 @@ var
       return rStream;
     },
     // - html task
+    // + tpl task
+    pug2tpl: function(stream) {
+      var rStream = iStream.pug2html(stream, {
+        path: path.join(config.alias.srcRoot, 'tpl'),
+        extname: '.tpl'
+      });
+      return rStream;
+    },
+    tpl2dest: function(stream) {
+      var rStream = iStream.html2dest(stream, {
+        path: path.join(config.alias.srcRoot, 'tpl')
+      });
+      return rStream;
+    },
+    pug2tpldest: function(stream) {
+      var rStream = iStream.pug2tpl(stream);
+      rStream = iStream.tpl2dest(rStream);
+      return rStream;
+    },
+    // - tpl task
     // + css task
     sassBase2css: function(stream) {
       var
@@ -1246,6 +1266,46 @@ gulp.task('html-to-dest-task', () => {
   return rStream;
 });
 // - html task
+// + tpl task
+gulp.task('tpl', ['pug-to-tpl-dest-task', 'html-to-dest-task'], () => {
+});
+
+gulp.task('pug-to-tpl-dest-task', () => {
+  var rStream;
+  if (!config.alias.tplDest) {
+    return;
+  }
+
+  rStream = iStream.pug2tpldest(gulp.src([
+    util.joinFormat(config.alias.srcRoot, 'components/@(t-)*/*.pug'),
+    util.joinFormat(config.alias.srcRoot, 'components/@(t-)*/*.jade')
+  ]));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.tplDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.tplDest));
+
+
+  return rStream;
+});
+
+gulp.task('tpl-to-dest-task', () => {
+  var rStream;
+  if (!config.alias.tplDest) {
+    return;
+  }
+
+  rStream = iStream.html2dest(gulp.src(util.joinFormat(config.alias.srcRoot, 'tpl/*.tpl')));
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.tplDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.tplDest));
+
+  return rStream;
+});
+// - tpl task
 
 // + css task
 gulp.task('css', ['sass-component-to-dest', 'sass-base-to-dest', 'css-to-dest'], (done) => {
@@ -1506,7 +1566,7 @@ gulp.task('watch', ['all'], () => {
 
 // + all
 gulp.task('all', (done) => {
-  runSequence(['js', 'css', 'images', 'html', 'resource'], 'rev-build',  () => {
+  runSequence(['js', 'css', 'images', 'html', 'tpl', 'resource'], 'rev-build',  () => {
     if (!iEnv.silent) {
       util.pop('all task done');
     }
