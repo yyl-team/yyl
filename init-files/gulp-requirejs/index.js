@@ -474,7 +474,11 @@ var REG = {
 var
   iStream = {
     // + html task
-    pug2html: function(stream) {
+    pug2html: function(stream, op) {
+      op = util.extend({
+        extname: '.html',
+        path: util.joinFormat( config.alias.srcRoot, 'html')
+      }, op);
       var rStream = stream
         .pipe(plumber())
         .pipe(through.obj(function(file, enc, next) {
@@ -491,7 +495,7 @@ var
           process.exit(1);
         }))
         .pipe(through.obj(function(file, enc, next) {
-          var dirname = util.joinFormat( config.alias.srcRoot, 'html');
+          var dirname = op.path;
 
           inlinesource({
             content: file.contents,
@@ -520,17 +524,22 @@ var
         .pipe(rename((path) => {
           path.basename = path.basename.replace(/^p-/g, '');
           path.dirname = '';
+          path.extname = op.extname;
         }))
         .pipe(prettify({indent_size: 4}));
         // .pipe(gulp.dest(util.joinFormat(config.alias.srcRoot, 'html')));
 
       return rStream;
     },
-    html2dest: function(stream) {
+    html2dest: function(stream, op) {
+      op = util.extend({
+        path: path.join(config.alias.srcRoot, 'html')
+      }, op);
+
       var relateHtml = function(iPath) {
         return util.joinFormat(
           path.relative(
-            path.join(config.alias.srcRoot, 'html'),
+            op.path,
             iPath
           )
         );
@@ -566,7 +575,7 @@ var
 
             var dirname = iPath.substr(gComponentPath.length);
 
-            copyPath[util.joinFormat(config.alias.srcRoot, 'html', iPath)] = util.joinFormat(config.alias.imagesDest, 'globalcomponents', dirname);
+            copyPath[util.joinFormat(op.path, iPath)] = util.joinFormat(config.alias.imagesDest, 'globalcomponents', dirname);
             return str;
           };
 
