@@ -311,7 +311,7 @@ var
           var config = util.getConfigCacheSync();
           var revSrc = util.joinFormat(path.relative(config.alias.revRoot, iPath));
           var hash = `-${  revHash(fs.readFileSync(iPath))}`;
-          var revDest = revSrc.replace(/(\.[^.]+$)/g, `${hash  }$1`);
+          var revDest = revSrc.replace(/(\.[^.]+$)/g, `${hash}$1`);
 
           revMap[revSrc] = revDest;
         },
@@ -383,12 +383,10 @@ var
             const jsFiles = [];
             const cssFiles = [];
             const resourceFiles = [];
+            const tplFiles = [];
 
             util.readFilesSync(config.alias.root, (iPath) => {
               let r;
-              if (fs.statSync(iPath).isDirectory()) {
-                return;
-              }
               const iExt = path.extname(iPath);
 
               if (/\.(html|json)/.test(iExt)) {
@@ -408,6 +406,10 @@ var
 
                 case '.html':
                   htmlFiles.push(iPath);
+                  break;
+
+                case '.tpl':
+                  tplFiles.push(iPath);
                   break;
 
                 default:
@@ -445,6 +447,14 @@ var
             // html 路径替换
             htmlFiles.forEach((iPath) => {
               selfFn.fileHashPathUpdate(iPath, revMap, op);
+            });
+
+            // tpl 文件内路径替换 并且生成 hash 表
+            tplFiles.forEach((iPath) => {
+              // hash路径替换
+              selfFn.fileHashPathUpdate(iPath, revMap, op);
+              // 生成hash 表
+              selfFn.buildHashMap(iPath, revMap);
             });
 
             // 根据hash 表生成对应的文件
@@ -536,8 +546,8 @@ var
               return err(`local rev file not exist: ${localRevPath}`);
             }
           }).then((revMap, next) => { // hash 表内html, css 文件 hash 替换
-            // html 替换
-            var htmlFiles = util.readFilesSync(config.alias.root, /\.html$/);
+            // html, tpl 替换
+            var htmlFiles = util.readFilesSync(config.alias.root, /\.(html|tpl)$/);
 
             htmlFiles.forEach((iPath) => {
               selfFn.fileHashPathUpdate(iPath, revMap, op);

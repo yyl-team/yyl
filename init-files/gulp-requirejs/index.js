@@ -77,24 +77,10 @@ var fn = {
     }
 
     var isPage = function(iPath) {
-      var pagePath = util.joinFormat(op.base, 'components/p-');
-      var sameName = false;
-
-      iPath.replace(/p-([a-zA-Z0-9-]+)\/p-([a-zA-Z0-9-]+)\.\w+$/, (str, $1, $2) => {
-        sameName = $1 === $2;
-        return str;
-      });
-      return sameName && pagePath == iPath.substr(0, pagePath.length);
+      return fn.isPageComponent(iPath, op.base);
     };
     var isTpl = function(iPath) {
-      var pagePath = util.joinFormat(op.base, 'components/t-');
-      var sameName = false;
-
-      iPath.replace(/t-([a-zA-Z0-9-]+)\/t-([a-zA-Z0-9-]+)\.\w+$/, (str, $1, $2) => {
-        sameName = $1 === $2;
-        return str;
-      });
-      return sameName && pagePath == iPath.substr(0, pagePath.length);
+      return fn.isTplComponent(iPath, op.base);
     };
     var rMap = {
       source: {
@@ -171,7 +157,7 @@ var fn = {
           }
 
           rs.forEach((rPath) => {
-            if (isPage(rPath) || isTpl(iPath)) {
+            if (isPage(rPath) || isTpl(rPath)) {
               r.push(rPath);
             } else {
               r = r.concat(findit(rPath));
@@ -198,7 +184,7 @@ var fn = {
 
           var r = [];
 
-          if (isPage(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
+          if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
           }
 
@@ -258,7 +244,7 @@ var fn = {
 
           var r = [];
 
-          if (isPage(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
+          if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
           }
           // 如果是 lib 里面的 js 也返回到当前 array
@@ -458,6 +444,26 @@ var fn = {
   },
   isImage: function(iPath) {
     return /^\.(jpg|jpeg|bmp|gif|webp|png|apng|svga)$/.test(path.extname(iPath));
+  },
+  isTplComponent: function(iPath, iBase) {
+    var pagePath = util.joinFormat(iBase, 'components/t-');
+    var sameName = false;
+
+    iPath.replace(/t-([a-zA-Z0-9-]+)\/t-([a-zA-Z0-9-]+)\.\w+$/, (str, $1, $2) => {
+      sameName = $1 === $2;
+      return str;
+    });
+    return sameName && pagePath == iPath.substr(0, pagePath.length);
+  },
+  isPageComponent: function(iPath, iBase) {
+    var pagePath = util.joinFormat(iBase, 'components/p-');
+    var sameName = false;
+
+    iPath.replace(/p-([a-zA-Z0-9-]+)\/p-([a-zA-Z0-9-]+)\.\w+$/, (str, $1, $2) => {
+      sameName = $1 === $2;
+      return str;
+    });
+    return sameName && pagePath == iPath.substr(0, pagePath.length);
   }
 };
 
@@ -470,9 +476,9 @@ var REG = {
   HTML_IS_ABSLUTE: /^\//,
 
   HTML_STYLE_REG: /(<style[^>]*>)([\w\W]*?)(<\/style>)/ig,
-  HTML_SRC_COMPONENT_JS_REG: /^\.\.\/components\/p-[a-zA-Z0-9-]+\/p-([a-zA-Z0-9-]+).js/g,
+  HTML_SRC_COMPONENT_JS_REG: /^\.\.\/components\/[pt]-[a-zA-Z0-9-]+\/[pt]-([a-zA-Z0-9-]+).js/g,
 
-  HTML_SRC_COMPONENT_IMG_REG: /^\.\.\/(components\/[pwr]-[a-zA-Z0-9-]+\/images)/g,
+  HTML_SRC_COMPONENT_IMG_REG: /^\.\.\/(components\/[pwrt]-[a-zA-Z0-9-]+\/images)/g,
 
   CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
   CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
@@ -510,32 +516,78 @@ var
         .pipe(through.obj(function(file, enc, next) {
           var dirname = op.path;
 
-          inlinesource({
-            content: file.contents,
-            baseUrl: path.dirname(path.join(file.base, file.relative)),
-            publishPath: dirname,
-            type: 'html',
-            alias: config.alias,
-            onReplacePath: function (iPath) {
+          var iCnt = file.contents.toString();
+
+          iCnt = iCnt
+            // 隔离 script 内容
+            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
+                return str;
+              } else {
+                return $1 + querystring.escape($2) + $3;
+              }
+            })
+            // 隔离 style 标签
+            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+              return $1 + querystring.escape($2) + $3;
+            })
+            .replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
+              var iPath = $4;
+              var rPath = '';
+
+              iPath = iPath.replace(REG.HTML_ALIAS_REG, (str, $1, $2) => {
+                if (config.alias[$2]) {
+                  return path.relative( path.dirname(file.path), config.alias[$2]);
+                } else {
+                  return str;
+                }
+              });
+
+              if (
+                iPath.match(REG.HTML_IGNORE_REG) ||
+                iPath.match(REG.IS_HTTP) ||
+                !iPath ||
+                iPath.match(REG.HTML_IS_ABSLUTE)
+              ) {
+                return str;
+              }
+
               if (path.extname(iPath) == '.scss') { // 纠正 p-xx.scss 路径
-                const filename = path.basename(iPath, path.extname(iPath));
-                if (/^p-/.test(filename)) {
-                  iPath = util.path.relative(
-                    dirname,
-                    path.join(config.alias.srcRoot, 'css', `${filename.replace(/^p-/, '')  }.css`)
+                var filename = path.basename(iPath, path.extname(iPath));
+                if (/^[pt]-/.test(filename)) {
+                  iPath = util.joinFormat(path.relative(
+                    path.dirname(file.path),
+                    path.join(config.alias.srcRoot, 'css', `${filename.replace(/^[pt]-/, '')  }.css`))
                   );
                 }
               }
-              return iPath;
-            }
-          }).then((iCnt) => {
-            file.contents = Buffer.from(iCnt, 'utf-8');
-            this.push(file);
-            next();
-          });
+
+              rPath = util.path.join(
+                path.relative(dirname, path.dirname(file.path)),
+                iPath
+              ).replace(/\\+/g, '/').replace(/\/+/, '/');
+
+              return `${$1}${$2}${$3}${rPath}${$5}`;
+            })
+            // 取消隔离 script 内容
+            .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
+                return str;
+              } else {
+                return $1 + querystring.unescape($2) + $3;
+              }
+            })
+            // 取消隔离 style 标签
+            .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+              return $1 + querystring.unescape($2) + $3;
+            });
+
+          file.contents = Buffer.from(iCnt, 'utf-8');
+          this.push(file);
+          next();
         }))
         .pipe(rename((path) => {
-          path.basename = path.basename.replace(/^p-/g, '');
+          path.basename = path.basename.replace(/^[pt]-/g, '');
           path.dirname = '';
           path.extname = op.extname;
         }))
@@ -614,6 +666,18 @@ var
             next();
           }
         }))
+        // .pipe(through.obj(function(file, enc, next) {
+        //   inlinesource({
+        //     content: file.contents,
+        //     baseUrl: path.dirname(path.join(file.base, file.relative)),
+        //     type: 'html',
+        //     alias: config.alias
+        //   }).then((iCnt) => {
+        //     file.contents = Buffer.from(iCnt, 'utf-8');
+        //     this.push(file);
+        //     next();
+        //   });
+        // }))
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
 
@@ -705,9 +769,6 @@ var
                   }
                 });
               }
-
-
-
               return `${$1}${$2}${$3}${rPath}${$5}`;
             })
             // 取消隔离 script 内容
@@ -852,7 +913,7 @@ var
           }))
           .pipe(rename((path) => {
             path.dirname = '';
-            path.basename = path.basename.replace(/^p-/, '');
+            path.basename = path.basename.replace(/^[pt]-/, '');
           }));
       // .pipe(gulp.dest(util.joinFormat(config.alias.srcRoot, 'css')));
       return rStream;
@@ -1072,7 +1133,7 @@ var
           }))
           .pipe(iEnv.isCommit ? uglify() : fn.blankPipe())
           .pipe(rename((path) => {
-            path.basename = path.basename.replace(/^[pj]-/g, '');
+            path.basename = path.basename.replace(/^[pjt]-/g, '');
             path.dirname = '';
           }));
       return rStream;
@@ -1100,7 +1161,9 @@ var
         };
 
         relativeFiles.forEach((iPath) => {
-          var rStream = iStream.any2dest(iPath);
+          var rStream = iStream.any2dest(iPath, {
+            base: op.base
+          });
 
           rStream.on('finish', () => {
             total--;
@@ -1112,7 +1175,7 @@ var
       return rStream;
     },
     // 任意src 内文件输出到 dest (遵循 构建逻辑)
-    any2dest: function(iPath) {
+    any2dest: function(iPath, op) {
       var iExt = path.extname(iPath).replace(/^\./, '');
       var inside = function(rPath) {
         return fn.pathInside(util.joinFormat(config.alias.srcRoot, rPath), iPath);
@@ -1123,14 +1186,25 @@ var
         case 'pug':
         case 'jade':
           if (inside('components')) { // pug-to-dest-task
-            rStream = iStream.pug2dest(gulp.src([iPath], {
-              base: util.joinFormat(config.alias.srcRoot, 'components')
-            }));
-            rStream = rStream
-              .pipe(fn.blankPipe((file) => {
-                fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
-              }))
-              .pipe(gulp.dest(config.alias.htmlDest));
+            if (fn.isPageComponent(iPath, op.base)) {
+              rStream = iStream.pug2dest(gulp.src([iPath], {
+                base: util.joinFormat(config.alias.srcRoot, 'components')
+              }));
+              rStream = rStream
+                .pipe(fn.blankPipe((file) => {
+                  fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
+                }))
+                .pipe(gulp.dest(config.alias.htmlDest));
+            } else if (fn.isTplComponent(iPath, op.base)) {
+              rStream = iStream.pug2tpldest(gulp.src([iPath], {
+                base: util.joinFormat(config.alias.srcRoot, 'components')
+              }));
+              rStream = rStream
+                .pipe(fn.blankPipe((file) => {
+                  fn.logDest(util.path.join(config.alias.tplDest, file.relative));
+                }))
+                .pipe(gulp.dest(config.alias.tplDest));
+            }
           }
           break;
 
@@ -1144,6 +1218,19 @@ var
                 fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
               }))
               .pipe(gulp.dest(config.alias.htmlDest));
+          }
+          break;
+
+        case 'tpl':
+          if (inside('tpl')) { // html-to-dest-task
+            rStream = iStream.tpl2dest(gulp.src([iPath], {
+              base: util.joinFormat(config.alias.srcRoot, 'tpl')
+            }));
+            rStream = rStream
+              .pipe(fn.blankPipe((file) => {
+                fn.logDest(util.path.join(config.alias.tplDest, file.relative));
+              }))
+              .pipe(gulp.dest(config.alias.tplDest));
           }
           break;
 
@@ -1280,7 +1367,7 @@ gulp.task('html-to-dest-task', () => {
 });
 // - html task
 // + tpl task
-gulp.task('tpl', ['pug-to-tpl-dest-task', 'html-to-dest-task'], () => {
+gulp.task('tpl', ['pug-to-tpl-dest-task', 'tpl-to-dest-task'], () => {
 });
 
 gulp.task('pug-to-tpl-dest-task', () => {
@@ -1328,7 +1415,10 @@ gulp.task('sass-component-to-dest', () => {
   var rStream;
 
   rStream = iStream.sassComponent2dest(
-    gulp.src(path.join(config.alias.srcRoot, 'components/@(p-)*/*.scss'), {
+    gulp.src([
+      path.join(config.alias.srcRoot, 'components/@(p-)*/*.scss'),
+      path.join(config.alias.srcRoot, 'components/@(t-)*/*.scss')
+    ], {
       base: path.join(config.alias.srcRoot)
     })
   );
@@ -1416,6 +1506,7 @@ gulp.task('requirejs-task', (done) => {
 
   rStream = iStream.requirejs2dest(gulp.src([
     util.joinFormat(config.alias.srcRoot, 'components/p-*/p-*.js'),
+    util.joinFormat(config.alias.srcRoot, 'components/t-*/t-*.js'),
     util.joinFormat(config.alias.srcRoot, 'js/**/*.js'),
     `!${util.joinFormat(config.alias.srcRoot, 'js/lib/**')}`,
     `!${util.joinFormat(config.alias.srcRoot, 'js/rConfig/**')}`,
@@ -1544,15 +1635,19 @@ gulp.task('watch', ['all'], () => {
         });
       }
     };
+    console.log('runtimeFiles', runtimeFiles)
 
     var total = runtimeFiles.length;
 
     runtimeFiles.forEach((iPath) => {
       var
-        rStream = iStream.any2dest(iPath);
+        rStream = iStream.any2dest(iPath, {
+          base: config.alias.srcRoot
+        });
 
       if (rStream) {
         rStream = iStream.dest2dest(rStream, {
+          base: config.alias.srcRoot,
           remotePath: iEnv.remotePath,
           revPath: util.joinFormat(config.alias.revDest, 'rev-manifest.json'),
           revRoot: config.alias.revRoot,
