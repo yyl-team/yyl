@@ -44,7 +44,7 @@
     "vue-loader": "~11.3.4",
     "vue-style-loader": "~3.0.3",
     "webpack-manifest-plugin": "~1.1.0",
-    "yyl-util": "~1.13.1"
+    "yyl-util": "~1.14.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

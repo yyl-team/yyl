@@ -86,6 +86,16 @@ var fn = {
       });
       return sameName && pagePath == iPath.substr(0, pagePath.length);
     };
+    var isTpl = function(iPath) {
+      var pagePath = util.joinFormat(op.base, 'components/t-');
+      var sameName = false;
+
+      iPath.replace(/t-([a-zA-Z0-9-]+)\/t-([a-zA-Z0-9-]+)\.\w+$/, (str, $1, $2) => {
+        sameName = $1 === $2;
+        return str;
+      });
+      return sameName && pagePath == iPath.substr(0, pagePath.length);
+    };
     var rMap = {
       source: {
         // 文件路径: [被引用的文件路径列表]
@@ -156,12 +166,12 @@ var fn = {
             }
           }
 
-          if (isPage(iPath)) {
+          if (isPage(iPath) || isTpl(iPath)) {
             r.push(iPath);
           }
 
           rs.forEach((rPath) => {
-            if (isPage(rPath)) {
+            if (isPage(rPath) || isTpl(iPath)) {
               r.push(rPath);
             } else {
               r = r.concat(findit(rPath));
@@ -219,7 +229,7 @@ var fn = {
           var r = [];
 
 
-          if (/p-[a-zA-Z0-9-]+\/p-[a-zA-Z0-9-]+\.pug$/.test(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
+          if (/[pt]-[a-zA-Z0-9-]+\/[pt]-[a-zA-Z0-9-]+\.pug$/.test(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
           }
 
@@ -429,6 +439,9 @@ var fn = {
         rPaths.push(util.joinFormat(op.srcRoot, 'css', path.basename(iPath)));
         rPaths.push(util.joinFormat(op.srcRoot, 'sass', `${filename}scss`));
         rPaths.push(util.joinFormat(op.srcRoot, 'components', `p-${filename}`, `p-${filename}.scss`));
+      } else if (op.tplDest && op.tplDest == iPath.substr(0, op.tplDest.length) && path.extname(iPath) == '.tpl') {
+        rPaths.push(util.joinFormat(op.srcRoot, 'tpl', path.basename(iPath)));
+        rPaths.push(util.joinFormat(op.srcRoot, 'components', `t-${filename}`, `t-${filename}.pug`));
       }
 
       rPaths.forEach((rPath) => {
@@ -1565,8 +1578,8 @@ gulp.task('watch', ['all'], () => {
 // - watch task
 
 // + all
-gulp.task('all', (done) => {
-  runSequence(['js', 'css', 'images', 'html', 'tpl', 'resource'], 'rev-build',  () => {
+gulp.task('all', ['js', 'css', 'images', 'html', 'tpl', 'resource'], (done) => {
+  runSequence('rev-build', () => {
     if (!iEnv.silent) {
       util.pop('all task done');
     }
@@ -1637,10 +1650,37 @@ const opzer = {
       });
     });
   },
+  resource: function() {
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('resource', () => {
+        log('finish');
+        next();
+      });
+    });
+  },
+  tpl: function() {
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('tpl', () => {
+        log('finish');
+        next();
+      });
+    });
+  },
   all: function() {
     return new Promise((next) => {
       log('start', 'optimize');
       gulp.start('all', () => {
+        log('finish');
+        next();
+      });
+    });
+  },
+  rev: function() {
+    return new Promise((next) => {
+      log('start', 'optimize');
+      gulp.start('rev-build', () => {
         log('finish');
         next();
       });

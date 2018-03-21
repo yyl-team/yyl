@@ -386,7 +386,11 @@ var
 
             util.readFilesSync(config.alias.root, (iPath) => {
               let r;
+              if (fs.statSync(iPath).isDirectory()) {
+                return;
+              }
               const iExt = path.extname(iPath);
+
               if (/\.(html|json)/.test(iExt)) {
                 r = false;
               } else {

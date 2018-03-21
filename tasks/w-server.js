@@ -662,12 +662,14 @@ const wServer = {
       runner(next);
     });
   },
-  setLogLevel: function(level, notSave) {
+  setLogLevel: function(level, notSave, silent) {
     if (!notSave) {
       wServer.profile('logLevel', level);
     }
     log.update(level);
-    log('msg', 'success', `change logLevel: ${level}`);
+    if (!silent) {
+      log('msg', 'success', `change logLevel: ${level}`);
+    }
     return Promise.resolve(level);
   },
   getLogLevel: function() {

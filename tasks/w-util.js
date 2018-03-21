@@ -172,7 +172,6 @@ util = util.extend(true, util, {
     var iConfig;
     if (!fs.existsSync(userConfigPath)) {
       util.msg.warn('getConfig fail', `file is not exists: ${userConfigPath}`);
-      console.log('===', util.vars);
       cache.config = null;
       return false;
     }
@@ -251,7 +250,8 @@ util.msg.init({
     proxyTo: {name: 'Proxy =>', color: 'gray'},
     proxyBack: {name: 'Proxy <=', color: 'cyan'},
     supercall: {name: 'Supercal', color: 'magenta'},
-    optimize: {name: 'Optimize', color: 'green'}
+    optimize: {name: 'Optimize', color: 'green'},
+    cmd: {name: 'CMD', color: 'gray'}
   }
 });
 

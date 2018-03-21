@@ -88,7 +88,7 @@ module.exports = function(ctx) {
   }
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
-    events.server.setLogLevel(iEnv.logLevel, true);
+    events.server.setLogLevel(iEnv.logLevel, true, true);
   }
 
   let r;
@@ -133,6 +133,7 @@ module.exports = function(ctx) {
     case 'concat':
     case 'rev':
     case 'resource':
+    case 'tpl':
       r = events.optimize.apply(events, iArgv);
       break;
 
@@ -182,9 +183,10 @@ module.exports = function(ctx) {
       break;
   }
 
-  if (!iEnv.nocatch
-  ) {
-    r.catch(() => {});
+  if (!iEnv.nocatch) {
+    r.catch((er) => {
+      throw new Error(er);
+    });
   }
   return r;
 };

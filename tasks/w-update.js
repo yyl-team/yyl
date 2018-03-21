@@ -76,7 +76,7 @@ var
         } else if (relativePath.match(REG.PACKAGE_LOCK)) {
           packageLocks.push(iPath);
         }
-      });
+      }, /node_modules/);
 
       packages.forEach((iPath) => {
         if (!fs.existsSync(iPath)) {

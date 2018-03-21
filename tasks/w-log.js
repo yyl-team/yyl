@@ -171,6 +171,9 @@ const log4Detail = (module, type, argv) => {
       break;
 
     case 'cmd':
+      if (!argv.length) {
+        argv = [type];
+      }
       util.msg.cmd.apply(util.msg, argv);
       break;
 

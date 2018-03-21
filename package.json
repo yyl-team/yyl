@@ -41,7 +41,7 @@
     "serve-static": "~1.11.1",
     "tiny-lr": "~1.0.3",
     "yyl-color": "^1.0.0",
-    "yyl-util": "~1.13.1"
+    "yyl-util": "~1.14.2"
   },
   "devDependencies": {
     "chai": "^4.1.2",
