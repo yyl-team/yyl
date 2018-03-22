@@ -186,6 +186,7 @@ var fn = {
 
           if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
+            r.push(iPath.replace(/\.scss$/, '.pug'));
           }
 
           // 生成文件引用关系表
@@ -215,7 +216,7 @@ var fn = {
           var r = [];
 
 
-          if (/[pt]-[a-zA-Z0-9-]+\/[pt]-[a-zA-Z0-9-]+\.pug$/.test(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
+          if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
           }
 
@@ -246,6 +247,7 @@ var fn = {
 
           if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
+            r.push(iPath.replace(/\.js/, '.pug'));
           }
           // 如果是 lib 里面的 js 也返回到当前 array
           if (op.jslib && op.jslib == iPath.substring(0, op.jslib.length)) {
@@ -390,13 +392,17 @@ var fn = {
       switch (iExt) {
         case 'html': // html 没有谁会调用 html 的
           break;
+        case 'tpl':
+          searchFiles = util.readFilesSync(op.root, /\.(html)$/);
+          break;
+
         case 'js':
         case 'css': // 查找调用这文件的 html
-          searchFiles = util.readFilesSync(op.root, /\.html$/);
+          searchFiles = util.readFilesSync(op.root, /\.(html|tpl)$/);
           break;
         default:
           if (fn.isImage(iPath)) { // 查找调用这文件的 html, css
-            searchFiles = util.readFilesSync(op.root, /\.(html|css)$/);
+            searchFiles = util.readFilesSync(op.root, /\.(html|tpl|css)$/);
           }
           break;
       }
@@ -552,16 +558,21 @@ var
                 return str;
               }
 
-              if (path.extname(iPath) == '.scss') { // 纠正 p-xx.scss 路径
-                var filename = path.basename(iPath, path.extname(iPath));
-                if (/^[pt]-/.test(filename)) {
-                  iPath = util.joinFormat(path.relative(
-                    path.dirname(file.path),
-                    path.join(config.alias.srcRoot, 'css', `${filename.replace(/^[pt]-/, '')  }.css`))
-                  );
-                }
+              const filename = path.basename(iPath, path.extname(iPath));
+
+              if (path.extname(iPath) == '.scss' && /^[pt]-/.test(filename)) { // 纠正 p-xx.scss 路径
+                iPath = util.joinFormat(path.relative(
+                  path.dirname(file.path),
+                  path.join(config.alias.srcRoot, 'css', `${filename.replace(/^[pt]-/, '')  }.css`))
+                );
               }
 
+              if (path.extname(iPath) == '.pug' && /^t-/.test(filename)) {
+                iPath = util.joinFormat(path.relative(
+                  path.dirname(file.path),
+                  path.join(config.alias.srcRoot, 'tpl', `${filename.replace(/^[pt]-/, '')  }.tpl`))
+                );
+              }
               rPath = util.path.join(
                 path.relative(dirname, path.dirname(file.path)),
                 iPath
@@ -666,18 +677,6 @@ var
             next();
           }
         }))
-        // .pipe(through.obj(function(file, enc, next) {
-        //   inlinesource({
-        //     content: file.contents,
-        //     baseUrl: path.dirname(path.join(file.base, file.relative)),
-        //     type: 'html',
-        //     alias: config.alias
-        //   }).then((iCnt) => {
-        //     file.contents = Buffer.from(iCnt, 'utf-8');
-        //     this.push(file);
-        //     next();
-        //   });
-        // }))
         .pipe(through.obj(function(file, enc, next) {
           var iCnt = file.contents.toString();
 
@@ -754,6 +753,13 @@ var
                 rPath = rPath
                   .split('../images')
                   .join(util.joinFormat( remotePath, fn.relateDest(config.alias.imagesDest)));
+              }
+
+              // 替换公用图片
+              if (fn.matchFront(rPath, '../tpl')) {
+                rPath = rPath
+                  .split('../tpl')
+                  .join(util.joinFormat( remotePath, fn.relateDest(config.alias.tplDest)));
               }
 
               rPath = rPath.replace(REG.HTML_SRC_COMPONENT_IMG_REG, util.joinFormat( remotePath, fn.relateDest(config.alias.imagesDest), '$1'));
@@ -1147,6 +1153,35 @@ var
       return rStream;
     },
     // - js task
+    // + inline task
+    inline2dest: (stream) => {
+      const rStream = stream
+        .pipe(plumber())
+        .pipe(through.obj(function(file, enc, next) {
+          const self = this;
+          const fileDir = path.dirname(path.join(file.base, file.relative));
+          inlinesource({
+            content: file.contents,
+            baseUrl: fileDir,
+            publishPath: util.path.join(
+              iEnv.remotePath,
+              path.relative(config.alias.destRoot, fileDir)
+            ),
+            type: 'html'
+          }).then((iCnt) => {
+            if (file.toString() != iCnt) {
+              fn.logDest(path.join(file.base, file.relative));
+            }
+            file.contents = Buffer.from(iCnt, 'utf-8');
+            self.push(file);
+            next();
+          }).catch((er) => {
+            log('msg', 'warn', er.message);
+          });
+        }));
+      return rStream;
+    },
+    // - inline task
     // + dest task
     // 从 dest 生成的一个文件找到关联的其他 src 文件， 然后再重新生成到 dest
     dest2dest: function(stream, op) {
@@ -1330,6 +1365,7 @@ var
       return rStream;
     }
     // - dest task
+
   };
 
 // + html task
@@ -1365,6 +1401,8 @@ gulp.task('html-to-dest-task', () => {
 
   return rStream;
 });
+
+
 // - html task
 // + tpl task
 gulp.task('tpl', ['pug-to-tpl-dest-task', 'tpl-to-dest-task'], () => {
@@ -1406,7 +1444,43 @@ gulp.task('tpl-to-dest-task', () => {
   return rStream;
 });
 // - tpl task
+// + inline task
+gulp.task('inline-source', ['html-inline', 'tpl-inline'], () => {});
 
+gulp.task('html-inline', () => {
+  let rStream;
+  rStream = iStream.inline2dest(gulp.src([
+    util.joinFormat(config.alias.htmlDest, '**/*.html')
+  ]));
+
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.htmlDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.htmlDest));
+
+
+  return rStream;
+});
+gulp.task('tpl-inline', () => {
+  if (!config.alias.tplDest) {
+    return;
+  }
+  let rStream;
+  rStream = iStream.inline2dest(gulp.src([
+    util.joinFormat(config.alias.tplDest, '**/*.tpl')
+  ]));
+
+  rStream = rStream
+    .pipe(fn.blankPipe((file) => {
+      fn.logDest(util.path.join(config.alias.tplDest, file.relative));
+    }))
+    .pipe(gulp.dest(config.alias.tplDest));
+
+
+  return rStream;
+});
+// + inline task
 // + css task
 gulp.task('css', ['sass-component-to-dest', 'sass-base-to-dest', 'css-to-dest'], (done) => {
   runSequence('concat-css', done);
@@ -1628,14 +1702,13 @@ gulp.task('watch', ['all'], () => {
     var streamCheck = function() {
       if (!total) {
         log('msg', 'success', 'optimize finished');
-        runSequence(['concat', 'resource'], 'rev-update', () => {
+        runSequence(['concat', 'resource'], 'inline-source', 'rev-update', () => {
           supercall.livereload();
           log('msg', 'success', 'watch task finished');
           log('finish');
         });
       }
     };
-    console.log('runtimeFiles', runtimeFiles)
 
     var total = runtimeFiles.length;
 
@@ -1674,7 +1747,7 @@ gulp.task('watch', ['all'], () => {
 
 // + all
 gulp.task('all', ['js', 'css', 'images', 'html', 'tpl', 'resource'], (done) => {
-  runSequence('rev-build', () => {
+  runSequence('inline-source', 'rev-build', () => {
     if (!iEnv.silent) {
       util.pop('all task done');
     }

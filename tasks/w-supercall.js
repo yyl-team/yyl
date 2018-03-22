@@ -444,11 +444,6 @@ var
               selfFn.buildHashMap(iPath, revMap);
             });
 
-            // html 路径替换
-            htmlFiles.forEach((iPath) => {
-              selfFn.fileHashPathUpdate(iPath, revMap, op);
-            });
-
             // tpl 文件内路径替换 并且生成 hash 表
             tplFiles.forEach((iPath) => {
               // hash路径替换
@@ -456,6 +451,13 @@ var
               // 生成hash 表
               selfFn.buildHashMap(iPath, revMap);
             });
+
+            // html 路径替换
+            htmlFiles.forEach((iPath) => {
+              selfFn.fileHashPathUpdate(iPath, revMap, op);
+            });
+
+
 
             // 根据hash 表生成对应的文件
             selfFn.buildRevMapDestFiles(revMap);
