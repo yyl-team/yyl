@@ -42,6 +42,12 @@ let iEnv;
 
 
 var fn = {
+  exit: function(err) {
+    log('msg', 'error', err);
+    log('finish');
+    util.pop('optimize run error');
+    process.exit(1);
+  },
   finishCallback: function() {
     return global.YYL_RUN_CALLBACK && global.YYL_RUN_CALLBACK();
   },
@@ -310,15 +316,12 @@ var fn = {
 
           // 查找调用情况
           r = r.concat(rMap.findPages(iPath));
-
           return r;
         },
         other: function(iPath) { // 检查 html, css 当中 是否有引用
           return [iPath];
         }
-
       };
-
     var r = [];
 
 
@@ -353,13 +356,19 @@ var fn = {
     var r = [];
     var destFiles = [];
     var revMap = {};
-    var hostRoot = util.joinFormat(
-      op.remotePath,
-      path.relative(op.destRoot, op.revRoot)
-    );
     // 根据地址 返回 输出目录内带有 remote 和 hash 的完整地址
     var getRevMapDest = function(iPath) {
       var revSrc = util.joinFormat(path.relative(op.revRoot, iPath));
+      var iHost = '';
+      if (iPath.match(REG.IS_MAIN_REMOTE)) {
+        iHost = iEnv.mainRemotePath;
+      } else {
+        iHost = iEnv.staticRemotePath;
+      }
+      var hostRoot = util.joinFormat(
+        iHost,
+        path.relative(op.destRoot, op.revRoot)
+      );
       return util.joinFormat(hostRoot, revMap[revSrc] || revSrc);
     };
     // 根据地址返回 rev map 中的 源文件
@@ -494,7 +503,9 @@ var REG = {
   JS_DISABLE_AMD: /\/\*\s*amd\s*:\s*disabled\s*\*\//,
   JS_EXCLUDE: /\/\*\s*exclude\s*:([^*]+)\*\//g,
 
-  IS_HTTP: /^(http[s]?:)|(\/\/\w)/
+  IS_HTTP: /^(http[s]?:)|(\/\/\w)/,
+
+  IS_MAIN_REMOTE: /\.(html|tpl)$/
 };
 
 var
@@ -516,9 +527,7 @@ var
           pretty: false,
           client: false
         }).on('error', (er) => {
-          log('msg', 'error', er.message);
-          log('finish');
-          process.exit(1);
+          fn.exit(er.message);
         }))
         .pipe(through.obj(function(file, enc, next) {
           var dirname = op.path;
@@ -622,7 +631,8 @@ var
         );
       };
 
-      var remotePath = iEnv.remotePath;
+      var staticRemotePath = iEnv.staticRemotePath;
+      var mainRemotePath = iEnv.mainRemotePath;
 
 
       // html task
@@ -708,62 +718,62 @@ var
               if (fn.matchFront(rPath, `${relateHtml(config.alias.destRoot)}/`)) {
                 rPath = rPath
                   .split(`${relateHtml(config.alias.destRoot)}/`)
-                  .join(util.joinFormat(remotePath));
+                  .join(rPath.match(REG.IS_MAIN_REMOTE)? mainRemotePath : staticRemotePath);
               }
 
               // 替换全局 图片
               if (fn.matchFront(rPath, relateHtml(config.alias.globalcomponents))) {
                 rPath = rPath
                   .split(relateHtml(config.alias.globalcomponents))
-                  .join(util.joinFormat(remotePath, fn.relateDest(config.alias.imagesDest), 'globalcomponents'));
+                  .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.imagesDest), 'globalcomponents'));
               }
 
               // 替换 common 下 lib
               if (fn.matchFront(rPath, relateHtml(config.alias.globallib))) {
                 rPath = rPath
                   .split(relateHtml(config.alias.globallib))
-                  .join(util.joinFormat(remotePath, fn.relateDest(config.alias.jslibDest), 'globallib'));
+                  .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest), 'globallib'));
               }
 
               // 替换 jslib
               if (fn.matchFront(rPath, '../js/lib')) {
                 rPath = rPath
                   .split('../js/lib')
-                  .join(util.joinFormat(remotePath, fn.relateDest(config.alias.jslibDest)));
+                  .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest)));
               }
 
               // 替换 js
               if (fn.matchFront(rPath, '../js')) {
                 rPath = rPath
                   .split('../js')
-                  .join(util.joinFormat(remotePath, fn.relateDest(config.alias.jsDest)));
+                  .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jsDest)));
               }
 
               // 替换 components 中的js
-              rPath = rPath.replace(REG.HTML_SRC_COMPONENT_JS_REG, util.joinFormat( remotePath, fn.relateDest(config.alias.jsDest), '/$1.js'));
+              rPath = rPath.replace(REG.HTML_SRC_COMPONENT_JS_REG, util.joinFormat( staticRemotePath, fn.relateDest(config.alias.jsDest), '/$1.js'));
 
               // 替换 css
               if (fn.matchFront(rPath, '../css')) {
                 rPath = rPath
                   .split('../css')
-                  .join(util.joinFormat( remotePath, fn.relateDest(config.alias.cssDest)));
+                  .join(util.joinFormat( staticRemotePath, fn.relateDest(config.alias.cssDest)));
               }
 
               // 替换公用图片
               if (fn.matchFront(rPath, '../images')) {
                 rPath = rPath
                   .split('../images')
-                  .join(util.joinFormat( remotePath, fn.relateDest(config.alias.imagesDest)));
+                  .join(util.joinFormat( staticRemotePath, fn.relateDest(config.alias.imagesDest)));
               }
 
-              // 替换公用图片
+              // 替换公用tpl
               if (fn.matchFront(rPath, '../tpl') && config.alias.tplDest) {
                 rPath = rPath
                   .split('../tpl')
-                  .join(util.joinFormat( remotePath, fn.relateDest(config.alias.tplDest)));
+                  .join(util.joinFormat( mainRemotePath, fn.relateDest(config.alias.tplDest)));
               }
 
-              rPath = rPath.replace(REG.HTML_SRC_COMPONENT_IMG_REG, util.joinFormat( remotePath, fn.relateDest(config.alias.imagesDest), '$1'));
+              rPath = rPath.replace(REG.HTML_SRC_COMPONENT_IMG_REG, util.joinFormat( staticRemotePath, fn.relateDest(config.alias.imagesDest), '$1'));
 
               // 替换 config.resource 里面的路径
               var resource = config.resource;
@@ -772,7 +782,7 @@ var
                   if (fn.matchFront(rPath, relateHtml(key))) {
                     rPath = rPath
                       .split(relateHtml(key))
-                      .join(util.joinFormat(remotePath, fn.relateDest(resource[key])));
+                      .join(util.joinFormat(staticRemotePath, fn.relateDest(resource[key])));
                   }
                 });
               }
@@ -798,7 +808,7 @@ var
         // 把用到的 commons 目录下的 js 引入到 项目的 lib 底下
         .pipe(through.obj(function(file, enc, next) {
           file.contents.toString()
-            .replace(new RegExp(`['"]${ util.joinFormat(remotePath, fn.relateDest(config.alias.jslibDest), 'globallib') }([^'"]*)["']`, 'g'), (str, $1) => {
+            .replace(new RegExp(`['"]${ util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest), 'globallib') }([^'"]*)["']`, 'g'), (str, $1) => {
               var sourcePath = util.joinFormat(config.alias.globallib, $1);
               var toPath = util.joinFormat(config.alias.jslibDest, 'globallib', $1);
               util.copyFiles(
@@ -854,9 +864,7 @@ var
         rStream = stream
           .pipe(plumber())
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
-            log('msg', 'error', err.message);
-            log('finish');
-            process.exit(1);
+            fn.exit(err.message);
           }));
       return rStream;
     },
@@ -870,9 +878,7 @@ var
             next();
           }))
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
-            log('msg', 'error', err.message);
-            log('finish');
-            process.exit(1);
+            fn.exit(err.message);
           }))
           .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
@@ -926,7 +932,7 @@ var
       return rStream;
     },
     css2dest: function(stream) {
-      var remotePath = iEnv.remotePath;
+      var staticRemotePath = iEnv.staticRemotePath;
       var relateCss = function(iPath) {
         return util.joinFormat(
           path.relative(
@@ -1006,21 +1012,21 @@ var
               if (fn.matchFront(rPath, relateCss(config.alias.globalcomponents))) {
                 rPath = rPath
                   .split(relateCss(config.alias.globalcomponents))
-                  .join(util.joinFormat(remotePath, fn.relateDest(path.join(config.alias.imagesDest, 'globalcomponents'))));
+                  .join(util.joinFormat(staticRemotePath, fn.relateDest(path.join(config.alias.imagesDest, 'globalcomponents'))));
               }
 
               // 替换图片
               if (fn.matchFront(rPath, '../images')) {
                 rPath = rPath
                   .split('../images')
-                  .join(util.joinFormat(remotePath, fn.relateDest(config.alias.imagesDest)));
+                  .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.imagesDest)));
               }
 
               // 替换 components 内图片
               if (fn.matchFront(rPath, '../components')) {
                 rPath = rPath
                   .split('../components')
-                  .join(util.joinFormat( remotePath, fn.relateDest( path.join(config.alias.imagesDest, 'components'))));
+                  .join(util.joinFormat( staticRemotePath, fn.relateDest( path.join(config.alias.imagesDest, 'components'))));
               }
 
               // 替换 config.resource 里面的路径
@@ -1030,7 +1036,7 @@ var
                   if (fn.matchFront(rPath, relateCss(key))) {
                     rPath = rPath
                       .split(relateCss(key))
-                      .join(util.joinFormat(remotePath, fn.relateDest(resource[key])));
+                      .join(util.joinFormat(staticRemotePath, fn.relateDest(resource[key])));
                   }
                 });
               }
@@ -1146,9 +1152,7 @@ var
               log('msg', 'optimize', util.path.join(file.base, file.relative));
               requirejs.optimize(optimizeOptions, null, (err) => {
                 if (err) {
-                  log('msg', 'error', err.originalError.message);
-                  log('finish');
-                  process.exit(1);
+                  fn.exit(err.originalError.message);
                 }
                 cb();
               });
@@ -1181,9 +1185,10 @@ var
             content: file.contents,
             baseUrl: fileDir,
             publishPath: util.path.join(
-              iEnv.remotePath,
+              iEnv.staticRemotePath,
               path.relative(config.alias.destRoot, fileDir)
             ),
+            minify: iEnv.isCommit? true: false,
             type: 'html'
           }).then((iCnt) => {
             if (file.toString() != iCnt) {
@@ -1738,7 +1743,8 @@ gulp.task('watch', ['all'], () => {
       if (rStream) {
         rStream = iStream.dest2dest(rStream, {
           base: config.alias.srcRoot,
-          remotePath: iEnv.remotePath,
+          staticRemotePath: iEnv.staticRemotePath,
+          mainRemotePath: iEnv.mainRemotePath,
           revPath: util.joinFormat(config.alias.revDest, 'rev-manifest.json'),
           revRoot: config.alias.revRoot,
           destRoot: config.alias.destRoot,
@@ -1893,7 +1899,8 @@ module.exports = function(iconfig, cmd, op) {
       iEnv.ver = 'remote';
     }
 
-    iEnv.remotePath = iEnv.remote || iEnv.isCommit ? config.commit.hostname : '/';
+    iEnv.staticRemotePath = iEnv.remote || iEnv.isCommit ? config.commit.staticHost || config.commit.hostname : '/';
+    iEnv.mainRemotePath = iEnv.remote || iEnv.isCommit ? config.commit.mainHost || config.commit.hostname : '/';
 
     if ( cmd in opzer ) {
       opzer[cmd](iEnv).then(() => {

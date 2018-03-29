@@ -1,4 +1,8 @@
 # 版本信息
+## 2.17.1 (2018-03-29)
+* [ADD] `config.js`  新增 `config.commit.staticHost`, `config.commit.mainHost`
+* [EDIT] `gulp-requirejs` 模板新增压缩功能
+
 ## 2.17.0 (2018-03-27)
 * [ADD] `gulp-requirejs` 新增 `/*exclude: <moduleName>,<moduleName>*/` 语法糖用于 `requirejs` 打包时 对特定模块进行不打包处理
 * [ADD] `gulp-requirejs` 新增 `css inline`
