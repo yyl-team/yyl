@@ -325,6 +325,9 @@ var
           rCnt = selfFn.resolveUrl(rCnt, iPath, op);
 
           Object.keys(revMap).forEach((key) => {
+            if (key == 'version') {
+              return;
+            }
             rCnt = rCnt.split(key).join(revMap[key]);
           });
 

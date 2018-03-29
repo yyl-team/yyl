@@ -492,6 +492,7 @@ var REG = {
   CSS_IS_ABSLURE: /^\//,
 
   JS_DISABLE_AMD: /\/\*\s*amd\s*:\s*disabled\s*\*\//,
+  JS_EXCLUDE: /\/\*\s*exclude\s*:([^*]+)\*\//g,
 
   IS_HTTP: /^(http[s]?:)|(\/\/\w)/
 };
@@ -756,7 +757,7 @@ var
               }
 
               // 替换公用图片
-              if (fn.matchFront(rPath, '../tpl')) {
+              if (fn.matchFront(rPath, '../tpl') && config.alias.tplDest) {
                 rPath = rPath
                   .split('../tpl')
                   .join(util.joinFormat( remotePath, fn.relateDest(config.alias.tplDest)));
@@ -1112,6 +1113,21 @@ var
               self.push(file);
               cb();
             } else {
+              // exclude 处理
+              const paths = {};
+              if (iCnt.match(REG.JS_EXCLUDE)) {
+                iCnt.replace(REG.JS_EXCLUDE, (str, $1) => {
+                  const ex = $1.split(/\s*,\s*/);
+                  ex.some((iEx) => {
+                    let key = iEx.trim();
+
+                    if (key) {
+                      paths[key] = 'empty:';
+                    }
+                  });
+                });
+              }
+
               var optimizeOptions = {
                 mainConfigFile: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js'),
                 logLevel: 2,
@@ -1119,6 +1135,7 @@ var
                 generateSourceMaps: false,
                 optimize: 'none',
                 include: util.joinFormat(path.relative(util.joinFormat(config.alias.srcRoot, 'js/rConfig'), util.joinFormat(config.alias.srcRoot, file.relative))),
+                paths: paths,
                 out: function(text) {
                   file.contents = Buffer.from(text, 'utf-8');
                   self.push(file);

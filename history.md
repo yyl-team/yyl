@@ -1,4 +1,9 @@
 # 版本信息
+## 2.17.0 (2018-03-27)
+* [ADD] `gulp-requirejs` 新增 `/*exclude: <moduleName>,<moduleName>*/` 语法糖用于 `requirejs` 打包时 对特定模块进行不打包处理
+* [ADD] `gulp-requirejs` 新增 `css inline`
+* [ADD] `gulp-requirejs` 新增 `t-xx` 类型模块 用于输出 tpl文件
+
 ## 2.16.1 (2018-01-26)
 * [FIX] 修复 `yyl server clear` 不会结束问题
 * [EDIT] 优化执行 `npm install ` 时看上去像没反应的问题

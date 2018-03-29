@@ -34,7 +34,13 @@ gulp.task('webpack', (done) => {
 
   if (fs.existsSync(localWconfigPath)) { // webpack 与 webpack local 整合
     log('msg', 'info', `get local webpack.config.js ${localWconfigPath}`);
-    localWconfig = util.requireJs(localWconfigPath);
+    try {
+      localWconfig = util.requireJs(localWconfigPath);
+    } catch(er) {
+      log('msg', 'error', er);
+      log('finish');
+      process.exit(1);
+    }
 
     // 处理 loader 部分
     const fwConfig = util.extend(true, {}, iWconfig, localWconfig);
