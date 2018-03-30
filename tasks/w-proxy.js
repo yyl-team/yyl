@@ -53,8 +53,8 @@ var fn = {
   },
   log: {
     STRING_COUNT: 55,
-    u: function(src, dest) {
-
+    u: function(op) {
+      console.log(op.src, op.dest, op.statusCode);
     },
     to: function(url) {
       var iUrl = url;
@@ -166,61 +166,71 @@ var wProxy = {
       reqOpts.headers = req.headers;
       reqOpts.method = req.method;
 
-      let body = [];
       const iExt = path.extname(reqUrl).slice(1);
       if (MIME_TYPE_MAP[iExt]) {
         res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
       }
 
-      req.on('data', (chunk) => {
-        body.push(chunk);
-      });
-      req.on('end', () => {
-        body = Buffer.concat(body).toString();
-        if (localServerPath) {
-          const vOpts = url.parse(localServerPath);
-          vOpts.method = req.method;
-          vOpts.headers = req.headers;
-          vOpts.body = body;
-          const vRequest = http.request(vOpts, (vRes) => {
-            if (/^404|405$/.test(vRes.statusCode)) {
-              vRes.on('end', () => {
-                // NORMAL LINK
-              });
-              return vRequest.abort();
-            }
-            vRes.on('data', (chunk) => {
-              res.write(chunk, 'binary');
-            });
-            vRes.on('end', () => {
-              fn.log.u({
-                src: reqUrl,
-                dest: localServerPath,
-                statusCode: vRes.statusCode
-              });
-              res.end();
-            });
-            vRes.on('error', () => {
-              res.end();
-            });
-            const iHeader = util.extend(true, {}, vRes.headers);
-            const iType = vRes.headers['content-type'];
-            if (iType) {
-              res.setHeader('Content-Type', iType);
-            } else {
-              const iExt = path.extname(req.url).slice(1);
+      if (localServerPath) {
 
-              if (MIME_TYPE_MAP[iExt]) {
-                res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-              }
-            }
-            res.writeHead(vRes.statusCode, iHeader);
-          });
-        } else {
-          // NORMAL_LINK
+      } else {
 
-        }
-      });
+      }
+
+
+
+      // let body = [];
+
+
+      // req.on('data', (chunk) => {
+      //   body.push(chunk);
+      // });
+      // req.on('end', () => {
+      //   body = Buffer.concat(body).toString();
+      //   if (localServerPath) {
+      //     const vOpts = url.parse(localServerPath);
+      //     vOpts.method = req.method;
+      //     vOpts.headers = req.headers;
+      //     vOpts.body = body;
+      //     const vRequest = http.request(vOpts, (vRes) => {
+      //       if (/^404|405$/.test(vRes.statusCode)) {
+      //         vRes.on('end', () => {
+      //           // NORMAL LINK
+      //         });
+      //         return vRequest.abort();
+      //       }
+      //       vRes.on('data', (chunk) => {
+      //         res.write(chunk, 'binary');
+      //       });
+      //       vRes.on('end', () => {
+      //         fn.log.u({
+      //           src: reqUrl,
+      //           dest: localServerPath,
+      //           statusCode: vRes.statusCode
+      //         });
+      //         res.end();
+      //       });
+      //       vRes.on('error', () => {
+      //         res.end();
+      //       });
+      //       const iHeader = util.extend(true, {}, vRes.headers);
+      //       const iType = vRes.headers['content-type'];
+      //       if (iType) {
+      //         res.setHeader('Content-Type', iType);
+      //       } else {
+      //         const iExt = path.extname(req.url).slice(1);
+
+      //         if (MIME_TYPE_MAP[iExt]) {
+      //           res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+      //         }
+      //       }
+      //       res.writeHead(vRes.statusCode, iHeader);
+      //     });
+      //   } else {
+      //     // NORMAL_LINK
+
+      //   }
+      // });
     });
 
     log('msg', 'success', 'proxy server start');
