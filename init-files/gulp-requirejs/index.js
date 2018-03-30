@@ -40,16 +40,19 @@ const watch = require('gulp-watch');
 let config;
 let iEnv;
 
+const cache = {
+  isError: false
+};
+
 
 var fn = {
-  exit: function(err) {
+  exit: function(err, stream) {
     log('msg', 'error', err);
-    log('finish');
+    // log('finish');
     util.pop('optimize run error');
-    process.exit(1);
-  },
-  finishCallback: function() {
-    return global.YYL_RUN_CALLBACK && global.YYL_RUN_CALLBACK();
+    cache.isError = true;
+    stream.end();
+    // process.exit(1);
   },
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
@@ -527,7 +530,7 @@ var
           pretty: false,
           client: false
         }).on('error', (er) => {
-          fn.exit(er.message);
+          fn.exit(er.message, stream);
         }))
         .pipe(through.obj(function(file, enc, next) {
           var dirname = op.path;
@@ -864,7 +867,7 @@ var
         rStream = stream
           .pipe(plumber())
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
-            fn.exit(err.message);
+            fn.exit(err.message, stream);
           }));
       return rStream;
     },
@@ -878,7 +881,7 @@ var
             next();
           }))
           .pipe(sass({outputStyle: 'nested'}).on('error', (err) => {
-            fn.exit(err.message);
+            fn.exit(err.message, stream);
           }))
           .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
@@ -1152,7 +1155,7 @@ var
               log('msg', 'optimize', util.path.join(file.base, file.relative));
               requirejs.optimize(optimizeOptions, null, (err) => {
                 if (err) {
-                  fn.exit(err.originalError.message);
+                  fn.exit(err.originalError.message, stream);
                 }
                 cb();
               });
@@ -1395,7 +1398,10 @@ gulp.task('html', ['pug-to-dest-task', 'html-to-dest-task'], () => {
 });
 
 gulp.task('pug-to-dest-task', () => {
-  var rStream;
+  let rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.pug2dest(gulp.src([
     util.joinFormat(config.alias.srcRoot, 'components/@(p-)*/*.pug'),
@@ -1413,6 +1419,9 @@ gulp.task('pug-to-dest-task', () => {
 
 gulp.task('html-to-dest-task', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.html2dest(gulp.src(util.joinFormat(config.alias.srcRoot, 'html/*.html')));
   rStream = rStream
@@ -1435,6 +1444,9 @@ gulp.task('pug-to-tpl-dest-task', () => {
   if (!config.alias.tplDest) {
     return;
   }
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.pug2tpldest(gulp.src([
     util.joinFormat(config.alias.srcRoot, 'components/@(t-)*/*.pug'),
@@ -1453,6 +1465,9 @@ gulp.task('pug-to-tpl-dest-task', () => {
 gulp.task('tpl-to-dest-task', () => {
   var rStream;
   if (!config.alias.tplDest) {
+    return;
+  }
+  if (cache.isError) {
     return;
   }
 
@@ -1488,6 +1503,9 @@ gulp.task('tpl-inline', () => {
   if (!config.alias.tplDest) {
     return;
   }
+  if (cache.isError) {
+    return;
+  }
   let rStream;
   rStream = iStream.inline2dest(gulp.src([
     util.joinFormat(config.alias.tplDest, '**/*.tpl')
@@ -1509,6 +1527,9 @@ gulp.task('css', ['sass-component-to-dest', 'sass-base-to-dest', 'css-to-dest'],
 });
 gulp.task('sass-component-to-dest', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.sassComponent2dest(
     gulp.src([
@@ -1530,6 +1551,9 @@ gulp.task('sass-component-to-dest', () => {
 
 gulp.task('sass-base-to-dest', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.sassBase2dest(gulp.src([
     util.joinFormat(config.alias.srcRoot, 'sass/**/*.scss'),
@@ -1547,6 +1571,9 @@ gulp.task('sass-base-to-dest', () => {
 
 gulp.task('css-to-dest', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.css2dest(gulp.src(path.join(config.alias.srcRoot, 'css', '**/*.css')));
   rStream = rStream
@@ -1565,6 +1592,9 @@ gulp.task('images', ['images-base-task', 'images-component-task'], () => {
 
 gulp.task('images-base-task', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.image2dest(gulp.src([ util.joinFormat( config.alias.srcRoot, 'images/**/*.*')], {base: util.joinFormat( config.alias.srcRoot, 'images')}));
   rStream = rStream
@@ -1577,6 +1607,9 @@ gulp.task('images-base-task', () => {
 });
 gulp.task('images-component-task', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.image2dest(gulp.src([util.joinFormat( config.alias.srcRoot, 'components/**/*.*')], {
     base: util.joinFormat( config.alias.srcRoot, 'components')
@@ -1599,6 +1632,9 @@ gulp.task('js', ['requirejs-task', 'jslib-task', 'data-task'], (done) => {
 
 gulp.task('requirejs-task', (done) => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
 
   rStream = iStream.requirejs2dest(gulp.src([
     util.joinFormat(config.alias.srcRoot, 'components/p-*/p-*.js'),
@@ -1623,6 +1659,9 @@ gulp.task('requirejs-task', (done) => {
 
 gulp.task('jslib-task', () => {
   var rStream;
+  if (cache.isError) {
+    return;
+  }
   rStream = iStream.js2dest(gulp.src(util.joinFormat(config.alias.srcRoot, 'js/lib/**/*.js')));
   rStream = rStream
     .pipe(fn.blankPipe((file) => {
@@ -1634,6 +1673,9 @@ gulp.task('jslib-task', () => {
 });
 
 gulp.task('data-task', () => {
+  if (cache.isError) {
+    return;
+  }
   return gulp.src([util.joinFormat(config.alias.srcRoot, 'js/**/*.json')])
     .pipe(fn.blankPipe((file) => {
       fn.logDest(util.path.join(config.alias.jsDest, file.relative));
@@ -1648,6 +1690,9 @@ gulp.task('concat', (done) => {
   if (!config.concat) {
     return done();
   }
+  if (cache.isError) {
+    return done();
+  }
 
   supercall.concat(iEnv).then(() => {
     done();
@@ -1657,12 +1702,18 @@ gulp.task('concat-js', (done) => {
   if (!config.concat) {
     return done();
   }
+  if (cache.isError) {
+    return done();
+  }
   supercall.concatJs(iEnv).then(() => {
     done();
   });
 });
 gulp.task('concat-css', (done) => {
   if (!config.concat) {
+    return done();
+  }
+  if (cache.isError) {
     return done();
   }
 
@@ -1677,6 +1728,9 @@ gulp.task('resource', (done) => {
   if (!config.resource) {
     return done();
   }
+  if (cache.isError) {
+    return done();
+  }
   supercall.resource(iEnv).then(() => {
     done();
   });
@@ -1686,12 +1740,18 @@ gulp.task('resource', (done) => {
 
 // + rev
 gulp.task('rev-build', (done) => {
+  if (cache.isError) {
+    return done();
+  }
   supercall.rev.build(iEnv).then(() => {
     done();
   });
 });
 
 gulp.task('rev-update', (done) => {
+  if (cache.isError) {
+    return done();
+  }
   supercall.rev.update(iEnv).then(() => {
     done();
   });
