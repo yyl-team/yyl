@@ -34,7 +34,13 @@ gulp.task('webpack', (done) => {
 
   if (fs.existsSync(localWconfigPath)) { // webpack 与 webpack local 整合
     log('msg', 'info', `get local webpack.config.js ${localWconfigPath}`);
-    localWconfig = util.requireJs(localWconfigPath);
+    try {
+      localWconfig = util.requireJs(localWconfigPath);
+    } catch(er) {
+      log('msg', 'error', er);
+      log('finish');
+      process.exit(1);
+    }
 
     // 处理 loader 部分
     const fwConfig = util.extend(true, {}, iWconfig, localWconfig);
@@ -81,7 +87,7 @@ gulp.task('webpack', (done) => {
 
   webpack(iWconfig, (err, stats) => {
     if (err) {
-      log('msg', 'error', err);
+      log('msg', 'error', err.details);
     } else {
       log('msg', 'success', 'webpack run pass');
     }
@@ -93,10 +99,10 @@ gulp.task('webpack', (done) => {
       fn.logDest(util.path.join(basePath, key));
     });
     compilation.errors.forEach((err) => {
-      log('msg', 'error', err);
+      log('msg', 'error', err.details);
     });
     compilation.warnings.forEach((warn) => {
-      log('msg', 'warn', warn);
+      log('msg', 'warn', warn.details);
     });
     done();
   });

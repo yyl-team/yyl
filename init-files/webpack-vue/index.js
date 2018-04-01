@@ -87,7 +87,7 @@ gulp.task('webpack', (done) => {
 
   webpack(iWconfig, (err, stats) => {
     if (err) {
-      log('msg', 'error', err);
+      log('msg', 'error', err.details);
     } else {
       log('msg', 'success', 'webpack run pass');
     }
@@ -99,10 +99,10 @@ gulp.task('webpack', (done) => {
       fn.logDest(util.path.join(basePath, key));
     });
     compilation.errors.forEach((err) => {
-      log('msg', 'error', err);
+      log('msg', 'error', err.details);
     });
     compilation.warnings.forEach((warn) => {
-      log('msg', 'warn', warn);
+      log('msg', 'warn', warn.details);
     });
     done();
   });

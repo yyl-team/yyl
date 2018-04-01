@@ -39,6 +39,7 @@ var MIME_TYPE_MAP = {
   'tiff': 'image/tiff'
 
 };
+
 // var PROXY_INFO_HTML = [
 //   '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
 //   '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
@@ -52,10 +53,48 @@ var fn = {
     STRING_COUNT: 55,
     u: function(obj) {
       const type = cache.index++ % 2 ? 'proxy' : 'proxy2';
+      if (obj.src === obj.dest) {
+        obj.dest = 'remote';
+      }
+      let printUrl = '';
+      const iUrl = url.parse(obj.src);
+
+      const max = 20;
+      if (iUrl.search && iUrl.search.length > max) {
+        iUrl.search = `${iUrl.search.substr(0, max - 3)}...`;
+        printUrl = `${iUrl.protocol}//${iUrl.hostname}${iUrl.port? `:${iUrl.port}` : ''}${iUrl.pathname}${iUrl.search}${iUrl.hash || ''}`;
+      } else {
+        printUrl = obj.src;
+      }
+
+      let printStatus;
+      switch (`${obj.status}`.substr(0, 1)) {
+        case '2':
+          printStatus = chalk.green(obj.status);
+          break;
+
+        case '3':
+          printStatus = chalk.yellow(obj.status);
+          break;
+
+        case '4':
+          printStatus = chalk.gray(obj.status);
+          break;
+
+        case '5':
+          printStatus = chalk.red(obj.status);
+          break;
+
+        default:
+          printStatus = chalk.gray(obj.status);
+          break;
+      }
+
+
       util.infoBar.print(type, {
         barLeft: [
-          `=> ${chalk.cyan(obj.src)}`,
-          `<= ${chalk.yellow(obj.dest)}`
+          `=> ${chalk.cyan(printUrl)}`,
+          `<= ${printStatus} ${chalk.yellow(obj.dest)}`
         ]
       }).end();
     }
@@ -91,7 +130,7 @@ var wProxy = {
         iAddrs.forEach((addr) => {
           var localAddr = op.localRemote[addr];
 
-          if (!localAddr) {
+          if (!localAddr || !addr) {
             return true;
           }
 
