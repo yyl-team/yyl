@@ -106,9 +106,6 @@ var wProxy = {
     const iPort = op.port || 8887;
 
     const server = http.createServer((req, res) => {
-      // https://stackoverflow.com/questions/13472024/simple-node-js-proxy-by-piping-http-server-to-http-request
-      // req.pause();
-      // req.resume();
       const reqUrl = req.url;
       const proxySrcs = Object.keys(op.localRemote || {});
 
@@ -162,21 +159,95 @@ var wProxy = {
         return;
       }
 
-      const reqOpts =  url.parse(reqUrl);
-      reqOpts.headers = req.headers;
-      reqOpts.method = req.method;
-
       const iExt = path.extname(reqUrl).slice(1);
       if (MIME_TYPE_MAP[iExt]) {
         res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
       }
 
-      if (localServerPath) {
+      const throughIt = (body) => {
+        const vOpts = url.parse(reqUrl);
+        vOpts.method = req.method;
+        vOpts.headers = req.headers;
+        vOpts.body = body;
+        const vRequest = http.request(vOpts, (vRes) => {
+          vRes.on('data', (chunk) => {
+            res.write(chunk, 'binary');
+          });
+          vRes.on('end', () => {
+            fn.log.u({
+              src: reqUrl,
+              dest: localServerPath,
+              statusCode: vRes.statusCode
+            });
+            res.end();
+          });
+          vRes.on('error', () => {
+            res.end();
+          });
+          const iHeader = util.extend(true, {}, vRes.headers);
+          const iType = vRes.headers['content-type'];
+          if (iType) {
+            res.setHeader('Content-Type', iType);
+          } else {
+            const iExt = path.extname(req.url).slice(1);
 
-      } else {
+            if (MIME_TYPE_MAP[iExt]) {
+              res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+            }
+          }
+          res.writeHead(vRes.statusCode, iHeader);
+        });
+      };
+      let body = [];
 
-      }
 
+      req.on('data', (chunk) => {
+        body.push(chunk);
+      });
+      req.on('end', () => {
+        body = Buffer.concat(body).toString();
+        if (localServerPath) {
+          const vOpts = url.parse(localServerPath);
+          vOpts.method = req.method;
+          vOpts.headers = req.headers;
+          vOpts.body = body;
+          const vRequest = http.request(vOpts, (vRes) => {
+            if (/^404|405$/.test(vRes.statusCode)) {
+              vRes.on('end', () => {
+                throughIt(body);
+              });
+              return vRequest.abort();
+            } else {
+              vRes.on('data', (chunk) => {
+                res.write(chunk, 'binary');
+              });
+              vRes.on('end', () => {
+                fn.log.u({
+                  src: reqUrl,
+                  dest: localServerPath,
+                  statusCode: vRes.statusCode
+                });
+                res.end();
+              });
+              vRes.on('error', () => {
+                res.end();
+              });
+              const iHeader = util.extend(true, {}, vRes.headers);
+              const iType = vRes.headers['content-type'];
+              if (iType) {
+                res.setHeader('Content-Type', iType);
+              } else {
+                const iExt = path.extname(req.url).slice(1);
+
+                if (MIME_TYPE_MAP[iExt]) {
+                  res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+                }
+              }
+              res.writeHead(vRes.statusCode, iHeader);
+            }
+          });
+        }
+      });
 
 
       // let body = [];
