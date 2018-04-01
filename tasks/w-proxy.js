@@ -39,10 +39,10 @@ var MIME_TYPE_MAP = {
   'tiff': 'image/tiff'
 
 };
-var PROXY_INFO_HTML = [
-  '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
-  '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
-].join('');
+// var PROXY_INFO_HTML = [
+//   '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
+//   '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
+// ].join('');
 
 var fn = {
   blank: function(num) {
@@ -50,49 +50,21 @@ var fn = {
   },
   log: {
     STRING_COUNT: 55,
-    to: function(url) {
-      var iUrl = url;
-      var lines = [];
-      var self = this;
-      while (iUrl.length  > self.STRING_COUNT) {
-        lines.push(iUrl.substring(0, self.STRING_COUNT));
-        iUrl = iUrl.substring(self.STRING_COUNT);
-      }
-      lines.push(iUrl);
-
-      if (lines.length > 3) {
-        lines.length = 3;
-        lines[2] = `${lines[2].substr(0, lines[2].length - 3)  }...`;
-      }
-
-      iUrl = lines.join(`\n${  fn.blank(20)}`);
-      log('msg', 'proxyTo', iUrl);
-    },
-
-    back: function(status, url) {
-      var iUrl = url;
-      var lines = [];
-      var self = this;
-      while (iUrl.length  > self.STRING_COUNT) {
-        lines.push(iUrl.substring(0, self.STRING_COUNT));
-        iUrl = iUrl.substring(self.STRING_COUNT);
-      }
-      lines.push(iUrl);
-
-      if (lines.length > 3) {
-        lines.length = 3;
-        lines[2] = `${lines[2].substr(0, lines[2].length - 3)  }...`;
-      }
-
-      iUrl = lines.join(`\n${  fn.blank(20)}`);
-
-      log('msg', 'proxyBack', iUrl);
+    u: function(obj) {
+      const type = cache.index++ % 2 ? 'proxy' : 'proxy2';
+      util.infoBar.print(type, {
+        barLeft: [
+          `=> ${chalk.cyan(obj.src)}`,
+          `<= ${chalk.yellow(obj.dest)}`
+        ]
+      }).end();
     }
   }
 };
 
 const cache = {
-  server: null
+  server: null,
+  index: 0
 };
 
 var wProxy = {
@@ -112,7 +84,7 @@ var wProxy = {
         var httpRemoteUrl;
         var proxyIgnore = false;
 
-        if(op.ignores && ~op.ignores.indexOf(remoteUrl)) {
+        if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
           proxyIgnore = true;
         }
 
@@ -141,8 +113,11 @@ var wProxy = {
         });
 
         if (localData && !proxyIgnore) { // 存在本地文件
-          fn.log.to(req.url);
-          fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
+          fn.log.u({
+            src: reqUrl,
+            dest: localUrl,
+            status: 200
+          });
 
           var iExt = path.extname(req.url).replace(/^\./, '');
           if (MIME_TYPE_MAP[iExt]) {
@@ -152,7 +127,6 @@ var wProxy = {
           res.write(localData);
           res.end();
         } else { // 透传 or 转发
-          fn.log.to(req.url);
           var iUrl = httpRemoteUrl || req.url;
           if (proxyIgnore) {
             iUrl = req.url;
@@ -168,7 +142,6 @@ var wProxy = {
             var vRequest = http.request(vOpts, (vRes) => {
               if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
                 vRes.on('end', () => {
-                  log('msg', 'proxyBack', 'proxy local server not found, to remote');
                   linkit(req.url, iBuffer);
                 });
 
@@ -180,9 +153,11 @@ var wProxy = {
               });
 
               vRes.on('end', () => {
-                if (iUrl != req.url) {
-                  fn.log.back(vRes.statusCode, iUrl);
-                }
+                fn.log.u({
+                  src: reqUrl,
+                  dest: iUrl,
+                  status: vRes.statusCode
+                });
 
                 // if(/text\/html/.test(res.getHeader('content-type'))){
                 //     res.write(PROXY_INFO_HTML);

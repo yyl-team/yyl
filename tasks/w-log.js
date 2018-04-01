@@ -50,7 +50,12 @@ util.infoBar.init({
       'proxy': {
         name: 'PROX',
         color: 'white',
-        bgColor: 'bgRed'
+        bgColor: 'bgBlack'
+      },
+      'proxy2': {
+        name: 'PROX',
+        color: 'black',
+        bgColor: 'bgWhite'
       },
       'done': {
         name: 'DONE',
