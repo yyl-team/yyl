@@ -39,23 +39,17 @@ var MIME_TYPE_MAP = {
   'tiff': 'image/tiff'
 
 };
-const PROXY_INFO_HTML = [
+var PROXY_INFO_HTML = [
   '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
   '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
 ].join('');
 
 var fn = {
-  samePrefix: function(shortPath, longPath) {
-    return shortPath === longPath.substr(0, shortPath.length);
-  },
   blank: function(num) {
     return new Array(num + 1).join(' ');
   },
   log: {
     STRING_COUNT: 55,
-    u: function(op) {
-      console.log(op.src, op.dest, op.statusCode);
-    },
     to: function(url) {
       var iUrl = url;
       var lines = [];
@@ -103,212 +97,143 @@ const cache = {
 
 var wProxy = {
   init: function(op, done) {
-    const iPort = op.port || 8887;
+    var
+      iPort = op.port || 8887;
 
-    const server = http.createServer((req, res) => {
-      const reqUrl = req.url;
-      const proxySrcs = Object.keys(op.localRemote || {});
+    var
+      server = http.createServer((req, res) => {
+        var reqUrl = req.url;
+        var iAddrs = Object.keys(op.localRemote || {});
 
-      // 本地代理
-      const reqPath = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
-      let localData;
-      let localUrl;
-      let localServerPath;
-      let proxyIgnore = false;
+        // 本地代理
+        var remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
+        var localData;
+        var localUrl;
+        var httpRemoteUrl;
+        var proxyIgnore = false;
 
-      if (op.ignores && ~op.ignores.indexOf(reqPath)) {
-        proxyIgnore = true;
-      }
-
-      proxySrcs.some((proxySrc) => {
-        const proxyDest = op.localRemote[proxySrc];
-
-        if (!proxyDest) {
-          return true;
+        if(op.ignores && ~op.ignores.indexOf(remoteUrl)) {
+          proxyIgnore = true;
         }
 
-        if (fn.samePrefix(proxySrc, reqPath)) {
-          let porxyDestPath = util.path.join(proxyDest, path.relative(proxySrc, reqPath));
+        iAddrs.forEach((addr) => {
+          var localAddr = op.localRemote[addr];
 
-          if (/^http(s)?:/.test(reqUrl)) {
-            localServerPath = porxyDestPath;
-            return false;
+          if (!localAddr) {
+            return true;
           }
 
-          if (fs.existsSync(porxyDestPath)) {
-            localData = fs.readFileSync(porxyDestPath);
-            localUrl = porxyDestPath;
-            return false;
-          }
-        }
-      });
 
-      // 本地文件
-      if (localData && !proxyIgnore) {
-        fn.log.u({
-          src: req.url,
-          dest: localUrl,
-          statusCode: 200
-        });
-        let iExt = path.extname(reqUrl).slice(1);
-        if (MIME_TYPE_MAP[iExt]) {
-          res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-        }
-        res.write(localData);
-        res.end();
-        return;
-      }
+          if (addr === remoteUrl.substr(0, addr.length)) {
+            var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
 
-      const iExt = path.extname(reqUrl).slice(1);
-      if (MIME_TYPE_MAP[iExt]) {
-        res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-      }
+            if (/^http(s)?:/.test(localAddr)) {
+              httpRemoteUrl = subAddr;
+              return false;
+            }
 
-      const throughIt = (body) => {
-        const vOpts = url.parse(reqUrl);
-        vOpts.method = req.method;
-        vOpts.headers = req.headers;
-        vOpts.body = body;
-        const vRequest = http.request(vOpts, (vRes) => {
-          vRes.on('data', (chunk) => {
-            res.write(chunk, 'binary');
-          });
-          vRes.on('end', () => {
-            fn.log.u({
-              src: reqUrl,
-              dest: localServerPath,
-              statusCode: vRes.statusCode
-            });
-            res.end();
-          });
-          vRes.on('error', () => {
-            res.end();
-          });
-          const iHeader = util.extend(true, {}, vRes.headers);
-          const iType = vRes.headers['content-type'];
-          if (iType) {
-            res.setHeader('Content-Type', iType);
-          } else {
-            const iExt = path.extname(req.url).slice(1);
-
-            if (MIME_TYPE_MAP[iExt]) {
-              res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+            if (fs.existsSync(subAddr)) {
+              localData = fs.readFileSync(subAddr);
+              localUrl = subAddr;
+              return false;
             }
           }
-          res.writeHead(vRes.statusCode, iHeader);
         });
-      };
-      let body = [];
+
+        if (localData && !proxyIgnore) { // 存在本地文件
+          fn.log.to(req.url);
+          fn.log.back('200', util.path.relative(util.vars.PROJECT_PATH, localUrl));
+
+          var iExt = path.extname(req.url).replace(/^\./, '');
+          if (MIME_TYPE_MAP[iExt]) {
+            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+          }
+
+          res.write(localData);
+          res.end();
+        } else { // 透传 or 转发
+          fn.log.to(req.url);
+          var iUrl = httpRemoteUrl || req.url;
+          if (proxyIgnore) {
+            iUrl = req.url;
+          }
+          var body = [];
+          var linkit = function(iUrl, iBuffer) {
+            var vOpts = url.parse(iUrl);
+            vOpts.method = req.method;
+            vOpts.headers = req.headers;
+            vOpts.body = body;
 
 
-      req.on('data', (chunk) => {
-        body.push(chunk);
-      });
-      req.on('end', () => {
-        body = Buffer.concat(body).toString();
-        if (localServerPath) {
-          const vOpts = url.parse(localServerPath);
-          vOpts.method = req.method;
-          vOpts.headers = req.headers;
-          vOpts.body = body;
-          const vRequest = http.request(vOpts, (vRes) => {
-            if (/^404|405$/.test(vRes.statusCode)) {
-              vRes.on('end', () => {
-                throughIt(body);
-              });
-              return vRequest.abort();
-            } else {
+            var vRequest = http.request(vOpts, (vRes) => {
+              if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
+                vRes.on('end', () => {
+                  log('msg', 'proxyBack', 'proxy local server not found, to remote');
+                  linkit(req.url, iBuffer);
+                });
+
+                return vRequest.abort();
+              }
+
               vRes.on('data', (chunk) => {
                 res.write(chunk, 'binary');
               });
+
               vRes.on('end', () => {
-                fn.log.u({
-                  src: reqUrl,
-                  dest: localServerPath,
-                  statusCode: vRes.statusCode
-                });
+                if (iUrl != req.url) {
+                  fn.log.back(vRes.statusCode, iUrl);
+                }
+
+                // if(/text\/html/.test(res.getHeader('content-type'))){
+                //     res.write(PROXY_INFO_HTML);
+                // }
                 res.end();
               });
               vRes.on('error', () => {
                 res.end();
               });
-              const iHeader = util.extend(true, {}, vRes.headers);
-              const iType = vRes.headers['content-type'];
+
+              var iHeader = util.extend(true, {}, vRes.headers);
+
+              // 设置 header
+              var iType = vRes.headers['content-type'];
               if (iType) {
                 res.setHeader('Content-Type', iType);
               } else {
-                const iExt = path.extname(req.url).slice(1);
+                var iExt = path.extname(req.url).replace(/^\./, '');
 
                 if (MIME_TYPE_MAP[iExt]) {
                   res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
                 }
               }
+
               res.writeHead(vRes.statusCode, iHeader);
-            }
+            });
+
+            vRequest.on('error', () => {
+              res.end();
+            });
+
+            vRequest.write(body);
+            vRequest.end();
+          };
+
+          req.on('data', (chunk) => {
+            body.push(chunk);
+          });
+
+
+          req.on('end', () => {
+            body = Buffer.concat(body).toString();
+            linkit(iUrl, body);
           });
         }
       });
-
-
-      // let body = [];
-
-
-      // req.on('data', (chunk) => {
-      //   body.push(chunk);
-      // });
-      // req.on('end', () => {
-      //   body = Buffer.concat(body).toString();
-      //   if (localServerPath) {
-      //     const vOpts = url.parse(localServerPath);
-      //     vOpts.method = req.method;
-      //     vOpts.headers = req.headers;
-      //     vOpts.body = body;
-      //     const vRequest = http.request(vOpts, (vRes) => {
-      //       if (/^404|405$/.test(vRes.statusCode)) {
-      //         vRes.on('end', () => {
-      //           // NORMAL LINK
-      //         });
-      //         return vRequest.abort();
-      //       }
-      //       vRes.on('data', (chunk) => {
-      //         res.write(chunk, 'binary');
-      //       });
-      //       vRes.on('end', () => {
-      //         fn.log.u({
-      //           src: reqUrl,
-      //           dest: localServerPath,
-      //           statusCode: vRes.statusCode
-      //         });
-      //         res.end();
-      //       });
-      //       vRes.on('error', () => {
-      //         res.end();
-      //       });
-      //       const iHeader = util.extend(true, {}, vRes.headers);
-      //       const iType = vRes.headers['content-type'];
-      //       if (iType) {
-      //         res.setHeader('Content-Type', iType);
-      //       } else {
-      //         const iExt = path.extname(req.url).slice(1);
-
-      //         if (MIME_TYPE_MAP[iExt]) {
-      //           res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-      //         }
-      //       }
-      //       res.writeHead(vRes.statusCode, iHeader);
-      //     });
-      //   } else {
-      //     // NORMAL_LINK
-
-      //   }
-      // });
-    });
 
     log('msg', 'success', 'proxy server start');
     Object.keys(op.localRemote).forEach((key) => {
       log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(op.localRemote[key])}`);
     });
-
     log('msg', 'success', `proxy server port: ${chalk.yellow(iPort)}`);
 
     server.listen(iPort);
