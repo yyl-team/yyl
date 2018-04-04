@@ -1,4 +1,8 @@
 # 版本信息
+## 2.17.3 (2018-04-04)
+* [EDIT] `gulp-requirejs` 中的 `inlinesource` 只会在 `iEnv.isCommit` 为 `true` 时有效
+* [FIX] 修复 `gulp-requirejs` `watch` 命令后 tpl 代码不跟新问题
+
 ## 2.17.1 (2018-03-29)
 * [ADD] `config.js`  新增 `config.commit.staticHost`, `config.commit.mainHost`
 * [EDIT] `gulp-requirejs` 模板新增压缩功能
