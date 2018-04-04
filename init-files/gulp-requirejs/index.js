@@ -1796,6 +1796,7 @@ gulp.task('watch', ['all'], () => {
       rConfig: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js')
     });
 
+
     const htmlDestFiles = [];
     const tplDestFiles = [];
 
@@ -1850,22 +1851,25 @@ gulp.task('watch', ['all'], () => {
 
     var total = runtimeFiles.length;
 
+    if (total == 0) {
+      streamCheck();
+    }
+
     runtimeFiles.forEach((iPath) => {
       var
         rStream = iStream.any2dest(iPath, {
           base: config.alias.srcRoot
         });
 
-      rStream.pipe(fn.blankPipe((file) => {
-        const iPath = util.path.join(file.base, file.relative);
-        if (fn.pathInside(config.alias.tplDest, iPath)) {
-          tplDestFiles.push(iPath);
-        } else if (fn.pathInside(config.alias.htmlDest, iPath)) {
-          htmlDestFiles.push(iPath);
-        }
-      }));
-
       if (rStream) {
+        rStream.pipe(fn.blankPipe((file) => {
+          const iPath = util.path.join(file.base, file.relative);
+          if (fn.pathInside(config.alias.tplDest, iPath)) {
+            tplDestFiles.push(iPath);
+          } else if (fn.pathInside(config.alias.htmlDest, iPath)) {
+            htmlDestFiles.push(iPath);
+          }
+        }));
         rStream = iStream.dest2dest(rStream, {
           base: config.alias.srcRoot,
           staticRemotePath: iEnv.staticRemotePath,
