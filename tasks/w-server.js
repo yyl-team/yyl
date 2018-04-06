@@ -325,11 +325,8 @@ const wServer = {
           mineConfig = util.requireJs(mineConfigPath);
         } catch (er) {}
       }
-      try {
-        config = util.requireJs(configPath);
-      } catch (er) {
-        throw new Error(`read config.js with error: ${er.message}`);
-      }
+
+      config = util.requireJs(configPath);
 
       if (!config) {
         throw new Error('nothing in config.js');

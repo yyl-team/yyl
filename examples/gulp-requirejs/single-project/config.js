@@ -1,61 +1,67 @@
 'use strict';
-var 
-    //+ yyl init 自动 匹配内容
-    commonPath = /*+commonPath*/'../commons/pc'/*-commonPath*/,
-    projectName = /*+name*/'workflow_demo'/*-name*/,
-    version = /*+version*/'1.0.0'/*-version*/,
-    //- yyl init 自动 匹配内容
+const path = require('path');
 
-    path = require('path'),
-    setting = {
-        localserver: { // 本地服务器配置
-            root: './dist', // 服务器输出地址
-            port: 5000 // 服务器 port
-        },
-        dest: {
-            basePath: '/pc',
-            jsPath: 'js',
-            jslibPath: 'js/lib',
-            cssPath: 'css',
-            htmlPath: 'html',
-            imagesPath: 'images',
-            revPath: 'assets'
-        },
-        // 代理服务器
-        proxy: {
-            port: 8887,
-            localRemote: {
-                //'http://www.yy.com/': './dist/',
-                'http://www.yy.com/': 'http://127.0.0.1:5000/'
-            }
-        },
-        /**
-         * 触发提交 svn 前中间件函数
-         * @param {String}   sub    命令行 --sub 变量
-         * @param {Function} next() 下一步
-         */
-        onBeforeCommit: function(sub, next){
-            next();
-        },
+//+ yyl init 自动 匹配内容
+const COMMON_PATH = /*+commonPath*/'../commons/pc'/*-commonPath*/;
+const PROJECT_NAME = /*+name*/'workflow_demo'/*-name*/;
+const VERSION = /*+version*/'1.0.0'/*-version*/;
+//- yyl init 自动 匹配内容
 
-        /**
-         * 初始化 config 时 对config的二次操作
-         * @param {object}   config          服务器初始化完成的 config 对象
-         * @param {object}   env             命令行接收到的 参数
-         * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
-         * @param {object}   newconfig       处理后的 config
-         */
-        onInitConfig: function(config, env, next){
-            next(config);
+const setting = {
+    localserver: { // 本地服务器配置
+        root: './dist', // 服务器输出地址
+        port: 5000 // 服务器 port
+    },
+    dest: {
+        basePath: '/pc',
+        jsPath: 'js',
+        jslibPath: 'js/lib',
+        cssPath: 'css',
+        htmlPath: 'html',
+        imagesPath: 'images',
+        tplPath: 'tpl',
+        revPath: 'assets'
+    },
+    // 代理服务器
+    proxy: {
+        port: 8887,
+        localRemote: {
+            //'http://www.yy.com/': './dist/',
+            'http://www.yy.com/': 'http://127.0.0.1:5000/'
         }
+    },
+    /**
+     * 触发提交 svn 前中间件函数
+     * @param {String}   sub    命令行 --sub 变量
+     * @param {Function} next() 下一步
+     */
+    onBeforeCommit: function(sub, next) {
+        next();
+    },
 
-    };
+    /**
+     * 初始化 config 时 对config的二次操作
+     * @param {object}   config          服务器初始化完成的 config 对象
+     * @param {object}   env             命令行接收到的 参数
+     * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
+     * @param {object}   newconfig       处理后的 config
+     */
+    onInitConfig: function(config, env, next) {
+        next(config);
+    }
+};
+
+const DEST_BASE_PATH = path.join(
+    setting.localserver.root,
+    setting.dest.basePath
+);
+
 
 var
     config = {
         workflow: 'gulp-requirejs',
-        name: projectName,
-        version: version,
+        name: PROJECT_NAME,
+        version: VERSION,
         dest: setting.dest,
         proxy: setting.proxy,
 
@@ -80,40 +86,42 @@ var
 
 
             // 公用组件地址
-            commons: commonPath,
+            commons: COMMON_PATH,
 
             // 公用 components 目录
-            globalcomponents: path.join(commonPath, 'components'),
-            globallib: path.join(commonPath, 'lib'),
+            globalcomponents: path.join(COMMON_PATH, 'components'),
+            globallib: path.join(COMMON_PATH, 'lib'),
 
 
             // 输出目录中 到 html, js, css, image 层 的路径
-            root: path.join(setting.localserver.root, setting.dest.basePath),
+            root: DEST_BASE_PATH,
 
             // rev 输出内容的相对地址
-            revRoot: path.join(setting.localserver.root, setting.dest.basePath),
+            revRoot: DEST_BASE_PATH,
 
             // dest 地址
             destRoot: setting.localserver.root,
 
             // src 地址
             srcRoot: './src',
-            
+
             // 项目根目录
             dirname: './',
 
             // js 输出地址
-            jsDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),
+            jsDest: path.join(DEST_BASE_PATH, setting.dest.jsPath),
             // js lib 输出地址
-            jslibDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jslibPath),
+            jslibDest: path.join(DEST_BASE_PATH, setting.dest.jslibPath),
             // html 输出地址
-            htmlDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.htmlPath),
+            htmlDest: path.join(DEST_BASE_PATH, setting.dest.htmlPath),
             // css 输出地址
-            cssDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.cssPath),
+            cssDest: path.join(DEST_BASE_PATH, setting.dest.cssPath),
             // images 输出地址
-            imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
+            imagesDest: path.join(DEST_BASE_PATH, setting.dest.imagesPath),
             // assets 输出地址
-            revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath)
+            revDest: path.join(DEST_BASE_PATH, setting.dest.revPath),
+            // tpl 输出地址
+            tplDest: path.join(DEST_BASE_PATH, setting.dest.tplPath)
         },
         // -此部分 yyl server 端config 会进行替换
 
@@ -129,7 +137,7 @@ var
         },
 
         commit: {
-             // 上线配置
+            // 上线配置
             revAddr: 'http://yyweb.yystatic.com/pc/assets/rev-manifest.json',
             hostname: 'http://yyweb.yystatic.com/',
             git: {
@@ -219,7 +227,7 @@ var
             }
         }
         // - 此部分 不要用相对路径
-        
+
     };
 
 module.exports = config;
