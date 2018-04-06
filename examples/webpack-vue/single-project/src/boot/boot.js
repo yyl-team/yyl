@@ -1,39 +1,31 @@
-'use strict';
+
 require('./boot.scss');
-var 
-    Vue = require('vue'),
-    VueRouter = require('vue-router'),
-    util = require('util'),
-    store = require('../vuex/store.js');
+const Vue = require('vue');
+const VueRouter = require('vue-router');
+const store = require('../vuex/store.js');
 
 Vue.use(VueRouter);
 
-var 
-    app = Vue.extend({
-        el: function(){
-            return '#app';
-        },
-        store: store,
-        ready: function(){}
-    }),
-    router = new VueRouter();
+const app = Vue.extend({
+  el() {
+    return '#app';
+  },
+  store,
+  ready() {},
+});
+const router = new VueRouter();
 
 
 router.map({
-    '/index': {
-        component: require('../components/page/p-index/p-index.js')
-    }
+  '/index': {
+    component: require('../components/page/p-index/p-index.js'),
+  },
 });
 
 router.redirect({
-    '*': '/index'
+  '*': '/index',
 });
 
 
-
 router.start(app, '#app');
-
-
-
-
 

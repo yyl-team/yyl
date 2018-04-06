@@ -1,15 +1,14 @@
-'use strict';
 
-var 
-    Vue = require('vue'),
-    Vuex = require('vuex');
+
+const Vue = require('vue');
+const Vuex = require('vuex');
 
 Vue.use(Vuex);
 
-var state = {};
-var mutations = {};
+const state = {};
+const mutations = {};
 
 module.exports = new Vuex.Store({
-    state: state,
-    mutations: mutations
+  state,
+  mutations,
 });

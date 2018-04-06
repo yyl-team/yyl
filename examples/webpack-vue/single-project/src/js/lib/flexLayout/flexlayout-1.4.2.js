@@ -1,7 +1,8 @@
+/*eslint-disable*/
 'use strict';
 (function(){
 
-    var 
+    var
         iUA = navigator.userAgent,
         // 配置是否使用 缩放 viewport
         needScale = window.__flexlayoutConfig && window.__flexlayoutConfig.scale === true ? true : false,
@@ -14,7 +15,7 @@
         };
 
 
-    var 
+    var
         metaEl = document.querySelector('meta[name=viewport]'),
         head = document.getElementsByTagName('head')[0],
         htmlEl = document.getElementsByTagName('html')[0],
@@ -94,13 +95,13 @@
     }
 
 
-    var 
+    var
         clientWidth = scWidth > scHeight? scHeight: scWidth,
         clientHeight = scWidth > scHeight? scWidth: scHeight,
-        rem = clientWidth / 10, 
+        rem = clientWidth / 10,
         vrem = clientHeight / 10,
-        fontEl = document.createElement('style'), 
-        scale = 1 / dpr; // 设置viewport，进行缩放，达到高清效果 
+        fontEl = document.createElement('style'),
+        scale = 1 / dpr; // 设置viewport，进行缩放，达到高清效果
 
     var cnt = [
         'width=' + clientWidth,
@@ -120,10 +121,10 @@
     }
 
 
-    docEl.firstElementChild.appendChild(fontEl); 
+    docEl.firstElementChild.appendChild(fontEl);
 
 
-    var 
+    var
         cWidth = docEl.clientWidth,
         cHeight = docEl.clientHeight,
         mediaWidth = cWidth > cHeight? cWidth: cHeight;
@@ -151,5 +152,5 @@
     } else {
         dpr = 3;
     }
-    htmlEl.setAttribute('data-dpr', dpr); // 动态写入样式 
+    htmlEl.setAttribute('data-dpr', dpr); // 动态写入样式
 })();
