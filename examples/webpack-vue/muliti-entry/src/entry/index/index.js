@@ -1,39 +1,31 @@
-'use strict';
-require('./index.scss');
-var 
-    Vue = require('vue'),
-    VueRouter = require('vue-router'),
-    util = require('util'),
-    store = require('../../vuex/store.js');
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+
+import store from '../../vuex/store.js';
+import './index.scss';
+import pageIndex from '../../components/page/p-index/p-index.js';
 
 Vue.use(VueRouter);
 
-var 
-    app = Vue.extend({
-        el: function(){
-            return '#app';
-        },
-        store: store,
-        ready: function(){}
-    }),
-    router = new VueRouter();
-
+const app = Vue.extend({
+  el() {
+    return '#app';
+  },
+  store,
+  ready() {},
+});
+const router = new VueRouter();
 
 router.map({
-    '/index': {
-        component: require('../../components/page/p-index/p-index.js')
-    }
+  '/index': {
+    component: pageIndex,
+  },
 });
 
 router.redirect({
-    '*': '/index'
+  '*': '/index',
 });
 
 
-
 router.start(app, '#app');
-
-
-
-
 

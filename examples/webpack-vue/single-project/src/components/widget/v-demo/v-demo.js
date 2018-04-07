@@ -1,16 +1,14 @@
-
 // requires
-require('./v-demo.scss');
-
-// init
-const Vue = require('vue');
-const actions = require('actions');
-const getters = require('getters');
+import Vue from 'vue';
+import actions from 'actions';
+import getters from 'getters';
+import tpl from './v-demo.jade';
+import './v-demo.scss';
 
 const cache = {};
 
 module.exports = Vue.extend({
-  template: require('./v-demo.jade')(),
+  template: tpl(),
   vuex: {
     actions,
     getters,

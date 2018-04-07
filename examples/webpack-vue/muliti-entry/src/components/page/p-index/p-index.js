@@ -1,17 +1,19 @@
-'use strict';
-var 
-    Vue = require('vue');
+import Vue from 'vue';
+import getters from 'getters';
+import actions from 'actions';
+import tpl from './p-index.jade';
+import vDemo from '../../widget/v-demo/v-demo.js';
 
 module.exports = Vue.extend({
-    vuex: {
-        getters: require('getters'),
-        actions: require('actions')
-    },
-    template: require('./p-index.jade')(),
-    components: {
-        vDemo: require('../../widget/v-demo/v-demo.js')
-    },
-    ready: function(){
-    }
+  vuex: {
+    getters,
+    actions,
+  },
+  template: tpl(),
+  components: {
+    vDemo,
+  },
+  ready() {
+  },
 });
 

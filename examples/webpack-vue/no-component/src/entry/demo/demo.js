@@ -1,4 +1,4 @@
-'use strict';
+
 import '../../sass/base/layout.scss';
 
 import './demo.scss';

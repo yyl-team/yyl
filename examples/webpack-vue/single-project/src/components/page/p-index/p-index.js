@@ -1,15 +1,18 @@
+import getters from 'getters';
+import actions from 'actions';
+import tpl from './p-index.jade';
+import vDemo from '../../widget/v-demo/v-demo.js';
 
-const
-  Vue = require('vue');
+const Vue = require('vue');
 
 module.exports = Vue.extend({
   vuex: {
-    getters: require('getters'),
-    actions: require('actions'),
+    getters,
+    actions,
   },
-  template: require('./p-index.jade')(),
+  template: tpl(),
   components: {
-    vDemo: require('../../widget/v-demo/v-demo.js'),
+    vDemo,
   },
   ready() {
   },
