@@ -36,7 +36,7 @@ gulp.task('webpack', (done) => {
     log('msg', 'info', `get local webpack.config.js ${localWconfigPath}`);
     try {
       localWconfig = util.requireJs(localWconfigPath);
-    } catch(er) {
+    } catch (er) {
       log('msg', 'error', er);
       log('finish');
       process.exit(1);
@@ -99,7 +99,7 @@ gulp.task('webpack', (done) => {
       fn.logDest(util.path.join(basePath, key));
     });
     compilation.errors.forEach((err) => {
-      log('msg', 'error', err.details);
+      log('msg', 'error', err.message);
     });
     compilation.warnings.forEach((warn) => {
       log('msg', 'warn', warn.details);
