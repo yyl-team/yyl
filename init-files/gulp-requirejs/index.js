@@ -163,11 +163,19 @@ var fn = {
 
           if (isPage(iPath) || isTpl(iPath)) {
             r.push(iPath);
+            let pugPath = iPath.replace(new RegExp(`\\${path.extname(iPath)}$`), '.pug');
+            if (fs.existsSync(pugPath)) {
+              r.push(pugPath);
+            }
           }
 
           rs.forEach((rPath) => {
             if (isPage(rPath) || isTpl(rPath)) {
               r.push(rPath);
+              let pugPath = iPath.replace(new RegExp(`\\${path.extname(iPath)}$`), '.pug');
+              if (fs.existsSync(pugPath)) {
+                r.push(pugPath);
+              }
             } else {
               r = r.concat(findit(rPath));
             }
@@ -1485,6 +1493,9 @@ gulp.task('tpl-to-dest-task', () => {
 gulp.task('inline-source', ['html-inline', 'tpl-inline'], () => {});
 
 gulp.task('html-inline', () => {
+  if (!iEnv.isCommit) {
+    return;
+  }
   let rStream;
   rStream = iStream.inline2dest(gulp.src([
     util.joinFormat(config.alias.htmlDest, '**/*.html')
@@ -1500,6 +1511,9 @@ gulp.task('html-inline', () => {
   return rStream;
 });
 gulp.task('tpl-inline', () => {
+  if (!iEnv.isCommit) {
+    return;
+  }
   if (!config.alias.tplDest) {
     return;
   }
@@ -1781,18 +1795,65 @@ gulp.task('watch', ['all'], () => {
       jslib: util.joinFormat(config.alias.srcRoot, 'js/lib'),
       rConfig: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js')
     });
+
+
+    const htmlDestFiles = [];
+    const tplDestFiles = [];
+
     var streamCheck = function() {
       if (!total) {
         log('msg', 'success', 'optimize finished');
-        runSequence(['concat', 'resource'], 'inline-source', 'rev-update', () => {
-          supercall.livereload();
-          log('msg', 'success', 'watch task finished');
-          log('finish');
+        runSequence(['concat', 'resource'],  () => {
+          new util.Promise((next) => {
+            if (htmlDestFiles.length && iEnv.isCommit) {
+              let rStream = iStream
+                .inline2dest(gulp.src(htmlDestFiles, {
+                  base: config.alias.htmlDest
+                }))
+                .pipe(fn.blankPipe((file) => {
+                  fn.logDest(util.path.join(file.base, file.relative));
+                }))
+                .pipe(gulp.dest(config.alias.htmlDest));
+
+              rStream.on('finish', () => {
+                next();
+              });
+            } else {
+              next();
+            }
+          }).then((next) => {
+            if (tplDestFiles.length && config.alias.tplDest && iEnv.isCommit) {
+              let rStream = iStream
+                .inline2dest(gulp.src(tplDestFiles, {
+                  base: config.alias.tplDest
+                }))
+                .pipe(fn.blankPipe((file) => {
+                  fn.logDest(util.path.join(file.base, file.relative));
+                }))
+                .pipe(gulp.dest(config.alias.tplDest));
+
+              rStream.on('finish', () => {
+                next();
+              });
+            } else {
+              next();
+            }
+          }).then(() => {
+            runSequence('rev-update', () => {
+              supercall.livereload();
+              log('msg', 'success', 'watch task finished');
+              log('finish');
+            });
+          }).start();
         });
       }
     };
 
     var total = runtimeFiles.length;
+
+    if (total == 0) {
+      streamCheck();
+    }
 
     runtimeFiles.forEach((iPath) => {
       var
@@ -1801,6 +1862,14 @@ gulp.task('watch', ['all'], () => {
         });
 
       if (rStream) {
+        rStream.pipe(fn.blankPipe((file) => {
+          const iPath = util.path.join(file.base, file.relative);
+          if (fn.pathInside(config.alias.tplDest, iPath)) {
+            tplDestFiles.push(iPath);
+          } else if (fn.pathInside(config.alias.htmlDest, iPath)) {
+            htmlDestFiles.push(iPath);
+          }
+        }));
         rStream = iStream.dest2dest(rStream, {
           base: config.alias.srcRoot,
           staticRemotePath: iEnv.staticRemotePath,
@@ -1811,6 +1880,7 @@ gulp.task('watch', ['all'], () => {
           srcRoot: config.alias.srcRoot,
           cssDest: config.alias.cssDest,
           htmlDest: config.alias.htmlDest,
+          tplDest: config.alias.tplDest,
           root: config.alias.root
         });
         rStream.on('finish', () => {
