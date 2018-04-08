@@ -51,7 +51,11 @@ var
             util.checkPortUseage(config.localserver.port, (canUse) => {
               if (canUse) {
                 log('end');
-                util.runCMD('yyl server start --silent', () => {
+                let cmd = 'yyl server start --silent';
+                if (iEnv.name) {
+                  cmd = `${cmd} --name ${iEnv.name}`;
+                }
+                util.runCMD(cmd, () => {
                   next(config);
                 }, util.vars.PROJECT_PATH, true, true);
               } else {

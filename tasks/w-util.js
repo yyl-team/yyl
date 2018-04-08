@@ -208,17 +208,7 @@ util = util.extend(true, util, {
     }
 
     iConfig = util.requireJs(serverConfigPath);
-
-    if (op.name) {
-      if (iConfig[op.name]) {
-        cache.config = util.initConfig(iConfig[op.name]);
-      } else {
-        util.msg.warn('getConfig fail', `config[${ op.name }] is no content`);
-        cache.config = null;
-      }
-    } else {
-      cache.config = util.initConfig(iConfig);
-    }
+    cache.config = util.initConfig(iConfig);
     return cache.config;
   },
   // 获取当前运行task 中的 config
