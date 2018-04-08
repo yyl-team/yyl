@@ -3,7 +3,7 @@ var require = {
     // baseUrl: '../js',
     paths: {
         // for demo
-        rDemo: '../js/widget/r-demo'
+        rDemo: '../widget/r-demo'
     },
     shim: {
         // artTemplate: {

@@ -1151,7 +1151,7 @@ var
                 baseUrl: path.dirname(util.joinFormat(config.alias.srcRoot, file.relative)),
                 generateSourceMaps: false,
                 optimize: 'none',
-                include: util.joinFormat(path.relative(util.joinFormat(config.alias.srcRoot, 'js/rConfig'), util.joinFormat(config.alias.srcRoot, file.relative))),
+                include: util.joinFormat(config.alias.srcRoot, file.relative),
                 paths: paths,
                 out: function(text) {
                   file.contents = Buffer.from(text, 'utf-8');
