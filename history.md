@@ -3,6 +3,7 @@
 * [EDIT] `gulp-requirejs` 中的 `inlinesource` 只会在 `iEnv.isCommit` 为 `true` 时有效
 * [FIX] 修复 `gulp-requirejs` `watch` 命令后 tpl 代码不跟新问题
 * [FIX] 修复 `gulp-requirejs` `watch` 时 `rutimefiles` 为 0 时 watch 不执行下去的 问题
+* [FIX] 修复 `gulp-requirejs` `muti-project` 初始化运行不了问题
 
 ## 2.17.1 (2018-03-29)
 * [ADD] `config.js`  新增 `config.commit.staticHost`, `config.commit.mainHost`
