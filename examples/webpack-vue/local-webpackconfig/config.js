@@ -1,9 +1,11 @@
 const path = require('path');
+
 // + yyl init 自动 匹配内容
 const COMMON_PATH = /* +commonPath */'../commons/mobile'/* -commonPath */;
 const PROJECT_NAME = /* +name */'workflow_demo'/* -name */;
 const VERSION = /* +version */'1.0.0'/* -version */;
 // - yyl init 自动 匹配内容
+
 const setting = {
   localserver: { // 本地服务器配置
     root: path.join(__dirname, './dist'), // 服务器输出地址

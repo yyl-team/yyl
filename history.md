@@ -1,4 +1,9 @@
 # 版本信息
+## 2.17.5 (2018-04-09)
+* [ADD] 新增 `webpack-vue`, `webpack-vue2` 用 `eslintrc` `editorconfig` 配置文件
+* [EDIT] `yyl init` `mobile` 下 默认选中 `webpack-vue2`
+* [FIX] 修复 `webpack-vue` 解析不了 `*.vue` 文件问题
+
 ## 2.17.4 (2018-04-04)
 * [EDIT] `gulp-requirejs` 中的 `inlinesource` 只会在 `iEnv.isCommit` 为 `true` 时有效
 * [FIX] 修复 `gulp-requirejs` `watch` 命令后 tpl 代码不跟新问题

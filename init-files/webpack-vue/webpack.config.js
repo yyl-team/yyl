@@ -89,7 +89,6 @@ const webpackconfig = {
       query: {
         presets: ['babel-preset-es2015'].map(require.resolve)
       }
-
     }, {
       test: /\.vue$/,
       loaders: ['vue']
@@ -101,7 +100,7 @@ const webpackconfig = {
       loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass')
     }, {
       test: /\.jade$/,
-      loaders: ['pug-loader']
+      loaders: ['jade-loader']
     }, {
       test: /\.(png|jpg|gif)$/,
       loader: `url-loader?limit=10000&name=${  util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name].[ext]')))}`
@@ -114,7 +113,9 @@ const webpackconfig = {
       test: path.join(config.alias.commons, 'lib'),
       loader: 'imports?this=>window'
     }]
-
+  },
+  babel: {
+    presets: ['babel-preset-es2015'].map(require.resolve)
   },
   resolveLoader: {
     fallback: path.join( __dirname, 'node_modules')
@@ -127,7 +128,6 @@ const webpackconfig = {
       'getters': path.join(config.alias.srcRoot, 'vuex/getters.js')
 
     }, config.alias)
-
   },
   plugins: [
     // 样式分离插件

@@ -44,40 +44,29 @@ $psdWidth: 750;
 
 </style>
 <script>
-'use strict';
-import Vue from 'vue';
-import tpl from './v-demo.jade';
-import './v-demo.scss';
 
-import vDemo from '../../widget/v-demo/v-demo.js';
-var cache = {};
+const cache = {};
 
-export default Vue.extend({
-    data(){
-        return {
-            rotate: 0
-        };
-    },
-    components: {
-        vDemo
-    },
-    mounted(){
-        var vm = this;
+export default {
+  data() {
+    return {
+      rotate: 0,
+    };
+  },
+  mounted() {
+    const vm = this;
+    let i;
+    const iClass = [0, 1, 2, 3];
 
-        var i;
-        var iClass = [0, 1, 2, 3];
-
-        cache.changeKey = setInterval(function(){
-            var here = iClass.concat([]);
-            here.splice(here.indexOf(i), 1);
-
-            vm.$data.rotate = here[Math.round(Math.random() * (here.length - 1))];
-        }, 2000);
-
-    },
-    beforeDestroy(){
-        clearInterval(cache.changeKey);
-    }
-});
+    cache.changeKey = setInterval(() => {
+      const here = iClass.concat([]);
+      here.splice(here.indexOf(i), 1);
+      vm.$data.rotate = here[Math.round(Math.random() * (here.length - 1))];
+    }, 2000);
+  },
+  beforeDestroy() {
+    clearInterval(cache.changeKey);
+  },
+};
 
 </script>

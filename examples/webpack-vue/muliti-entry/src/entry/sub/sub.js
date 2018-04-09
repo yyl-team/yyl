@@ -1,26 +1,24 @@
-
-require('./sub.scss');
-let
-  Vue = require('vue'),
-  VueRouter = require('vue-router'),
-  store = require('../../vuex/store.js');
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+import './sub.scss';
+import store from '../../vuex/store.js';
+import pIndex from '../../components/page/p-index/p-index.vue';
 
 Vue.use(VueRouter);
 
-let
-  app = Vue.extend({
-    el() {
-      return '#app';
-    },
-    store,
-    ready() {},
-  }),
-  router = new VueRouter();
+const app = Vue.extend({
+  el() {
+    return '#app';
+  },
+  store,
+  ready() {},
+});
+const router = new VueRouter();
 
 
 router.map({
   '/index': {
-    component: require('../../components/page/p-index/p-index.js'),
+    component: pIndex,
   },
 });
 

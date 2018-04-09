@@ -92,7 +92,7 @@ var
           if (data.platform == 'pc') {
             iQuestion.default = 'gulp-requirejs';
           } else {
-            iQuestion.default = 'webpack-vue';
+            iQuestion.default = 'webpack-vue2';
           }
 
           if (op.workflow && ~workflows.indexOf(op.workflow)) {

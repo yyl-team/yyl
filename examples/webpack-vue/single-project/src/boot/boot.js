@@ -1,8 +1,9 @@
+import Vue from 'vue';
+import VueRouter from 'vue-router';
 
-require('./boot.scss');
-const Vue = require('vue');
-const VueRouter = require('vue-router');
-const store = require('../vuex/store.js');
+import './boot.scss';
+import store from '../vuex/store.js';
+import tpl from '../components/page/p-index/p-index.vue';
 
 Vue.use(VueRouter);
 
@@ -11,14 +12,17 @@ const app = Vue.extend({
     return '#app';
   },
   store,
-  ready() {},
+  ready() {
+    console.log('111')
+    console.log(tpl);
+  },
 });
 const router = new VueRouter();
 
 
 router.map({
   '/index': {
-    component: require('../components/page/p-index/p-index.js'),
+    component: tpl,
   },
 });
 
