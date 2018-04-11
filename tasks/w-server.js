@@ -500,7 +500,7 @@ const wServer = {
             }
 
             var cmd = `npm install ${installLists.join(' ')} --loglevel http`;
-            log('msg', 'info' `run cmd ${cmd}`);
+            log('msg', 'info', `run cmd ${cmd}`);
             process.chdir(workFlowPath);
 
             log('end');

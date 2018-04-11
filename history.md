@@ -1,4 +1,6 @@
 # 版本信息
+## 2.17.6 (2018-04-11)
+* [FIX] 修复 `webpack-vue2` 添加 `config.plugins` 参数会报错问题
 ## 2.17.5 (2018-04-09)
 * [ADD] 新增 `webpack-vue`, `webpack-vue2` 用 `eslintrc` `editorconfig` 配置文件
 * [EDIT] `yyl init` `mobile` 下 默认选中 `webpack-vue2`
