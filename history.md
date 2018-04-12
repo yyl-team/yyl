@@ -1,5 +1,5 @@
 # 版本信息
-## 2.17.6 (2018-04-11)
+## 2.17.6 (2018-04-12)
 * [FIX] 修复 `webpack-vue2` 添加 `config.plugins` 参数会报错问题
 * [DEL] 去掉 `yyl init` 中 选择 `git or svn` 选项， 全部默认 `git 配置方案`
 * [ADD] `yyl watch, yyl commit` 时 的 `init config` 新增 `config` 内的 参数校验

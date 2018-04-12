@@ -4,14 +4,15 @@
   "description": "webpack vue workflow",
   "main": "gulpfile.js",
   "dependencies": {
-    "vuex": "~1.0.0-rc.2",
-    "vue": "~1.0.26",
-    "vue-router": "~0.7.13",
     "colors": "~1.1.2",
     "event-stream": "~3.3.3",
+    "gulp": "~3.9.1",
     "jade": "~1.11.0",
     "run-sequence": "~1.2.2",
-    "gulp": "~3.9.1",
+    "through2": "~2.0.3",
+    "vue": "~1.0.26",
+    "vue-router": "~0.7.13",
+    "vuex": "~1.0.0-rc.2",
     "webpack": "~1.13.1"
   },
   "devDependencies": {

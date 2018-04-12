@@ -1199,7 +1199,7 @@ var
               iEnv.staticRemotePath,
               path.relative(config.alias.destRoot, fileDir)
             ),
-            minify: iEnv.isCommit? true: false,
+            minify: false,
             type: 'html'
           }).then((iCnt) => {
             if (file.toString() != iCnt) {

@@ -337,7 +337,7 @@ if (TEST_CTRL.INIT) {
 }
 
 if (TEST_CTRL.ALL) {
-  if (TEST_CTRL.ALL__MAIN) {
+  if (TEST_CTRL.ALL_MAIN) {
     describe('yyl all test', () => {
       const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
 
@@ -511,6 +511,7 @@ if (TEST_CTRL.ALL) {
       const ABSOLUTE_CONFIG_PATH = util.path.join(FRAG_WORKFLOW_PATH, 'config.test.js');
       const RELATIVE_CONFIG_PATH = 'config.test.js';
 
+
       it(`yyl all --config ${ABSOLUTE_CONFIG_PATH} test`, function(done) {
         this.timeout(0);
         new util.Promise((next) => { // 项目文件初始化
@@ -535,6 +536,9 @@ if (TEST_CTRL.ALL) {
             var serverAlias = serverConfig.alias;
             var localAlias = localConfig.alias;
             Object.keys(serverAlias).forEach((key) => {
+              if (!localAlias[key]) {
+                return;
+              }
               expect(
                 util.path.join(serverAlias[key]).replace(/\/$/, '')
               ).to.deep.equal(
@@ -576,6 +580,9 @@ if (TEST_CTRL.ALL) {
             var serverAlias = serverConfig.alias;
             var localAlias = localConfig.alias;
             Object.keys(serverAlias).forEach((key) => {
+              if (!localAlias[key]) {
+                return;
+              }
               expect(util.path.join(serverAlias[key]).replace(/\/$/, ''))
                 .to.equal(util.path.join(FRAG_WORKFLOW_PATH, localAlias[key]).replace(/\/$/, ''));
             });

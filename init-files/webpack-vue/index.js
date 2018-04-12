@@ -1,8 +1,9 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-
+const querystring = require('querystring');
 const gulp = require('gulp');
+const through = require('through2');
 
 const webpackConfig = require('./webpack.config.js');
 const supercall = require('../../tasks/w-supercall.js');
@@ -22,6 +23,17 @@ const fn = {
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
   }
+};
+
+const REG = {
+  HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
+  HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig,
+  HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
+  HTML_SCRIPT_TEMPLATE_REG: /type\s*=\s*['"]text\/html["']/,
+  HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
+  HTML_IS_ABSLUTE: /^\//,
+
+  HTML_STYLE_REG: /(<style[^>]*>)([\w\W]*?)(<\/style>)/ig
 };
 
 
@@ -120,6 +132,70 @@ gulp.task('concat', (done) => {
   });
 });
 // - concat task
+// + var-replace task
+gulp.task('var-replace', () => {
+  return gulp.src([`${config.alias.htmlDest}/**/*.html`])
+    .pipe(through.obj(function(file, enc, next) {
+      let iCnt = file.contents.toString();
+      iCnt = iCnt
+        // 隔离 script 内容
+        .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+          if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
+            return str;
+          } else {
+            return $1 + querystring.escape($2) + $3;
+          }
+        })
+        // 隔离 style 标签
+        .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+          return $1 + querystring.escape($2) + $3;
+        })
+        .replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
+          var iPath = $4;
+          var rPath = '';
+
+          iPath = iPath.replace(REG.HTML_ALIAS_REG, (str, $1, $2) => {
+            if (config.alias[$2]) {
+              return util.path.join(
+                iEnv.remotePath,
+                path.relative(config.alias.destRoot, config.alias[$2])
+              );
+            } else {
+              return str;
+            }
+          });
+
+          if (
+            iPath.match(REG.HTML_IGNORE_REG) ||
+            iPath.match(REG.IS_HTTP) ||
+            !iPath ||
+            iPath.match(REG.HTML_IS_ABSLUTE)
+          ) {
+            return str;
+          }
+
+          return `${$1}${$2}${$3}${rPath}${$5}`;
+        })
+        // 取消隔离 script 内容
+        .replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+          if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
+            return str;
+          } else {
+            return $1 + querystring.unescape($2) + $3;
+          }
+        })
+        // 取消隔离 style 标签
+        .replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => {
+          return $1 + querystring.unescape($2) + $3;
+        });
+
+      file.contents = Buffer.from(iCnt, 'utf-8');
+      this.push(file);
+      next();
+    }))
+    .pipe(gulp.dest(config.alias.htmlDest));
+});
+// - var-replace task
 
 // + resource
 gulp.task('resource', (done) => {
@@ -149,7 +225,7 @@ gulp.task('rev-update', (done) => {
 
 // + all
 gulp.task('all', ['webpack'], (done) => {
-  runSequence(['concat', 'resource'], 'rev-build', () => {
+  runSequence(['concat', 'resource', 'var-replace'], 'rev-build', () => {
     if (!iEnv.silent) {
       util.pop('all task done');
     }
@@ -170,7 +246,7 @@ gulp.task('watch', ['all'], () => {
   };
 
   watchit(path.join(config.alias.srcRoot, '**/*.*'), () => {
-    runSequence('webpack', ['concat', 'resource'], 'rev-update', () => {
+    runSequence('webpack', ['concat', 'resource', 'var-replace'], 'rev-update', () => {
       supercall.livereload();
       log('msg', 'success', 'watch task finished');
       log('finish');
