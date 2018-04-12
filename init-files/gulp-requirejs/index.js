@@ -451,7 +451,7 @@ var fn = {
         rPaths.push(util.joinFormat(op.srcRoot, 'css', path.basename(iPath)));
         rPaths.push(util.joinFormat(op.srcRoot, 'sass', `${filename}scss`));
         rPaths.push(util.joinFormat(op.srcRoot, 'components', `p-${filename}`, `p-${filename}.scss`));
-      } else if (op.tplDest && op.tplDest == iPath.substr(0, op.tplDest.length) && path.extname(iPath) == '.tpl') {
+      } else if (op.tplDest == iPath.substr(0, op.tplDest.length) && path.extname(iPath) == '.tpl') {
         rPaths.push(util.joinFormat(op.srcRoot, 'tpl', path.basename(iPath)));
         rPaths.push(util.joinFormat(op.srcRoot, 'components', `t-${filename}`, `t-${filename}.pug`));
       }
@@ -778,7 +778,7 @@ var
               }
 
               // 替换公用tpl
-              if (fn.matchFront(rPath, '../tpl') && config.alias.tplDest) {
+              if (fn.matchFront(rPath, '../tpl')) {
                 rPath = rPath
                   .split('../tpl')
                   .join(util.joinFormat( mainRemotePath, fn.relateDest(config.alias.tplDest)));
@@ -1449,9 +1449,6 @@ gulp.task('tpl', ['pug-to-tpl-dest-task', 'tpl-to-dest-task'], () => {
 
 gulp.task('pug-to-tpl-dest-task', () => {
   var rStream;
-  if (!config.alias.tplDest) {
-    return;
-  }
   if (cache.isError) {
     return;
   }
@@ -1472,9 +1469,6 @@ gulp.task('pug-to-tpl-dest-task', () => {
 
 gulp.task('tpl-to-dest-task', () => {
   var rStream;
-  if (!config.alias.tplDest) {
-    return;
-  }
   if (cache.isError) {
     return;
   }
@@ -1512,9 +1506,6 @@ gulp.task('html-inline', () => {
 });
 gulp.task('tpl-inline', () => {
   if (!iEnv.isCommit) {
-    return;
-  }
-  if (!config.alias.tplDest) {
     return;
   }
   if (cache.isError) {

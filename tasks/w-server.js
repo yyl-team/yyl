@@ -444,19 +444,61 @@ const wServer = {
       })(config);
 
 
-      new util.Promise(((next) => {
+      new util.Promise((next) => {
         if (name) {
           next(config[name]);
         } else {
           next(config);
         }
-      })).then((iConfig, next) => { // 自定义 config
+      }).then((iConfig, next) => { // 自定义 config
         if (typeof iConfig.onInitConfig == 'function') {
           log('msg', 'info', 'run config.onInitConfig function');
           iConfig.onInitConfig(iConfig, env, next);
         } else {
           next(iConfig);
         }
+
+      }).then((iConfig, next) => { // config 必要字段校验
+        if (!iConfig.alias) {
+          iConfig.alias = {};
+          log('msg', 'warn', `${chalk.yellow('config.alias')} is not exist, build it config.alias = {}`);
+        }
+
+        if (!iConfig.alias.dirname) {
+          iConfig.alias.dirname = util.vars.PROJECT_PATH;
+          log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
+        }
+
+        // 必要字段
+        [
+          'srcRoot',
+          'destRoot'
+        ].some((key) => {
+          if (!iConfig.alias[key]) {
+            throw new Error(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your configfile: ${chalk.cyan(configPath)}`);
+          }
+        });
+
+        // 选填字段
+        [
+          'globalcomponents',
+          'globallib',
+          'destRoot',
+          'imagesDest',
+          'jsDest',
+          'revDest',
+          'jslibDest',
+          'cssDest',
+          'imagesDest',
+          'htmlDest',
+          'tplDest'
+        ].some((key) => {
+          if (!iConfig.alias[key]) {
+            iConfig.alias[key] = iConfig.alias.destRoot;
+            log('msg', 'warn', `${chalk.yellow(`config.alias.${key}`)} is not set, auto fill it: ${chalk.cyan(`config.alias.${key} = '${iConfig.alias.destRoot}'`)}`);
+          }
+        });
+        next(iConfig);
       }).then((iConfig, next) => { // 更新 config 文件
         config = util.initConfig(iConfig);
 

@@ -404,7 +404,7 @@ var
                 // 替换 commonPath
               for (var key in data) {
                 configContent = configContent.replace(
-                  new RegExp(`(/\\*\\+${ key  }\\*/)(['"])(.*)(['"])(/\\*\\-${ key  }\\*/)`, 'g'),
+                  new RegExp(`(/\\*\\s*\\+${key}\\s*\\*/)(['"])(.*)(['"])(/\\*\\s*\\-${key}\\s*\\*/)`, 'g'),
                   replaceFn
                 );
               }

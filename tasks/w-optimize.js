@@ -21,7 +21,7 @@ var
           log('msg', 'success', 'init config finished');
           next(config);
         }).catch((err) => {
-          log('msg', 'error', ['init server config error:', err]);
+          log('msg', 'error', ['init server config error:', err.message]);
           log('finish');
           throw new Error(err);
         });
