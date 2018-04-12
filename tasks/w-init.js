@@ -21,7 +21,6 @@ var
           '--platform': 'platform: pc or mobile',
           '--workflow': 'workflow type',
           '--init': 'workflow init type',
-          '--doc': 'git or svn documents path init',
           '--cwd': 'runtime path',
           '--nonpm': 'init without npm install'
         }
@@ -146,36 +145,6 @@ var
           } else {
             next(data);
           }
-        }).then((data, next) => { // doc reset
-          var prompt = inquirer.createPromptModule();
-          var questions = [];
-          var iType = {
-            'git': 'git path (just project)',
-            'svn': 'svn path (full svn)'
-          };
-
-          if (op.doc && iType[op.doc]) {
-            data.doc = iType[op.doc];
-          } else {
-            questions.push({
-              name: 'doc',
-              message: 'select init type',
-              type: 'list',
-              choices: Object.keys(iType).map((key) => {
-                return iType[key];
-              }),
-              default: iType.git
-            });
-          }
-
-          if (questions.length) {
-            data.confirm = true;
-            prompt(questions, (d) => {
-              next(util.extend(data, d));
-            });
-          } else {
-            next(data);
-          }
         }).then((data, next) => {
           data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
 
@@ -189,7 +158,6 @@ var
               ` platform         : ${data.platform}`,
               ` workflow         : ${data.workflow || ''}`,
               ` init             : ${data.init || ''}`,
-              ` doc              : ${data.doc || ''}`,
               ` yyl version      : ${data.version}`,
               ' ----------------------------------------',
               ` project ${  color.yellow(data.name)  } path initial like this:`,
@@ -197,59 +165,13 @@ var
             ].join('\n'));
           }
 
-          var buildPaths = [];
-
-          if (/svn/.test(data.doc)) { // svn full path
-            // {$name}/{$branches}/{$subDirs01}/{$subDirs02}/{$subDirs03}
-            var parentDir = util.joinFormat(util.vars.PROJECT_PATH).split('/').pop();
-            var name = parentDir == data.name? '': data.name;
-            var branches = [ 'branches/commit', 'branches/develop', 'trunk' ];
-            var subDirs1 = []; //pc, mobile
-            var subDirs2 = ['dist', 'src'];
-            var subDirs3 = ['css', 'html', 'images', 'js'];
-
-            subDirs1.push(data.workflow);
-
-            branches.forEach((branch) => {
-              var iBranch = path.join(name, branch);
-
-              subDirs1.forEach((subDir1) => {
-                var iSubDir1 = path.join(iBranch, subDir1);
-
-                subDirs2.forEach((subDir2) => {
-                  var iSubDir2;
-                  if (branch == 'develop') {
-                    iSubDir2 = path.join(iSubDir1, subDir2);
-                  } else {
-                    iSubDir2 = iSubDir1;
-                  }
-
-                  subDirs3.forEach((subDir3) => {
-                    var iSubDir3 = path.join(iSubDir2, subDir3);
-
-                    buildPaths.push(iSubDir3);
-                  });
-                });
-              });
+          if (!op.silent && data.confirm) {
+            util.buildTree({
+              frontPath: '',
+              path: path.join(util.vars.BASE_PATH, 'examples', data.workflow, data.init),
+              dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
+              dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components']
             });
-
-            if (!op.silent && data.confirm) {
-              util.buildTree({
-                path: name,
-                dirList: buildPaths
-              });
-            }
-
-            data.buildPaths = buildPaths;
-          } else { // just project
-            if (!op.silent && data.confirm) {
-              util.buildTree({
-                frontPath: '',
-                path: path.join(util.vars.BASE_PATH, 'examples', data.workflow, data.init),
-                dirFilter: /\.svn|\.git|\.sass-cache|node_modules|gulpfile\.js|package\.json|webpack\.config\.js|config\.mine\.js/,
-                dirNoDeep: ['html', 'js', 'css', 'dist', 'images', 'sass', 'components']
-              });
-            }
           }
 
           const prompt = inquirer.createPromptModule();
@@ -274,13 +196,7 @@ var
           var frontPath = '';
           var initClientFlow = function(dirname, workflowName, initType, done) {
             log('msg', 'info', `init client ${workflowName} start`);
-            var dirPath;
-
-            if (~data.doc.indexOf('svn')) {
-              dirPath = path.join(frontPath, 'develop', dirname);
-            } else {
-              dirPath = frontPath;
-            }
+            var dirPath = frontPath;
 
             new util.Promise(((next) => { // mk dir front path
               log('msg', 'info', 'make dir...');
@@ -301,11 +217,6 @@ var
                 }
               }
 
-              if (data.buildPaths) { // 构建其他文件夹(svn)
-                data.buildPaths.forEach((iPath) => {
-                  util.mkdirSync(iPath);
-                });
-              }
               log('msg', 'info', 'make dir finished');
               next();
             })).then((next) => { // copy file to PROJECT_PATH

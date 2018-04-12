@@ -3,6 +3,7 @@
 * [FIX] 修复 `webpack-vue2` 添加 `config.plugins` 参数会报错问题
 * [DEL] 去掉 `yyl init` 中 选择 `git or svn` 选项， 全部默认 `git 配置方案`
 * [ADD] `yyl watch, yyl commit` 时 的 `init config` 新增 `config` 内的 参数校验
+* [EDIT] 补回 `webpack-vue` `webpack-vue2` 的 `{$config.alias[key]}` 语法糖
 
 ## 2.17.5 (2018-04-09)
 * [ADD] 新增 `webpack-vue`, `webpack-vue2` 用 `eslintrc` `editorconfig` 配置文件
