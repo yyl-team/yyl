@@ -30,29 +30,28 @@ const setting = {
     },
   },
   /**
-       * 触发提交 svn 前中间件函数
-       * @param {String}   sub    命令行 --sub 变量
-       * @param {Function} next() 下一步
-       */
+     * 触发提交 svn 前中间件函数
+     * @param {String}   sub    命令行 --sub 变量
+     * @param {Function} next() 下一步
+     */
   onBeforeCommit(sub, next) {
     next();
   },
 
   /**
-       * 初始化 config 时 对config的二次操作
-       * @param {object}   config          服务器初始化完成的 config 对象
-       * @param {object}   env             命令行接收到的 参数
-       * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
-       * @param {object}   newconfig       处理后的 config
-       */
+     * 初始化 config 时 对config的二次操作
+     * @param {object}   config          服务器初始化完成的 config 对象
+     * @param {object}   env             命令行接收到的 参数
+     * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
+     * @param {object}   newconfig       处理后的 config
+     */
   onInitConfig(config, env, next) {
     next(config);
   },
-
 };
 
 const config = {
-  workflow: 'webpack-vue',
+  workflow: 'webpack-vue2',
   name: PROJECT_NAME,
   version: VERSION,
   dest: setting.dest,
@@ -65,12 +64,12 @@ const config = {
   plugins: [],
   // +此部分 yyl server 端config 会进行替换
   localserver: setting.localserver,
-  resource: { // 自定义项目中其他需打包的文件夹
-    /*
-    'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
-    'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
-     */
+
+  // 对应 webpack.config 中 entry 字段
+  entry: {
+    vendors: ['flexlayout'],
   },
+
   alias: { // yyl server 路径替换地方
 
     // svn dev 分支地址
@@ -115,6 +114,9 @@ const config = {
     imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
     // assets 输出地址
     revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
+
+    // webpackconfig 中的 alias
+    flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js'),
     // + yyl make
     // - yyl make
   },

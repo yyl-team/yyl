@@ -1,4 +1,8 @@
 # 版本信息
+## 2.18.0
+* [ADD] 新增 `webpack` 构建类型
+* [DEL] 删除 `webpack-vue` 里面的 `no-components` 类型
+
 ## 2.17.6 (2018-04-12)
 * [FIX] 修复 `webpack-vue2` 添加 `config.plugins` 参数会报错问题
 * [DEL] 去掉 `yyl init` 中 选择 `git or svn` 选项， 全部默认 `git 配置方案`
