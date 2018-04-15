@@ -3,6 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+const px2rem = require('postcss-px2rem');
+
 const util = require('../../tasks/w-util.js');
 let config;
 
@@ -104,7 +107,22 @@ const webpackconfig = {
       test: /\.scss$/,
       use: ExtractTextPlugin.extract({
         fallback: 'style-loader',
-        use: ['css-loader', 'sass-loader']
+        use: [
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: () => [
+                autoprefixer({
+                  browsers: ['iOS >= 7', 'Android >= 4']
+                }),
+                px2rem({remUnit: 75})
+              ]
+            }
+          },
+          'sass-loader'
+        ]
       })
     }, {
       test: /\.pug$/,
