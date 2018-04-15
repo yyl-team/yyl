@@ -1,6 +1,14 @@
 @import '../../sass/base/layout';
 $cssjsdate: 201609201140;
 
+.just-img {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 50px;
+  height: auto;
+}
+
 .w-demo {
     position: absolute;
     left: 50%;

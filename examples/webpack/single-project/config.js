@@ -51,7 +51,7 @@ const setting = {
 };
 
 const config = {
-  workflow: 'webpack-vue2',
+  workflow: 'webpack',
   name: PROJECT_NAME,
   version: VERSION,
   dest: setting.dest,

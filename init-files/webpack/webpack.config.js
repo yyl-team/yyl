@@ -96,23 +96,10 @@ const webpackconfig = {
       }
 
     }, {
-      test: /\.vue$/,
-      loader: 'vue-loader',
-      options: {
-        loaders: {
-          'scss': 'vue-style-loader!css-loader!sass-loader',
-          'sass': 'vue-style-loader!css-loader!sass-loader',
-          'js': `babel-loader?babelrc=false&presets[]=${  [
-            'babel-preset-es2015'
-            // 'babel-preset-stage-0'
-          ].map(require.resolve)}`
-        }
-
-      }
-
-    }, {
       test: /\.html$/,
-      loaders: ['html-loader']
+      use: [{
+        loader: 'html-loader'
+      }]
     }, {
       test: /\.scss$/,
       use: ExtractTextPlugin.extract({
@@ -120,7 +107,7 @@ const webpackconfig = {
         use: ['css-loader', 'sass-loader']
       })
     }, {
-      test: /\.jade$/,
+      test: /\.pug$/,
       loaders: ['pug-loader']
     }, {
       test: /\.(png|jpg|gif)$/,
@@ -161,10 +148,6 @@ const webpackconfig = {
       path.join(__dirname, 'node_modules')
     ],
     alias: util.extend({
-      'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
-      'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
-      'vue$': 'vue/dist/vue.common.js'
-
     }, config.alias)
 
   },
@@ -189,11 +172,11 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html è¾“å‡
   const r = [];
 
   if (fs.existsSync(bootPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.pug|\.html)$/));
   }
 
   if (fs.existsSync(entryPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.pug|\.html)$/));
   }
 
 
@@ -206,7 +189,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html è¾“å‡
   }
 
   outputPath.forEach((iPath) => {
-    var iBaseName = path.basename(iPath).replace(/(\.jade|\.html)$/, '');
+    var iBaseName = path.basename(iPath).replace(/(\.pug|\.html)$/, '');
     var iExclude = [].concat(entrys);
     var fPath;
 

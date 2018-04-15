@@ -1,6 +1,6 @@
 /* var
  * -------------------------- */
-$psdWidth: 640!default; //rem 
+$psdWidth: 640!default; //rem
 $cssjsdate: 201511061220!default;
 
 
@@ -29,7 +29,7 @@ $cssjsdate: 201511061220!default;
 
 @mixin dpr ($key, $val) {
     $scale: 750 / $psdWidth;
-    
+
     [data-dpr="3"] & { // iphone 6 plus
         #{$key}: multiStr($val, 1.5 * $scale);
     }
@@ -39,7 +39,7 @@ $cssjsdate: 201511061220!default;
     [data-dpr="2"] & { // iphone 5, 6
         #{$key}: multiStr($val,1 * $scale);
     }
-    [data-dpr="1.5"] & { // ÈýÐÇ i9100
+    [data-dpr="1.5"] & { // sansun i9100
         #{$key}: multiStr($val,0.75 * $scale);
     }
     [data-dpr="1"] & {
