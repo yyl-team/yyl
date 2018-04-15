@@ -67,7 +67,6 @@ const config = {
 
   // 对应 webpack.config 中 entry 字段
   entry: {
-    vendors: ['flexlayout'],
   },
 
   alias: { // yyl server 路径替换地方
@@ -125,12 +124,9 @@ const config = {
   // + 此部分 不要用相对路径
   // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
   concat: {
-    // '{$srcRoot}/js/vendors.js': [
-    //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-    // ],
-    // '{$jsDest}/vendors.js': [
-    //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-    // ]
+    '{$jsDest}/vendors.js': [
+      '{$srcRoot}/js/lib/flexLayout/flexLayout-1.4.2.js',
+    ],
   },
 
   commit: {

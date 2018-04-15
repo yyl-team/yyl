@@ -246,6 +246,8 @@ gulp.task('watch', ['all'], () => {
   };
 
   watchit(path.join(config.alias.srcRoot, '**/*.*'), () => {
+    log('clear');
+    log('start', 'watch');
     runSequence('webpack', ['concat', 'resource', 'var-replace'], 'rev-update', () => {
       supercall.livereload();
       log('msg', 'success', 'watch task finished');

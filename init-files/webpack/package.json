@@ -27,6 +27,7 @@
     "run-sequence": "^2.2.1",
     "sass-loader": "~7.0.1",
     "style-loader": "~0.20.3",
+    "through2": "^2.0.3",
     "url-loader": "~1.0.1",
     "webpack": "~4.5.0"
   },
