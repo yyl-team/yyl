@@ -202,7 +202,6 @@ const userConfigPath = util.path.join(config.alias.dirname, 'config.js');
 if (fs.existsSync(userConfigPath)) {
   const userConfig = util.requireJs(userConfigPath);
   if (userConfig.moduleRules) {
-    console.log(userConfig.moduleRules)
     webpackconfig.module.rules = webpackconfig.module.rules.concat(userConfig.moduleRules);
   }
 }
