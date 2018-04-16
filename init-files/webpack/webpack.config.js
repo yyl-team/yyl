@@ -18,6 +18,7 @@ if (fs.existsSync(CONFIG_PATH)) {
 
 
 const webpackconfig = {
+  mode: 'none',
   entry: (function() {
     const iSrcRoot = path.isAbsolute(config.alias.srcRoot) ?
       config.alias.srcRoot :
@@ -72,7 +73,7 @@ const webpackconfig = {
     return r;
   })(),
   output: {
-    path: config.alias.jsDest,
+    path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
     publicPath: util.joinFormat(
       config.dest.basePath,
