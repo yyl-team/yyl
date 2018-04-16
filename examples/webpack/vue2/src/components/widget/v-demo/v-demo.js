@@ -1,26 +1,23 @@
+
 import Vue from 'vue';
-import actions from 'actions';
-import getters from 'getters';
-
-import './v-demo.scss';
 import tpl from './v-demo.jade';
+import './v-demo.scss';
 
-// init
+import vDemo from '../../widget/v-demo/v-demo.js';
+
 const cache = {};
 
-module.exports = Vue.extend({
+export default Vue.extend({
   template: tpl(),
-  vuex: {
-    actions,
-    getters,
-  },
-
   data() {
     return {
       rotate: 0,
     };
   },
-  ready() {
+  components: {
+    vDemo,
+  },
+  mounted() {
     const vm = this;
 
     let i;

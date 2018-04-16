@@ -5,12 +5,13 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const px2rem = require('postcss-px2rem');
+const eslintFriendlyFormatter = require('eslint-friendly-formatter');
 
 const util = require('../../tasks/w-util.js');
 let config;
 
 
-const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue2/config.js');
+const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack/config.js');
 
 if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
@@ -71,10 +72,11 @@ const webpackconfig = {
 
     return r;
   })(),
+  mode: 'none',
   output: {
-    path: config.alias.jsDest,
+    path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
-    publicPath: util.joinFormat(
+    publicPath: path.join(
       config.dest.basePath,
       path.relative(
         config.alias.root,
@@ -87,16 +89,26 @@ const webpackconfig = {
 
     rules: [{
       test: /\.js$/,
-      exclude: '/node_modules/',
-      loader: 'babel-loader',
-      query: {
-        babelrc: false,
-        presets: [
-          'babel-preset-es2015'
-          // 'babel-preset-stage-0'
-        ].map(require.resolve)
+      exclude: /node_modules/,
+      use: [{
+        loader: 'babel-loader',
+        query: {
+          babelrc: false,
+          presets: [
+            'babel-preset-es2015'
+            // 'babel-preset-stage-0'
+          ].map(require.resolve)
 
-      }
+        }
+      }, {
+        loader: 'eslint-loader',
+        options: {
+          cache: true,
+          eslintPath: 'eslint',
+          formatter: eslintFriendlyFormatter
+          // configFile: path.join(config.alias.dirname, '.eslintrc.js')
+        }
+      }]
 
     }, {
       test: /\.html$/,
@@ -126,6 +138,9 @@ const webpackconfig = {
       })
     }, {
       test: /\.pug$/,
+      loaders: ['pug-loader']
+    }, {
+      test: /\.jade$/,
       loaders: ['pug-loader']
     }, {
       test: /\.(png|jpg|gif)$/,
@@ -181,6 +196,16 @@ const webpackconfig = {
     })
   ]
 };
+
+// config.module 继承
+const userConfigPath = util.path.join(config.alias.dirname, 'config.js');
+if (fs.existsSync(userConfigPath)) {
+  const userConfig = util.requireJs(userConfigPath);
+  if (userConfig.moduleRules) {
+    console.log(userConfig.moduleRules)
+    webpackconfig.module.rules = webpackconfig.module.rules.concat(userConfig.moduleRules);
+  }
+}
 
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输出

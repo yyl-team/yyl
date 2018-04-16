@@ -1,4 +1,8 @@
 # 版本信息
+## 2.18.1
+* [FIX] 修复 `webpack` 构建 在 window 下 运行不了了问题
+* [ADD] `webpack` 新增 `eslint` 代码检查
+
 ## 2.18.0
 * [ADD] 新增 `webpack` 构建类型
 * [DEL] 删除 `webpack-vue` 里面的 `no-components` 类型

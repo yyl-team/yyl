@@ -30,29 +30,28 @@ const setting = {
     },
   },
   /**
-       * 触发提交 svn 前中间件函数
-       * @param {String}   sub    命令行 --sub 变量
-       * @param {Function} next() 下一步
-       */
+     * 触发提交 svn 前中间件函数
+     * @param {String}   sub    命令行 --sub 变量
+     * @param {Function} next() 下一步
+     */
   onBeforeCommit(sub, next) {
     next();
   },
 
   /**
-       * 初始化 config 时 对config的二次操作
-       * @param {object}   config          服务器初始化完成的 config 对象
-       * @param {object}   env             命令行接收到的 参数
-       * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
-       * @param {object}   newconfig       处理后的 config
-       */
+     * 初始化 config 时 对config的二次操作
+     * @param {object}   config          服务器初始化完成的 config 对象
+     * @param {object}   env             命令行接收到的 参数
+     * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
+     * @param {object}   newconfig       处理后的 config
+     */
   onInitConfig(config, env, next) {
     next(config);
   },
-
 };
 
 const config = {
-  workflow: 'webpack-vue',
+  workflow: 'webpack',
   name: PROJECT_NAME,
   version: VERSION,
   dest: setting.dest,
@@ -61,23 +60,29 @@ const config = {
   onInitConfig: setting.onInitConfig,
   onBeforeCommit: setting.onBeforeCommit,
 
+  // 需要构建工具额外安装的 npm 组件放这里 如 axios
+  plugins: ['vue@2', 'vue-router@2', 'vuex@2', 'vue-template-compiler@2', 'vue-loader@11', 'vue-style-loader@3'],
   // +此部分 yyl server 端config 会进行替换
   localserver: setting.localserver,
-  resource: { // 自定义项目中其他需打包的文件夹
-    /*
-          'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
-          'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
-           */
 
-  },
-  // 需要构建工具额外安装的 npm 组件放这里 如 axios
-  plugins: [
-    'clean-webpack-plugin',
-  ],
   // 对应 webpack.config 中 entry 字段
   entry: {
     vendors: ['flexlayout'],
   },
+
+  // 对应 webpack.config 中的 module
+  moduleRules: [{
+    test: /\.vue$/,
+    loader: 'vue-loader',
+    options: {
+      loaders: {
+        scss: 'vue-style-loader!css-loader!sass-loader',
+        sass: 'vue-style-loader!css-loader!sass-loader',
+        pug: 'pug-loader',
+      },
+    },
+  }],
+
   alias: { // yyl server 路径替换地方
 
     // svn dev 分支地址
@@ -123,9 +128,10 @@ const config = {
     // assets 输出地址
     revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
 
-
     // webpackconfig 中的 alias
-    flexlayout: path.join(__dirname, 'src/js/lib/flexLayout/flexLayout-1.4.2.js'),
+    flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js'),
+    // + yyl make
+    // - yyl make
   },
   // -此部分 yyl server 端config 会进行替换
 
