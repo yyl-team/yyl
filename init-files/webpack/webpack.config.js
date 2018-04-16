@@ -10,7 +10,7 @@ const util = require('../../tasks/w-util.js');
 let config;
 
 
-const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue2/config.js');
+const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack/config.js');
 
 if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
@@ -18,7 +18,6 @@ if (fs.existsSync(CONFIG_PATH)) {
 
 
 const webpackconfig = {
-  mode: 'none',
   entry: (function() {
     const iSrcRoot = path.isAbsolute(config.alias.srcRoot) ?
       config.alias.srcRoot :
@@ -72,6 +71,7 @@ const webpackconfig = {
 
     return r;
   })(),
+  mode: 'none',
   output: {
     path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
