@@ -110,8 +110,8 @@ var
             imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
             // assets 输出地址
             revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
-	    // tpl 输出地址
-            tplDest: path.join(DEST_BASE_PATH, setting.dest.tplPath)
+            // tpl 输出地址
+            tplDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath)
         },
         // -此部分 yyl server 端config 会进行替换
 

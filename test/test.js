@@ -718,7 +718,7 @@ if (TEST_CTRL.MAKE) {
         }).then((next) => {
           yyl.run('make w-makedemo --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
             let widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components', 'w-makedemo');
-            if (/webpack-vue|webpack-vue2/.test(workflow)) {
+            if (/webpack-vue|webpack-vue2|webpack/.test(workflow)) {
               widgetPath = util.path.join(FRAG_WORKFLOW_PATH, 'src/components/widget', 'w-makedemo');
             }
 
