@@ -12,7 +12,7 @@ const wDemo = {
       i = here[Math.round(Math.random() * (here.length - 1))];
       logoEl.className = `w-demo-logo w-demo-logo-${i}`;
     }, 2000);
-  },
+  }
 };
 
 

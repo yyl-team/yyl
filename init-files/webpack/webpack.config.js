@@ -76,7 +76,7 @@ const webpackconfig = {
   output: {
     path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
-    publicPath: path.join(
+    publicPath: util.joinFormat(
       config.dest.basePath,
       path.relative(
         config.alias.root,
@@ -86,7 +86,6 @@ const webpackconfig = {
     )
   },
   module: {
-
     rules: [{
       test: /\.js$/,
       exclude: /node_modules/,
@@ -98,7 +97,6 @@ const webpackconfig = {
             'babel-preset-es2015'
             // 'babel-preset-stage-0'
           ].map(require.resolve)
-
         }
       }, {
         loader: 'eslint-loader',
@@ -106,7 +104,6 @@ const webpackconfig = {
           cache: true,
           eslintPath: 'eslint',
           formatter: eslintFriendlyFormatter
-          // configFile: path.join(config.alias.dirname, '.eslintrc.js')
         }
       }]
 
@@ -156,7 +153,6 @@ const webpackconfig = {
           )
         }
       }
-
     }, {
       // shiming the module
       test: path.join(config.alias.srcRoot, 'js/lib/'),
@@ -170,7 +166,6 @@ const webpackconfig = {
         loader: 'imports-loader?this=>window'
       }
     }]
-
   },
   resolveLoader: {
     modules: [path.join( __dirname, 'node_modules'), __dirname]
@@ -214,11 +209,11 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html è¾“å‡
   const r = [];
 
   if (fs.existsSync(bootPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.pug|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.pug|\.html)$/));
   }
 
   if (fs.existsSync(entryPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.pug|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.pug|\.html)$/));
   }
 
 
@@ -231,7 +226,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html è¾“å‡
   }
 
   outputPath.forEach((iPath) => {
-    var iBaseName = path.basename(iPath).replace(/(\.pug|\.html)$/, '');
+    var iBaseName = path.basename(iPath).replace(/(\.jade|.pug|\.html)$/, '');
     var iExclude = [].concat(entrys);
     var fPath;
 

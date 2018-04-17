@@ -10,11 +10,11 @@ export default Vue.extend({
   template: tpl(),
   data() {
     return {
-      rotate: 0,
+      rotate: 0
     };
   },
   components: {
-    vDemo,
+    vDemo
   },
   mounted() {
     const vm = this;
@@ -31,5 +31,5 @@ export default Vue.extend({
   },
   beforeDestroy() {
     clearInterval(cache.changeKey);
-  },
+  }
 });

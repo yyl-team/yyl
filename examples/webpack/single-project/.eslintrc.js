@@ -28,6 +28,7 @@ module.exports = {
     'import/extensions': 0,
     'import/no-extraneous-dependencies': 0,
     'linebreak-style': 0,
-    "no-param-reassign": [2, { "props": false }]
+    'no-param-reassign': [2, { 'props': false }],
+    'comma-dangle': [2, 'never']
   }
 };

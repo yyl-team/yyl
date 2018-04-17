@@ -3,6 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+const px2rem = require('postcss-px2rem');
+const eslintFriendlyFormatter = require('eslint-friendly-formatter');
+
 const util = require('../../tasks/w-util.js');
 let config;
 
@@ -68,8 +72,9 @@ const webpackconfig = {
 
     return r;
   })(),
+  mode: 'none',
   output: {
-    path: config.alias.jsDest,
+    path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
     publicPath: util.joinFormat(
       config.dest.basePath,
@@ -81,44 +86,75 @@ const webpackconfig = {
     )
   },
   module: {
-
     rules: [{
+      enforce: 'pre',
       test: /\.js$/,
-      exclude: '/node_modules/',
-      loader: 'babel-loader',
-      query: {
-        babelrc: false,
-        presets: [
-          'babel-preset-es2015'
-          // 'babel-preset-stage-0'
-        ].map(require.resolve)
-
+      exclude: /node_modules/,
+      loader: 'eslint-loader',
+      options: {
+        cache: true,
+        eslintPath: 'eslint',
+        formatter: eslintFriendlyFormatter
       }
-
+    }, {
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: [{
+        loader: 'babel-loader',
+        query: {
+          babelrc: false,
+          presets: [
+            'babel-preset-es2015'
+            // 'babel-preset-stage-0'
+          ].map(require.resolve)
+        }
+      }]
     }, {
       test: /\.vue$/,
       loader: 'vue-loader',
       options: {
+        postcss: [
+          autoprefixer({
+            browsers: ['iOS >= 7', 'Android >= 4']
+          }),
+          px2rem({remUnit: 75})
+        ],
         loaders: {
-          'scss': 'vue-style-loader!css-loader!sass-loader',
-          'sass': 'vue-style-loader!css-loader!sass-loader',
-          'js': `babel-loader?babelrc=false&presets[]=${  [
+          'js': `babel-loader?babelrc=false&presets[]=${[
             'babel-preset-es2015'
             // 'babel-preset-stage-0'
           ].map(require.resolve)}`
         }
-
       }
-
     }, {
       test: /\.html$/,
-      loaders: ['html-loader']
+      use: [{
+        loader: 'html-loader'
+      }]
     }, {
       test: /\.scss$/,
       use: ExtractTextPlugin.extract({
         fallback: 'style-loader',
-        use: ['css-loader', 'sass-loader']
+        use: [
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: () => [
+                autoprefixer({
+                  browsers: ['iOS >= 7', 'Android >= 4']
+                }),
+                px2rem({remUnit: 75})
+              ]
+            }
+          },
+          'sass-loader'
+        ]
       })
+    }, {
+      test: /\.pug$/,
+      loaders: ['pug-loader']
     }, {
       test: /\.jade$/,
       loaders: ['pug-loader']
@@ -136,7 +172,6 @@ const webpackconfig = {
           )
         }
       }
-
     }, {
       // shiming the module
       test: path.join(config.alias.srcRoot, 'js/lib/'),
@@ -150,7 +185,6 @@ const webpackconfig = {
         loader: 'imports-loader?this=>window'
       }
     }]
-
   },
   resolveLoader: {
     modules: [path.join( __dirname, 'node_modules'), __dirname]
@@ -181,6 +215,15 @@ const webpackconfig = {
   ]
 };
 
+// config.module 继承
+const userConfigPath = util.path.join(config.alias.dirname, 'config.js');
+if (fs.existsSync(userConfigPath)) {
+  const userConfig = util.requireJs(userConfigPath);
+  if (userConfig.moduleRules) {
+    webpackconfig.module.rules = webpackconfig.module.rules.concat(userConfig.moduleRules);
+  }
+}
+
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输出
   const bootPath = util.joinFormat(config.alias.srcRoot, 'boot');
@@ -189,11 +232,11 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
   const r = [];
 
   if (fs.existsSync(bootPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.pug|\.html)$/));
   }
 
   if (fs.existsSync(entryPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.pug|\.html)$/));
   }
 
 
@@ -206,7 +249,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
   }
 
   outputPath.forEach((iPath) => {
-    var iBaseName = path.basename(iPath).replace(/(\.jade|\.html)$/, '');
+    var iBaseName = path.basename(iPath).replace(/(\.jade|.pug|\.html)$/, '');
     var iExclude = [].concat(entrys);
     var fPath;
 
