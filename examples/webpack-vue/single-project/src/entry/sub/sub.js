@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+
 import './sub.scss';
 import store from '../../vuex/store.js';
 import pIndex from '../../components/page/p-index/p-index.vue';
@@ -11,19 +12,19 @@ const app = Vue.extend({
     return '#app';
   },
   store,
-  ready() {},
+  ready() {}
 });
 const router = new VueRouter();
 
 
 router.map({
   '/index': {
-    component: pIndex,
-  },
+    component: pIndex
+  }
 });
 
 router.redirect({
-  '*': '/index',
+  '*': '/index'
 });
 
 

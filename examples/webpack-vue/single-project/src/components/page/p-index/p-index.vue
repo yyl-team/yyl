@@ -9,12 +9,12 @@ import vDemo from '../../widget/v-demo/v-demo.js';
 export default {
   vuex: {
     getters,
-    actions,
+    actions
   },
   components: {
-    vDemo,
+    vDemo
   },
   ready() {
-  },
+  }
 };
 </script>

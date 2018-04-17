@@ -2,7 +2,7 @@ import Vue from 'vue';
 import actions from 'actions';
 import getters from 'getters';
 import './v-demo.scss';
-import tpl from './v-demo.jade';
+import tpl from './v-demo.pug';
 
 // init
 const cache = {};
@@ -11,12 +11,12 @@ module.exports = Vue.extend({
   template: tpl(),
   vuex: {
     actions,
-    getters,
+    getters
   },
 
   data() {
     return {
-      rotate: 0,
+      rotate: 0
     };
   },
   ready() {
@@ -34,5 +34,5 @@ module.exports = Vue.extend({
   },
   beforeDestroy() {
     clearInterval(cache.changeKey);
-  },
+  }
 });
