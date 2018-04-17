@@ -1,13 +1,15 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
-
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
+const px2rem = require('postcss-px2rem');
+const eslintFriendlyFormatter = require('eslint-friendly-formatter');
 
 const util = require('../../tasks/w-util.js');
-
 let config;
+
 
 const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue/config.js');
 
@@ -69,8 +71,9 @@ const webpackconfig = {
 
     return r;
   })(),
+  mode: 'none',
   output: {
-    path: config.alias.jsDest,
+    path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
     publicPath: util.joinFormat(
       config.dest.basePath,
@@ -82,59 +85,143 @@ const webpackconfig = {
     )
   },
   module: {
-    loaders: [{
+    rules: [{
+      enforce: 'pre',
       test: /\.js$/,
-      exclude: '/node_modules/',
-      loader: 'babel-loader',
-      query: {
-        presets: ['babel-preset-es2015'].map(require.resolve)
+      exclude: /node_modules/,
+      loader: 'eslint-loader',
+      options: {
+        cache: true,
+        eslintPath: 'eslint',
+        formatter: eslintFriendlyFormatter
       }
     }, {
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: [{
+        loader: 'babel-loader',
+        query: {
+          babelrc: false,
+          presets: [
+            'babel-preset-es2015'
+            // 'babel-preset-stage-0'
+          ].map(require.resolve)
+        }
+      }]
+    }, {
       test: /\.vue$/,
-      loaders: ['vue']
+      loader: 'vue-loader',
+      options: {
+        postcss: [
+          autoprefixer({
+            browsers: ['iOS >= 7', 'Android >= 4']
+          }),
+          px2rem({remUnit: 75})
+        ],
+        loaders: {
+          'js': `babel-loader?babelrc=false&presets[]=${[
+            'babel-preset-es2015'
+            // 'babel-preset-stage-0'
+          ].map(require.resolve)}`
+        }
+      }
     }, {
       test: /\.html$/,
-      loaders: ['html-loader']
+      use: [{
+        loader: 'html-loader'
+      }]
     }, {
       test: /\.scss$/,
-      loader: ExtractTextPlugin.extract('style-loader', 'css-loader!sass')
+      use: ExtractTextPlugin.extract({
+        fallback: 'style-loader',
+        use: [
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: () => [
+                autoprefixer({
+                  browsers: ['iOS >= 7', 'Android >= 4']
+                }),
+                px2rem({remUnit: 75})
+              ]
+            }
+          },
+          'sass-loader'
+        ]
+      })
+    }, {
+      test: /\.pug$/,
+      loaders: ['pug-loader']
     }, {
       test: /\.jade$/,
-      loaders: ['jade-loader']
+      loaders: ['pug-loader']
     }, {
       test: /\.(png|jpg|gif)$/,
-      loader: `url-loader?limit=10000&name=${  util.joinFormat(path.relative(config.alias.jsDest, path.join(config.alias.imagesDest, '[name].[ext]')))}`
+      use: {
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: util.joinFormat(
+            path.relative(
+              config.alias.jsDest,
+              path.join(config.alias.imagesDest, '[name].[ext]')
+            )
+          )
+        }
+      }
     }, {
       // shiming the module
       test: path.join(config.alias.srcRoot, 'js/lib/'),
-      loader: 'imports?this=>window'
+      use: {
+        loader: 'imports-loader?this=>window'
+      }
     }, {
       // shiming the global module
       test: path.join(config.alias.commons, 'lib'),
-      loader: 'imports?this=>window'
+      use: {
+        loader: 'imports-loader?this=>window'
+      }
     }]
   },
-  babel: {
-    presets: ['babel-preset-es2015'].map(require.resolve)
-  },
   resolveLoader: {
-    fallback: path.join( __dirname, 'node_modules')
+    modules: [path.join( __dirname, 'node_modules'), __dirname]
   },
   resolve: {
-    fallback: path.join( __dirname, 'node_modules'),
-    root: './',
+    modules: [
+      __dirname,
+      path.join(__dirname, 'node_modules')
+    ],
     alias: util.extend({
       'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
       'getters': path.join(config.alias.srcRoot, 'vuex/getters.js')
 
     }, config.alias)
+
   },
   plugins: [
     // 样式分离插件
-    new ExtractTextPlugin( util.path.relative(config.alias.jsDest, path.join(config.alias.cssDest, '[name].css')) )
-    // HtmlWebpackExcludeAssetsPlugin()
+    new ExtractTextPlugin({
+      filename: util.joinFormat(
+        path.relative(
+          config.alias.jsDest,
+          path.join(config.alias.cssDest, '[name].css')
+        )
+      )
+    })
   ]
 };
+
+// config.module 继承
+const userConfigPath = util.path.join(config.alias.dirname, 'config.js');
+if (fs.existsSync(userConfigPath)) {
+  const userConfig = util.requireJs(userConfigPath);
+  if (userConfig.moduleRules) {
+    webpackconfig.module.rules = webpackconfig.module.rules.concat(userConfig.moduleRules);
+  }
+}
+
 
 webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输出
   const bootPath = util.joinFormat(config.alias.srcRoot, 'boot');
@@ -143,11 +230,11 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
   const r = [];
 
   if (fs.existsSync(bootPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(bootPath, /(\.jade|\.pug|\.html)$/));
   }
 
   if (fs.existsSync(entryPath)) {
-    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.html)$/));
+    outputPath = outputPath.concat(util.readFilesSync(entryPath, /(\.jade|\.pug|\.html)$/));
   }
 
 
@@ -160,7 +247,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
   }
 
   outputPath.forEach((iPath) => {
-    var iBaseName = path.basename(iPath).replace(/(\.jade|\.html)$/, '');
+    var iBaseName = path.basename(iPath).replace(/(\.jade|.pug|\.html)$/, '');
     var iExclude = [].concat(entrys);
     var fPath;
 
@@ -196,7 +283,7 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
 
     r.push(new HtmlWebpackPlugin({
       template: iPath,
-      filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, `${iBaseName  }.html`)),
+      filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, `${iBaseName}.html`)),
       excludeChunks: iExclude,
       minify: false
     }));

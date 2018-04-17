@@ -28,7 +28,6 @@ const webpackconfig = {
       // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
     };
 
-
     // single entry
     var bootPath = path.join(iSrcRoot, 'boot/boot.js');
     if (fs.existsSync(bootPath)) {
