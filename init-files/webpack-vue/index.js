@@ -61,7 +61,7 @@ gulp.task('webpack', (done) => {
 
   webpack(iWconfig, (err, stats) => {
     if (err) {
-      log('msg', 'error', err);
+      log('msg', 'error', err.message || err.details);
     } else {
       log('msg', 'success', 'webpack run pass');
     }

@@ -2,7 +2,7 @@ import Vue from 'vue';
 import actions from 'actions';
 import getters from 'getters';
 import './v-demo.scss';
-import tpl from './v-demo.pug';
+import tpl from './v-demo.jade';
 
 // init
 const cache = {};

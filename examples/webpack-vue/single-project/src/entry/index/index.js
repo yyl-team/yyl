@@ -12,18 +12,18 @@ const app = Vue.extend({
     return '#app';
   },
   store,
-  ready() {},
+  ready() {}
 });
 const router = new VueRouter();
 
 router.map({
   '/index': {
-    component: pageIndex,
-  },
+    component: pageIndex
+  }
 });
 
 router.redirect({
-  '*': '/index',
+  '*': '/index'
 });
 
 
