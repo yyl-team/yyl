@@ -1,8 +1,16 @@
 # 版本信息
-## 2.19.0 (2018-04-16)
-* [FIX] 修复 `webpack` 构建 在 window 下 运行不了了问题
+## 2.19.0 (2018-04-17)
+* [ADD] `webpack-vue2` 新增 `postcss-loader`
+* [ADD] `webpack-vue2` 新增 `autoprefixer`
+* [ADD] `webpack-vue2` 新增 `postcss-px2rem`
+* [ADD] `webpack` 新增 `postcss-loader`
+* [ADD] `webpack` 新增 `autoprefixer`
+* [ADD] `webpack` 新增 `postcss-px2rem`
 * [ADD] `webpack` 新增 `eslint` 代码检查
 * [EDIT] 简化 `yyl init` example 选择， 如果发现 example 只有 1个的时候 直接选择并跳过
+* [EDIT] `webpack-vue2` 升级 `webpack` 到 4.0
+* [FIX] 修复 `webpack` 构建 在 window 下 运行不了了问题
+
 
 ## 2.18.0 (2018-04-15)
 * [ADD] 新增 `webpack` 构建类型

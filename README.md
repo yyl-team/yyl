@@ -180,10 +180,6 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 #### 例子
 * [hello world](./examples/webpack-vue/single-project)
-* [引入公用库资源](./examples/webpack-vue/with-global-component)
-* [es6 模式开发例子](./examples/webpack-vue/es6)
-* [多入口例子](./examples/webpack-vue/multi-project)
-* [带自定义 webpack.config 例子](./examples/webpack-vue/local-webpackconfig)
 
 ### webpack-vue2
 适用于 移动端开发
@@ -193,6 +189,15 @@ rollup + es6 技术架构, 适用于 PC 端开发
 
 #### 例子
 * [hello world](./examples/webpack-vue2/single-project)
+
+### webpack
+适用于 移动端开发
+
+#### 说明文档
+* [说明文档](./init-files/webpack/README.md)
+
+#### 例子
+* [hello world](./examples/webpack/single-project)
 
 ## 版本信息
 [这里](./history.md)

@@ -19,6 +19,7 @@ const setting = {
     htmlPath: 'html',
     imagesPath: 'images',
     revPath: 'assets',
+    tplPath: 'tpl'
   },
   // 代理服务器
   proxy: {
@@ -64,12 +65,16 @@ const config = {
   plugins: [],
   // +此部分 yyl server 端config 会进行替换
   localserver: setting.localserver,
-
+  resource: { // 自定义项目中其他需打包的文件夹
+    /*
+    'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
+    'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
+     */
+  },
   // 对应 webpack.config 中 entry 字段
   entry: {
     vendors: ['flexlayout'],
   },
-
   alias: { // yyl server 路径替换地方
 
     // svn dev 分支地址
@@ -114,6 +119,8 @@ const config = {
     imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
     // assets 输出地址
     revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
+
+    tplDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath),
 
     // webpackconfig 中的 alias
     flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js'),

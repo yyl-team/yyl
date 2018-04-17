@@ -217,7 +217,9 @@ var
           // alias 部分
           if (config.workflow == 'gulp-requirejs') {
             configPath = util.joinFormat(srcRoot, 'js/rConfig/rConfig.js');
-          } else if (/^(rollup|webpack-vue|webpack-vue2)$/.test(config.workflow)) {
+          } else if (/^(rollup|webpack-vue|webpack-vue2|webpack)$/.test(config.workflow)) {
+            configPath = util.joinFormat( util.vars.PROJECT_PATH, 'config.js');
+          } else {
             configPath = util.joinFormat( util.vars.PROJECT_PATH, 'config.js');
           }
 
