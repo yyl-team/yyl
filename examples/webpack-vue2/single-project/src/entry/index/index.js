@@ -10,11 +10,11 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   routes: [{
     path: '/index',
-    component: pageIndex,
+    component: pageIndex
   }, {
     path: '*',
-    component: pageIndex,
-  }],
+    component: pageIndex
+  }]
 });
 
 new Vue({ store, router }).$mount('#app');

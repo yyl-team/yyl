@@ -11,9 +11,9 @@ export default Vue.extend({
     };
   },
   components: {
-    vDemo,
+    vDemo
   },
   mounted() {
 
-  },
+  }
 });
