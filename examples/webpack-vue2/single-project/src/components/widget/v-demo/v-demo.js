@@ -1,8 +1,7 @@
-
 import Vue from 'vue';
 import tpl from './v-demo.jade';
-import './v-demo.scss';
 
+import './v-demo.scss';
 import vDemo from '../../widget/v-demo/v-demo.js';
 
 const cache = {};

@@ -1,13 +1,12 @@
-'use strict';
 import Vue from 'vue';
 import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
-var state = {};
-var mutations = {};
+const state = {};
+const mutations = {};
 
 export default new Vuex.Store({
-    state: state,
-    mutations: mutations
+  state,
+  mutations,
 });
