@@ -21,8 +21,8 @@ module.exports = {
     'html'
   ],
   rules: {
-    'no-debugger': global.FEB_PROD ? 2 : 0,
-    'no-console': global.FEB_PROD ? 1 : 0,
+    'no-debugger': 2,
+    'no-console': 1,
     'func-names': 0,
     'import/no-unresolved': 0,
     'import/extensions': 0,
