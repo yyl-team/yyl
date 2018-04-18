@@ -1,7 +1,7 @@
 <template lang="jade">
 div
-    i.w-demo-logo(:class="['w-demo-logo-' + rotate]")
-    div.w-demo-tl hello demo
+  i.w-demo-logo(:class="['w-demo-logo-' + rotate]")
+  div.w-demo-tl hello demo
 </template>
 <style lang="scss">
 @charset 'utf-8';
@@ -48,7 +48,7 @@ const cache = {};
 export default {
   data() {
     return {
-      rotate: 0,
+      rotate: 0
     };
   },
   mounted() {
@@ -64,7 +64,7 @@ export default {
   },
   beforeDestroy() {
     clearInterval(cache.changeKey);
-  },
+  }
 };
 
 </script>

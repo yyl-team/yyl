@@ -1,16 +1,16 @@
 import Vue from 'vue';
 
-import tpl from './p-index.jade';
+import tpl from './p-index.pug';
 import './p-index.scss';
 import vDemo from '../../widget/v-demo/v-demo.vue';
 
 export default Vue.extend({
-  template: tpl(),
+  'template': tpl(),
   data() {
     return {
     };
   },
-  components: {
+  'components': {
     vDemo
   },
   mounted() {

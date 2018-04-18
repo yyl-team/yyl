@@ -1,9 +1,9 @@
 const path = require('path');
 
 // + yyl init 自动 匹配内容
-const COMMON_PATH = /* +commonPath */'../commons/mobile'/* -commonPath */;
-const PROJECT_NAME = /* +name */'workflow_demo'/* -name */;
-const VERSION = /* +version */'1.0.0'/* -version */;
+const COMMON_PATH = '../commons';
+const PROJECT_NAME = '1';
+const VERSION = '2.19.0';
 // - yyl init 自动 匹配内容
 
 const setting = {
@@ -132,12 +132,9 @@ const config = {
   // + 此部分 不要用相对路径
   // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
   'concat': {
-    // '{$srcRoot}/js/vendors.js': [
-    //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-    // ],
-    // '{$jsDest}/vendors.js': [
-    //     '{$srcRoot}/js/lib/jquery/jquery-1.11.3.min.js'
-    // ]
+    '{$jsDest}/vendors.js': [
+      '{$flexlayout}'
+    ]
   },
 
   'commit': {
