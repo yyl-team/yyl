@@ -8,12 +8,12 @@ import pageIndex from '../../components/page/p-index/p-index.js';
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-  routes: [{
-    path: '/index',
-    component: pageIndex
+  'routes': [{
+    'path': '/index',
+    'component': pageIndex
   }, {
-    path: '*',
-    component: pageIndex
+    'path': '*',
+    'component': pageIndex
   }]
 });
 
