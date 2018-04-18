@@ -7,28 +7,28 @@ const VERSION = /* +version */'1.0.0'/* -version */;
 // - yyl init 自动 匹配内容
 
 const setting = {
-  localserver: { // 本地服务器配置
-    root: path.join(__dirname, './dist'), // 服务器输出地址
-    port: 5000, // 服务器 port
+  'localserver': { // 本地服务器配置
+    'root': path.join(__dirname, './dist'), // 服务器输出地址
+    'port': 5000 // 服务器 port
   },
-  dest: {
-    basePath: '/website_static/mobileYY/test',
-    jsPath: 'js',
-    jslibPath: 'js/lib',
-    cssPath: 'css',
-    htmlPath: 'html',
-    imagesPath: 'images',
-    revPath: 'assets',
-    tplPath: 'tpl'
+  'dest': {
+    'basePath': '/website_static/mobileYY/test',
+    'jsPath': 'js',
+    'jslibPath': 'js/lib',
+    'cssPath': 'css',
+    'htmlPath': 'html',
+    'imagesPath': 'images',
+    'revPath': 'assets',
+    'tplPath': 'tpl'
   },
   // 代理服务器
-  proxy: {
-    port: 8887,
-    localRemote: {
+  'proxy': {
+    'port': 8887,
+    'localRemote': {
       // 'http://www.yy.com/': './dist/',
       'http://www.yy.com/': 'http://127.0.0.1:5000/',
-      'http://wap.yy.com/': 'http://127.0.0.1:5000/',
-    },
+      'http://wap.yy.com/': 'http://127.0.0.1:5000/'
+    }
   },
   /**
      * 触发提交 svn 前中间件函数
@@ -48,82 +48,82 @@ const setting = {
      */
   onInitConfig(config, env, next) {
     next(config);
-  },
+  }
 };
 
 const config = {
-  workflow: 'webpack',
-  name: PROJECT_NAME,
-  version: VERSION,
-  dest: setting.dest,
-  proxy: setting.proxy,
+  'workflow': 'webpack',
+  'name': PROJECT_NAME,
+  'version': VERSION,
+  'dest': setting.dest,
+  'proxy': setting.proxy,
 
-  onInitConfig: setting.onInitConfig,
-  onBeforeCommit: setting.onBeforeCommit,
+  'onInitConfig': setting.onInitConfig,
+  'onBeforeCommit': setting.onBeforeCommit,
 
   // 需要构建工具额外安装的 npm 组件放这里 如 axios
-  plugins: [],
+  'plugins': [],
   // +此部分 yyl server 端config 会进行替换
-  localserver: setting.localserver,
-  resource: { // 自定义项目中其他需打包的文件夹
+  'localserver': setting.localserver,
+  'resource': { // 自定义项目中其他需打包的文件夹
     /*
     'src/swf': path.join(setting.localserver.root, setting.dest.basePath, 'swf'),
     'src/font': path.join(setting.localserver.root, setting.dest.basePath, 'font')
      */
   },
   // 对应 webpack.config 中 entry 字段
-  entry: {
+  'entry': {
   },
 
-  alias: { // yyl server 路径替换地方
+  'alias': { // yyl server 路径替换地方
 
     // svn dev 分支地址
-    dev: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
+    'dev': path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/trunk/mobileYY/test'),
 
     // svn trunk 分支地址
-    trunk: path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release/mobileYY/test'),
+    'trunk': path.join('../../../svn.yy.com/yy-music/web/publish/src/3g/mobile-website-static/branches/release/mobileYY/test'),
 
 
     // 公用组件地址
-    commons: COMMON_PATH,
+    'commons': COMMON_PATH,
 
     // 公用 components 目录
-    globalcomponents: path.join(COMMON_PATH, 'components'),
-    globallib: path.join(COMMON_PATH, 'lib'),
+    'globalcomponents': path.join(COMMON_PATH, 'components'),
+    'globallib': path.join(COMMON_PATH, 'lib'),
 
 
     // 输出目录中 到 html, js, css, image 层 的路径
-    root: path.join(setting.localserver.root, setting.dest.basePath),
+    'root': path.join(setting.localserver.root, setting.dest.basePath),
 
     // rev 输出内容的相对地址
-    revRoot: path.join(setting.localserver.root, setting.dest.basePath),
+    'revRoot': path.join(setting.localserver.root, setting.dest.basePath),
 
     // dest 地址
-    destRoot: setting.localserver.root,
+    'destRoot': setting.localserver.root,
 
     // src 地址
-    srcRoot: path.join(__dirname, './src'),
+    'srcRoot': path.join(__dirname, './src'),
 
     // 项目根目录
-    dirname: __dirname,
+    'dirname': __dirname,
 
     // js 输出地址
-    jsDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),
+    'jsDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jsPath),
     // js lib 输出地址
-    jslibDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jslibPath),
+    'jslibDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.jslibPath),
     // html 输出地址
-    htmlDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.htmlPath),
+    'htmlDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.htmlPath),
     // css 输出地址
-    cssDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.cssPath),
+    'cssDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.cssPath),
     // images 输出地址
-    imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
+    'imagesDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
     // assets 输出地址
-    revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
+    'revDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
 
-    tplDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath),
+    'tplDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath),
 
     // webpackconfig 中的 alias
-    flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js'),
+    'flexlayout': path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js')
     // + yyl make
     // - yyl make
   },
@@ -131,63 +131,63 @@ const config = {
 
   // + 此部分 不要用相对路径
   // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
-  concat: {
+  'concat': {
     '{$jsDest}/vendors.js': [
-      '{$srcRoot}/js/lib/flexLayout/flexLayout-1.4.2.js',
-    ],
+      '{$srcRoot}/js/lib/flexLayout/flexLayout-1.4.2.js'
+    ]
   },
 
-  commit: {
+  'commit': {
     // 上线配置
-    revAddr: 'http://s1.yy.com/website_static/mobileYY/test/assets/rev-manifest.json',
-    hostname: 'http://s1.yy.com/',
-    git: {
-      update: [],
+    'revAddr': 'http://s1.yy.com/website_static/mobileYY/test/assets/rev-manifest.json',
+    'hostname': 'http://s1.yy.com/',
+    'git': {
+      'update': []
     },
-    svn: {
-      dev: {
-        update: [
+    'svn': {
+      'dev': {
+        'update': [
           '{$dev}/assets',
-          '{$dev}/mobileYY/test',
+          '{$dev}/mobileYY/test'
         ],
-        copy: {
+        'copy': {
           '{$root}/js': ['{$dev}/js'],
           '{$root}/css': ['{$dev}/css'],
           '{$root}/html': ['{$dev}/html'],
           '{$root}/images': ['{$dev}/images'],
-          '{$root}/assets': ['{$dev}/assets'],
+          '{$root}/assets': ['{$dev}/assets']
         },
-        commit: [
+        'commit': [
           '{$dev}/js',
           '{$dev}/css',
           '{$dev}/html',
           '{$dev}/images',
-          '{$dev}/assets',
-        ],
+          '{$dev}/assets'
+        ]
 
       },
-      trunk: {
-        update: [
-          '{$trunk}',
+      'trunk': {
+        'update': [
+          '{$trunk}'
         ],
-        copy: {
+        'copy': {
           '{$root}/js': ['{$trunk}/js'],
           '{$root}/css': ['{$trunk}/css'],
           '{$root}/html': ['{$trunk}/html'],
           '{$root}/images': ['{$trunk}/images'],
-          '{$root}/assets': ['{$trunk}/assets'],
+          '{$root}/assets': ['{$trunk}/assets']
         },
-        commit: [
+        'commit': [
           '{$trunk}/js',
           '{$trunk}/css',
           '{$trunk}/html',
           '{$trunk}/images',
-          '{$trunk}/assets',
-        ],
-      },
+          '{$trunk}/assets'
+        ]
+      }
 
-    },
-  },
+    }
+  }
   // - 此部分 不要用相对路径
 };
 

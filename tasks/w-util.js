@@ -74,7 +74,7 @@ util = util.extend(true, util, {
   initConfig: function(config) {
     var ctxRender = function(ctx, vars) {
       vars = vars || {};
-      ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z_\-.]+)\}/g, (str, $1) => {
+      ctx = util.joinFormat(ctx.replace(/\{\$([a-zA-Z0-9_\-.]+)\}/g, (str, $1) => {
         return vars[$1] || '';
       }));
       return ctx;

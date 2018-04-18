@@ -47,22 +47,22 @@ const webpackconfig = {
       });
     }
 
-    // js path
-    var jsPath = path.join(iSrcRoot, 'js');
-    if (fs.existsSync(jsPath)) {
-      var jsfiles = fs.readdirSync(jsPath);
-      jsfiles.forEach((str) => {
-        var filepath = path.join(jsPath, str);
-        if (fs.statSync(filepath).isDirectory() || path.extname(filepath) != '.js') {
-          return;
-        }
+    // // js path
+    // var jsPath = path.join(iSrcRoot, 'js');
+    // if (fs.existsSync(jsPath)) {
+    //   var jsfiles = fs.readdirSync(jsPath);
+    //   jsfiles.forEach((str) => {
+    //     var filepath = path.join(jsPath, str);
+    //     if (fs.statSync(filepath).isDirectory() || path.extname(filepath) != '.js') {
+    //       return;
+    //     }
 
-        var key = path.basename(str).replace(/\.[^.]+$/, '');
-        if (key) {
-          r[key] = filepath;
-        }
-      });
-    }
+    //     var key = path.basename(str).replace(/\.[^.]+$/, '');
+    //     if (key) {
+    //       r[key] = filepath;
+    //     }
+    //   });
+    // }
 
     // 合并 config 中的 entry 字段
     if (config.entry) {
@@ -286,10 +286,10 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
       template: iPath,
       filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, `${iBaseName}.html`)),
       excludeChunks: iExclude,
+      inlineSource: '.(js|css)\\?__inline$',
       minify: false
     }));
   });
-
 
   return r;
 })());
