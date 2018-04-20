@@ -7,6 +7,7 @@
 * [ADD] `webpack` 新增 `autoprefixer`
 * [ADD] `webpack` 新增 `postcss-px2rem`
 * [ADD] `webpack` 新增 `eslint` 代码检查
+* [ADD] `config.js` 新增 `config.platform` 参数, `postcss` 在 `config.platform = mobile` 时会加入 `postcss-px2rem` 插件
 * [EDIT] 简化 `yyl init` example 选择， 如果发现 example 只有 1个的时候 直接选择并跳过
 * [EDIT] `webpack-vue2` 升级 `webpack` 到 4.0
 * [FIX] 修复 `webpack` 构建 在 window 下 运行不了了问题
