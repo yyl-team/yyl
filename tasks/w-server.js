@@ -513,6 +513,7 @@ const wServer = {
         next(iConfig);
       }).then((iConfig, next) => { // 更新 config 内 插件
         if (iConfig.plugins && iConfig.plugins.length) {
+          var iNodeModulePath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'node_modules');
           var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
           var installLists = [];
 
@@ -525,8 +526,7 @@ const wServer = {
             } else {
               iDir = str;
             }
-            var iPath = path.join(workFlowPath, 'node_modules', iDir);
-            var iPkgPath = path.join(iPath, 'package.json');
+            var iPath = path.join(iNodeModulePath, iDir);
             var iPkg;
             if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
               if (iVer) {

@@ -1,7 +1,9 @@
-<template lang="jade">
+<template lang="pug">
 div
   i.w-demo-logo(:class="['w-demo-logo-' + rotate]")
   div.w-demo-tl hello demo
+  div.w-demo-log
+    div(v-for="msg in demoLogs") {{msg}}
 </template>
 <style lang="scss">
 @charset 'utf-8';
@@ -39,9 +41,22 @@ div
 .w-demo-logo-3 {
   transform: rotate(270deg);
 }
+.w-demo-log {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  height: 200px;
+  background: rgba(0,0,0,0.2);
+  padding: 8px;
+  color: green;
+  overflow: auto;
+  font-size: 18px; /*px*/
+}
 
 </style>
 <script>
+import { mapGetters, mapActions } from 'vuex';
 
 const cache = {};
 
@@ -50,6 +65,12 @@ export default {
     return {
       rotate: 0
     };
+  },
+  methods: {
+    ...mapActions(['addDemoLog'])
+  },
+  computed: {
+    ...mapGetters(['demoLogs'])
   },
   mounted() {
     const vm = this;
@@ -61,6 +82,8 @@ export default {
       here.splice(here.indexOf(i), 1);
       vm.$data.rotate = here[Math.round(Math.random() * (here.length - 1))];
     }, 2000);
+
+    vm.addDemoLog('v-demo is ready');
   },
   beforeDestroy() {
     clearInterval(cache.changeKey);

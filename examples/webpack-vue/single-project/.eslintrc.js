@@ -27,6 +27,6 @@ module.exports = {
     'linebreak-style': 0,
     'no-param-reassign': [2, { 'props': false }],
     'comma-dangle': [2, 'never'],
-    'quote-props': ["error", "always"]
+    'quote-props': ["error", "consistent"]
   }
 };

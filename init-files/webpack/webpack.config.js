@@ -86,16 +86,6 @@ const webpackconfig = {
   },
   module: {
     rules: [{
-      enforce: 'pre',
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'eslint-loader',
-      options: {
-        cache: true,
-        eslintPath: 'eslint',
-        formatter: eslintFriendlyFormatter
-      }
-    }, {
       test: /\.js$/,
       exclude: /node_modules/,
       use: [{
@@ -222,6 +212,21 @@ const webpackconfig = {
     })
   ]
 };
+
+// eslint
+if (config.eslint) {
+  webpackconfig.module.rules.push({
+    enforce: 'pre',
+    test: /\.js$/,
+    exclude: /node_modules/,
+    loader: 'eslint-loader',
+    options: {
+      cache: true,
+      eslintPath: 'eslint',
+      formatter: eslintFriendlyFormatter
+    }
+  });
+}
 
 // config.module 继承
 const userConfigPath = util.path.join(config.alias.dirname, 'config.js');

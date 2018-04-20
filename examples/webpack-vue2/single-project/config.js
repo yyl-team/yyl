@@ -63,6 +63,9 @@ const config = {
   'onInitConfig': setting.onInitConfig,
   'onBeforeCommit': setting.onBeforeCommit,
 
+  // 构建触发 eslint 检查
+  'eslint': true,
+
   // 需要构建工具额外安装的 npm 组件放这里 如 axios
   'plugins': [],
   // +此部分 yyl server 端config 会进行替换

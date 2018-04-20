@@ -12,6 +12,7 @@ const log = require('../../tasks/w-log.js');
 
 // + self module
 const webpack = require('webpack');
+const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin');
 const runSequence = require('run-sequence').use(gulp);
 const watch = require('gulp-watch');
 // - self module
@@ -42,12 +43,7 @@ gulp.task('webpack', (done) => {
   let iWconfig = util.extend(true, {}, webpackConfig);
 
   if (iEnv.isCommit) {
-    iWconfig.plugins.push(new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    }));
-
+    iWconfig.plugins.push(new uglifyjsWebpackPlugin());
     iWconfig.devtool = false;
   }
 
@@ -61,7 +57,7 @@ gulp.task('webpack', (done) => {
 
   webpack(iWconfig, (err, stats) => {
     if (err) {
-      log('msg', 'error', err);
+      log('msg', 'error', err.message || err.details || err);
     } else {
       log('msg', 'success', 'webpack run pass');
     }
@@ -73,7 +69,7 @@ gulp.task('webpack', (done) => {
       fn.logDest(util.path.join(basePath, key));
     });
     compilation.errors.forEach((err) => {
-      log('msg', 'error', err.message || err.details);
+      log('msg', 'error', err.message || err.details || err);
     });
     compilation.warnings.forEach((warn) => {
       log('msg', 'warn', warn.details);
