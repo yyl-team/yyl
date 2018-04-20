@@ -10,6 +10,7 @@ const info = {
       'name': config.name,
       'workflow': config.workflow,
       'build-version': config.version,
+      'platform': config.platform,
       'proxy': (function() {
         if (config.proxy) {
           var keys = Object.keys(config.proxy.localRemote);

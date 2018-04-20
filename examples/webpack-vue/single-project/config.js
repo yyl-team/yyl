@@ -4,6 +4,7 @@ const path = require('path');
 const COMMON_PATH = /* +commonPath */'../commons/mobile'/* -commonPath */;
 const PROJECT_NAME = /* +name */'workflow_demo'/* -name */;
 const VERSION = /* +version */'1.0.0'/* -version */;
+const PLATFORM = /* +platform */'mobile'/* -platform */;
 // - yyl init 自动 匹配内容
 
 const setting = {
@@ -57,6 +58,7 @@ const config = {
   version: VERSION,
   dest: setting.dest,
   proxy: setting.proxy,
+  platform: PLATFORM,
 
   onInitConfig: setting.onInitConfig,
   onBeforeCommit: setting.onBeforeCommit,

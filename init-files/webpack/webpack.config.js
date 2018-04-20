@@ -28,7 +28,6 @@ const webpackconfig = {
       // 'boot': path.join(path.isAbsolute(config.alias.srcRoot)? '': __dirname, config.alias.srcRoot, 'boot/boot.js'),
     };
 
-
     // single entry
     var bootPath = path.join(iSrcRoot, 'boot/boot.js');
     if (fs.existsSync(bootPath)) {
@@ -48,22 +47,22 @@ const webpackconfig = {
       });
     }
 
-    // js path
-    var jsPath = path.join(iSrcRoot, 'js');
-    if (fs.existsSync(jsPath)) {
-      var jsfiles = fs.readdirSync(jsPath);
-      jsfiles.forEach((str) => {
-        var filepath = path.join(jsPath, str);
-        if (fs.statSync(filepath).isDirectory() || path.extname(filepath) != '.js') {
-          return;
-        }
+    // // js path
+    // var jsPath = path.join(iSrcRoot, 'js');
+    // if (fs.existsSync(jsPath)) {
+    //   var jsfiles = fs.readdirSync(jsPath);
+    //   jsfiles.forEach((str) => {
+    //     var filepath = path.join(jsPath, str);
+    //     if (fs.statSync(filepath).isDirectory() || path.extname(filepath) != '.js') {
+    //       return;
+    //     }
 
-        var key = path.basename(str).replace(/\.[^.]+$/, '');
-        if (key) {
-          r[key] = filepath;
-        }
-      });
-    }
+    //     var key = path.basename(str).replace(/\.[^.]+$/, '');
+    //     if (key) {
+    //       r[key] = filepath;
+    //     }
+    //   });
+    // }
 
     // 合并 config 中的 entry 字段
     if (config.entry) {
@@ -87,6 +86,16 @@ const webpackconfig = {
   },
   module: {
     rules: [{
+      enforce: 'pre',
+      test: /\.js$/,
+      exclude: /node_modules/,
+      loader: 'eslint-loader',
+      options: {
+        cache: true,
+        eslintPath: 'eslint',
+        formatter: eslintFriendlyFormatter
+      }
+    }, {
       test: /\.js$/,
       exclude: /node_modules/,
       use: [{
@@ -98,15 +107,28 @@ const webpackconfig = {
             // 'babel-preset-stage-0'
           ].map(require.resolve)
         }
-      }, {
-        loader: 'eslint-loader',
-        options: {
-          cache: true,
-          eslintPath: 'eslint',
-          formatter: eslintFriendlyFormatter
-        }
       }]
-
+    }, {
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      options: {
+        postcss: config.platform == 'pc'? [
+          autoprefixer({
+            browsers: ['> 1%', 'last 2 versions']
+          })
+        ] : [
+          autoprefixer({
+            browsers: ['iOS >= 7', 'Android >= 4']
+          }),
+          px2rem({remUnit: 75})
+        ],
+        loaders: {
+          'js': `babel-loader?babelrc=false&presets[]=${[
+            'babel-preset-es2015'
+            // 'babel-preset-stage-0'
+          ].map(require.resolve)}`
+        }
+      }
     }, {
       test: /\.html$/,
       use: [{
@@ -122,11 +144,16 @@ const webpackconfig = {
             loader: 'postcss-loader',
             options: {
               ident: 'postcss',
-              plugins: () => [
+              plugins: () => config.platform == 'pc'? [
+                autoprefixer({
+                  browsers: ['> 1%', 'last 2 versions']
+                })
+              ] : [
                 autoprefixer({
                   browsers: ['iOS >= 7', 'Android >= 4']
                 }),
                 px2rem({remUnit: 75})
+
               ]
             }
           },
@@ -176,6 +203,10 @@ const webpackconfig = {
       path.join(__dirname, 'node_modules')
     ],
     alias: util.extend({
+      'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
+      'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
+      'vue$': 'vue/dist/vue.common.js'
+
     }, config.alias)
 
   },
@@ -264,10 +295,10 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
       template: iPath,
       filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, `${iBaseName}.html`)),
       excludeChunks: iExclude,
+      inlineSource: '.(js|css)\\?__inline$',
       minify: false
     }));
   });
-
 
   return r;
 })());

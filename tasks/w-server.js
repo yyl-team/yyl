@@ -457,7 +457,6 @@ const wServer = {
         } else {
           next(iConfig);
         }
-
       }).then((iConfig, next) => { // config 必要字段校验
         if (!iConfig.alias) {
           iConfig.alias = {};
@@ -467,6 +466,11 @@ const wServer = {
         if (!iConfig.alias.dirname) {
           iConfig.alias.dirname = util.vars.PROJECT_PATH;
           log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
+        }
+
+        if (!iConfig.platform) {
+          iConfig.platform = 'pc';
+          log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${iConfig.platform}`)}`);
         }
 
         // 必要字段

@@ -4,6 +4,7 @@ const path = require('path');
 const COMMON_PATH = /*+commonPath*/'../commons/pc'/*-commonPath*/;
 const PROJECT_NAME = /*+name*/'workflow_demo'/*-name*/;
 const VERSION = /*+version*/'1.0.0'/*-version*/;
+const PLATFORM = /* +platform */'mobile'/* -platform */;
 //- yyl init 自动 匹配内容
 const setting01 = {
     localserver: { // 本地服务器配置
@@ -108,6 +109,7 @@ const config = {
         version: VERSION,
         dest: setting01.dest,
         proxy: setting01.proxy,
+        playform: PLATFORM,
 
         onInitConfig: setting01.onInitConfig,
         onBeforeCommit: setting01.onBeforeCommit,
@@ -273,6 +275,7 @@ const config = {
         version: VERSION,
         dest: setting02.dest,
         proxy: setting02.proxy,
+        playform: PLATFORM,
 
         onInitConfig: setting02.onInitConfig,
         onBeforeCommit: setting02.onBeforeCommit,

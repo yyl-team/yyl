@@ -112,7 +112,11 @@ const webpackconfig = {
       test: /\.vue$/,
       loader: 'vue-loader',
       options: {
-        postcss: [
+        postcss: config.platform == 'pc'? [
+          autoprefixer({
+            browsers: ['> 1%', 'last 2 versions']
+          })
+        ] : [
           autoprefixer({
             browsers: ['iOS >= 7', 'Android >= 4']
           }),
@@ -140,11 +144,16 @@ const webpackconfig = {
             loader: 'postcss-loader',
             options: {
               ident: 'postcss',
-              plugins: () => [
+              plugins: () => config.platform == 'pc'? [
+                autoprefixer({
+                  browsers: ['> 1%', 'last 2 versions']
+                })
+              ] : [
                 autoprefixer({
                   browsers: ['iOS >= 7', 'Android >= 4']
                 }),
                 px2rem({remUnit: 75})
+
               ]
             }
           },

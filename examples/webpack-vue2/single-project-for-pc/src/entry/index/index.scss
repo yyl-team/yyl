@@ -1,0 +1,13 @@
+@charset "utf-8";
+@import "../../sass/normalize";
+@import "../../sass/_mixin";
+$psdWidth: 750;
+
+.just-img {
+  position: absolute;
+  left: 10px; /* no */
+  top: 10px; /* no */
+  width: 100px;
+  height: auto;
+}
+
