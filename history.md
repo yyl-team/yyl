@@ -4,6 +4,7 @@
 * [ADD] `webpack-vue2` 新增 `postcss-loader`
 * [ADD] `webpack-vue2` 新增 `autoprefixer`
 * [ADD] `webpack-vue2` 新增 `postcss-px2rem`
+* [ADD] `webpack-vue2` 新增 `eslint` 代码检查
 * [ADD] `webpack` 新增 `postcss-loader`
 * [ADD] `webpack` 新增 `autoprefixer`
 * [ADD] `webpack` 新增 `postcss-px2rem`
