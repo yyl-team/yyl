@@ -87,6 +87,9 @@ gulp.task('concat', (done) => {
 
   supercall.concat(iEnv).then(() => {
     done();
+  }).catch((err) => {
+    log('msg', 'error', `concat error: ${err.message || err.details || err}`);
+    done();
   });
 });
 // - concat task
@@ -162,6 +165,9 @@ gulp.task('resource', (done) => {
   }
   supercall.resource(iEnv).then(() => {
     done();
+  }).catch((err) => {
+    log('msg', 'error', `resource error: ${err.message || err.details || err}`);
+    done();
   });
 });
 // - resource
@@ -171,11 +177,17 @@ gulp.task('resource', (done) => {
 gulp.task('rev-build', (done) => {
   supercall.rev.build(iEnv).then(() => {
     done();
-  });
+  }).catch((err) => {
+    log('msg', 'error', `rev-build error: ${err.message || err.details || err}`);
+    done();
+  });;
 });
 
 gulp.task('rev-update', (done) => {
   supercall.rev.update(iEnv).then(() => {
+    done();
+  }).catch((err) => {
+    log('msg', 'error', `rev-update error: ${err.message || err.details || err}`);
     done();
   });
 });
