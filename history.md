@@ -16,6 +16,7 @@
 * [EDIT] `webpack-vue2` 升级 `webpack` 到 4.0
 * [FIX] 修复 `webpack` 构建 在 window 下 运行不了了问题
 * [FIX] 修复 `webpack-vue2` 每次都要重新安装 `config.plugins` 里面的组件的问题
+* [FIX] 修复 `yyl commit --config` 无效问题
 
 
 ## 2.18.0 (2018-04-15)
