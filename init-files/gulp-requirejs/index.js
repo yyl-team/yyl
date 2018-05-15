@@ -516,7 +516,7 @@ var REG = {
 
   IS_HTTP: /^(http[s]?:)|(\/\/\w)/,
 
-  IS_MAIN_REMOTE: /\.(html|tpl)$/
+  IS_MAIN_REMOTE: /\.(html|tpl|svga)$/
 };
 
 var

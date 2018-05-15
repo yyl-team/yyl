@@ -1,10 +1,11 @@
 # 版本信息
 
-## 2.19.0 (2018-04-20)
+## 2.19.0 (2018-05-15)
 * [ADD] `webpack-vue2` 新增 `postcss-loader`
 * [ADD] `webpack-vue2` 新增 `autoprefixer`
 * [ADD] `webpack-vue2` 新增 `postcss-px2rem`
 * [ADD] `webpack-vue2` 新增 `eslint` 代码检查
+* [ADD] 新增 `svga` 支持
 * [ADD] `webpack` 新增 `postcss-loader`
 * [ADD] `webpack` 新增 `autoprefixer`
 * [ADD] `webpack` 新增 `postcss-px2rem`
