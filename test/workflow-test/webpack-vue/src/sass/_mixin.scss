@@ -1,14 +1,17 @@
 /* var
  * -------------------------- */
 $psdWidth: 640!default; //rem 
-$cssjsdate: 201511061220!default;
+$cssjsdate: 20161208001!default;
 
 
 /* mixin
  * -------------------------- */
 @function rem($val){
     @return round($val / $psdWidth * 10 * 100) / 100 * 1rem;
+}
 
+@function dpr($val){
+    @return round($val * 100) / 100 / 2 * 1px;
 }
 
 @function multiStr($str, $n){
@@ -137,3 +140,25 @@ $mqViewports: 320px 360px 375px 414px 480px;
     text-overflow: ellipsis;
     overflow : hidden;
 }
+
+@mixin ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+@mixin clearfix {
+    &:after {
+        content: '';
+        display: block;
+        height: 0;
+        overflow: hidden;
+        clear: both;
+    }
+}
+
+/* page
+ * ----------------------------------------*/
+
+
+

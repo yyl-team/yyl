@@ -1,5 +1,26 @@
 # 版本信息
-## 2.18.0
+
+## 2.19.0 (2018-05-15)
+* [ADD] `webpack-vue2` 新增 `postcss-loader`
+* [ADD] `webpack-vue2` 新增 `autoprefixer`
+* [ADD] `webpack-vue2` 新增 `postcss-px2rem`
+* [ADD] `webpack-vue2` 新增 `eslint` 代码检查
+* [ADD] 新增 `svga` 支持
+* [ADD] `webpack` 新增 `postcss-loader`
+* [ADD] `webpack` 新增 `autoprefixer`
+* [ADD] `webpack` 新增 `postcss-px2rem`
+* [ADD] `webpack` 新增 `eslint` 代码检查
+* [ADD] `webpack-vue2` 优化 `single-project` 例子, 新增带有 `vuex` 使用例子
+* [ADD] `config.js` 新增 `config.platform` 参数, `postcss` 在 `config.platform = mobile` 时会加入 `postcss-px2rem` 插件
+* [ADD] `config.js` 新增 `eslint` 参数 配置是否使用 eslint
+* [EDIT] 简化 `yyl init` example 选择， 如果发现 example 只有 1个的时候 直接选择并跳过
+* [EDIT] `webpack-vue2` 升级 `webpack` 到 4.0
+* [FIX] 修复 `webpack` 构建 在 window 下 运行不了了问题
+* [FIX] 修复 `webpack-vue2` 每次都要重新安装 `config.plugins` 里面的组件的问题
+* [FIX] 修复 `yyl commit --config` 无效问题
+
+
+## 2.18.0 (2018-04-15)
 * [ADD] 新增 `webpack` 构建类型
 * [DEL] 删除 `webpack-vue` 里面的 `no-components` 类型
 

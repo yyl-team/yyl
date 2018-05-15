@@ -120,6 +120,8 @@ var
               expType = util.readdirSync(workFlowExpPath, /^\./);
               if (op.init && ~expType.indexOf(op.init)) {
                 data.init = op.init;
+              } else if (expType.length == 1) {
+                data.init = expType[0];
               } else {
                 questions.push({
                   name: 'init',

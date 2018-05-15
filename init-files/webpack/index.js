@@ -12,6 +12,7 @@ const log = require('../../tasks/w-log.js');
 
 // + self module
 const webpack = require('webpack');
+const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin');
 const runSequence = require('run-sequence').use(gulp);
 const watch = require('gulp-watch');
 // - self module
@@ -39,53 +40,10 @@ const REG = {
 
 // + webpack
 gulp.task('webpack', (done) => {
-  const localWconfigPath = path.join(util.vars.PROJECT_PATH, 'webpack.config.js');
   let iWconfig = util.extend(true, {}, webpackConfig);
-  let localWconfig;
-
-
-  if (fs.existsSync(localWconfigPath)) { // webpack 与 webpack local 整合
-    log('msg', 'info', `get local webpack.config.js ${localWconfigPath}`);
-    try {
-      localWconfig = util.requireJs(localWconfigPath);
-    } catch (er) {
-      log('msg', 'error', er);
-      log('finish');
-      process.exit(1);
-    }
-
-    // 处理 loader 部分
-    const fwConfig = util.extend(true, {}, iWconfig, localWconfig);
-    const iLoaders = fwConfig.module.loaders = [].concat(iWconfig.module.loaders);
-    const localLoaders = localWconfig.module.loaders;
-
-
-    if (localLoaders && localLoaders.length) {
-      localLoaders.forEach((obj) => {
-        for (let i = 0, len = iLoaders.length; i < len; i++) {
-          if (iLoaders[i].test.toString() === obj.test.toString()) {
-            log('msg', 'info', [`change loader[${i}] ${iLoaders[i]} => `, obj]);
-            iLoaders.splice(i, 1, obj);
-            return;
-          }
-        }
-        log('msg', 'info', ['add loaders', obj]);
-        iLoaders.push(obj);
-      });
-
-      log('msg', 'info', ['mix loaders:', iLoaders]);
-    }
-    iWconfig = fwConfig;
-  }
-
 
   if (iEnv.isCommit) {
-    iWconfig.plugins.push(new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      }
-    }));
-
+    iWconfig.plugins.push(new uglifyjsWebpackPlugin());
     iWconfig.devtool = false;
   }
 
@@ -99,7 +57,7 @@ gulp.task('webpack', (done) => {
 
   webpack(iWconfig, (err, stats) => {
     if (err) {
-      log('msg', 'error', err);
+      log('msg', 'error', err.message || err.details || err);
     } else {
       log('msg', 'success', 'webpack run pass');
     }
@@ -111,7 +69,7 @@ gulp.task('webpack', (done) => {
       fn.logDest(util.path.join(basePath, key));
     });
     compilation.errors.forEach((err) => {
-      log('msg', 'error', err);
+      log('msg', 'error', err.message || err.details || err);
     });
     compilation.warnings.forEach((warn) => {
       log('msg', 'warn', warn.details);
@@ -128,6 +86,9 @@ gulp.task('concat', (done) => {
   }
 
   supercall.concat(iEnv).then(() => {
+    done();
+  }).catch((err) => {
+    log('msg', 'error', `concat error: ${err.message || err.details || err}`);
     done();
   });
 });
@@ -204,6 +165,9 @@ gulp.task('resource', (done) => {
   }
   supercall.resource(iEnv).then(() => {
     done();
+  }).catch((err) => {
+    log('msg', 'error', `resource error: ${err.message || err.details || err}`);
+    done();
   });
 });
 // - resource
@@ -213,11 +177,17 @@ gulp.task('resource', (done) => {
 gulp.task('rev-build', (done) => {
   supercall.rev.build(iEnv).then(() => {
     done();
-  });
+  }).catch((err) => {
+    log('msg', 'error', `rev-build error: ${err.message || err.details || err}`);
+    done();
+  });;
 });
 
 gulp.task('rev-update', (done) => {
   supercall.rev.update(iEnv).then(() => {
+    done();
+  }).catch((err) => {
+    log('msg', 'error', `rev-update error: ${err.message || err.details || err}`);
     done();
   });
 });

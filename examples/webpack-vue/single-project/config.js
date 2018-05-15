@@ -4,6 +4,7 @@ const path = require('path');
 const COMMON_PATH = /* +commonPath */'../commons/mobile'/* -commonPath */;
 const PROJECT_NAME = /* +name */'workflow_demo'/* -name */;
 const VERSION = /* +version */'1.0.0'/* -version */;
+const PLATFORM = /* +platform */'mobile'/* -platform */;
 // - yyl init 自动 匹配内容
 
 const setting = {
@@ -19,6 +20,7 @@ const setting = {
     htmlPath: 'html',
     imagesPath: 'images',
     revPath: 'assets',
+    tplPath: 'tpl'
   },
   // 代理服务器
   proxy: {
@@ -30,25 +32,24 @@ const setting = {
     },
   },
   /**
-       * 触发提交 svn 前中间件函数
-       * @param {String}   sub    命令行 --sub 变量
-       * @param {Function} next() 下一步
-       */
+     * 触发提交 svn 前中间件函数
+     * @param {String}   sub    命令行 --sub 变量
+     * @param {Function} next() 下一步
+     */
   onBeforeCommit(sub, next) {
     next();
   },
 
   /**
-       * 初始化 config 时 对config的二次操作
-       * @param {object}   config          服务器初始化完成的 config 对象
-       * @param {object}   env             命令行接收到的 参数
-       * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
-       * @param {object}   newconfig       处理后的 config
-       */
+     * 初始化 config 时 对config的二次操作
+     * @param {object}   config          服务器初始化完成的 config 对象
+     * @param {object}   env             命令行接收到的 参数
+     * @param {function} next(newconfig) 返回给服务器继续处理用的 next 函数
+     * @param {object}   newconfig       处理后的 config
+     */
   onInitConfig(config, env, next) {
     next(config);
   },
-
 };
 
 const config = {
@@ -57,6 +58,7 @@ const config = {
   version: VERSION,
   dest: setting.dest,
   proxy: setting.proxy,
+  platform: PLATFORM,
 
   onInitConfig: setting.onInitConfig,
   onBeforeCommit: setting.onBeforeCommit,
@@ -120,9 +122,10 @@ const config = {
     // assets 输出地址
     revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
 
+    tplDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath),
+
     // webpackconfig 中的 alias
     flexlayout: path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js'),
-
     // + yyl make
     // - yyl make
   },

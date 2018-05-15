@@ -46,8 +46,7 @@
     "imagemin-optipng": "~5.2.1",
     "imagemin-svgo": "~6.0.0",
     "run-sequence": "~1.1.5",
-    "through2": "~2.0.1",
-    "yyl-util": "~1.14.2"
+    "through2": "~2.0.1"
   },
   "dependencies": {
     "gulp": "~3.9.1"

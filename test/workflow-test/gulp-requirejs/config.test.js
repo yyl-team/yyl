@@ -20,6 +20,7 @@ var
             htmlPath: 'html/test',
             imagesPath: 'images/test',
             fontPath: 'font/test',
+	    tplPath: 'tpl',
             revPath: 'assets/test'
         },
         // 代理服务器
@@ -108,7 +109,9 @@ var
             // images 输出地址
             imagesDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.imagesPath),
             // assets 输出地址
-            revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath)
+            revDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.revPath),
+            // tpl 输出地址
+            tplDest: path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath)
         },
         // -此部分 yyl server 端config 会进行替换
 

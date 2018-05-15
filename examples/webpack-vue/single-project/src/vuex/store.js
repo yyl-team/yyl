@@ -8,5 +8,5 @@ const mutations = {};
 
 module.exports = new Vuex.Store({
   state,
-  mutations,
+  mutations
 });

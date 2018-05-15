@@ -5,6 +5,7 @@ const path = require('path');
 const COMMON_PATH = /*+commonPath*/'../commons/pc'/*-commonPath*/;
 const PROJECT_NAME = /*+name*/'workflow_demo'/*-name*/;
 const VERSION = /*+version*/'1.0.0'/*-version*/;
+const PLATFORM = /* +platform */'mobile'/* -platform */;
 //- yyl init 自动 匹配内容
 
 const setting = {
@@ -19,8 +20,8 @@ const setting = {
         cssPath: 'css',
         htmlPath: 'html',
         imagesPath: 'images',
-        revPath: 'assets',
-        tplPath: 'tpl'
+        tplPath: 'tpl',
+        revPath: 'assets'
     },
     // 代理服务器
     proxy: {
@@ -62,7 +63,7 @@ const config = {
     version: VERSION,
     dest: setting.dest,
     proxy: setting.proxy,
-
+    platform: PLATFORM,
     onInitConfig: setting.onInitConfig,
     onBeforeCommit: setting.onBeforeCommit,
 

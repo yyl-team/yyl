@@ -356,7 +356,8 @@ const wCommit = {
           next();
         }
       }).then((next) => { // optimize
-        wOptimize('all', '--isCommit').then((config) => {
+        iEnv.isCommit = true;
+        wOptimize.apply(wOptimize, ['all'].concat(util.envStringify(iEnv).split(' '))).then((config) => {
           next(config);
         }).catch((er) => {
           log('msg', 'error', er);

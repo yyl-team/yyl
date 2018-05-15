@@ -457,7 +457,6 @@ const wServer = {
         } else {
           next(iConfig);
         }
-
       }).then((iConfig, next) => { // config 必要字段校验
         if (!iConfig.alias) {
           iConfig.alias = {};
@@ -467,6 +466,11 @@ const wServer = {
         if (!iConfig.alias.dirname) {
           iConfig.alias.dirname = util.vars.PROJECT_PATH;
           log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
+        }
+
+        if (!iConfig.platform) {
+          iConfig.platform = 'pc';
+          log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${iConfig.platform}`)}`);
         }
 
         // 必要字段
@@ -509,6 +513,7 @@ const wServer = {
         next(iConfig);
       }).then((iConfig, next) => { // 更新 config 内 插件
         if (iConfig.plugins && iConfig.plugins.length) {
+          var iNodeModulePath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'node_modules');
           var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
           var installLists = [];
 
@@ -521,8 +526,7 @@ const wServer = {
             } else {
               iDir = str;
             }
-            var iPath = path.join(workFlowPath, 'node_modules', iDir);
-            var iPkgPath = path.join(iPath, 'package.json');
+            var iPath = path.join(iNodeModulePath, iDir);
             var iPkg;
             if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
               if (iVer) {
