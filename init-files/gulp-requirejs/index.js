@@ -793,7 +793,10 @@ var
                   if (fn.matchFront(rPath, relateHtml(key))) {
                     rPath = rPath
                       .split(relateHtml(key))
-                      .join(util.joinFormat(staticRemotePath, fn.relateDest(resource[key])));
+                      .join(util.joinFormat(
+                        rPath.match(REG.IS_MAIN_REMOTE)? mainRemotePath : staticRemotePath,
+                        fn.relateDest(resource[key]))
+                      );
                   }
                 });
               }
