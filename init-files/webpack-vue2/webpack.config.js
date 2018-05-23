@@ -197,7 +197,8 @@ const webpackconfig = {
           config.alias.jsDest,
           path.join(config.alias.cssDest, '[name].css')
         )
-      )
+      ),
+      allChunks: true
     })
   ]
 };
