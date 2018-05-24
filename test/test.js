@@ -316,6 +316,8 @@ if (TEST_CTRL.INIT) {
             return a.localeCompare(b);
           });
 
+          console.log('rFiles', rFiles);
+          console.log('sFiles', sFiles);
           expect(rFiles).to.deep.equal(sFiles);
 
           fn.frag.destroy().then(() => {
