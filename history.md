@@ -1,4 +1,7 @@
 # 版本信息
+## 2.20.0 (2018-05-24)
+* [DEL] 去掉 `webpack-vue` 工作流
+* [ADD] `webpack`, `webpack-vue2` 支持 异步加载 模块 功能
 
 ## 2.19.0 (2018-05-15)
 * [ADD] `webpack-vue2` 新增 `postcss-loader`

@@ -11,10 +11,7 @@ module.exports = {
     $: true,
     Vue: true,
     Vuex: true,
-    VueRouter: true,
-    Regular: true,
-    __DEV__: true,
-    __PROD__: true
+    VueRouter: true
   },
   extends: 'airbnb-base',
   plugins: [
@@ -29,6 +26,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 0,
     'linebreak-style': 0,
     'no-param-reassign': [2, { 'props': false }],
-    'comma-dangle': [2, 'never']
+    'comma-dangle': [2, 'never'],
+    'quote-props': ["error", "consistent"]
   }
 };
