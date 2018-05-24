@@ -1,6 +1,7 @@
 'use strict';
 const path = require('path');
 const fs = require('fs');
+const combine = require('webpack-combine-loaders');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
@@ -16,7 +17,6 @@ const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack/conf
 if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
 }
-
 
 const webpackconfig = {
   entry: (function() {
@@ -47,23 +47,6 @@ const webpackconfig = {
       });
     }
 
-    // // js path
-    // var jsPath = path.join(iSrcRoot, 'js');
-    // if (fs.existsSync(jsPath)) {
-    //   var jsfiles = fs.readdirSync(jsPath);
-    //   jsfiles.forEach((str) => {
-    //     var filepath = path.join(jsPath, str);
-    //     if (fs.statSync(filepath).isDirectory() || path.extname(filepath) != '.js') {
-    //       return;
-    //     }
-
-    //     var key = path.basename(str).replace(/\.[^.]+$/, '');
-    //     if (key) {
-    //       r[key] = filepath;
-    //     }
-    //   });
-    // }
-
     // 合并 config 中的 entry 字段
     if (config.entry) {
       r = util.extend(true, r, config.entry);
@@ -75,6 +58,7 @@ const webpackconfig = {
   output: {
     path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
+    chunkFilename:'async_component/[name]-[chunkhash:8].js',
     publicPath: util.joinFormat(
       config.dest.basePath,
       path.relative(
@@ -93,8 +77,8 @@ const webpackconfig = {
         query: {
           babelrc: false,
           presets: [
-            'babel-preset-es2015'
-            // 'babel-preset-stage-0'
+            'babel-preset-es2015',
+            'babel-preset-stage-2'
           ].map(require.resolve)
         }
       }]
@@ -102,6 +86,18 @@ const webpackconfig = {
       test: /\.vue$/,
       loader: 'vue-loader',
       options: {
+        loaders: {
+          js: combine([{
+            loader: 'babel-loader',
+            query: {
+              babelrc: false,
+              presets: [
+                'babel-preset-es2015',
+                'babel-preset-stage-2'
+              ].map(require.resolve)
+            }
+          }])
+        },
         postcss: config.platform == 'pc'? [
           autoprefixer({
             browsers: ['> 1%', 'last 2 versions']
@@ -111,13 +107,7 @@ const webpackconfig = {
             browsers: ['iOS >= 7', 'Android >= 4']
           }),
           px2rem({remUnit: 75})
-        ],
-        loaders: {
-          'js': `babel-loader?babelrc=false&presets[]=${[
-            'babel-preset-es2015'
-            // 'babel-preset-stage-0'
-          ].map(require.resolve)}`
-        }
+        ]
       }
     }, {
       test: /\.html$/,
@@ -125,7 +115,7 @@ const webpackconfig = {
         loader: 'html-loader'
       }]
     }, {
-      test: /\.scss$/,
+      test: /\.(scss|sass)$/,
       use: ExtractTextPlugin.extract({
         fallback: 'style-loader',
         use: [
@@ -208,7 +198,8 @@ const webpackconfig = {
           config.alias.jsDest,
           path.join(config.alias.cssDest, '[name].css')
         )
-      )
+      ),
+      allChunks: true
     })
   ]
 };
@@ -221,7 +212,6 @@ if (config.eslint) {
     exclude: /node_modules/,
     loader: 'eslint-loader',
     options: {
-      cache: true,
       eslintPath: 'eslint',
       formatter: eslintFriendlyFormatter
     }

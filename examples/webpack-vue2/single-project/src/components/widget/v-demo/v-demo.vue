@@ -43,6 +43,7 @@ div
 }
 .w-demo-log {
   position: fixed;
+  z-index: 2;
   bottom: 10px;
   left: 10px;
   right: 10px;

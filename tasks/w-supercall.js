@@ -392,10 +392,18 @@ var
               let r;
               const iExt = path.extname(iPath);
 
+
+
               if (/\.(html|json)/.test(iExt)) {
                 r = false;
               } else {
                 r = true;
+              }
+
+              if (op.revIgnore) {
+                if (iPath.match(op.revIgnore)) {
+                  return r;
+                }
               }
 
               switch (iExt) {

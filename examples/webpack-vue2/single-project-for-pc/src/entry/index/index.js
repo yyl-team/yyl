@@ -5,6 +5,7 @@ import VueRouter from 'vue-router';
 import store from '../../vuex/store.js';
 import './index.scss';
 import pageIndex from '../../components/page/p-index/p-index.js';
+// const pageIndex = () => import('../../components/page/p-index/p-index.js');
 
 Vue.use(VueRouter);
 

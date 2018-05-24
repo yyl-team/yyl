@@ -58,6 +58,7 @@ const webpackconfig = {
   output: {
     path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
+    chunkFilename:'async_component/[name]-[chunkhash:8].js',
     publicPath: util.joinFormat(
       config.dest.basePath,
       path.relative(

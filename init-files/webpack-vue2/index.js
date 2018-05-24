@@ -175,12 +175,14 @@ gulp.task('resource', (done) => {
 
 // + rev
 gulp.task('rev-build', (done) => {
-  supercall.rev.build(iEnv).then(() => {
+  supercall.rev.build(util.extend({}, iEnv, {
+    revIgnore: /async_component/
+  })).then(() => {
     done();
   }).catch((err) => {
     log('msg', 'error', `rev-build error: ${err.message || err.details || err}`);
     done();
-  });;
+  });
 });
 
 gulp.task('rev-update', (done) => {
