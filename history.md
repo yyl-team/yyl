@@ -3,6 +3,9 @@
 * [DEL] 去掉 `webpack-vue` 工作流
 * [ADD] `webpack`, `webpack-vue2` 支持 异步加载 模块 功能
 
+## 2.19.1 (2018-05-18)
+* [ADD] `gulp-requirejs` 添加 svga 路径替换 需要替换成 主域名的逻辑
+
 ## 2.19.0 (2018-05-15)
 * [ADD] `webpack-vue2` 新增 `postcss-loader`
 * [ADD] `webpack-vue2` 新增 `autoprefixer`
