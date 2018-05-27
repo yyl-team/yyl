@@ -1,0 +1,3 @@
+{
+  "/api/myposts/*": "/posts/$1"
+}

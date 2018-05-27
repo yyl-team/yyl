@@ -17,7 +17,17 @@ const wRemove = require('./w-remove.js');
 const wProxy = require('./w-proxy.js');
 const log = require('./w-log');
 
+function readJSON (path) {
+  if (!fs.existsSync(path)) {
+    console.error(`File not exists: ${path}`);
+    return;
+  }
+  return JSON.parse(fs.readFileSync(path));
+}
+const routesPath = path.join(process.cwd(), 'mock/routes.json');
+
 const jsonServer = require('json-server');
+const jsonServerRewrite = jsonServer.rewriter(readJSON(routesPath));
 const jsonServerRouter = jsonServer.router(path.join(process.cwd(), 'mock/db.json'));
 const jsonServerMiddlewares = jsonServer.defaults();
 
@@ -678,7 +688,8 @@ const wServer = {
           }
         }));
         app.use(serveIndex(iPath));
-        
+       
+        app.use(jsonServerRewrite);
         app.use(jsonServerMiddlewares);
         app.use(jsonServerRouter);
         
