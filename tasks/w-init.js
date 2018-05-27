@@ -386,7 +386,7 @@ var
   };
 
 module.exports = function() {
-  var iArgv = util.makeArray(arguments);
+  var iArgv = [...arguments];
   var op = util.envParse(iArgv.slice(1));
 
   if (op.h || op.help) {

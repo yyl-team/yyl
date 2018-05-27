@@ -8,7 +8,8 @@ const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const color = require('yyl-color');
-const connect = require('connect');
+// const connect = require('connect');
+const express = require('express');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
 const livereload = require('connect-livereload');
@@ -16,15 +17,19 @@ const wRemove = require('./w-remove.js');
 const wProxy = require('./w-proxy.js');
 const log = require('./w-log');
 
+const jsonServer = require('json-server');
+const jsonServerRouter = jsonServer.router(path.join(process.cwd(), 'mock/db.json'));
+const jsonServerMiddlewares = jsonServer.defaults();
+
 const cache = {
   lrServer: null,
   server: null
 };
 
-const events = {
-  help: function() {
-    const iEnv = util.envPrase(arguments);
-    const h = {
+let events = {
+  help () {
+    let iEnv = util.envPrase(arguments);
+    let h = {
       usage: 'yyl server',
       commands: {
         'start': 'start local server',
@@ -42,23 +47,19 @@ const events = {
     }
     return Promise.resolve(h);
   },
-  path: function() {
-    const iEnv = util.envPrase(arguments);
+  path () {
+    let iEnv = util.envPrase(arguments);
     if (!iEnv.silent) {
-      console.log([
-        '',
-        'yyl server path:',
-        color.yellow(util.vars.SERVER_PATH),
-        ''
-      ].join('\n'));
+      console.log(`
+        yyl server path:
+        ${color.yellow(util.vars.SERVER_PATH)}
+      `);
       util.openPath(util.vars.SERVER_PATH);
     }
-
     return Promise.resolve(util.vars.SERVER_PATH);
   },
-
-  start: function() {
-    const iEnv = util.envPrase(arguments);
+  start () {
+    let iEnv = util.envPrase(arguments);
     const runner = (done) => {
       log('clear');
       const r = {
@@ -180,7 +181,7 @@ const events = {
     });
   },
 
-  init: function(workflowName) {
+  init (workflowName) {
     if (/^--/.test(workflowName)) {
       workflowName = '';
     }
@@ -188,7 +189,7 @@ const events = {
   },
 
   // 服务器清空
-  clear: function(workflow) {
+  clear (workflow) {
     const runner = (done) => {
       new util.Promise(((next) => { // clear data file
         log('msg', 'info', `start clear server data path: ${util.vars.SERVER_DATA_PATH}`);
@@ -251,7 +252,7 @@ const events = {
       runner(next);
     });
   },
-  abort: function() {
+  abort () {
     return wServer.abort();
   }
 };
@@ -649,7 +650,7 @@ const wServer = {
         log('msg', 'success', `   address : ${chalk.yellow(serverAddress)}`);
         log('msg', 'success', `   lr port : ${chalk.yellow(lrPort)}`);
 
-        var app = connect();
+        var app = express();
         app.use(livereload({
           port: lrPort,
           src: `http://localhost:${lrPort}/livereload.js?snipver=1`
@@ -670,13 +671,17 @@ const wServer = {
             next();
           }
         });
+        
         app.use(serveStatic(iPath, {
           'setHeaders': function(res) {
             res.setHeader('Cache-Control', 'no-cache');
           }
         }));
         app.use(serveIndex(iPath));
-
+        
+        app.use(jsonServerMiddlewares);
+        app.use(jsonServerRouter);
+        
         var server = http.createServer(app);
         var lrServer = tinylr();
         server.listen(port, (err) => {
@@ -825,7 +830,7 @@ const wServer = {
 
   // yyl 脚本调用 入口
   run: function() {
-    var iArgv = util.makeArray(arguments);
+    var iArgv = [...arguments];
     var ctx = iArgv[1];
 
     switch (ctx) {

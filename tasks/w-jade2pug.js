@@ -52,7 +52,7 @@ var jade2pug = {
   },
   // 获取所有 jade 文件
   run: function() {
-    var iArgv = util.makeArray(arguments);
+    var iArgv = [...arguments];
     var op = util.envParse(iArgv);
 
     return jade2pug.init(op);

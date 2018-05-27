@@ -1,0 +1,32 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "nothing sample",
+            "program": "${workspaceFolder}/bin/init.js",
+            "args": [
+                "nothing",
+                "--sub",
+                "dev",
+                "--ver", 
+                "remote"
+            ] 
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "add liveReload sample",
+            "program": "${workspaceFolder}/bin/init.js",
+            "cwd": "${workspaceFolder}/examples/gulp-requirejs/single-project",
+            "args": [
+                "watch"
+            ],
+        }
+    ],
+
+}
