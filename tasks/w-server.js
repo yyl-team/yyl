@@ -8,7 +8,6 @@ const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const color = require('yyl-color');
-// const connect = require('connect');
 const express = require('express');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
@@ -17,19 +16,7 @@ const wRemove = require('./w-remove.js');
 const wProxy = require('./w-proxy.js');
 const log = require('./w-log');
 
-function readJSON (path) {
-  if (!fs.existsSync(path)) {
-    console.error(`File not exists: ${path}`);
-    return;
-  }
-  return JSON.parse(fs.readFileSync(path));
-}
-const routesPath = path.join(process.cwd(), 'mock/routes.json');
-
 const jsonServer = require('json-server');
-const jsonServerRewrite = jsonServer.rewriter(readJSON(routesPath));
-const jsonServerRouter = jsonServer.router(path.join(process.cwd(), 'mock/db.json'));
-const jsonServerMiddlewares = jsonServer.defaults();
 
 const cache = {
   lrServer: null,
@@ -688,10 +675,24 @@ const wServer = {
           }
         }));
         app.use(serveIndex(iPath));
-       
-        app.use(jsonServerRewrite);
+
+
+        //+ mock server
+        let routesPath = path.join(process.cwd(), 'mock/routes.json');
+        if (fs.existsSync(routesPath)) {
+          let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
+          app.use(jsonServerRewrite);
+        } 
+
+        let dbPath = path.join(process.cwd(), 'mock/db.json');
+        if (fs.existsSync(dbPath)) {
+          let jsonServerRouter = jsonServer.router(dbPath);
+          app.use(jsonServerRouter);
+        }
+
+        let jsonServerMiddlewares = jsonServer.defaults();
         app.use(jsonServerMiddlewares);
-        app.use(jsonServerRouter);
+        //- mock server
         
         var server = http.createServer(app);
         var lrServer = tinylr();
