@@ -9,6 +9,13 @@ var cache = {};
 var CWD = process.cwd();
 
 util = util.extend(true, util, {
+  readJSON: function (path) {
+    if (!fs.existsSync(path)) {
+      console.error(`File not exists: ${path}`);
+      return;
+    }
+    return JSON.parse(fs.readFileSync(path));
+  },
   vars: {
     // 本程序根目录
     BASE_PATH: path.join(__dirname, '..'),

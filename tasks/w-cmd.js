@@ -74,12 +74,16 @@ var
       }
 
       return Promise.resolve(iPath);
+    },
+    nothing: function () {
+      const iEnv = util.envParse(arguments);
+      console.log('nothing');
     }
   };
 
 
 module.exports = function(ctx) {
-  var iArgv = util.makeArray(arguments);
+  var iArgv = [...arguments];
   var iEnv = util.envPrase(arguments);
 
   var iVer = process.versions.node;
@@ -178,6 +182,8 @@ module.exports = function(ctx) {
       r = events.info.run.apply(events, iArgv.slice(1));
       break;
 
+    case 'nothing': 
+      r =  events.nothing.apply(events, iArgv); 
     default:
       r = events.help();
       break;
