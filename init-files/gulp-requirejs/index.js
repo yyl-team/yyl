@@ -1083,7 +1083,11 @@ var
                 include: util.joinFormat(config.alias.srcRoot, file.relative),
                 paths: paths,
                 out: function(text) {
-                  file.contents = Buffer.from(text, 'utf-8');
+                  const r = text.replace(
+                    util.path.join(file.base, file.relative),
+                    util.path.relative(config.alias.srcRoot, path.join(file.base, file.relative))
+                  );
+                  file.contents = Buffer.from(r, 'utf-8');
                   self.push(file);
                   cb();
                 }

@@ -586,6 +586,10 @@ var
                     self.fn.fileHashPathUpdate(filePath, revMap, op);
                     break;
 
+                  case '.js':
+                    self.fn.fileHashPathUpdate(filePath, revMap, op);
+                    break;
+
                   default:
                     break;
                 }

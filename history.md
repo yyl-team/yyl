@@ -1,4 +1,8 @@
 # 版本信息
+## 2.21.0 (2018-05-31)
+* [ADD] `gulp-requirejs` 新增 `__url(path)` 语法糖 用于 js 中 获取 项目中静态资源地址
+* [FIX] 修复 `gulp-requirejs` 打包出来的 项目会出现 本地目录路径问题
+
 ## 2.20.0 (2018-05-24)
 * [DEL] 去掉 `webpack-vue` 工作流
 * [ADD] `webpack`, `webpack-vue2` 支持 异步加载 模块 功能
