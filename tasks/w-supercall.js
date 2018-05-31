@@ -171,7 +171,7 @@ var
         },
 
         // 路径纠正
-        resolveUrl: function(cnt, filePath, op) {
+        resolveUrl: function(cnt, filePath, revMap, op) {
           var iExt = path.extname(filePath).replace(/^\./g, '');
           var iDir = path.dirname(filePath);
           var config = util.getConfigCacheSync();
@@ -183,15 +183,25 @@ var
             }
           })();
           let r = '';
+          const revReplace = function(rPath) {
+            let rrPath = rPath;
+            Object.keys(revMap).forEach((key) => {
+              if (key == 'version') {
+                return;
+              }
+              rrPath = rrPath.split(key).join(revMap[key]);
+            });
+            return rrPath;
+          };
           const htmlReplace = function(iCnt) {
             const rCnt = util.htmlPathMatch(iCnt, (iPath, type) => {
               const r = (rPath) => {
                 switch (type) {
                   case '__url':
-                    return `'${rPath}'`;
+                    return `'${revReplace(rPath)}'`;
 
                   default:
-                    return rPath;
+                    return revReplace(rPath);
                 }
               };
 
@@ -257,7 +267,7 @@ var
                   );
                 }
 
-                return rPath;
+                return revReplace(rPath);
               }
             });
 
@@ -268,10 +278,10 @@ var
               const r = (rPath) => {
                 switch (type) {
                   case '__url':
-                    return `'${rPath}'`;
+                    return `'${revReplace(rPath)}'`;
 
                   default:
-                    return rPath;
+                    return revReplace(rPath);
                 }
               };
               let rPath = iPath;
@@ -328,14 +338,9 @@ var
           var selfFn = this;
 
           // url format
-          rCnt = selfFn.resolveUrl(rCnt, iPath, op);
+          rCnt = selfFn.resolveUrl(rCnt, iPath, revMap, op);
 
-          Object.keys(revMap).forEach((key) => {
-            if (key == 'version') {
-              return;
-            }
-            rCnt = rCnt.split(key).join(revMap[key]);
-          });
+
 
           if (iCnt != rCnt) {
             selfFn.mark.add('update', iPath);

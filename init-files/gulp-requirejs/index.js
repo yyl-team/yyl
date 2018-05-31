@@ -54,12 +54,24 @@ var fn = {
     // process.exit(1);
   },
   // src => dest 路径替换
-  src2destPathFormat: function(iPath, basePath) {
-    let rPath = iPath;
-    if (iPath.match(util.REG.HTML_IGNORE_REG) || iPath.match(util.REG.IS_HTTP) || !iPath) {
-      return rPath;
+  src2destPathFormat: function(iPath, basePath, type) {
+    let rPath = fn.hideUrlTail(iPath);
+    if (rPath.match(util.REG.HTML_IGNORE_REG) || rPath.match(util.REG.IS_HTTP) || !rPath) {
+      return iPath;
     }
-    const absPath = util.path.join(path.resolve(basePath, iPath));
+    let absPath = '';
+    if (rPath.match(util.REG.HTML_IS_ABSLUTE) || rPath.match(util.REG.IS_HTTP)) {
+      absPath = rPath;
+    } else {
+      absPath = util.path.join(basePath, rPath);
+      if (type === 'css-path' && !fs.existsSync(absPath)) {
+        log('msg', 'warn', [
+          `css url replace error, ${absPath}`,
+          `  path not found: ${chalk.yellow(util.path.relative(util.vars.PROJECT_PATH, absPath))}`
+        ].join('\n'));
+        return iPath;
+      }
+    }
     const staticRemotePath = iEnv.staticRemotePath;
     const mainRemotePath = iEnv.mainRemotePath;
 
@@ -68,6 +80,7 @@ var fn = {
       rPath = absPath
         .split(`${config.alias.destRoot}/`)
         .join(rPath.match(util.REG.IS_MAIN_REMOTE)? mainRemotePath : staticRemotePath);
+      return rPath;
     }
 
     // 替换全局 图片
@@ -75,6 +88,7 @@ var fn = {
       rPath = absPath
         .split(config.alias.globalcomponents)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.imagesDest), 'globalcomponents'));
+      return rPath;
     }
 
     // 替换 common 下 lib
@@ -82,6 +96,7 @@ var fn = {
       rPath = absPath
         .split(config.alias.globallib)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest), 'globallib'));
+      return rPath;
     }
 
     // 替换 jslib
@@ -90,6 +105,7 @@ var fn = {
       rPath = absPath
         .split(srcJslibPath)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest)));
+      return rPath;
     }
 
     // 替换 js
@@ -98,6 +114,7 @@ var fn = {
       rPath = absPath
         .split(srcJsPath)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jsDest)));
+      return rPath;
     }
 
 
@@ -110,6 +127,7 @@ var fn = {
           staticRemotePath,
           fn.relateDest(config.alias.cssDest)
         ));
+      return rPath;
     }
 
     // 替换公用图片
@@ -118,6 +136,7 @@ var fn = {
       rPath = absPath
         .split(srcImagesPath)
         .join(util.joinFormat( staticRemotePath, fn.relateDest(config.alias.imagesDest)));
+      return rPath;
     }
 
     // 替换公用tpl
@@ -126,7 +145,10 @@ var fn = {
       rPath = absPath
         .split(srcTplPath)
         .join(util.joinFormat( mainRemotePath, fn.relateDest(config.alias.tplDest)));
+      return rPath;
     }
+
+
     const relativeHtmlPath = util.path.relative(
       util.path.join(config.alias.srcRoot, 'html'),
       absPath
@@ -142,6 +164,7 @@ var fn = {
           '/$1.js'
         )
       );
+      return rPath;
     }
 
     // 替换 components 中的 images
@@ -154,6 +177,7 @@ var fn = {
           '$1'
         )
       );
+      return rPath;
     }
 
     // 替换 resource 里面的资源
@@ -161,12 +185,13 @@ var fn = {
     if (resource) {
       Object.keys(resource).forEach((key) => {
         if (fn.matchFront(absPath, key)) {
-          iPath = absPath
+          rPath = absPath
             .split(key)
             .join(util.joinFormat(
               iPath.match(util.REG.IS_MAIN_REMOTE)? mainRemotePath : staticRemotePath,
               fn.relateDest(resource[key]))
             );
+          return rPath;
         }
       });
     }
@@ -633,9 +658,9 @@ var
           fn.exit(er.message, stream);
         }))
         .pipe(through.obj(function(file, enc, next) {
-          var dirname = op.path;
+          const dirname = op.path;
 
-          var iCnt = file.contents.toString();
+          let iCnt = file.contents.toString();
           iCnt = util.htmlPathMatch(iCnt, (iPath, type) => {
             const r = (rPath) => {
               switch (type) {
@@ -646,7 +671,9 @@ var
                   return rPath;
               }
             };
-            iPath = iPath.replace(util.REG.HTML_ALIAS_REG, (str, $1, $2) => {
+            let rPath = iPath;
+
+            rPath = rPath.replace(util.REG.HTML_ALIAS_REG, (str, $1, $2) => {
               if (config.alias[$2]) {
                 return util.path.relative(
                   path.dirname(file.path),
@@ -658,36 +685,56 @@ var
             });
 
             if (
-              iPath.match(util.REG.HTML_IGNORE_REG) ||
-              iPath.match(util.REG.IS_HTTP) ||
-              !iPath ||
-              iPath.match(util.REG.HTML_IS_ABSLUTE)
+              rPath.match(util.REG.HTML_IGNORE_REG) ||
+              rPath.match(util.REG.IS_HTTP) ||
+              !rPath ||
+              rPath.match(util.REG.HTML_IS_ABSLUTE)
             ) {
               return r(iPath);
             }
 
-            const filename = path.basename(iPath, path.extname(iPath));
+            const filename = path.basename(rPath, path.extname(iPath));
 
             if (path.extname(iPath) == '.scss' && /^[pt]-/.test(filename)) { // 纠正 p-xx.scss 路径
-              iPath = util.joinFormat(path.relative(
+              rPath = util.joinFormat(path.relative(
                 path.dirname(file.path),
                 path.join(config.alias.srcRoot, 'css', `${filename.replace(/^[pt]-/, '')  }.css`))
               );
             }
 
             if (path.extname(iPath) == '.pug' && /^t-/.test(filename)) {
-              iPath = util.joinFormat(path.relative(
+              rPath = util.joinFormat(path.relative(
                 path.dirname(file.path),
                 path.join(config.alias.srcRoot, 'tpl', `${filename.replace(/^[pt]-/, '')  }.tpl`))
               );
             }
 
-            iPath = util.path.join(
-              path.relative(dirname, path.dirname(file.path)),
-              iPath
-            ).replace(/\\+/g, '/').replace(/\/+/, '/');
+            if (type === 'css-path') {
+              if (
+                !fs.existsSync(
+                  fn.hideUrlTail(
+                    util.path.join(
+                      path.dirname(file.path),
+                      rPath
+                    )
+                  )
+                )
+              ) {
+                return r(rPath);
+              } else {
+                rPath = util.path.join(
+                  path.relative(dirname, path.dirname(file.path)),
+                  rPath
+                ).replace(/\\+/g, '/').replace(/\/+/, '/');
+              }
+            } else {
+              rPath = util.path.join(
+                path.relative(dirname, path.dirname(file.path)),
+                rPath
+              ).replace(/\\+/g, '/').replace(/\/+/, '/');
+            }
 
-            return r(iPath);
+            return r(rPath);
           });
 
           file.contents = Buffer.from(iCnt, 'utf-8');
@@ -752,6 +799,7 @@ var
               return r(iPath);
             }
 
+
             const dirname = iPath.substr(gComponentPath.length);
             copyPath[util.joinFormat(op.path, iPath)] = util.joinFormat(config.alias.imagesDest, 'globalcomponents', dirname);
 
@@ -792,7 +840,8 @@ var
             };
 
             const dirname = util.path.join(config.alias.srcRoot, 'html');
-            return r(fn.src2destPathFormat(iPath, dirname));
+
+            return r(fn.src2destPathFormat(iPath, dirname, type));
           });
 
           file.contents = Buffer.from(iCnt, 'utf-8');
@@ -983,9 +1032,9 @@ var
           .pipe(through.obj(function(file, enc, next) {
             var iCnt = file.contents.toString();
 
-            iCnt = util.cssPathMatch(iCnt, (iPath) => {
+            iCnt = util.cssPathMatch(iCnt, (iPath, type) => {
               const dirname = util.path.join(config.alias.srcRoot, 'css');
-              return fn.src2destPathFormat(iPath, dirname);
+              return fn.src2destPathFormat(iPath, dirname, type);
             });
 
             file.contents = Buffer.from(iCnt, 'utf-8');
@@ -1116,7 +1165,7 @@ var
                 }
               };
               const dirname = util.path.join(path.dirname(path.join(file.base, file.relative)));
-              return r(fn.src2destPathFormat(iPath, dirname));
+              return r(fn.src2destPathFormat(iPath, dirname, type));
             });
             file.contents = Buffer.from(iCnt, 'utf-8');
             this.push(file);
@@ -1146,7 +1195,7 @@ var
                 }
               };
               const dirname = util.path.join(path.dirname(file.base, file.relative));
-              return r(fn.src2destPathFormat(iPath, dirname));
+              return r(fn.src2destPathFormat(iPath, dirname, type));
             });
             file.contents = Buffer.from(iCnt, 'utf-8');
             this.push(file);
