@@ -123,7 +123,7 @@ var fn = {
     // 替换公用tpl
     const srcTplPath = util.path.join(config.alias.srcRoot, 'tpl');
     if (fn.matchFront(absPath, srcTplPath)) {
-      iPath = absPath
+      rPath = absPath
         .split(srcTplPath)
         .join(util.joinFormat( mainRemotePath, fn.relateDest(config.alias.tplDest)));
     }
