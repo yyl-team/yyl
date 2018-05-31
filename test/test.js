@@ -18,7 +18,7 @@ const TEST_CTRL = {
   SERVER: true,
   SERVER_INIT: true,
   // SERVER_CLEAR: true,
-  INIT: true,
+  // INIT: true,
   ALL: true,
   ALL_MAIN: true,
   ALL_CONFIG: true,
@@ -428,42 +428,18 @@ if (TEST_CTRL.ALL) {
               if (key == 'version') {
                 return;
               }
-              const EXPECT_TL = 'hashMap file exist';
               const url1 = util.path.join(userConfig.alias.revRoot, key);
               const url2 = util.path.join(userConfig.alias.revRoot, hashMap[key]);
 
-              expect([
-                EXPECT_TL,
-                url1,
-                fs.existsSync(url1)
-              ]).to.deep.equal([
-                EXPECT_TL,
-                url1,
-                true
-              ]);
-
-              expect([
-                EXPECT_TL,
-                url2,
-                fs.existsSync(url2)
-              ]).to.deep.equal([
-                EXPECT_TL,
-                url2,
-                true
-              ]);
+              console.log(url1, fs.existsSync(url1));
+              console.log(url2, fs.existsSync(url2));
+              expect(fs.existsSync(url1)).to.equal(true);
+              expect(fs.existsSync(url2)).to.equal(true);
             });
 
             localSource.forEach((iPath) => {
-              const EXPECT_TL = 'localsource exist check';
-              expect([
-                EXPECT_TL,
-                iPath,
-                fs.existsSync(iPath)
-              ]).to.deep.equal([
-                EXPECT_TL,
-                iPath,
-                true
-              ]);
+              console.log(iPath, fs.existsSync(iPath));
+              expect(fs.existsSync(iPath)).to.equal(true);
             });
 
             let padding = remoteSource.length;
@@ -474,21 +450,13 @@ if (TEST_CTRL.ALL) {
             };
             remoteSource.forEach((iPath) => {
               var rPath = iPath;
-              var EXPECT_TL = 'remote url check';
               if (rPath.match(NO_PROTOCOL)) {
                 rPath = rPath.replace(NO_PROTOCOL, 'http://$1');
               }
 
               http.get(rPath, (res) => {
-                expect([
-                  EXPECT_TL,
-                  rPath,
-                  res.statusCode
-                ]).to.deep.equal([
-                  EXPECT_TL,
-                  rPath,
-                  200
-                ]);
+                console.log(rPath, res.statusCode);
+                expect(res.statusCode).to.equal(200);
                 padding--;
                 paddingCheck();
               });
