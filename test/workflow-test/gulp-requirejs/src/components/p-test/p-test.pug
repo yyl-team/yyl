@@ -105,7 +105,8 @@ block body
 
 
     div.p-test-module
-        div.tl html template test
+        div.tl html template tes
+        t
         div#tmplCnt.cnt
 
         script#tmpl(type="text/html")
@@ -115,6 +116,8 @@ block body
             img(src="../../images/logo.png")
             img(src="/pc/images/test/logo.png")
             img(src="{{url}}")
+            img(src="{{url2}}")
+            img(src="{{url3}}")
 
     div.p-test-module
         div.tl html inner script test
@@ -126,6 +129,21 @@ block body
                 var src = 'pc/images/components/w-head/images/icons-head.png';
                 imgEl.src = '//yyweb.yystatic.com/' + src;
                 cntEl.appendChild(imgEl);
+            })();
+    div.p-test-module
+        div.tl html __inner script test
+        div#innerScriptCnt2.cnt
+        script.
+            (function(){
+                var cntEl = document.getElementById('innerScriptCnt2');
+                var imgEl = document.createElement('img');
+                var imgEl2 = document.createElement('img');
+                imgEl.src = __url('../../images/logo.png');
+                var src2 = '../../images/test/logo.png/123';
+                imgEl2.src = src2.replace('/123', '');
+
+                cntEl.appendChild(imgEl);
+                cntEl.appendChild(imgEl2);
             })();
 
 

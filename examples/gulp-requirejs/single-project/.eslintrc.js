@@ -2,7 +2,8 @@ module.exports = {
     "env": {
         "browser": true,
         "jquery": true,
-        "amd":true
+        "amd": true,
+        "__inline": true
     },
     "extends": "eslint:recommended",
     "parserOptions": {

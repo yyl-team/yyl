@@ -1,13 +1,16 @@
 'use strict';
-define([], function(){
-    var 
+define([], function() {
+    var
         wDemo = {
-            init: function(){
+            init: function() {
                 var logoEl = document.getElementById('logo');
+                var imageUrl = __inline('../r-demo/images/logo.png');
                 var i;
                 var iClass = [0, 1, 2, 3];
 
-                setInterval(function(){
+                console.log(imageUrl);
+
+                setInterval(function() {
                     var here = iClass.concat([]);
                     here.splice(here.indexOf(i), 1);
 

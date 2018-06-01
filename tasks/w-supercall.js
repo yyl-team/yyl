@@ -171,23 +171,7 @@ var
         },
 
         // 路径纠正
-        resolveUrl: function(cnt, filePath, op) {
-          var
-            REG = {
-              HTML_PATH_REG: /(src|href|data-main|data-original)(\s*=\s*)(['"])([^'"]*)(["'])/ig,
-              HTML_SCRIPT_REG: /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig,
-              HTML_IGNORE_REG: /^(about:|data:|javascript:|#|\{\{)/,
-              HTML_SCRIPT_TEMPLATE_REG: /type\s*=\s*['"]text\/html["']/,
-              HTML_ALIAS_REG: /^(\{\$)(\w+)(\})/g,
-
-              HTML_STYLE_REG: /(<style[^>]*>)([\w\W]*?)(<\/style>)/ig,
-
-              CSS_PATH_REG: /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig,
-              CSS_PATH_REG2: /(src\s*=\s*['"])([^'" ]*?)(['"])/ig,
-              CSS_IGNORE_REG: /^(about:|data:)/,
-
-              IS_HTTP: /^(http[s]?:)|(\/\/\w)/
-            };
+        resolveUrl: function(cnt, filePath, revMap, op) {
           var iExt = path.extname(filePath).replace(/^\./g, '');
           var iDir = path.dirname(filePath);
           var config = util.getConfigCacheSync();
@@ -198,26 +182,37 @@ var
               return '/';
             }
           })();
-          var r = '';
-          var htmlReplace = function(iCnt) {
-            iCnt = iCnt.replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => { // 隔离script 标签
-              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
-                return str;
-              } else {
-                return $1 + querystring.escape($2) + $3;
+          let r = '';
+          const revReplace = function(rPath) {
+            let rrPath = rPath;
+            Object.keys(revMap).forEach((key) => {
+              if (key == 'version') {
+                return;
               }
-            }).replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => { // 隔离 style 标签
-              return $1 + querystring.escape($2) + $3;
-            }).replace(REG.HTML_PATH_REG, (str, $1, $2, $3, $4, $5) => {
-              var iPath = $4;
+              rrPath = rrPath.split(key).join(revMap[key]);
+            });
+            return rrPath;
+          };
+          const htmlReplace = function(iCnt) {
+            const rCnt = util.htmlPathMatch(iCnt, (iPath, type) => {
+              const r = (rPath) => {
+                switch (type) {
+                  case '__url':
+                    return `'${revReplace(rPath)}'`;
 
-              if (iPath.match(REG.HTML_IGNORE_REG)) {
-                return str;
-              } else if (iPath.match(REG.HTML_ALIAS_REG)) { // 构建语法糖 {$key}
+                  default:
+                    return revReplace(rPath);
+                }
+              };
+
+              let rPath = iPath;
+              if (rPath.match(util.REG.HTML_IGNORE_REG)) {
+                return r(iPath);
+              } else if (rPath.match(util.REG.HTML_ALIAS_REG)) { // 构建语法糖 {$key}
                 var isMatch = false;
 
-                iPath = iPath.replace(
-                  REG.HTML_ALIAS_REG,
+                rPath = rPath.replace(
+                  util.REG.HTML_ALIAS_REG,
                   (str, $1, $2) => {
                     if (config.alias[$2]) {
                       isMatch = true;
@@ -228,67 +223,84 @@ var
                   }
                 );
 
-                if (isMatch && iPath && fs.existsSync(iPath)) {
-                  iPath = util.path.join(
+                if (isMatch && rPath && fs.existsSync(rPath)) {
+                  rPath = util.path.join(
                     iHostname,
-                    util.path.relative(config.alias.destRoot, iPath)
+                    util.path.relative(config.alias.destRoot, rPath)
                   );
 
-                  return $1 + $2 + $3 + iPath + $5;
+                  return r(rPath);
                 } else {
-                  return str;
+                  return r(iPath);
                 }
               } else {
                 // url format
-                iPath = util.path.join(iPath);
+                rPath = util.path.join(rPath);
 
                 // url absolute
-                if (!iPath.match(REG.IS_HTTP) && !path.isAbsolute(iPath)) {
-                  iPath = util.path.join(
+                if (!rPath.match(util.REG.IS_HTTP) && !path.isAbsolute(rPath)) {
+                  rPath = util.path.join(
                     iHostname,
                     util.path.relative(config.alias.destRoot, iDir),
-                    iPath
+                    rPath
                   );
                 }
-
-                return $1 + $2 + $3 + iPath + $5;
+                return r(rPath);
               }
-            }).replace(REG.HTML_SCRIPT_REG, (str, $1, $2, $3) => {
-              if ($1.match(REG.HTML_SCRIPT_TEMPLATE_REG)) {
-                return str;
-              } else {
-                return $1 + querystring.unescape($2) + $3;
-              }
-            }).replace(REG.HTML_STYLE_REG, (str, $1, $2, $3) => { // 解除隔离 style 标签
-              return $1 + querystring.unescape($2) + $3;
             });
 
-            return iCnt;
+            return rCnt;
           };
-          var cssReplace = function(iCnt) {
-            var filterHandle = function(str, $1, $2, $3) {
-              var iPath = $2;
-
-              if (iPath.match(REG.CSS_IGNORE_REG)) {
-                return str;
+          const cssReplace = function(iCnt) {
+            const rCnt = util.cssPathMatch(iCnt, (iPath) => {
+              let rPath = iPath;
+              if (rPath.match(util.REG.CSS_IGNORE_REG)) {
+                return iPath;
               } else {
-                iPath = util.path.join($2);
+                rPath = util.path.join(rPath);
                 // url absolute
-                if (!iPath.match(REG.IS_HTTP) && !path.isAbsolute(iPath)) {
-                  iPath = util.path.join(
+                if (!rPath.match(util.REG.IS_HTTP) && !path.isAbsolute(rPath)) {
+                  rPath = util.path.join(
                     op.remotePath ? op.remotePath : config.commit.hostname,
                     util.path.relative(config.alias.destRoot, iDir),
-                    iPath
+                    rPath
                   );
                 }
 
-                return $1 + iPath + $3;
+                return revReplace(rPath);
               }
-            };
+            });
 
-            return iCnt
-              .replace(REG.CSS_PATH_REG, filterHandle)
-              .replace(REG.CSS_PATH_REG2, filterHandle);
+            return rCnt;
+          };
+          const jsReplace = function(iCnt) {
+            return util.jsPathMatch(iCnt, (iPath, type) => {
+              const r = (rPath) => {
+                switch (type) {
+                  case '__url':
+                    return `'${revReplace(rPath)}'`;
+
+                  default:
+                    return revReplace(rPath);
+                }
+              };
+              let rPath = iPath;
+              if (rPath.match(util.REG.CSS_IGNORE_REG)) {
+                return r(rPath);
+              } else {
+                rPath = util.path.join(rPath);
+                // url absolute
+                if (!rPath.match(util.REG.IS_HTTP) && !path.isAbsolute(rPath)) {
+                  rPath = util.path.join(
+                    op.remotePath ? op.remotePath : config.commit.hostname,
+                    util.path.relative(config.alias.destRoot, iDir),
+                    rPath
+                  );
+                }
+
+                return r(rPath);
+              }
+            });
           };
           switch (iExt) {
             case 'html':
@@ -297,6 +309,10 @@ var
 
             case 'css':
               r = cssReplace(cnt);
+              break;
+
+            case 'js':
+              r = jsReplace(cnt);
               break;
 
             default:
@@ -322,14 +338,9 @@ var
           var selfFn = this;
 
           // url format
-          rCnt = selfFn.resolveUrl(rCnt, iPath, op);
+          rCnt = selfFn.resolveUrl(rCnt, iPath, revMap, op);
 
-          Object.keys(revMap).forEach((key) => {
-            if (key == 'version') {
-              return;
-            }
-            rCnt = rCnt.split(key).join(revMap[key]);
-          });
+
 
           if (iCnt != rCnt) {
             selfFn.mark.add('update', iPath);
@@ -444,6 +455,10 @@ var
 
             // 生成 js hash 表
             jsFiles.forEach((iPath) => {
+              // hash路径替换
+              selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+              // 生成hash 表
               selfFn.buildHashMap(iPath, revMap);
             });
 
@@ -573,6 +588,10 @@ var
               if (fs.existsSync(filePath)) {
                 switch (path.extname(filePath)) {
                   case '.css':
+                    self.fn.fileHashPathUpdate(filePath, revMap, op);
+                    break;
+
+                  case '.js':
                     self.fn.fileHashPathUpdate(filePath, revMap, op);
                     break;
 
