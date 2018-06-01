@@ -316,8 +316,6 @@ if (TEST_CTRL.INIT) {
             return a.localeCompare(b);
           });
 
-          console.log('rFiles', rFiles);
-          console.log('sFiles', sFiles);
           expect(rFiles).to.deep.equal(sFiles);
 
           fn.frag.destroy().then(() => {
@@ -431,14 +429,11 @@ if (TEST_CTRL.ALL) {
               const url1 = util.path.join(userConfig.alias.revRoot, key);
               const url2 = util.path.join(userConfig.alias.revRoot, hashMap[key]);
 
-              console.log(url1, fs.existsSync(url1));
-              console.log(url2, fs.existsSync(url2));
               expect(fs.existsSync(url1)).to.equal(true);
               expect(fs.existsSync(url2)).to.equal(true);
             });
 
             localSource.forEach((iPath) => {
-              console.log(iPath, fs.existsSync(iPath));
               expect(fs.existsSync(iPath)).to.equal(true);
             });
 
@@ -455,7 +450,6 @@ if (TEST_CTRL.ALL) {
               }
 
               http.get(rPath, (res) => {
-                console.log(rPath, res.statusCode);
                 expect(res.statusCode).to.equal(200);
                 padding--;
                 paddingCheck();
