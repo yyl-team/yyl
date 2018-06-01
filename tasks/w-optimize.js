@@ -8,7 +8,7 @@ var log = require('./w-log');
 
 var
   wOptimize = function() {
-    var iArgv = [...arguments];
+    var iArgv = util.makeArray(arguments);
     var iEnv = util.envPrase(iArgv);
 
     const runner = (done) => {

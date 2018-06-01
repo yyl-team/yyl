@@ -668,7 +668,7 @@ const wServer = {
             next();
           }
         });
-        
+
         app.use(serveStatic(iPath, {
           'setHeaders': function(res) {
             res.setHeader('Cache-Control', 'no-cache');
@@ -682,7 +682,7 @@ const wServer = {
         if (fs.existsSync(routesPath)) {
           let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
           app.use(jsonServerRewrite);
-        } 
+        }
 
         let dbPath = path.join(process.cwd(), 'mock/db.json');
         if (fs.existsSync(dbPath)) {
@@ -693,7 +693,7 @@ const wServer = {
         let jsonServerMiddlewares = jsonServer.defaults();
         app.use(jsonServerMiddlewares);
         //- mock server
-        
+
         var server = http.createServer(app);
         var lrServer = tinylr();
         server.listen(port, (err) => {
@@ -842,7 +842,7 @@ const wServer = {
 
   // yyl 脚本调用 入口
   run: function() {
-    var iArgv = [...arguments];
+    var iArgv = util.makeArray(arguments);
     var ctx = iArgv[1];
 
     switch (ctx) {

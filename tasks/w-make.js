@@ -358,7 +358,7 @@ var
       });
     },
     run: function() {
-      var iArgv = [...arguments];
+      var iArgv = util.makeArray(arguments);
       var ctx = iArgv[0];
       var op = util.envParse(iArgv.slice(1));
 

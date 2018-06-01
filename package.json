@@ -33,10 +33,10 @@
     "concat-with-sourcemaps": "~1.0.4",
     "connect": "~3.5.0",
     "connect-livereload": "~0.6.0",
-    "gulp": "^3.9.1",
+    "gulp": "~3.9.1",
     "inquirer": "~0.8.5",
     "keypress": "*",
-    "rev-hash": "^2.0.0",
+    "rev-hash": "~2.0.0",
     "serve-index": "~1.8.0",
     "serve-static": "~1.11.1",
     "tiny-lr": "~1.0.3",
@@ -44,9 +44,9 @@
     "yyl-util": "~1.14.2"
   },
   "devDependencies": {
-    "chai": "^4.1.2",
-    "express": "^4.16.3",
-    "json-server": "^0.12.2",
-    "webdriverio": "^4.10.1"
+    "chai": "~4.1.2",
+    "express": "~4.16.3",
+    "json-server": "~0.12.2",
+    "webdriverio": "~4.10.1"
   }
 }
