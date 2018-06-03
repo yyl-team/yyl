@@ -159,7 +159,7 @@ var fn = {
   },
   proxyToLocal(op, req, done) {
     let reqUrl = req.url;
-    if (!/^http[s]:/.test(reqUrl)) { // 适配 https
+    if (!/^http[s]?:/.test(reqUrl)) { // 适配 https
       reqUrl = `https://${req.headers.host}${req.url}`;
     }
     const iAddrs = Object.keys(op.localRemote || {});
@@ -278,87 +278,23 @@ const wProxy = {
       server.listen(iPort);
 
       // ws 监听, 转发
-      server.on('connect', (req, socket, head) => {
-        fn.createHttpsServer(req, socket, head, (err, req, res) => {
+      server.on('connect', (oReq, socket, head) => {
+        fn.createHttpsServer(oReq, socket, head, (err, req, res, vSocket) => {
           fn.proxyToLocal(op, req, (vRes) => {
-            if (!vRes) {
-              easyCert.getCertificate(req.headers.host, (err, sKey, sCert) => {
-                request({
-                  url: `https://${req.headers.host}${req.url}`,
-                  headers: req.headers,
-                  method: req.method,
-                  agentOptions: {
-                    cert: sCert,
-                    key: sKey
-                  }
-                }, (err, vvRes) => {
-                  // TODO not work in https://www.baidu.com/
-                  if (err) {
-                    res.end();
-                  } else {
-                    res.writeHead(vvRes.statusCode, vvRes.headers);
-                    vvRes.pipe(res);
-                  }
-                });
+            if (!vRes) { // 这部分有问题
+              const x = request({
+                url: `https://${req.headers.host}${req.url}`,
+                headers: req.headers,
+                method: req.method
               });
-
+              req.pipe(x);
+              x.pipe(res);
             } else {
               res.writeHead(vRes.statusCode, vRes.headers);
               vRes.pipe(res);
             }
           });
         });
-
-        // // 根据域名生成对应的https服务
-        // fn.createHttpsServer(req, socket, head, (err, req, res) => {
-        //   if (err) {
-        //     res.end();
-        //   }
-        //   fn.proxyToLocal(op, req, (vRes) => {
-        //     if (!vRes) { // 透传
-        //       console.log(req.url)
-        //       const urlObject = url.parse(req.url);
-        //       let options = {
-        //         protocol: 'https:',
-        //         hostname: req.headers.host.split(':')[0],
-        //         method: req.method,
-        //         port: req.headers.host.split(':')[1] || 80,
-        //         path: urlObject.path,
-        //         headers: req.headers
-        //       };
-        //       res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
-        //       res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`);
-        //       console.log(options);
-        //       res.end();
-        //       // TODO
-        //     } else {
-        //       res.writeHead(vRes.statusCode, vRes.headers);
-        //       vRes.pipe(res);
-        //     }
-        //   });
-
-        // });
-
-        // const addr = req.url.split(':');
-        // // creating TCP connection to remote server
-        // const conn = net.connect(addr[1] || 443, addr[0], () => {
-        //   // tell the client that the connection is established
-        //   socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
-        //     // creating pipes in both ends
-        //     conn.pipe(socket);
-        //     socket.pipe(conn);
-        //   });
-        // });
-
-        // socket.on('error', () => {
-        //   socket.end();
-        //   conn.end();
-        // });
-
-        // conn.on('error', () => {
-        //   socket.end();
-        //   conn.end();
-        // });
       });
 
       server.on('error', (err) => {
