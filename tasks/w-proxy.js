@@ -1,14 +1,24 @@
 'use strict';
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const net = require('net');
 const fs = require('fs');
 const url = require('url');
 const chalk = require('chalk');
-const httpProxy = require('http-proxy');
+const EasyCert = require('node-easy-cert');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
+const easyCert = new EasyCert({
+  rootDirPath: util.vars.SERVER_CERTS_PATH,
+  defaultCertAttrs: [
+    { name: 'countryName', value: 'CN' },
+    { name: 'organizationName', value: 'AnyProxy' },
+    { shortName: 'ST', value: 'SH' },
+    { shortName: 'OU', value: 'AnyProxy SSL Proxy' }
+  ]
+});
 
 const MIME_TYPE_MAP = {
   'css': 'text/css',
@@ -99,11 +109,15 @@ var fn = {
         ]
       }).end();
     }
+  // },
+  // createHttpsServer(domain, done) {
+
   }
 };
 
 const cache = {
   server: null,
+  crtMgr: null,
   index: 0
 };
 
@@ -111,16 +125,38 @@ const wProxy = {
   init: function(op, done) {
     const iPort = op.port || 8887;
 
-    const server = http.createServer((req, res) => {
+    // cert
+    new util.Promise((next) => {
+      if (easyCert.isRootCAFileExists()) {
+        log('msg', 'success', ['cert already exists']);
+        log('msg', 'success', [`please trust the rootCA.crt in ${chalk.yellow(util.vars.SERVER_CERTS_PATH)}`]);
+        next();
+      } else {
+        log('end');
+        easyCert.generateRootCA({
+          commonName: 'yyl-cert',
+          overwrite: false
+        }, (err) => {
+          if (err) {
+            log('msg', 'warn', ['cert generate error', err]);
+          } else {
+            log('msg', 'success', ['cert generate success']);
+          }
+          next();
+        });
+      }
+    // server
+    }).then(() => {
+      const server = http.createServer((req, res) => {
         const reqUrl = req.url;
         const iAddrs = Object.keys(op.localRemote || {});
 
         // 本地代理
         const remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
-        const localData;
-        const localUrl;
-        const httpRemoteUrl;
-        const proxyIgnore = false;
+        let localData = '';
+        let localUrl = '';
+        let httpRemoteUrl = '';
+        let proxyIgnore = false;
 
         if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
           proxyIgnore = true;
@@ -165,11 +201,11 @@ const wProxy = {
           res.write(localData);
           res.end();
         } else { // 透传 or 转发
-          const iUrl = httpRemoteUrl || req.url;
+          let iUrl = httpRemoteUrl || req.url;
           if (proxyIgnore) {
             iUrl = req.url;
           }
-          const body = [];
+          let body = [];
           const linkit = function(iUrl, iBuffer) {
             const vOpts = url.parse(iUrl);
             vOpts.method = req.method;
@@ -243,49 +279,50 @@ const wProxy = {
         }
       });
 
-    log('msg', 'success', 'proxy server start');
-    Object.keys(op.localRemote).forEach((key) => {
-      log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(op.localRemote[key])}`);
-    });
-    log('msg', 'success', `proxy server port: ${chalk.yellow(iPort)}`);
+      log('msg', 'success', 'proxy server start');
+      Object.keys(op.localRemote).forEach((key) => {
+        log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(op.localRemote[key])}`);
+      });
+      log('msg', 'success', `proxy server port: ${chalk.yellow(iPort)}`);
 
-    server.listen(iPort);
+      server.listen(iPort);
 
-    // ws 监听, 转发
-    server.on('connect', (req, socket) => {
-      var addr = req.url.split(':');
-      //creating TCP connection to remote server
-      var conn = net.connect(addr[1] || 443, addr[0], () => {
-        // tell the client that the connection is established
-        socket.write(`HTTP/${  req.httpVersion  } 200 OK\r\n\r\n`, 'UTF-8', () => {
-          // creating pipes in both ends
-          conn.pipe(socket);
-          socket.pipe(conn);
+      // ws 监听, 转发
+      server.on('connect', (req, socket) => {
+        const addr = req.url.split(':');
+        // creating TCP connection to remote server
+        const conn = net.connect(addr[1] || 443, addr[0], () => {
+          // tell the client that the connection is established
+          socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
+            // creating pipes in both ends
+            conn.pipe(socket);
+            socket.pipe(conn);
+          });
+        });
+
+        socket.on('error', () => {
+          socket.end();
+          conn.end();
+        });
+
+        conn.on('error', () => {
+          socket.end();
+          conn.end();
         });
       });
 
-      socket.on('error', () => {
-        socket.end();
-        conn.end();
+      server.on('error', (err) => {
+        if (err.code == 'EADDRINUSE') {
+          log('msg', 'error', `proxy server start fail: ${chalk.yellow(iPort)} is occupied, please check`);
+        } else {
+          log('msg', 'error', ['proxy server error', err]);
+        }
       });
 
-      conn.on('error', () => {
-        socket.end();
-        conn.end();
-      });
-    });
+      cache.server = server;
 
-    server.on('error', (err) => {
-      if (err.code == 'EADDRINUSE') {
-        log('msg', 'error', `proxy server start fail: ${chalk.yellow(iPort)} is occupied, please check`);
-      } else {
-        log('msg', 'error', ['proxy server error', err]);
-      }
-    });
-
-    cache.server = server;
-
-    return done && done();
+      return done && done();
+    }).start();
   },
   abort: function() {
     if (cache.server) {
@@ -302,3 +339,5 @@ const wProxy = {
 };
 
 module.exports = wProxy;
+
+

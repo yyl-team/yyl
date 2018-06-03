@@ -37,6 +37,7 @@
     "http-proxy": "^1.17.0",
     "inquirer": "~0.8.5",
     "keypress": "*",
+    "node-easy-cert": "^1.2.0",
     "rev-hash": "~2.0.0",
     "serve-index": "~1.8.0",
     "serve-static": "~1.11.1",

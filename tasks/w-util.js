@@ -76,6 +76,9 @@ const rUtil = util.extend(true, util, {
     // server 存放 更新程序目录
     SERVER_UPDATE_PATH: util.joinFormat(USERPROFILE, '.yyl/update/yyl'),
 
+    // server 存放 https 证书的目录
+    SERVER_CERTS_PATH: util.joinFormat(USERPROFILE, '.yyl/certs'),
+
     // 本机 ip地址
     LOCAL_SERVER: (function() {
       var ipObj = os.networkInterfaces();
