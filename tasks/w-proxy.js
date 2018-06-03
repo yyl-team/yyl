@@ -6,6 +6,7 @@ const net = require('net');
 const fs = require('fs');
 const url = require('url');
 const chalk = require('chalk');
+const tls = require('tls');
 const EasyCert = require('node-easy-cert');
 
 const log = require('./w-log.js');
@@ -109,9 +110,51 @@ var fn = {
         ]
       }).end();
     }
-  // },
-  // createHttpsServer(domain, done) {
+  },
+  createHttpsServer(domain, done) {
+    easyCert.getCertificate(domain, (err, keyContent, certContent) => {
+      if (err) {
+        return done(err);
+      }
+      const server = new https.Server({
+        key: keyContent,
+        cert: certContent,
+        SNICallback: (hostname, next) => {
+          console.log('SNICallback', hostname)
+          easyCert.getCertificate(hostname, (err, sKey, sCert) => {
+            next(null, tls.createSecureContext({
+              key: sKey,
+              cert: sCert
+            }));
+          });
+        }
+      });
 
+      server.on('request', (req, res) => {
+        console.log('rrrrrrrrrrrrrrr', req)
+        const urlObject = url.parse(req.url);
+        let options = {
+          protocol: 'https:',
+          hostname: req.headers.host.split(':')[0],
+          method: req.method,
+          port: req.headers.host.split(':')[1] || 80,
+          path: urlObject.path,
+          headers: req.headers
+        };
+        res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
+        res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`)
+        res.end();
+      });
+
+      server.on('error', (e) => {
+        throw new Error(e);
+      });
+
+      server.listen(0, () => {
+        const address = server.address();
+        done(null, address.port);
+      });
+    });
   }
 };
 
@@ -289,27 +332,48 @@ const wProxy = {
       server.listen(iPort);
 
       // ws 监听, 转发
-      server.on('connect', (req, socket) => {
-        const addr = req.url.split(':');
-        // creating TCP connection to remote server
-        const conn = net.connect(addr[1] || 443, addr[0], () => {
-          // tell the client that the connection is established
-          socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
-            // creating pipes in both ends
-            conn.pipe(socket);
-            socket.pipe(conn);
+      server.on('connect', (req, socket, head) => {
+        // connect to an origin server
+        const srvUrl = url.parse(`http://${req.url}`);
+        console.log(`CONNECT ${srvUrl.hostname}:${srvUrl.port}`);
+        // 根据域名生成对应的https服务
+        fn.createHttpsServer(srvUrl.hostname, (err, port) => {
+          if (err) {
+            throw new Error(err);
+          }
+          var srvSocket = net.connect(port, '127.0.0.1', () => {
+            socket.write('HTTP/1.1 200 Connection Established\r\n' +
+              'Proxy-agent: MITM-proxy\r\n' +
+              '\r\n');
+            srvSocket.write(head);
+            srvSocket.pipe(socket);
+            socket.pipe(srvSocket);
+          });
+          srvSocket.on('error', (e) => {
+            console.error(e);
           });
         });
 
-        socket.on('error', () => {
-          socket.end();
-          conn.end();
-        });
+        // const addr = req.url.split(':');
+        // // creating TCP connection to remote server
+        // const conn = net.connect(addr[1] || 443, addr[0], () => {
+        //   // tell the client that the connection is established
+        //   socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
+        //     // creating pipes in both ends
+        //     conn.pipe(socket);
+        //     socket.pipe(conn);
+        //   });
+        // });
 
-        conn.on('error', () => {
-          socket.end();
-          conn.end();
-        });
+        // socket.on('error', () => {
+        //   socket.end();
+        //   conn.end();
+        // });
+
+        // conn.on('error', () => {
+        //   socket.end();
+        //   conn.end();
+        // });
       });
 
       server.on('error', (err) => {
