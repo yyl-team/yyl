@@ -156,6 +156,57 @@ var fn = {
         });
       });
     });
+  },
+  proxyToLocal(op, req, done) {
+    const reqUrl = req.url;
+    const iAddrs = Object.keys(op.localRemote || {});
+
+    // 本地代理
+    const remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
+    let proxyUrl = '';
+    let proxyIgnore = false;
+
+    if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
+      proxyIgnore = true;
+    }
+
+    if (!proxyIgnore) {
+      iAddrs.map((addr) => {
+        var localAddr = op.localRemote[addr];
+
+        if (!localAddr || !addr) {
+          return true;
+        }
+
+        if (addr === reqUrl.substr(0, addr.length)) {
+          const subAddr = util.joinFormat(localAddr, reqUrl.substr(addr.length));
+          if (/^http(s)?:/.test(localAddr)) {
+            proxyUrl = subAddr;
+            return false;
+          }
+        }
+      });
+    }
+
+    if (proxyIgnore || !proxyUrl) {
+      done(null);
+    } else { // 透传 or 转发
+      const vOpts = url.parse(proxyUrl);
+      vOpts.method = req.method;
+      vOpts.headers = req.headers;
+      const vRequest = http.request(vOpts, (vRes) => {
+        if (/^404|405$/.test(vRes.statusCode)) {
+          vRes.on('end', () => {
+            done(null);
+          });
+
+          return vRequest.abort();
+        } else {
+          done(vRes);
+        }
+      });
+      req.pipe(vRequest);
+    }
   }
 };
 
@@ -193,135 +244,21 @@ const wProxy = {
     // server
     }).then(() => {
       const server = http.createServer((req, res) => {
-        const reqUrl = req.url;
-        const iAddrs = Object.keys(op.localRemote || {});
-
-        // 本地代理
-        const remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
-        let localData = '';
-        let localUrl = '';
-        let httpRemoteUrl = '';
-        let proxyIgnore = false;
-
-        if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
-          proxyIgnore = true;
-        }
-
-        iAddrs.forEach((addr) => {
-          var localAddr = op.localRemote[addr];
-
-          if (!localAddr || !addr) {
-            return true;
-          }
-
-
-          if (addr === remoteUrl.substr(0, addr.length)) {
-            var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
-
-            if (/^http(s)?:/.test(localAddr)) {
-              httpRemoteUrl = subAddr;
-              return false;
-            }
-
-            if (fs.existsSync(subAddr)) {
-              localData = fs.readFileSync(subAddr);
-              localUrl = subAddr;
-              return false;
-            }
-          }
-        });
-
-        if (localData && !proxyIgnore) { // 存在本地文件
-          fn.log.u({
-            src: reqUrl,
-            dest: localUrl,
-            status: 200
-          });
-
-          const iExt = path.extname(req.url).replace(/^\./, '');
-          if (MIME_TYPE_MAP[iExt]) {
-            res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-          }
-
-          res.write(localData);
-          res.end();
-        } else { // 透传 or 转发
-          let iUrl = httpRemoteUrl || req.url;
-          if (proxyIgnore) {
-            iUrl = req.url;
-          }
-          let body = [];
-          const linkit = function(iUrl, iBuffer) {
-            const vOpts = url.parse(iUrl);
+        fn.proxyToLocal(op, req, (vRes) => {
+          if (!vRes) { // 透传
+            const vOpts = url.parse(req.url);
             vOpts.method = req.method;
             vOpts.headers = req.headers;
-            vOpts.body = body;
-
-
-            const vRequest = http.request(vOpts, (vRes) => {
-              if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
-                vRes.on('end', () => {
-                  linkit(req.url, iBuffer);
-                });
-
-                return vRequest.abort();
-              }
-
-              vRes.on('data', (chunk) => {
-                res.write(chunk, 'binary');
-              });
-
-              vRes.on('end', () => {
-                fn.log.u({
-                  src: reqUrl,
-                  dest: iUrl,
-                  status: vRes.statusCode
-                });
-
-                // if(/text\/html/.test(res.getHeader('content-type'))){
-                //     res.write(PROXY_INFO_HTML);
-                // }
-                res.end();
-              });
-              vRes.on('error', () => {
-                res.end();
-              });
-
-              const iHeader = util.extend(true, {}, vRes.headers);
-
-              // 设置 header
-              const iType = vRes.headers['content-type'];
-              if (iType) {
-                res.setHeader('Content-Type', iType);
-              } else {
-                const iExt = path.extname(req.url).replace(/^\./, '');
-
-                if (MIME_TYPE_MAP[iExt]) {
-                  res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
-                }
-              }
-
-              res.writeHead(vRes.statusCode, iHeader);
+            const vRequest = http.request(vOpts, (vvRes) => {
+              res.writeHead(vvRes.statusCode, vvRes.headers);
+              vvRes.pipe(res);
             });
-
-            vRequest.on('error', () => {
-              res.end();
-            });
-
-            vRequest.write(body);
-            vRequest.end();
-          };
-
-          req.on('data', (chunk) => {
-            body.push(chunk);
-          });
-
-
-          req.on('end', () => {
-            body = Buffer.concat(body).toString();
-            linkit(iUrl, body);
-          });
-        }
+            req.pipe(vRequest);
+          } else {
+            res.writeHead(vRes.statusCode, vRes.headers);
+            vRes.pipe(res);
+          }
+        });
       });
 
       log('msg', 'success', 'proxy server start');
@@ -334,45 +271,45 @@ const wProxy = {
 
       // ws 监听, 转发
       server.on('connect', (req, socket, head) => {
-        // 根据域名生成对应的https服务
-        fn.createHttpsServer(req, socket, head, (err, req, res) => {
-          if (err) {
-            throw new Error(err);
-          }
-          const urlObject = url.parse(req.url);
-          let options = {
-            protocol: 'https:',
-            hostname: req.headers.host.split(':')[0],
-            method: req.method,
-            port: req.headers.host.split(':')[1] || 80,
-            path: urlObject.path,
-            headers: req.headers
-          };
-          res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
-          res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`);
-          res.end();
+        // // 根据域名生成对应的https服务
+        // fn.createHttpsServer(req, socket, head, (err, req, res) => {
+        //   if (err) {
+        //     throw new Error(err);
+        //   }
+        //   const urlObject = url.parse(req.url);
+        //   let options = {
+        //     protocol: 'https:',
+        //     hostname: req.headers.host.split(':')[0],
+        //     method: req.method,
+        //     port: req.headers.host.split(':')[1] || 80,
+        //     path: urlObject.path,
+        //     headers: req.headers
+        //   };
+        //   res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
+        //   res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`);
+        //   res.end();
+        // });
+
+        const addr = req.url.split(':');
+        // creating TCP connection to remote server
+        const conn = net.connect(addr[1] || 443, addr[0], () => {
+          // tell the client that the connection is established
+          socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
+            // creating pipes in both ends
+            conn.pipe(socket);
+            socket.pipe(conn);
+          });
         });
 
-        // const addr = req.url.split(':');
-        // // creating TCP connection to remote server
-        // const conn = net.connect(addr[1] || 443, addr[0], () => {
-        //   // tell the client that the connection is established
-        //   socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
-        //     // creating pipes in both ends
-        //     conn.pipe(socket);
-        //     socket.pipe(conn);
-        //   });
-        // });
+        socket.on('error', () => {
+          socket.end();
+          conn.end();
+        });
 
-        // socket.on('error', () => {
-        //   socket.end();
-        //   conn.end();
-        // });
-
-        // conn.on('error', () => {
-        //   socket.end();
-        //   conn.end();
-        // });
+        conn.on('error', () => {
+          socket.end();
+          conn.end();
+        });
       });
 
       server.on('error', (err) => {
