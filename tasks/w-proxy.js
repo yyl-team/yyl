@@ -128,8 +128,9 @@ const wProxy = {
     // cert
     new util.Promise((next) => {
       if (easyCert.isRootCAFileExists()) {
-        log('msg', 'success', ['cert already exists']);
-        log('msg', 'success', [`please trust the rootCA.crt in ${chalk.yellow(util.vars.SERVER_CERTS_PATH)}`]);
+        log('msg', 'success', ['cert  cert already exists']);
+        log('msg', 'success', ['cert  please double click the rootCA.crt and trust it']);
+        log('msg', 'success', [`cert  ${chalk.yellow(util.vars.SERVER_CERTS_PATH)}`]);
         next();
       } else {
         log('end');
@@ -138,9 +139,9 @@ const wProxy = {
           overwrite: false
         }, (err) => {
           if (err) {
-            log('msg', 'warn', ['cert generate error', err]);
+            log('msg', 'warn', ['cert: generate error', err]);
           } else {
-            log('msg', 'success', ['cert generate success']);
+            log('msg', 'success', ['cert: generate success']);
           }
           next();
         });
