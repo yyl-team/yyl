@@ -136,7 +136,6 @@ var fn = {
       });
 
       server.on('error', () => {
-        server.end();
         if (srvSocket) {
           srvSocket.end();
         }
@@ -253,6 +252,10 @@ const wProxy = {
               res.writeHead(vvRes.statusCode, vvRes.headers);
               vvRes.pipe(res);
             });
+            vRequest.on('error', () => {
+              res.end();
+            });
+
             req.pipe(vRequest);
           } else {
             res.writeHead(vRes.statusCode, vRes.headers);
@@ -271,45 +274,56 @@ const wProxy = {
 
       // ws 监听, 转发
       server.on('connect', (req, socket, head) => {
-        // // 根据域名生成对应的https服务
-        // fn.createHttpsServer(req, socket, head, (err, req, res) => {
-        //   if (err) {
-        //     throw new Error(err);
-        //   }
-        //   const urlObject = url.parse(req.url);
-        //   let options = {
-        //     protocol: 'https:',
-        //     hostname: req.headers.host.split(':')[0],
-        //     method: req.method,
-        //     port: req.headers.host.split(':')[1] || 80,
-        //     path: urlObject.path,
-        //     headers: req.headers
-        //   };
-        //   res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
-        //   res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`);
-        //   res.end();
+        // 根据域名生成对应的https服务
+        fn.createHttpsServer(req, socket, head, (err, req, res) => {
+          if (err) {
+            res.end();
+          }
+          fn.proxyToLocal(op, req, (vRes) => {
+            if (!vRes) { // 透传
+              console.log(req.url)
+              const urlObject = url.parse(req.url);
+              let options = {
+                protocol: 'https:',
+                hostname: req.headers.host.split(':')[0],
+                method: req.method,
+                port: req.headers.host.split(':')[1] || 80,
+                path: urlObject.path,
+                headers: req.headers
+              };
+              res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
+              res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`);
+              console.log(options);
+              res.end();
+              // TODO
+            } else {
+              res.writeHead(vRes.statusCode, vRes.headers);
+              vRes.pipe(res);
+            }
+          });
+
+        });
+
+        // const addr = req.url.split(':');
+        // // creating TCP connection to remote server
+        // const conn = net.connect(addr[1] || 443, addr[0], () => {
+        //   // tell the client that the connection is established
+        //   socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
+        //     // creating pipes in both ends
+        //     conn.pipe(socket);
+        //     socket.pipe(conn);
+        //   });
         // });
 
-        const addr = req.url.split(':');
-        // creating TCP connection to remote server
-        const conn = net.connect(addr[1] || 443, addr[0], () => {
-          // tell the client that the connection is established
-          socket.write(`HTTP/${req.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
-            // creating pipes in both ends
-            conn.pipe(socket);
-            socket.pipe(conn);
-          });
-        });
+        // socket.on('error', () => {
+        //   socket.end();
+        //   conn.end();
+        // });
 
-        socket.on('error', () => {
-          socket.end();
-          conn.end();
-        });
-
-        conn.on('error', () => {
-          socket.end();
-          conn.end();
-        });
+        // conn.on('error', () => {
+        //   socket.end();
+        //   conn.end();
+        // });
       });
 
       server.on('error', (err) => {
