@@ -113,49 +113,73 @@ var fn = {
     }
   },
   createHttpsServer(oreq, socket, head, done) {
-    const srvUrl = url.parse(`http://${oreq.url}`);
-    let srvSocket = null;
-    easyCert.getCertificate(srvUrl.hostname, (err, keyContent, certContent) => {
-      if (err) {
-        return done(err);
-      }
-      const server = new https.Server({
-        key: keyContent,
-        cert: certContent,
-        SNICallback: (hostname, next) => {
-          easyCert.getCertificate(hostname, (err, sKey, sCert) => {
-            next(null, tls.createSecureContext({
-              key: sKey,
-              cert: sCert
-            }));
+    const addr = oreq.url.split(':');
+    if (addr[0] == 'h5chl.yy.com' || addr[0] == 'sslproxy.yy.com') { // TODO 找不到方法判断当前是否 ws 链接
+      //creating TCP connection to remote server
+      var conn = net.connect(addr[1] || 443, addr[0], () => {
+        // tell the client that the connection is established
+        socket.write(`HTTP/${oreq.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
+          // creating pipes in both ends
+          conn.pipe(socket);
+          socket.pipe(conn);
+        });
+      });
+
+      socket.on('error', () => {
+        socket.end();
+        conn.end();
+      });
+
+      conn.on('error', () => {
+        socket.end();
+        conn.end();
+      });
+
+    } else {
+      const srvUrl = url.parse(`http://${oreq.url}`);
+      let srvSocket = null;
+      easyCert.getCertificate(srvUrl.hostname, (err, keyContent, certContent) => {
+        if (err) {
+          return done(err);
+        }
+        const server = new https.Server({
+          key: keyContent,
+          cert: certContent,
+          SNICallback: (hostname, next) => {
+            easyCert.getCertificate(hostname, (err, sKey, sCert) => {
+              next(null, tls.createSecureContext({
+                key: sKey,
+                cert: sCert
+              }));
+            });
+          }
+        });
+
+        server.on('request', (req, res) => {
+          done(null, req, res, srvSocket);
+        });
+
+        server.on('error', () => {
+          if (srvSocket) {
+            srvSocket.end();
+          }
+        });
+
+        server.listen(0, () => {
+          const address = server.address();
+          srvSocket = net.connect(address.port, '127.0.0.1', () => {
+            socket.write(`HTTP/${oreq.httpVersion} 200 OK\r\n\r\n`, 'UTF-8');
+            srvSocket.write(head);
+            srvSocket.pipe(socket);
+            socket.pipe(srvSocket);
           });
-        }
-      });
-
-      server.on('request', (req, res) => {
-        done(null, req, res, srvSocket);
-      });
-
-      server.on('error', () => {
-        if (srvSocket) {
-          srvSocket.end();
-        }
-      });
-
-      server.listen(0, () => {
-        const address = server.address();
-        srvSocket = net.connect(address.port, '127.0.0.1', () => {
-          socket.write(`HTTP/${oreq.httpVersion} 200 OK\r\n\r\n`, 'UTF-8');
-          srvSocket.write(head);
-          srvSocket.pipe(socket);
-          socket.pipe(srvSocket);
-        });
-        srvSocket.on('error', () => {
-          srvSocket.end();
-          server.end();
+          srvSocket.on('error', () => {
+            srvSocket.end();
+            server.end();
+          });
         });
       });
-    });
+    }
   },
   proxyToLocal(op, req, done) {
     let reqUrl = req.url;
