@@ -111,8 +111,10 @@ var fn = {
       }).end();
     }
   },
-  createHttpsServer(domain, done) {
-    easyCert.getCertificate(domain, (err, keyContent, certContent) => {
+  createHttpsServer(oreq, socket, head, done) {
+    const srvUrl = url.parse(`http://${oreq.url}`);
+    let srvSocket = null;
+    easyCert.getCertificate(srvUrl.hostname, (err, keyContent, certContent) => {
       if (err) {
         return done(err);
       }
@@ -120,7 +122,6 @@ var fn = {
         key: keyContent,
         cert: certContent,
         SNICallback: (hostname, next) => {
-          console.log('SNICallback', hostname)
           easyCert.getCertificate(hostname, (err, sKey, sCert) => {
             next(null, tls.createSecureContext({
               key: sKey,
@@ -131,28 +132,28 @@ var fn = {
       });
 
       server.on('request', (req, res) => {
-        console.log('rrrrrrrrrrrrrrr', req)
-        const urlObject = url.parse(req.url);
-        let options = {
-          protocol: 'https:',
-          hostname: req.headers.host.split(':')[0],
-          method: req.method,
-          port: req.headers.host.split(':')[1] || 80,
-          path: urlObject.path,
-          headers: req.headers
-        };
-        res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
-        res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`)
-        res.end();
+        done(null, req, res);
       });
 
-      server.on('error', (e) => {
-        throw new Error(e);
+      server.on('error', () => {
+        server.end();
+        if (srvSocket) {
+          srvSocket.end();
+        }
       });
 
       server.listen(0, () => {
         const address = server.address();
-        done(null, address.port);
+        srvSocket = net.connect(address.port, '127.0.0.1', () => {
+          socket.write(`HTTP/${oreq.httpVersion} 200 OK\r\n\r\n`, 'UTF-8');
+          srvSocket.write(head);
+          srvSocket.pipe(socket);
+          socket.pipe(srvSocket);
+        });
+        srvSocket.on('error', () => {
+          srvSocket.end();
+          server.end();
+        });
       });
     });
   }
@@ -333,25 +334,23 @@ const wProxy = {
 
       // ws 监听, 转发
       server.on('connect', (req, socket, head) => {
-        // connect to an origin server
-        const srvUrl = url.parse(`http://${req.url}`);
-        console.log(`CONNECT ${srvUrl.hostname}:${srvUrl.port}`);
         // 根据域名生成对应的https服务
-        fn.createHttpsServer(srvUrl.hostname, (err, port) => {
+        fn.createHttpsServer(req, socket, head, (err, req, res) => {
           if (err) {
             throw new Error(err);
           }
-          var srvSocket = net.connect(port, '127.0.0.1', () => {
-            socket.write('HTTP/1.1 200 Connection Established\r\n' +
-              'Proxy-agent: MITM-proxy\r\n' +
-              '\r\n');
-            srvSocket.write(head);
-            srvSocket.pipe(socket);
-            socket.pipe(srvSocket);
-          });
-          srvSocket.on('error', (e) => {
-            console.error(e);
-          });
+          const urlObject = url.parse(req.url);
+          let options = {
+            protocol: 'https:',
+            hostname: req.headers.host.split(':')[0],
+            method: req.method,
+            port: req.headers.host.split(':')[1] || 80,
+            path: urlObject.path,
+            headers: req.headers
+          };
+          res.writeHead(200, { 'Content-Type': 'text/html;charset=utf-8'});
+          res.write(`<html><body>我是伪造的: ${options.protocol}//${options.hostname} 站点</body></html>`);
+          res.end();
         });
 
         // const addr = req.url.split(':');
