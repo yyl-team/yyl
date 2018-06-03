@@ -1,15 +1,16 @@
 'use strict';
-var path = require('path');
-var http = require('http');
-var net = require('net');
-var fs = require('fs');
-var url = require('url');
-var chalk = require('chalk');
+const path = require('path');
+const http = require('http');
+const net = require('net');
+const fs = require('fs');
+const url = require('url');
+const chalk = require('chalk');
+const httpProxy = require('http-proxy');
 
-var log = require('./w-log.js');
-var util = require('./w-util.js');
+const log = require('./w-log.js');
+const util = require('./w-util.js');
 
-var MIME_TYPE_MAP = {
+const MIME_TYPE_MAP = {
   'css': 'text/css',
   'js': 'text/javascript',
   'html': 'text/html',
@@ -106,22 +107,20 @@ const cache = {
   index: 0
 };
 
-var wProxy = {
+const wProxy = {
   init: function(op, done) {
-    var
-      iPort = op.port || 8887;
+    const iPort = op.port || 8887;
 
-    var
-      server = http.createServer((req, res) => {
-        var reqUrl = req.url;
-        var iAddrs = Object.keys(op.localRemote || {});
+    const server = http.createServer((req, res) => {
+        const reqUrl = req.url;
+        const iAddrs = Object.keys(op.localRemote || {});
 
         // 本地代理
-        var remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
-        var localData;
-        var localUrl;
-        var httpRemoteUrl;
-        var proxyIgnore = false;
+        const remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
+        const localData;
+        const localUrl;
+        const httpRemoteUrl;
+        const proxyIgnore = false;
 
         if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
           proxyIgnore = true;
@@ -158,7 +157,7 @@ var wProxy = {
             status: 200
           });
 
-          var iExt = path.extname(req.url).replace(/^\./, '');
+          const iExt = path.extname(req.url).replace(/^\./, '');
           if (MIME_TYPE_MAP[iExt]) {
             res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
           }
@@ -166,19 +165,19 @@ var wProxy = {
           res.write(localData);
           res.end();
         } else { // 透传 or 转发
-          var iUrl = httpRemoteUrl || req.url;
+          const iUrl = httpRemoteUrl || req.url;
           if (proxyIgnore) {
             iUrl = req.url;
           }
-          var body = [];
-          var linkit = function(iUrl, iBuffer) {
-            var vOpts = url.parse(iUrl);
+          const body = [];
+          const linkit = function(iUrl, iBuffer) {
+            const vOpts = url.parse(iUrl);
             vOpts.method = req.method;
             vOpts.headers = req.headers;
             vOpts.body = body;
 
 
-            var vRequest = http.request(vOpts, (vRes) => {
+            const vRequest = http.request(vOpts, (vRes) => {
               if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
                 vRes.on('end', () => {
                   linkit(req.url, iBuffer);
@@ -207,14 +206,14 @@ var wProxy = {
                 res.end();
               });
 
-              var iHeader = util.extend(true, {}, vRes.headers);
+              const iHeader = util.extend(true, {}, vRes.headers);
 
               // 设置 header
-              var iType = vRes.headers['content-type'];
+              const iType = vRes.headers['content-type'];
               if (iType) {
                 res.setHeader('Content-Type', iType);
               } else {
-                var iExt = path.extname(req.url).replace(/^\./, '');
+                const iExt = path.extname(req.url).replace(/^\./, '');
 
                 if (MIME_TYPE_MAP[iExt]) {
                   res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);

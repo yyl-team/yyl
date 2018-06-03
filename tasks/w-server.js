@@ -677,14 +677,14 @@ const wServer = {
         app.use(serveIndex(iPath));
 
 
-        //+ mock server
-        let routesPath = path.join(process.cwd(), 'mock/routes.json');
+        // + mock server
+        let routesPath = path.join(iPath, 'mock/routes.json');
         if (fs.existsSync(routesPath)) {
           let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
           app.use(jsonServerRewrite);
         }
 
-        let dbPath = path.join(process.cwd(), 'mock/db.json');
+        let dbPath = path.join(iPath, 'mock/db.json');
         if (fs.existsSync(dbPath)) {
           let jsonServerRouter = jsonServer.router(dbPath);
           app.use(jsonServerRouter);
@@ -692,7 +692,7 @@ const wServer = {
 
         let jsonServerMiddlewares = jsonServer.defaults();
         app.use(jsonServerMiddlewares);
-        //- mock server
+        // - mock server
 
         var server = http.createServer(app);
         var lrServer = tinylr();
