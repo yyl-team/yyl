@@ -279,9 +279,9 @@ const wProxy = {
 
       // ws 监听, 转发
       server.on('connect', (oReq, socket, head) => {
-        fn.createHttpsServer(oReq, socket, head, (err, req, res, vSocket) => {
+        fn.createHttpsServer(oReq, socket, head, (err, req, res) => {
           fn.proxyToLocal(op, req, (vRes) => {
-            if (!vRes) { // 这部分有问题
+            if (!vRes) { // TODO 这部分有问题 wss, ws 代理不了
               const x = request({
                 url: `https://${req.headers.host}${req.url}`,
                 headers: req.headers,
