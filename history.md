@@ -1,4 +1,7 @@
 # 版本信息
+## 2.21.1 (2018-06-03)
+* [FIX] 修复 `gulp-requirejs` watch 时 如发生报错, 第二次执行时将不能正常完成 optimize 的问题
+
 ## 2.21.0 (2018-05-31)
 * [ADD] `gulp-requirejs` 新增 `__url(path)` 语法糖 用于 js 中 获取 项目中静态资源地址
 * [FIX] 修复 `gulp-requirejs` 打包出来的 项目会出现 本地目录路径问题

@@ -1856,6 +1856,7 @@ gulp.task('watch', ['all'], () => {
               supercall.livereload();
               log('msg', 'success', 'watch task finished');
               log('finish');
+              cache.isError = false;
             });
           }).start();
         });
