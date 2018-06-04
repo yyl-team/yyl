@@ -1,4 +1,7 @@
 # 版本信息
+## 2.21.2 (2018-06-04)
+* [FIX] 修复 yyl 运行时会出现 `express is not define` 错误的问题
+
 ## 2.21.1 (2018-06-03)
 * [FIX] 修复 `gulp-requirejs` watch 时 如发生报错, 第二次执行时将不能正常完成 optimize 的问题
 
