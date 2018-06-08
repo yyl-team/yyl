@@ -59,6 +59,9 @@ const MIME_TYPE_MAP = {
 // ].join('');
 
 var fn = {
+  hideProtocol: function(url) {
+    return url.replace(/^http[s]?:/, '');
+  },
   blank: function(num) {
     return new Array(num + 1).join(' ');
   },
@@ -112,9 +115,18 @@ var fn = {
       }).end();
     }
   },
-  createHttpsServer(oreq, socket, head, done) {
+  createHttpsServer(op, oreq, socket, head, done) {
     const addr = oreq.url.split(':');
-    if (addr[0] == 'h5chl.yy.com' || addr[0] == 'sslproxy.yy.com') { // TODO 找不到方法判断当前是否 ws 链接
+    let needProxy = false;
+    Object.keys(op.localRemote).map((key) => {
+      if (addr[0] === url.parse(key).hostname) {
+        needProxy = true;
+        return true;
+      }
+    });
+
+
+    if (!needProxy) { // TODO 暂时想不到 判断 ws wss 的方法
       //creating TCP connection to remote server
       var conn = net.connect(addr[1] || 443, addr[0], () => {
         // tell the client that the connection is established
@@ -199,14 +211,16 @@ var fn = {
 
     if (!proxyIgnore) {
       iAddrs.map((addr) => {
-        var localAddr = op.localRemote[addr];
+        const localAddr = op.localRemote[addr];
+        const iAddr = fn.hideProtocol(addr);
+        const iReqUrl = fn.hideProtocol(reqUrl);
 
         if (!localAddr || !addr) {
           return true;
         }
 
-        if (addr === reqUrl.substr(0, addr.length)) {
-          const subAddr = util.joinFormat(localAddr, reqUrl.substr(addr.length));
+        if (iAddr === iReqUrl.substr(0, iAddr.length)) {
+          const subAddr = util.joinFormat(localAddr, iReqUrl.substr(iAddr.length));
           if (/^http(s)?:/.test(localAddr)) {
             proxyUrl = subAddr;
             return false;
@@ -251,7 +265,7 @@ const wProxy = {
     new util.Promise((next) => {
       if (easyCert.isRootCAFileExists()) {
         log('msg', 'success', ['cert  cert already exists']);
-        log('msg', 'success', ['cert  please double click the rootCA.crt and trust it']);
+        log('msg', 'success', [`cert  ${chalk.yellow('please double click the rootCA.crt and trust it')}`]);
         log('msg', 'success', [`cert  ${chalk.yellow(util.vars.SERVER_CERTS_PATH)}`]);
         next();
       } else {
@@ -303,7 +317,7 @@ const wProxy = {
 
       // ws 监听, 转发
       server.on('connect', (oReq, socket, head) => {
-        fn.createHttpsServer(oReq, socket, head, (err, req, res) => {
+        fn.createHttpsServer(op, oReq, socket, head, (err, req, res) => {
           fn.proxyToLocal(op, req, (vRes) => {
             if (!vRes) { // TODO 这部分有问题 wss, ws 代理不了
               const x = request({
