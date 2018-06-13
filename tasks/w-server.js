@@ -652,6 +652,7 @@ const wServer = {
           port: lrPort,
           src: `http://localhost:${lrPort}/livereload.js?snipver=1`
         }));
+
         // 执行 post 请求本地服务器时处理
         app.use((req, res, next) => {
           if (req.method == 'POST') {
@@ -678,20 +679,20 @@ const wServer = {
 
 
         // + mock server
-        let routesPath = path.join(iPath, 'mock/routes.json');
-        if (fs.existsSync(routesPath)) {
-          let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
-          app.use(jsonServerRewrite);
-        }
+        // let routesPath = path.join(iPath, 'mock/routes.json');
+        // if (fs.existsSync(routesPath)) {
+        //   let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
+        //   app.use(jsonServerRewrite);
+        // }
 
-        let dbPath = path.join(iPath, 'mock/db.json');
-        if (fs.existsSync(dbPath)) {
-          let jsonServerRouter = jsonServer.router(dbPath);
-          app.use(jsonServerRouter);
-        }
+        // let dbPath = path.join(iPath, 'mock/db.json');
+        // if (fs.existsSync(dbPath)) {
+        //   let jsonServerRouter = jsonServer.router(dbPath);
+        //   app.use(jsonServerRouter);
+        // }
 
-        let jsonServerMiddlewares = jsonServer.defaults();
-        app.use(jsonServerMiddlewares);
+        // let jsonServerMiddlewares = jsonServer.defaults();
+        // app.use(jsonServerMiddlewares);
         // - mock server
 
         var server = http.createServer(app);
