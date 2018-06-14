@@ -1,4 +1,7 @@
 # 版本信息
+## 2.22.3 (2018-06-14)
+* [FIX] 修复 yyl `gulp-requirejs` `watch` 检查 `pug` 文件 遇到 `include  ../w-giving\w-giving` 两个空格无法正常检测的问题
+
 ## 2.21.2 (2018-06-04)
 * [FIX] 修复 yyl 运行时会出现 `express is not define` 错误的问题
 
