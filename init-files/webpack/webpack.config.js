@@ -115,6 +115,31 @@ const webpackconfig = {
         loader: 'html-loader'
       }]
     }, {
+      test: /\.css$/,
+      use: ExtractTextPlugin.extract({
+        fallback: 'style-loader',
+        use: [
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
+              plugins: () => config.platform == 'pc'? [
+                autoprefixer({
+                  browsers: ['> 1%', 'last 2 versions']
+                })
+              ] : [
+                autoprefixer({
+                  browsers: ['iOS >= 7', 'Android >= 4']
+                }),
+                px2rem({remUnit: 75})
+
+              ]
+            }
+          }
+        ]
+      })
+    }, {
       test: /\.(scss|sass)$/,
       use: ExtractTextPlugin.extract({
         fallback: 'style-loader',
