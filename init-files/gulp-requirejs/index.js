@@ -375,7 +375,6 @@ var fn = {
 
           var r = [];
 
-          console.log('===', iPath);
 
           if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
@@ -1811,10 +1810,6 @@ gulp.task('watch', ['all'], () => {
       rConfig: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js')
     });
 
-
-    console.log('==================================')
-    console.log('srcRelative', runtimeFiles)
-    console.log('==================================')
 
     const htmlDestFiles = [];
     const tplDestFiles = [];
