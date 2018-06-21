@@ -4,7 +4,7 @@ define([], function() {
         wDemo = {
             init: function() {
                 var logoEl = document.getElementById('logo');
-                var imageUrl = __inline('../r-demo/images/logo.png');
+                var imageUrl = __url('../r-demo/images/logo.png');
                 var i;
                 var iClass = [0, 1, 2, 3];
 

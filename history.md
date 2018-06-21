@@ -1,4 +1,7 @@
 # 版本信息
+## 2.22.5 (2018-06-14)
+* [ADD] 新增 `config.js` `disableHash` 配置项用于禁止项目生成 hash 文件
+
 ## 2.22.4 (2018-06-14)
 * [FIX] 补充 `webpack` `webpack-vue2` 对 `.css` 文件的 解析支持
 

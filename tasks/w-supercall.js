@@ -378,9 +378,16 @@ var
             return err('rev-build run fail', 'config not exist');
           }
 
+          let disableHash = false;
+
+          if (config.disableHash) {
+            disableHash = true;
+            log('msg', 'success', 'config.disableHash, rev task ignore');
+          }
+
           if (!config.commit.revAddr) {
-            log('msg', 'warn', 'config.commit.revAddr not set, rev task not run');
-            return next();
+            disableHash = true;
+            log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
           }
 
           // 如果是 remote 直接执行 rev-update
@@ -402,8 +409,6 @@ var
             util.readFilesSync(config.alias.root, (iPath) => {
               let r;
               const iExt = path.extname(iPath);
-
-
 
               if (/\.(html|json)/.test(iExt)) {
                 r = false;
@@ -449,33 +454,43 @@ var
             selfFn.mark.reset();
 
             // 生成 资源 hash 表
-            resourceFiles.forEach((iPath) => {
-              selfFn.buildHashMap(iPath, revMap);
-            });
+            if (!disableHash) {
+              resourceFiles.forEach((iPath) => {
+                selfFn.buildHashMap(iPath, revMap);
+              });
+            }
 
             // 生成 js hash 表
             jsFiles.forEach((iPath) => {
               // hash路径替换
               selfFn.fileHashPathUpdate(iPath, revMap, op);
 
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
+              if (!disableHash) {
+                // 生成hash 表
+                selfFn.buildHashMap(iPath, revMap);
+              }
             });
 
             // css 文件内路径替换 并且生成 hash 表
             cssFiles.forEach((iPath) => {
               // hash路径替换
               selfFn.fileHashPathUpdate(iPath, revMap, op);
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
+
+              if (!disableHash) {
+                // 生成hash 表
+                selfFn.buildHashMap(iPath, revMap);
+              }
             });
 
             // tpl 文件内路径替换 并且生成 hash 表
             tplFiles.forEach((iPath) => {
               // hash路径替换
               selfFn.fileHashPathUpdate(iPath, revMap, op);
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
+
+              if (!disableHash) {
+                // 生成hash 表
+                selfFn.buildHashMap(iPath, revMap);
+              }
             });
 
             // html 路径替换
@@ -484,27 +499,28 @@ var
             });
 
 
+            if (!disableHash) {
+              // 根据hash 表生成对应的文件
+              selfFn.buildRevMapDestFiles(revMap);
 
-            // 根据hash 表生成对应的文件
-            selfFn.buildRevMapDestFiles(revMap);
+              // 版本生成
+              revMap.version = util.makeCssJsDate();
 
-            // 版本生成
-            revMap.version = util.makeCssJsDate();
+              // rev-manifest.json 生成
+              util.mkdirSync(config.alias.revDest);
+              const revPath = util.joinFormat(config.alias.revDest, supercall.rev.filename);
+              const revVerPath = util.joinFormat(
+                config.alias.revDest,
+                supercall.rev.filename.replace(/(\.\w+$)/g, `-${revMap.version}$1`)
+              );
 
-            // rev-manifest.json 生成
-            util.mkdirSync(config.alias.revDest);
-            const revPath = util.joinFormat(config.alias.revDest, supercall.rev.filename);
-            const revVerPath = util.joinFormat(
-              config.alias.revDest,
-              supercall.rev.filename.replace(/(\.\w+$)/g, `-${  revMap.version  }$1`)
-            );
+              fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
+              selfFn.mark.add('create', revPath);
 
-            fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
-            selfFn.mark.add('create', revPath);
-
-            // rev-manifest-{cssjsdate}.json 生成
-            fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
-            selfFn.mark.add('create', revVerPath);
+              // rev-manifest-{cssjsdate}.json 生成
+              fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
+              selfFn.mark.add('create', revVerPath);
+            }
 
             selfFn.mark.print();
             log('msg', 'success', 'rev-build finished');
@@ -515,15 +531,23 @@ var
       // rev-update 入口
       update: function(op) {
         return new Promise((NEXT, err) => {
-          var self = this;
-          var selfFn = self.fn;
-          var config = util.getConfigSync(op);
+          const self = this;
+          const selfFn = self.fn;
+          const config = util.getConfigSync(op);
           if (!config) {
             return err('rev-update run fail', 'config not exist');
           }
+
+          let disableHash = false;
+
+          if (config.disableHash) {
+            disableHash = true;
+            log('msg', 'success', 'config.disableHash, rev task ignore');
+          }
+
           if (!config.commit.revAddr) {
-            log('msg', 'warn', 'config.commit.revAddr not set, rev task not run');
-            return NEXT();
+            disableHash = true;
+            log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
           }
 
           // 重置 mark
@@ -531,7 +555,7 @@ var
 
           new util.Promise(((next) => { // 获取 rev-manifest
             if (op.ver == 'remote') { // 远程获取 rev-manifest
-              if (config.commit.revAddr) {
+              if (!disableHash) {
                 log('msg', 'info', `get remote rev start: ${config.commit.revAddr}`);
                 var requestUrl = config.commit.revAddr;
                 requestUrl += `${~config.commit.revAddr.indexOf('?')? '&': '?'  }_=${  +new Date()}`;
@@ -546,7 +570,9 @@ var
                   next(iCnt);
                 });
               } else {
-                log('msg', 'warn', 'get remote rev fail, config.commit.revAddr is null');
+                if (!config.commit.revAddr) {
+                  log('msg', 'warn', 'get remote rev fail, config.commit.revAddr is null');
+                }
                 next(null);
               }
             } else {
@@ -556,6 +582,11 @@ var
             if (revMap) {
               return next(revMap);
             }
+
+            if (disableHash) {
+              return next({});
+            }
+
             var localRevPath = util.joinFormat(
               config.alias.revDest,
               supercall.rev.filename
@@ -575,32 +606,44 @@ var
             }
           }).then((revMap, next) => { // hash 表内html, css 文件 hash 替换
             // html, tpl 替换
-            var htmlFiles = util.readFilesSync(config.alias.root, /\.(html|tpl)$/);
+            const htmlFiles = util.readFilesSync(config.alias.root, /\.(html|tpl)$/);
 
             htmlFiles.forEach((iPath) => {
               selfFn.fileHashPathUpdate(iPath, revMap, op);
             });
 
-            // css 替换
-            Object.keys(revMap).forEach((iPath) => {
-              var filePath = util.joinFormat(config.alias.revRoot, iPath);
+            // css or js 替换
+            if (disableHash) {
+              const jsFiles = util.readFilesSync(config.alias.root, /\.js$/);
+              const cssFiles = util.readFilesSync(config.alias.root, /\.css$/);
 
-              if (fs.existsSync(filePath)) {
-                switch (path.extname(filePath)) {
-                  case '.css':
-                    self.fn.fileHashPathUpdate(filePath, revMap, op);
-                    break;
+              jsFiles.forEach((filePath) => {
+                self.fn.fileHashPathUpdate(filePath, revMap, op);
+              });
 
-                  case '.js':
-                    self.fn.fileHashPathUpdate(filePath, revMap, op);
-                    break;
+              cssFiles.forEach((filePath) => {
+                self.fn.fileHashPathUpdate(filePath, revMap, op);
+              });
+            } else {
+              Object.keys(revMap).forEach((iPath) => {
+                var filePath = util.joinFormat(config.alias.revRoot, iPath);
 
-                  default:
-                    break;
+                if (fs.existsSync(filePath)) {
+                  switch (path.extname(filePath)) {
+                    case '.css':
+                      self.fn.fileHashPathUpdate(filePath, revMap, op);
+                      break;
+
+                    case '.js':
+                      self.fn.fileHashPathUpdate(filePath, revMap, op);
+                      break;
+
+                    default:
+                      break;
+                  }
                 }
-              }
-            });
-
+              });
+            }
             next(revMap);
           }).then((revMap, next) => { // hash对应文件生成
             selfFn.buildRevMapDestFiles(revMap);
