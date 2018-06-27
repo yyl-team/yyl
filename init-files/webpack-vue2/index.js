@@ -45,6 +45,10 @@ gulp.task('webpack', (done) => {
   if (iEnv.isCommit) {
     iWconfig.plugins.push(new uglifyjsWebpackPlugin());
     iWconfig.devtool = false;
+  } else {
+    iWconfig.plugins.push(new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify("development")
+    }));
   }
 
   if (iEnv.ver == 'remote' || iEnv.isCommit || iEnv.remote) {
