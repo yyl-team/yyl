@@ -51,11 +51,8 @@ var jade2pug = {
     });
   },
   // 获取所有 jade 文件
-  run: function() {
-    var iArgv = [...arguments];
-    var op = util.envParse(iArgv);
-
-    return jade2pug.init(op);
+  run: function(iEnv) {
+    return jade2pug.init(iEnv);
   }
 };
 

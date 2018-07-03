@@ -5,14 +5,14 @@ const querystring = require('querystring');
 const gulp = require('gulp');
 const through = require('through2');
 
-const webpackConfig = require('./webpack.config.js');
+const webpackDevConfig = require('./config/webpack.dev.js');
+const webpackPublishConfig = require('./config/webpack.publish.js');
 const supercall = require('../../tasks/w-supercall.js');
 const util = require('../../tasks/w-util.js');
 const log = require('../../tasks/w-log.js');
 
 // + self module
 const webpack = require('webpack');
-const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin');
 const runSequence = require('run-sequence').use(gulp);
 const watch = require('gulp-watch');
 // - self module
@@ -40,23 +40,11 @@ const REG = {
 
 // + webpack
 gulp.task('webpack', (done) => {
-  let iWconfig = util.extend(true, {}, webpackConfig);
-
+  let iWconfig;
   if (iEnv.isCommit) {
-    iWconfig.plugins.push(new uglifyjsWebpackPlugin());
-    iWconfig.devtool = false;
+    iWconfig = util.extend(true, {}, webpackPublishConfig);
   } else {
-    iWconfig.plugins.push(new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify("development")
-    }));
-  }
-
-  if (iEnv.ver == 'remote' || iEnv.isCommit || iEnv.remote) {
-    iWconfig.output.publicPath = util.joinFormat(
-      config.commit.hostname,
-      iWconfig.output.publicPath
-    );
-    log('msg', 'success', `change webpack publicPath => ${iWconfig.output.publicPath}`);
+    iWconfig = util.extend(true, {}, webpackDevConfig);
   }
 
   webpack(iWconfig, (err, stats) => {

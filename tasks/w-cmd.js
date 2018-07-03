@@ -18,8 +18,7 @@ var
     make: require('./w-make'),
     info: require('./w-info'),
     jade2pug: require('./w-jade2pug'),
-    help: function() {
-      const iEnv = util.envPrase(arguments);
+    help: function(iEnv) {
       const h = {
         usage: 'yyl',
         commands: {
@@ -47,8 +46,7 @@ var
       }
       return Promise.resolve(h);
     },
-    path: function() {
-      const iEnv = util.envPrase(arguments);
+    path: function(iEnv) {
       if (!iEnv.silent) {
         console.log([
           '',
@@ -60,8 +58,7 @@ var
       }
       return Promise.resolve(util.vars.BASE_PATH);
     },
-    examples: function() {
-      const iEnv = util.envParse(arguments);
+    examples: function(iEnv) {
       var iPath = util.joinFormat(util.vars.BASE_PATH, 'examples');
       if (!iEnv.silent) {
         console.log([
@@ -74,17 +71,13 @@ var
       }
 
       return Promise.resolve(iPath);
-    },
-    nothing: function () {
-      const iEnv = util.envParse(arguments);
-      console.log('nothing');
     }
   };
 
 
 module.exports = function(ctx) {
-  var iArgv = [...arguments];
-  var iEnv = util.envPrase(arguments);
+  const iArgv = util.makeArray(arguments);
+  const iEnv = util.envPrase(arguments);
 
   var iVer = process.versions.node;
   if (iVer.localeCompare('4.0.0') < 0) {
@@ -95,36 +88,38 @@ module.exports = function(ctx) {
     events.server.setLogLevel(iEnv.logLevel, true, true);
   }
 
-  let r;
+  const makePromise = function (handle, argv) {
+    if (!iEnv.nocatch) {
+      handle(argv).catch((er) => {
+        throw new Error(er);
+      });
+    } else {
+      handle(argv).catch(() => {});
+    }
+  };
+
   switch (ctx) {
     case '-v':
     case '--version':
-      r = events.version.apply(events, iArgv.slice(1));
-      break;
+      return makePromise(events.version, iEnv);
 
     case '--logLevel':
       if (iArgv[1]) {
-        r = events.server.setLogLevel(iArgv[1]);
+        return makePromise(events.server.setLogLevel, iArgv[1]);
       } else {
-        r = events.server.getLogLevel();
+        return makePromise(events.server.getLogLevel);
       }
-      break;
-
 
     case '-h':
     case '--help':
-      r = events.help.apply(events, iArgv.slice(1));
-      break;
+      return makePromise(events.help, iEnv);
 
     case '--path':
     case '-p':
-      r = events.path.apply(events, iArgv.slice(1));
-      break;
+      return makePromise(events.path, iEnv);
 
     case 'init':
-      r = events.init.apply(events, iArgv);
-      break;
-
+      return makePromise(events.init, iEnv);
 
     case 'html':
     case 'js':
@@ -138,61 +133,40 @@ module.exports = function(ctx) {
     case 'rev':
     case 'resource':
     case 'tpl':
-      r = events.optimize.apply(events, iArgv);
-      break;
+      return makePromise(events.optimize, iArgv);
 
     case 'server':
-      r = events.server.run.apply(events.server, iArgv);
-      break;
+      return makePromise(events.server.run, iArgv);
 
     case 'commit':
-      r = events.commit.run.apply(events.commit, iArgv);
-      break;
+      return makePromise(events.commit.run, iEnv);
 
     case 'examples':
     case 'example':
-      r = events.examples.apply(events.examples, iArgv.slice(1));
-      break;
+      return makePromise(events.examples, iEnv);
 
     case 'rm':
-      r = events.remove.apply(events, iArgv.slice(1));
-      break;
+      return makePromise(events.remove, iArgv[1]);
 
     case 'test':
-      r = events.test();
-      break;
+      return makePromise(events.test);
 
     case 'supercall':
-      r = events.supercall.run.apply(events.supercall, iArgv);
-      break;
+      return makePromise(events.supercall.run, iArgv);
 
     case 'update':
-      r = events.update.run.apply(events.update, iArgv.slice(1));
-      break;
+      return makePromise(events.update.run, iArgv.slice(1));
 
     case 'make':
-      r = events.make.run.apply(events, iArgv.slice(1));
-      break;
+      return makePromise(events.make.run, iArgv.slice(1));
 
     case 'jade2pug':
-      r = events.jade2pug.run.apply(events, iArgv);
-      break;
+      return makePromise(events.jade2pug.run, iEnv);
 
     case 'info':
-      r = events.info.run.apply(events, iArgv.slice(1));
-      break;
+      return makePromise(events.info.run, iEnv);
 
-    case 'nothing': 
-      r =  events.nothing.apply(events, iArgv); 
     default:
-      r = events.help();
-      break;
+      return makePromise(events.help);
   }
-
-  if (!iEnv.nocatch) {
-    r.catch((er) => {
-      throw new Error(er);
-    });
-  }
-  return r;
 };

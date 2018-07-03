@@ -1,10 +1,7 @@
 'use strict';
 const chalk = require('chalk');
-const util = require('./w-util.js');
-const wVersion = function() {
-  const iEnv = util.envPrase(arguments);
-
-  var iVer = require('../package.json').version;
+const wVersion = function(iEnv) {
+  const iVer = require('../package.json').version;
   if (!iEnv.silent) {
     console.log([
       '',

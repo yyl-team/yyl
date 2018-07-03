@@ -841,8 +841,7 @@ const wServer = {
   },
 
   // yyl 脚本调用 入口
-  run: function() {
-    var iArgv = util.makeArray(arguments);
+  run: function(iArgv) {
     var ctx = iArgv[1];
 
     switch (ctx) {

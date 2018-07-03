@@ -7,9 +7,8 @@ var wServer = require('./w-server');
 var log = require('./w-log');
 
 var
-  wOptimize = function() {
-    var iArgv = util.makeArray(arguments);
-    var iEnv = util.envPrase(iArgv);
+  wOptimize = function(iArgv) {
+    const iEnv = util.envPrase(iArgv);
 
     const runner = (done) => {
       new util.Promise((next) => {
@@ -85,6 +84,8 @@ var
         const opzer = require(initPath);
         opzer(config, iArgv[0], iEnv).then(() => {
           done(config);
+        }).catch((er) => {
+          throw new Error(er);
         });
       }).start();
     };

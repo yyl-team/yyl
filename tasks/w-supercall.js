@@ -745,8 +745,7 @@ var
     },
 
     // yyl 脚本调用入口
-    run: function() {
-      var iArgv = util.makeArray(arguments);
+    run: function(iArgv) {
       var ctx = iArgv[1];
 
       var op = util.envParse(iArgv.slice(1));

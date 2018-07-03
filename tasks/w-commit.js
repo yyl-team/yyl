@@ -343,8 +343,7 @@ const wCommit = {
       runner(next);
     });
   },
-  run: function() {
-    var iEnv = util.envPrase(arguments);
+  run: function(iEnv) {
     var start = new Date();
 
     const runner = (done) => {

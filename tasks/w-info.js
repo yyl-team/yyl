@@ -113,8 +113,7 @@ const info = {
       return Promise.resolve(r);
     }
   },
-  run: function() {
-    var iEnv = util.envPrase(arguments);
+  run: function(iEnv) {
     return info.init(iEnv.silent);
   }
 };
