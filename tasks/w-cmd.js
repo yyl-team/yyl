@@ -91,7 +91,7 @@ module.exports = function(ctx) {
   const makePromise = function (handle, argv) {
     if (!iEnv.nocatch) {
       handle(argv).catch((er) => {
-        throw new Error(er);
+        console.log(er);
       });
     } else {
       handle(argv).catch(() => {});

@@ -1,24 +1,24 @@
 #!/usr/bin/env node
-"use strict";
+'use strict';
 
-var myArgv = process.argv.splice(2),
-    domain = require('domain'),
-    path = require('path'),
-    fs = require('fs'),
-    d = domain.create();
+const myArgv = process.argv.splice(2);
+const domain = require('domain');
+const path = require('path');
+const d = domain.create();
 
-d.on('error', function(err){
-    console.error('domain error catch\n', err.stack);
+d.on('error', (err) => {
+  console.error('domain error catch\n', err.stack);
 });
 
-process.on('uncaughtException', function (err) {
-    console.error('Uncaught exception:\n', err.stack);
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:\n', err.stack);
 });
-process.on('exit', function(code){
-    // console.error(' the exit: ' + code);
+process.on('exit', (code) => {
+  // console.error(' the exit: ' + code);
 });
 
-d.run(function(){
-    require(path.join(__dirname, '../tasks/w-cmd')).apply(global, myArgv);
+d.run(() => {
+  require(path.join(__dirname, '../tasks/w-cmd')).apply(global, myArgv);
 });
+
 

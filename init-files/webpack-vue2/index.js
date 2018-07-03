@@ -7,6 +7,7 @@ const through = require('through2');
 
 const webpackDevConfig = require('./config/webpack.dev.js');
 const webpackPublishConfig = require('./config/webpack.publish.js');
+
 const supercall = require('../../tasks/w-supercall.js');
 const util = require('../../tasks/w-util.js');
 const log = require('../../tasks/w-log.js');
