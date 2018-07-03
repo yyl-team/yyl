@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/jackness1208/yyl#readme",
   "engines": {
-    "node": ">= 4.0.0"
+    "node": ">= 6.0.0"
   },
   "dependencies": {
     "concat-with-sourcemaps": "~1.0.4",

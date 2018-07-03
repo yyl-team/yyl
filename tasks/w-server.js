@@ -20,7 +20,18 @@ const jsonServer = require('json-server');
 
 const cache = {
   lrServer: null,
-  server: null
+  server: null,
+  reject: null
+};
+
+const fn = {
+  throwError: function() {
+    if (cache.reject) {
+      cache.reject(...arguments);
+    } else {
+      throw new Error(...arguments);
+    }
+  }
 };
 
 let events = {
@@ -173,7 +184,8 @@ let events = {
       }).start();
     };
 
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },
@@ -245,7 +257,8 @@ let events = {
         return done();
       }).start();
     };
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },
@@ -315,7 +328,7 @@ const wServer = {
       // 获取 config, config.mine 文件内容
       if (!fs.existsSync(configPath)) {
         log('finish');
-        throw new Error(`config.js not found: ${configPath}`);
+        return fn.throwError(`config.js not found: ${configPath}`);
       }
 
       if (fs.existsSync(mineConfigPath)) {
@@ -327,7 +340,7 @@ const wServer = {
       config = util.requireJs(configPath);
 
       if (!config) {
-        throw new Error('nothing in config.js');
+        return fn.throwError('nothing in config.js');
       }
 
       config = util.extend(true, config, mineConfig);
@@ -356,9 +369,9 @@ const wServer = {
           !~iWorkFlows.indexOf(config[name].workflow)
         ) {
           if (nameList.length) {
-            throw new Error(`you need to use --name ${nameList.join(' or ')}`);
+            return fn.throwError(`you need to use --name ${nameList.join(' or ')}`);
           } else {
-            throw new Error(`config[${name}].workflow is not exist`);
+            return fn.throwError(`config[${name}].workflow is not exist`);
           }
         }
 
@@ -366,9 +379,9 @@ const wServer = {
       } else {
         if (!config.workflow || !~iWorkFlows.indexOf(config.workflow)) {
           if (nameList.length) {
-            throw new Error(`add env: --name ${nameList.join('|')}`);
+            return fn.throwError(`add env: --name ${nameList.join('|')}`);
           } else {
-            throw new Error('config.workflow is not exist');
+            return fn.throwError('config.workflow is not exist');
           }
         }
 
@@ -477,7 +490,7 @@ const wServer = {
           'destRoot'
         ].some((key) => {
           if (!iConfig.alias[key]) {
-            throw new Error(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your configfile: ${chalk.cyan(configPath)}`);
+            return fn.throwError(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your configfile: ${chalk.cyan(configPath)}`);
           }
         });
 
@@ -550,7 +563,7 @@ const wServer = {
             log('end');
             util.runCMD(cmd, (err) => {
               if (err) {
-                throw new Error(err);
+                return fn.throwError(err);
               }
 
               next(iConfig);
@@ -567,7 +580,8 @@ const wServer = {
       }).start();
     };
 
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },
@@ -596,7 +610,8 @@ const wServer = {
         });
       }).start();
     };
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },
@@ -718,7 +733,8 @@ const wServer = {
         cache.lrServer = lrServer;
       }).start();
     };
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },
@@ -768,7 +784,7 @@ const wServer = {
         if (!fs.existsSync(workflowBasePath)) {
           errMsg = `${workflowName} is not the right command`;
           log('msg', 'error', errMsg);
-          throw new Error(errMsg);
+          return fn.throwError(errMsg);
         }
 
         new util.Promise((next) => { // server init
@@ -789,7 +805,8 @@ const wServer = {
         }).start();
       });
     };
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },
@@ -799,7 +816,8 @@ const wServer = {
     const pkgPath = util.path.join(workflowPath, 'package.json');
     const nodeModulePath = util.path.join(workflowPath, 'node_modules');
 
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       if (!fs.existsSync(pkgPath)) {
         next();
       } else {
@@ -829,7 +847,7 @@ const wServer = {
           log('end');
           util.runCMD('npm install --loglevel http', (err) => {
             if (err) {
-              throw new Error(err);
+              return fn.throwError(err);
             }
             next();
           }, workflowPath);
