@@ -224,7 +224,6 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html è¾“å‡
   return r;
 })());
 
-
 // eslint
 if (config.eslint) {
   webpackconfig.module.rules.push({

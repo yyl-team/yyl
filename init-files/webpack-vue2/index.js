@@ -43,9 +43,9 @@ const REG = {
 gulp.task('webpack', (done) => {
   let iWconfig;
   if (iEnv.isCommit) {
-    iWconfig = util.extend(true, {}, webpackPublishConfig);
+    iWconfig = webpackPublishConfig;
   } else {
-    iWconfig = util.extend(true, {}, webpackDevConfig);
+    iWconfig = webpackDevConfig;
   }
 
   webpack(iWconfig, (err, stats) => {

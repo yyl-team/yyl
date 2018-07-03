@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const px2rem = require('postcss-px2rem');
 
-const webpackBase = require('./webpack.config.base.js');
+const webpackBase = require('./webpack.base.js');
 const util = require('../../../tasks/w-util.js');
 let config;
 
@@ -76,13 +76,13 @@ const webpackConfig = {
     }]
   },
   plugins: [
+    // 环境变量 (全局替换 含有这 变量的 js)
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('development')
     })
   ]
 };
 
-console.log(66666666666666666)
 module.exports = webpackMerge(webpackBase, webpackConfig);
 
 
