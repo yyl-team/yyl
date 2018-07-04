@@ -66,6 +66,7 @@ const webpackconfig = {
         loader: 'babel-loader',
         query: {
           babelrc: false,
+          cacheDirectory: true,
           presets: [
             'babel-preset-es2015',
             'babel-preset-stage-2'
@@ -81,6 +82,7 @@ const webpackconfig = {
             loader: 'babel-loader',
             query: {
               babelrc: false,
+              cacheDirectory: true,
               presets: [
                 'babel-preset-es2015',
                 'babel-preset-stage-2'
