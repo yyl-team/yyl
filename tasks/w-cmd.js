@@ -90,11 +90,11 @@ module.exports = function(ctx) {
 
   const makePromise = function (handle, argv) {
     if (!iEnv.nocatch) {
-      handle(argv).catch((er) => {
+      return handle(argv).catch((er) => {
         console.log(er);
       });
     } else {
-      handle(argv).catch(() => {});
+      return handle(argv).catch(() => {});
     }
   };
 
