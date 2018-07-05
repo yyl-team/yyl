@@ -2,24 +2,31 @@ const webpackMerge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const webpack = require('webpack');
 const path = require('path');
 const fs = require('fs');
 const px2rem = require('postcss-px2rem');
 
-const webpackBase = require('./webpack.config.base.js');
+const webpackBase = require('./webpack.base.js');
 const util = require('../../../tasks/w-util.js');
 let config;
 
-const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue2/config.js');
+const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack/config.js');
 if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
 }
 
 const webpackConfig = {
+  mode: 'production',
   output: {
     publicPath: util.joinFormat(
       config.commit.hostname,
-      webpackBase.output.publicPath
+      config.dest.basePath,
+      path.relative(
+        config.alias.root,
+        config.alias.jsDest
+      ),
+      '/'
     )
   },
   module: {
@@ -73,9 +80,27 @@ const webpackConfig = {
           'sass-loader'
         ]
       })
+    }, {
+      test: /\.(png|jpg|gif)$/,
+      use: {
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: util.joinFormat(
+            path.relative(
+              config.alias.jsDest,
+              path.join(config.alias.imagesDest, '[name].[ext]')
+            )
+          )
+        }
+      }
     }]
   },
   plugins: [
+    // 环境变量 (全局替换 含有这 变量的 js)
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('publish')
+    }),
     new uglifyjsWebpackPlugin(),
     // 样式分离插件
     new ExtractTextPlugin({
@@ -89,6 +114,5 @@ const webpackConfig = {
     })
   ]
 };
-console.log(22222222222221212)
 module.exports = webpackMerge(webpackBase, webpackConfig);
 

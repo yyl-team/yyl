@@ -10,7 +10,18 @@ const wOptimize = require('./w-optimize.js');
 const fn = {
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
+  },
+  throwError: function() {
+    if (cache.reject) {
+      cache.reject(...arguments);
+    } else {
+      throw new Error(...arguments);
+    }
   }
+};
+
+const cache = {
+  reject: null
 };
 
 const wCommit = {
@@ -37,7 +48,7 @@ const wCommit = {
 
     const runner = (done) => {
       if (!svnConfig) {
-        throw new Error(`--sub ${iEnv.sub} is not exist`);
+        return fn.throwError(`--sub ${iEnv.sub} is not exist`);
       }
 
       new util.Promise(((NEXT) => { // update the svn.sub.update & svn.sub.commit files
@@ -131,7 +142,7 @@ const wCommit = {
 
       util.copyFiles(svnConfig.copy, (err, files) => {
         if (err) {
-          throw new Error(err);
+          return fn.throwError(err);
         }
         files.forEach((iPath) => {
           fn.logDest(iPath);
@@ -356,7 +367,7 @@ const wCommit = {
         }
       }).then((next) => { // optimize
         iEnv.isCommit = true;
-        wOptimize.apply(wOptimize, ['all'].concat(util.envStringify(iEnv).split(' '))).then((config) => {
+        wOptimize(['all'].concat(util.envStringify(iEnv).split(' '))).then((config) => {
           next(config);
         }).catch((er) => {
           log('msg', 'error', er);
@@ -417,7 +428,8 @@ const wCommit = {
         done(config);
       }).start();
     };
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   }

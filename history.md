@@ -1,4 +1,10 @@
 # 版本信息
+## 2.24.0 (2018-07-03)
+* [EDIT] 升级 yyl node 最低支持版本 为 `6.0.0`
+* [ADD] 新增 `webpack-vue2`, `webpack` `process.env.NODE_ENV` 变量
+* [EDIT] 优化 `webpack-vue2`, `webpack` 构建速度
+* [EDIT] 优化 `yyl` throw error 逻辑
+
 ## 2.22.5 (2018-06-14)
 * [ADD] 新增 `config.js` `disableHash` 配置项用于禁止项目生成 hash 文件
 

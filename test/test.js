@@ -21,6 +21,7 @@ const TEST_CTRL = {
   // INIT: true,
   ALL: true,
   ALL_MAIN: true,
+  ALL_IS_COMMIT: true,
   ALL_CONFIG: true,
   VERSION: true,
   HELP: true,
@@ -464,6 +465,135 @@ if (TEST_CTRL.ALL) {
         });
       });
     });
+  }
+  if (TEST_CTRL.ALL_IS_COMMIT) {
+    describe('yyl all --isCommit test', () => {
+      const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
+
+      const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
+      const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
+      workflows.forEach((workflow) => {
+        it(workflow, function(DONE) {
+          this.timeout(0);
+
+          new util.Promise((next) => { // reset frag
+            fn.frag.destroy().then(() => {
+              next();
+            });
+          }).then((next) => { // build frag
+            fn.frag.build();
+            util.mkdirSync(FRAG_WORKFLOW_PATH);
+            util.mkdirSync(FRAG_COMMONS_PATH);
+            next();
+          }).then((next) => { // copy file to frag
+            util.copyFiles(path.join(__dirname, 'workflow-test', workflow), FRAG_WORKFLOW_PATH, () => {
+              next();
+            });
+          }).then((next) => { // copy commons to frag
+            util.copyFiles(path.join(__dirname, 'workflow-test/commons'), FRAG_COMMONS_PATH, () => {
+              next();
+            });
+          }).then((next) => { // run yyl all
+            yyl.run('all --isCommit --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
+              next(util.getConfigSync({}));
+            }).catch((er) => {
+              throw new Error(er);
+            });
+          }).then((userConfig, next) => { // check
+            const destRoot = userConfig.alias.destRoot;
+            const htmls = util.readFilesSync(path.join(FRAG_WORKFLOW_PATH, 'dist'), /\.html$/);
+            const csses = util.readFilesSync(path.join(FRAG_WORKFLOW_PATH, 'dist'), /\.css$/);
+            const HTML_PATH_REG = /(src|href|data-main|data-original)\s*=\s*(['"])([^'"]*)(["'])/ig;
+            const HTML_SCRIPT_REG = /(<script[^>]*>)([\w\W]*?)(<\/script>)/ig;
+            const CSS_PATH_REG_1 = /(url\s*\(['"]?)([^'"]*?)(['"]?\s*\))/ig;
+            const CSS_PATH_REG_2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
+            const REMOTE_SOURCE_REG = /^(http[s]?:|\/\/\w)/;
+            const NO_PROTOCOL = /^\/\/(\w)/;
+            const LOCAL_SOURCE_REG = /^\/\w/;
+            const localSource = [];
+            const remoteSource = [];
+            const sourcePickup = function (iPath) {
+              if (iPath.match(REMOTE_SOURCE_REG)) {
+                remoteSource.push(iPath);
+              } else if (iPath.match(LOCAL_SOURCE_REG)) {
+                localSource.push(fn.hideUrlTail(util.path.join(destRoot, iPath)));
+              }
+            };
+
+            expect(htmls.length).not.equal(0);
+
+            htmls.forEach((html)=> {
+              const cnt = fs.readFileSync(html).toString();
+              cnt.replace(HTML_SCRIPT_REG, (str, $1, $2, $3) => {
+                if (/type\s*=\s*['"]text\/html["']/.test($1)) {
+                  return str;
+                } else {
+                  return $1 + querystring.escape($2) + $3;
+                }
+              }).replace(HTML_PATH_REG, (str, $1, $2, $3) => {
+                sourcePickup($3);
+                return str;
+              });
+            });
+            csses.forEach((css) => {
+              const cnt = fs.readFileSync(css).toString();
+              cnt.replace(CSS_PATH_REG_1, (str, $1, $2) => {
+                sourcePickup($2);
+                return str;
+              }).replace(CSS_PATH_REG_2, (str, $1, $2) => {
+                sourcePickup($2);
+                return str;
+              });
+            });
+
+            const revPath = path.join(userConfig.alias.revDest, 'rev-manifest.json');
+            delete require.cache[revPath];
+            const hashMap = require(revPath);
+            // check hash map exist
+            expect(hashMap).not.equal(undefined);
+            Object.keys(hashMap).forEach((key) => {
+              if (key == 'version') {
+                return;
+              }
+              const url1 = util.path.join(userConfig.alias.revRoot, key);
+              const url2 = util.path.join(userConfig.alias.revRoot, hashMap[key]);
+
+              expect(fs.existsSync(url1)).to.equal(true);
+              expect(fs.existsSync(url2)).to.equal(true);
+            });
+
+            localSource.forEach((iPath) => {
+              expect(fs.existsSync(iPath)).to.equal(true);
+            });
+
+            let padding = remoteSource.length;
+            const paddingCheck = function () {
+              if (!padding) {
+                next();
+              }
+            };
+            remoteSource.forEach((iPath) => {
+              var rPath = iPath;
+              if (rPath.match(NO_PROTOCOL)) {
+                rPath = rPath.replace(NO_PROTOCOL, 'http://$1');
+              }
+
+              http.get(rPath, (res) => {
+                expect(res.statusCode).to.equal(200);
+                padding--;
+                paddingCheck();
+              });
+            });
+            paddingCheck();
+          }).then(() => { // check
+            fn.frag.destroy().then(() => {
+              DONE();
+            });
+          }).start();
+        });
+      });
+    });
+
   }
 
   if (TEST_CTRL.ALL_CONFIG) {

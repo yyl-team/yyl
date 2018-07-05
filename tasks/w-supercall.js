@@ -390,13 +390,7 @@ var
             log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
           }
 
-          // 如果是 remote 直接执行 rev-update
-          if (op.ver) {
-            log('msg', 'info', 'ver is not blank, run rev-update');
-            return supercall.rev.update(op).then(() => {
-              next();
-            });
-          }
+
 
           // 清除 dest 目录下所有带 hash 文件
           supercall.rev.clean(op).then(() => {
@@ -524,7 +518,15 @@ var
 
             selfFn.mark.print();
             log('msg', 'success', 'rev-build finished');
-            next();
+            // 如果是 remote 直接执行 rev-update
+            if (op.ver) {
+              log('msg', 'info', 'ver is not blank, run rev-update');
+              return supercall.rev.update(op).then(() => {
+                next();
+              });
+            } else {
+              next();
+            }
           });
         });
       },

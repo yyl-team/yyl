@@ -6,7 +6,21 @@ const util = require('./w-util.js');
 const wServer = require('./w-server.js');
 const log = require('./w-log.js');
 
-var jade2pug = {
+const fn = {
+  throwError: function() {
+    if (cache.reject) {
+      cache.reject(...arguments);
+    } else {
+      throw new Error(...arguments);
+    }
+  }
+};
+
+const cache = {
+  reject: null
+};
+
+const jade2pug = {
   init: function(op) {
     const runner = (done) => {
       new util.Promise(((next) => {
@@ -20,7 +34,7 @@ var jade2pug = {
         }).catch((err) => {
           log('msg', 'error', ['build server config fail', err]);
           log('finish');
-          throw new Error(err);
+          return fn.throwError(err);
         });
       })).then((config) => {
         var
@@ -46,7 +60,8 @@ var jade2pug = {
       }).start();
     };
 
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   },

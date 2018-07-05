@@ -66,6 +66,7 @@ const webpackconfig = {
         loader: 'babel-loader',
         query: {
           babelrc: false,
+          cacheDirectory: true,
           presets: [
             'babel-preset-es2015',
             'babel-preset-stage-2'
@@ -81,6 +82,7 @@ const webpackconfig = {
             loader: 'babel-loader',
             query: {
               babelrc: false,
+              cacheDirectory: true,
               presets: [
                 'babel-preset-es2015',
                 'babel-preset-stage-2'
@@ -110,20 +112,6 @@ const webpackconfig = {
     }, {
       test: /\.jade$/,
       loaders: ['pug-loader']
-    }, {
-      test: /\.(png|jpg|gif)$/,
-      use: {
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: util.joinFormat(
-            path.relative(
-              config.alias.jsDest,
-              path.join(config.alias.imagesDest, '[name].[ext]')
-            )
-          )
-        }
-      }
     }, {
       // shiming the module
       test: path.join(config.alias.srcRoot, 'js/lib/'),
@@ -223,7 +211,6 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html è¾“å‡
 
   return r;
 })());
-
 
 // eslint
 if (config.eslint) {

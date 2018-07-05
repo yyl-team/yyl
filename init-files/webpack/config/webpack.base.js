@@ -2,17 +2,16 @@
 const path = require('path');
 const fs = require('fs');
 const combine = require('webpack-combine-loaders');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const px2rem = require('postcss-px2rem');
 const eslintFriendlyFormatter = require('eslint-friendly-formatter');
 
-const util = require('../../tasks/w-util.js');
+const util = require('../../../tasks/w-util.js');
 let config;
 
 
-const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack-vue2/config.js');
+const CONFIG_PATH = util.path.join(util.vars.SERVER_WORKFLOW_PATH, 'webpack/config.js');
 
 if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
@@ -54,19 +53,10 @@ const webpackconfig = {
 
     return r;
   })(),
-  mode: 'none',
   output: {
     path: path.resolve(__dirname, config.alias.jsDest),
     filename: '[name].js',
-    chunkFilename: `async_component/[name]${config.disableHash? '' : '-[chunkhash:8]'}.js`,
-    publicPath: util.joinFormat(
-      config.dest.basePath,
-      path.relative(
-        config.alias.root,
-        config.alias.jsDest
-      ),
-      '/'
-    )
+    chunkFilename: `async_component/[name]${config.disableHash? '' : '-[chunkhash:8]'}.js`
   },
   module: {
     rules: [{
@@ -76,6 +66,7 @@ const webpackconfig = {
         loader: 'babel-loader',
         query: {
           babelrc: false,
+          cacheDirectory: false,
           presets: [
             'babel-preset-es2015',
             'babel-preset-stage-2'
@@ -91,6 +82,7 @@ const webpackconfig = {
             loader: 'babel-loader',
             query: {
               babelrc: false,
+              cacheDirectory: false,
               presets: [
                 'babel-preset-es2015',
                 'babel-preset-stage-2'
@@ -115,76 +107,11 @@ const webpackconfig = {
         loader: 'html-loader'
       }]
     }, {
-      test: /\.css$/,
-      use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [
-          'css-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-              plugins: () => config.platform == 'pc'? [
-                autoprefixer({
-                  browsers: ['> 1%', 'last 2 versions']
-                })
-              ] : [
-                autoprefixer({
-                  browsers: ['iOS >= 7', 'Android >= 4']
-                }),
-                px2rem({remUnit: 75})
-
-              ]
-            }
-          }
-        ]
-      })
-    }, {
-      test: /\.(scss|sass)$/,
-      use: ExtractTextPlugin.extract({
-        fallback: 'style-loader',
-        use: [
-          'css-loader',
-          {
-            loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-              plugins: () => config.platform == 'pc'? [
-                autoprefixer({
-                  browsers: ['> 1%', 'last 2 versions']
-                })
-              ] : [
-                autoprefixer({
-                  browsers: ['iOS >= 7', 'Android >= 4']
-                }),
-                px2rem({remUnit: 75})
-
-              ]
-            }
-          },
-          'sass-loader'
-        ]
-      })
-    }, {
       test: /\.pug$/,
       loaders: ['pug-loader']
     }, {
       test: /\.jade$/,
       loaders: ['pug-loader']
-    }, {
-      test: /\.(png|jpg|gif)$/,
-      use: {
-        loader: 'url-loader',
-        options: {
-          limit: 10000,
-          name: util.joinFormat(
-            path.relative(
-              config.alias.jsDest,
-              path.join(config.alias.imagesDest, '[name].[ext]')
-            )
-          )
-        }
-      }
     }, {
       // shiming the module
       test: path.join(config.alias.srcRoot, 'js/lib/'),
@@ -200,59 +127,23 @@ const webpackconfig = {
     }]
   },
   resolveLoader: {
-    modules: [path.join( __dirname, 'node_modules'), __dirname]
+    modules: [path.join( __dirname, '../node_modules'), __dirname]
   },
   resolve: {
     modules: [
       __dirname,
-      path.join(__dirname, 'node_modules')
+      path.join(__dirname, '../node_modules')
     ],
     alias: util.extend({
       'actions': path.join(config.alias.srcRoot, 'vuex/actions.js'),
       'getters': path.join(config.alias.srcRoot, 'vuex/getters.js'),
       'vue$': 'vue/dist/vue.common.js'
-
     }, config.alias)
-
   },
-  plugins: [
-    // 样式分离插件
-    new ExtractTextPlugin({
-      filename: util.joinFormat(
-        path.relative(
-          config.alias.jsDest,
-          path.join(config.alias.cssDest, '[name].css')
-        )
-      ),
-      allChunks: true
-    })
-  ]
+  plugins: []
 };
 
-// eslint
-if (config.eslint) {
-  webpackconfig.module.rules.push({
-    enforce: 'pre',
-    test: /\.js$/,
-    exclude: /node_modules/,
-    loader: 'eslint-loader',
-    options: {
-      eslintPath: 'eslint',
-      formatter: eslintFriendlyFormatter
-    }
-  });
-}
-
-// config.module 继承
-const userConfigPath = util.path.join(config.alias.dirname, 'config.js');
-if (fs.existsSync(userConfigPath)) {
-  const userConfig = util.requireJs(userConfigPath);
-  if (userConfig.moduleRules) {
-    webpackconfig.module.rules = webpackconfig.module.rules.concat(userConfig.moduleRules);
-  }
-}
-
-
+// html output
 webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输出
   const bootPath = util.joinFormat(config.alias.srcRoot, 'boot');
   const entryPath = util.joinFormat(config.alias.srcRoot, 'entry');
@@ -309,8 +200,6 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
       }
     }
 
-
-
     r.push(new HtmlWebpackPlugin({
       template: iPath,
       filename: path.relative(config.alias.jsDest, path.join(config.alias.htmlDest, `${iBaseName}.html`)),
@@ -323,4 +212,28 @@ webpackconfig.plugins = webpackconfig.plugins.concat((function() { // html 输�
   return r;
 })());
 
+// eslint
+if (config.eslint) {
+  webpackconfig.module.rules.push({
+    enforce: 'pre',
+    test: /\.js$/,
+    exclude: /node_modules/,
+    loader: 'eslint-loader',
+    options: {
+      eslintPath: 'eslint',
+      formatter: eslintFriendlyFormatter
+    }
+  });
+}
+
+// config.module 继承
+const userConfigPath = util.path.join(config.alias.dirname, 'config.js');
+if (fs.existsSync(userConfigPath)) {
+  const userConfig = util.requireJs(userConfigPath);
+  if (userConfig.moduleRules) {
+    webpackconfig.module.rules = webpackconfig.module.rules.concat(userConfig.moduleRules);
+  }
+}
+
 module.exports = webpackconfig;
+

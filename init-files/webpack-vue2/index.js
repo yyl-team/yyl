@@ -7,6 +7,7 @@ const through = require('through2');
 
 const webpackDevConfig = require('./config/webpack.dev.js');
 const webpackPublishConfig = require('./config/webpack.publish.js');
+
 const supercall = require('../../tasks/w-supercall.js');
 const util = require('../../tasks/w-util.js');
 const log = require('../../tasks/w-log.js');
@@ -42,9 +43,9 @@ const REG = {
 gulp.task('webpack', (done) => {
   let iWconfig;
   if (iEnv.isCommit) {
-    iWconfig = util.extend(true, {}, webpackPublishConfig);
+    iWconfig = webpackPublishConfig;
   } else {
-    iWconfig = util.extend(true, {}, webpackDevConfig);
+    iWconfig = webpackDevConfig;
   }
 
   webpack(iWconfig, (err, stats) => {
