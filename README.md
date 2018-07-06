@@ -1,7 +1,7 @@
 # yylive work flow 说明文档
 ## 环境说明
-项目基于 `node, svn, git` 搭建, 需要在 `node >= 4.0.0` 环境下运行
-* 需要 node  `>= 4.0.0`
+项目基于 `node, svn, git` 搭建, 需要在 `node >= 6.0.0` 环境下运行
+* 需要 node  `>= 6.0.0`
 * 需要 svn `命令行安装` (在 cmd/终端 操作 输入 `svn` 有东西)
 * 需要 git `命令行安装` (在 cmd/终端 操作 输入 `git` 有东西)
 * mac 用户 svn 提交需要注意 cmd svn 版本 和 软件 svn 版本是否一致
