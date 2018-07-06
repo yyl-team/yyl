@@ -83,7 +83,7 @@ var
         log('finish');
         let opzer;
         try {
-          opzer = require(initPath);
+          opzer = util.requireJs(initPath);
         } catch (er) {
           return reject(er);
         }

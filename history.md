@@ -1,4 +1,9 @@
 # 版本信息
+## 2.24.1 (2018-07-06)
+* [EDIT] 优化 `rev-build` 与 `rev-update` 衔接逻辑
+* [FIX] 修复 `gulp-requirejs` tpl 文件内 路径不会替换对应的 hash 问题
+* [FIX] 修复 `gulp-requirejs` 中 路径替换 相对路径会出现 替换错误的问题
+
 ## 2.24.0 (2018-07-03)
 * [EDIT] 升级 yyl node 最低支持版本 为 `6.0.0`
 * [ADD] 新增 `webpack-vue2`, `webpack` `process.env.NODE_ENV` 变量
