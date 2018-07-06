@@ -17,8 +17,6 @@ util.cleanScreen();
 const TEST_CTRL = {
   SERVER: true,
   SERVER_INIT: true,
-  // SERVER_CLEAR: true,
-  // INIT: true,
   ALL: true,
   ALL_MAIN: true,
   ALL_IS_COMMIT: true,
@@ -30,6 +28,9 @@ const TEST_CTRL = {
   EXAMPLE: true,
   MAKE: true,
   COMMIT: true
+  // --- spical
+  // SERVER_CLEAR: true,
+  // INIT: true,
   // UPDATE: true
 };
 
@@ -468,10 +469,13 @@ if (TEST_CTRL.ALL) {
   }
   if (TEST_CTRL.ALL_IS_COMMIT) {
     describe('yyl all --isCommit test', () => {
-      const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
+      let workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
 
       const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
       const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
+      // // + test
+      // workflows = ['gulp-requirejs'];
+      // // - test
       workflows.forEach((workflow) => {
         it(workflow, function(DONE) {
           this.timeout(0);
@@ -509,16 +513,22 @@ if (TEST_CTRL.ALL) {
             const CSS_PATH_REG_2 = /(src\s*=\s*['"])([^'" ]*?)(['"])/ig;
             const REMOTE_SOURCE_REG = /^(http[s]?:|\/\/\w)/;
             const NO_PROTOCOL = /^\/\/(\w)/;
-            const LOCAL_SOURCE_REG = /^\/\w/;
+            const LOCAL_SOURCE_REG = new RegExp(`^${userConfig.commit.hostname}`);
             const localSource = [];
             const remoteSource = [];
             const sourcePickup = function (iPath) {
-              if (iPath.match(REMOTE_SOURCE_REG)) {
+              if (iPath.match(LOCAL_SOURCE_REG)) {
+                localSource.push(
+                  fn.hideUrlTail(
+                    util.path.join(destRoot, iPath.replace(LOCAL_SOURCE_REG, ''))
+                  )
+                );
+              } else if (iPath.match(REMOTE_SOURCE_REG)) {
                 remoteSource.push(iPath);
-              } else if (iPath.match(LOCAL_SOURCE_REG)) {
-                localSource.push(fn.hideUrlTail(util.path.join(destRoot, iPath)));
               }
             };
+
+
 
             expect(htmls.length).not.equal(0);
 
@@ -563,8 +573,15 @@ if (TEST_CTRL.ALL) {
             });
 
             localSource.forEach((iPath) => {
-              expect(fs.existsSync(iPath)).to.equal(true);
+              if (!fs.existsSync(iPath)) {
+                let rPath = util.path.join(
+                  userConfig.commit.hostname,
+                  path.relative(userConfig.alias.destRoot, iPath)
+                );
+                remoteSource.push(rPath);
+              }
             });
+
 
             let padding = remoteSource.length;
             const paddingCheck = function () {
@@ -579,7 +596,7 @@ if (TEST_CTRL.ALL) {
               }
 
               http.get(rPath, (res) => {
-                expect(res.statusCode).to.equal(200);
+                expect([rPath, res.statusCode]).to.deep.equal([rPath, 200]);
                 padding--;
                 paddingCheck();
               });
@@ -593,7 +610,6 @@ if (TEST_CTRL.ALL) {
         });
       });
     });
-
   }
 
   if (TEST_CTRL.ALL_CONFIG) {
@@ -789,6 +805,7 @@ if (TEST_CTRL.EXAMPLE) {
 if (TEST_CTRL.MAKE) {
   describe('yyl make test', () => {
     const workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
+
     workflows.forEach((workflow) => {
       it(`yyl make for ${workflow}`, function(done) {
         this.timeout(0);

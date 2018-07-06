@@ -42,7 +42,7 @@
     "requirejs": "~2.3.5",
     "run-sequence": "~1.1.5",
     "through2": "~2.0.1",
-    "yyl-inlinesource": "~1.2.0"
+    "yyl-inlinesource": "~1.2.1"
   },
   "dependencies": {
     "gulp": "~3.9.1"

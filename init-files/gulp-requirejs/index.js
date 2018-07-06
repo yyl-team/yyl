@@ -1215,6 +1215,7 @@ var
         .pipe(through.obj(function(file, enc, next) {
           const self = this;
           const fileDir = path.dirname(path.join(file.base, file.relative));
+
           inlinesource({
             content: file.contents,
             baseUrl: fileDir,
@@ -1225,7 +1226,7 @@ var
             minify: false,
             type: 'html'
           }).then((iCnt) => {
-            if (file.toString() != iCnt) {
+            if (file.contents != iCnt) {
               fn.logDest(path.join(file.base, file.relative));
             }
             file.contents = Buffer.from(iCnt, 'utf-8');
