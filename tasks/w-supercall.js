@@ -304,6 +304,7 @@ var
           };
           switch (iExt) {
             case 'html':
+            case 'tpl':
               r = htmlReplace(cnt);
               break;
 
@@ -368,9 +369,45 @@ var
       },
       // 文件名称
       filename: 'rev-manifest.json',
+
+      getRemoteManifest: function(op) {
+        const config = util.getConfigSync(op);
+        let disableHash = false;
+
+        if (config.disableHash) {
+          disableHash = true;
+        }
+
+        if (!config.commit.revAddr) {
+          disableHash = true;
+        }
+
+        return new Promise((next) => {
+          if (!disableHash) {
+            log('msg', 'info', `get remote rev start: ${config.commit.revAddr}`);
+            var requestUrl = config.commit.revAddr;
+            requestUrl += `${~config.commit.revAddr.indexOf('?')? '&': '?'  }_=${  +new Date()}`;
+            util.get(requestUrl, (content) => {
+              var iCnt;
+              try {
+                iCnt = JSON.parse(content.toString());
+                log('msg', 'success', 'get remote finished');
+              } catch (er) {
+                log('msg', 'warn', ['get remote rev fail', er]);
+              }
+              next(iCnt);
+            });
+          } else {
+            if (!config.commit.revAddr) {
+              log('msg', 'warn', 'get remote rev fail, config.commit.revAddr is null');
+            }
+            next(null);
+          }
+        });
+      },
       // rev-build 入口
       build: function(op) {
-        return new Promise((next, err) => {
+        return new Promise((NEXT, err) => {
           const config = util.getConfigSync(op);
           const self = this;
           const selfFn = self.fn;
@@ -378,184 +415,216 @@ var
             return err('rev-build run fail', 'config not exist');
           }
 
+          let disableHash = false;
+
+          if (config.disableHash) {
+            disableHash = true;
+            log('msg', 'success', 'config.disableHash, rev task ignore');
+          }
+
           if (!config.commit.revAddr) {
-            log('msg', 'warn', 'config.commit.revAddr not set, rev task not run');
-            return next();
+            disableHash = true;
+            log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
           }
 
-          // 如果是 remote 直接执行 rev-update
-          if (op.ver) {
-            log('msg', 'info', 'ver is not blank, run rev-update');
-            return supercall.rev.update(op).then(() => {
-              next();
-            });
-          }
-
-          // 清除 dest 目录下所有带 hash 文件
-          supercall.rev.clean(op).then(() => {
-            const htmlFiles = [];
-            const jsFiles = [];
-            const cssFiles = [];
-            const resourceFiles = [];
-            const tplFiles = [];
-
-            util.readFilesSync(config.alias.root, (iPath) => {
-              let r;
-              const iExt = path.extname(iPath);
-
-
-
-              if (/\.(html|json)/.test(iExt)) {
-                r = false;
-              } else {
-                r = true;
-              }
-
-              if (op.revIgnore) {
-                if (iPath.match(op.revIgnore)) {
-                  return r;
+          new util.Promise((next) => {
+            // 如果是 remote 直接执行 rev-update
+            if (op.ver) {
+              supercall.rev.getRemoteManifest(op).then((data) => {
+                if (data) {
+                  log('msg', 'info', 'ver is not blank, remote url exist, run rev-update');
+                  return supercall.rev.update(op, data).then(() => {
+                    NEXT();
+                  });
+                } else {
+                  next();
                 }
-              }
+              }).catch(() => {
+                next();
+              });
+            } else {
+              next();
+            }
+          }).then(() => {
+            // 清除 dest 目录下所有带 hash 文件
+            supercall.rev.clean(op).then(() => {
+              const htmlFiles = [];
+              const jsFiles = [];
+              const cssFiles = [];
+              const resourceFiles = [];
+              const tplFiles = [];
 
-              switch (iExt) {
-                case '.css':
-                  cssFiles.push(iPath);
-                  break;
+              util.readFilesSync(config.alias.root, (iPath) => {
+                let r;
+                const iExt = path.extname(iPath);
 
-                case '.js':
-                  jsFiles.push(iPath);
-                  break;
+                if (/\.(html|json)/.test(iExt)) {
+                  r = false;
+                } else {
+                  r = true;
+                }
 
-                case '.html':
-                  htmlFiles.push(iPath);
-                  break;
-
-                case '.tpl':
-                  tplFiles.push(iPath);
-                  break;
-
-                default:
-                  if (r) {
-                    resourceFiles.push(iPath);
+                if (op.revIgnore) {
+                  if (iPath.match(op.revIgnore)) {
+                    return r;
                   }
-                  break;
+                }
+
+                switch (iExt) {
+                  case '.css':
+                    cssFiles.push(iPath);
+                    break;
+
+                  case '.js':
+                    jsFiles.push(iPath);
+                    break;
+
+                  case '.html':
+                    htmlFiles.push(iPath);
+                    break;
+
+                  case '.tpl':
+                    tplFiles.push(iPath);
+                    break;
+
+                  default:
+                    if (r) {
+                      resourceFiles.push(iPath);
+                    }
+                    break;
+                }
+                return r;
+              });
+
+              // 生成 hash 列表
+              const revMap = {};
+              // 重置 mark
+              selfFn.mark.reset();
+
+              // 生成 资源 hash 表
+              if (!disableHash) {
+                resourceFiles.forEach((iPath) => {
+                  selfFn.buildHashMap(iPath, revMap);
+                });
               }
-              return r;
+
+              // 生成 js hash 表
+              jsFiles.forEach((iPath) => {
+                // hash路径替换
+                selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+                if (!disableHash) {
+                  // 生成hash 表
+                  selfFn.buildHashMap(iPath, revMap);
+                }
+              });
+
+              // css 文件内路径替换 并且生成 hash 表
+              cssFiles.forEach((iPath) => {
+                // hash路径替换
+                selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+                if (!disableHash) {
+                  // 生成hash 表
+                  selfFn.buildHashMap(iPath, revMap);
+                }
+              });
+
+              // tpl 文件内路径替换 并且生成 hash 表
+              tplFiles.forEach((iPath) => {
+                // hash路径替换
+                selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+                if (!disableHash) {
+                  // 生成hash 表
+                  selfFn.buildHashMap(iPath, revMap);
+                }
+              });
+
+              // html 路径替换
+              htmlFiles.forEach((iPath) => {
+                selfFn.fileHashPathUpdate(iPath, revMap, op);
+              });
+
+
+              if (!disableHash) {
+                // 根据hash 表生成对应的文件
+                selfFn.buildRevMapDestFiles(revMap);
+
+                // 版本生成
+                revMap.version = util.makeCssJsDate();
+
+                // rev-manifest.json 生成
+                util.mkdirSync(config.alias.revDest);
+                const revPath = util.joinFormat(config.alias.revDest, supercall.rev.filename);
+                const revVerPath = util.joinFormat(
+                  config.alias.revDest,
+                  supercall.rev.filename.replace(/(\.\w+$)/g, `-${revMap.version}$1`)
+                );
+
+                fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
+                selfFn.mark.add('create', revPath);
+
+                // rev-manifest-{cssjsdate}.json 生成
+                fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
+                selfFn.mark.add('create', revVerPath);
+              }
+
+              selfFn.mark.print();
+              log('msg', 'success', 'rev-build finished');
+              NEXT();
             });
-
-            // 生成 hash 列表
-            const revMap = {};
-            // 重置 mark
-            selfFn.mark.reset();
-
-            // 生成 资源 hash 表
-            resourceFiles.forEach((iPath) => {
-              selfFn.buildHashMap(iPath, revMap);
-            });
-
-            // 生成 js hash 表
-            jsFiles.forEach((iPath) => {
-              // hash路径替换
-              selfFn.fileHashPathUpdate(iPath, revMap, op);
-
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
-            });
-
-            // css 文件内路径替换 并且生成 hash 表
-            cssFiles.forEach((iPath) => {
-              // hash路径替换
-              selfFn.fileHashPathUpdate(iPath, revMap, op);
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
-            });
-
-            // tpl 文件内路径替换 并且生成 hash 表
-            tplFiles.forEach((iPath) => {
-              // hash路径替换
-              selfFn.fileHashPathUpdate(iPath, revMap, op);
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
-            });
-
-            // html 路径替换
-            htmlFiles.forEach((iPath) => {
-              selfFn.fileHashPathUpdate(iPath, revMap, op);
-            });
-
-
-
-            // 根据hash 表生成对应的文件
-            selfFn.buildRevMapDestFiles(revMap);
-
-            // 版本生成
-            revMap.version = util.makeCssJsDate();
-
-            // rev-manifest.json 生成
-            util.mkdirSync(config.alias.revDest);
-            const revPath = util.joinFormat(config.alias.revDest, supercall.rev.filename);
-            const revVerPath = util.joinFormat(
-              config.alias.revDest,
-              supercall.rev.filename.replace(/(\.\w+$)/g, `-${  revMap.version  }$1`)
-            );
-
-            fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
-            selfFn.mark.add('create', revPath);
-
-            // rev-manifest-{cssjsdate}.json 生成
-            fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
-            selfFn.mark.add('create', revVerPath);
-
-            selfFn.mark.print();
-            log('msg', 'success', 'rev-build finished');
-            next();
-          });
+          }).start();
         });
       },
       // rev-update 入口
-      update: function(op) {
+      update: function(op, remoteManifestData) {
         return new Promise((NEXT, err) => {
-          var self = this;
-          var selfFn = self.fn;
-          var config = util.getConfigSync(op);
+          const self = this;
+          const selfFn = self.fn;
+          const config = util.getConfigSync(op);
           if (!config) {
             return err('rev-update run fail', 'config not exist');
           }
+
+          let disableHash = false;
+
+          if (config.disableHash) {
+            disableHash = true;
+            log('msg', 'success', 'config.disableHash, rev task ignore');
+          }
+
           if (!config.commit.revAddr) {
-            log('msg', 'warn', 'config.commit.revAddr not set, rev task not run');
-            return NEXT();
+            disableHash = true;
+            log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
           }
 
           // 重置 mark
           selfFn.mark.reset();
 
           new util.Promise(((next) => { // 获取 rev-manifest
-            if (op.ver == 'remote') { // 远程获取 rev-manifest
-              if (config.commit.revAddr) {
-                log('msg', 'info', `get remote rev start: ${config.commit.revAddr}`);
-                var requestUrl = config.commit.revAddr;
-                requestUrl += `${~config.commit.revAddr.indexOf('?')? '&': '?'  }_=${  +new Date()}`;
-                util.get(requestUrl, (content) => {
-                  var iCnt;
-                  try {
-                    iCnt = JSON.parse(content.toString());
-                    log('msg', 'success', 'get remote finished');
-                  } catch (er) {
-                    log('msg', 'warn', ['get remote rev fail', er]);
-                  }
-                  next(iCnt);
+            if (remoteManifestData) {
+              next(remoteManifestData);
+            } else {
+              if (op.ver == 'remote') { // 远程获取 rev-manifest
+                supercall.rev.getRemoteManifest(op).then((data) => {
+                  next(data);
+                }).catch(() => {
+                  next(null);
                 });
               } else {
-                log('msg', 'warn', 'get remote rev fail, config.commit.revAddr is null');
                 next(null);
               }
-            } else {
-              next(null);
             }
           })).then((revMap, next) => { // 获取本地 rev-manifest
             if (revMap) {
               return next(revMap);
             }
+
+            if (disableHash) {
+              return next({});
+            }
+
             var localRevPath = util.joinFormat(
               config.alias.revDest,
               supercall.rev.filename
@@ -575,32 +644,44 @@ var
             }
           }).then((revMap, next) => { // hash 表内html, css 文件 hash 替换
             // html, tpl 替换
-            var htmlFiles = util.readFilesSync(config.alias.root, /\.(html|tpl)$/);
+            const htmlFiles = util.readFilesSync(config.alias.root, /\.(html|tpl)$/);
 
             htmlFiles.forEach((iPath) => {
               selfFn.fileHashPathUpdate(iPath, revMap, op);
             });
 
-            // css 替换
-            Object.keys(revMap).forEach((iPath) => {
-              var filePath = util.joinFormat(config.alias.revRoot, iPath);
+            // css or js 替换
+            if (disableHash) {
+              const jsFiles = util.readFilesSync(config.alias.root, /\.js$/);
+              const cssFiles = util.readFilesSync(config.alias.root, /\.css$/);
 
-              if (fs.existsSync(filePath)) {
-                switch (path.extname(filePath)) {
-                  case '.css':
-                    self.fn.fileHashPathUpdate(filePath, revMap, op);
-                    break;
+              jsFiles.forEach((filePath) => {
+                self.fn.fileHashPathUpdate(filePath, revMap, op);
+              });
 
-                  case '.js':
-                    self.fn.fileHashPathUpdate(filePath, revMap, op);
-                    break;
+              cssFiles.forEach((filePath) => {
+                self.fn.fileHashPathUpdate(filePath, revMap, op);
+              });
+            } else {
+              Object.keys(revMap).forEach((iPath) => {
+                var filePath = util.joinFormat(config.alias.revRoot, iPath);
 
-                  default:
-                    break;
+                if (fs.existsSync(filePath)) {
+                  switch (path.extname(filePath)) {
+                    case '.css':
+                      self.fn.fileHashPathUpdate(filePath, revMap, op);
+                      break;
+
+                    case '.js':
+                      self.fn.fileHashPathUpdate(filePath, revMap, op);
+                      break;
+
+                    default:
+                      break;
+                  }
                 }
-              }
-            });
-
+              });
+            }
             next(revMap);
           }).then((revMap, next) => { // hash对应文件生成
             selfFn.buildRevMapDestFiles(revMap);
@@ -702,8 +783,7 @@ var
     },
 
     // yyl 脚本调用入口
-    run: function() {
-      var iArgv = util.makeArray(arguments);
+    run: function(iArgv) {
       var ctx = iArgv[1];
 
       var op = util.envParse(iArgv.slice(1));

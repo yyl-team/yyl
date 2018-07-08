@@ -6,6 +6,20 @@ const util = require('./w-util.js');
 const vars = util.vars;
 const log = require('./w-log.js');
 
+const cache = {
+  reject: null
+};
+
+const fn = {
+  throwError: function() {
+    if (cache.reject) {
+      cache.reject(...arguments);
+    } else {
+      throw new Error(...arguments);
+    }
+  }
+};
+
 var
   remove = function(iPath) {
     const runner = (done) => {
@@ -22,7 +36,7 @@ var
       if (!fs.existsSync(tPath)) {
         log('msg', 'error', `${tPath} is not exists`);
         log('finish');
-        throw new Error(`${tPath} is not exists`);
+        return fn.throwError(`${tPath} is not exists`);
       }
 
       if (iBaseName == 'node_modules') {
@@ -71,7 +85,7 @@ var
             if (err) {
               log('msg', 'warn', ['remove files error', err, tPath]);
               log('finish');
-              throw new Error(err);
+              return fn.throwError(err);
             } else {
               log('msg', 'success', `remove file finished: ${tPath}`);
             }
@@ -86,7 +100,7 @@ var
           if (err) {
             log('msg', 'warn', ['remove files error:', err, tPath]);
             log('finish');
-            throw new Error(err);
+            return fn.throwError(err);
           } else {
             log('msg', 'success', `remove file finished: ${tPath}`);
           }
@@ -96,7 +110,8 @@ var
         });
       }
     };
-    return new Promise((next) => {
+    return new Promise((next, reject) => {
+      cache.reject = reject;
       runner(next);
     });
   };

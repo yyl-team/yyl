@@ -358,7 +358,9 @@ var
         runner(next);
       });
     },
-    run: function(ctx, version) {
+    run: function(argv) {
+      const ctx = argv[0];
+      const version = argv[1];
       if (ctx) {
         if (ctx.match(REG.IS_VERSION)) { // 正常组件升级
           return update.yyl(ctx);

@@ -7,11 +7,10 @@ var wServer = require('./w-server');
 var log = require('./w-log');
 
 var
-  wOptimize = function() {
-    var iArgv = util.makeArray(arguments);
-    var iEnv = util.envPrase(iArgv);
+  wOptimize = function(iArgv) {
+    const iEnv = util.envPrase(iArgv);
 
-    const runner = (done) => {
+    const runner = (done, reject) => {
       new util.Promise((next) => {
         log('clear');
         log('cmd', `yyl ${iArgv.join(' ')}`);
@@ -23,7 +22,7 @@ var
         }).catch((err) => {
           log('msg', 'error', ['init server config error:', err.message]);
           log('finish');
-          throw new Error(err);
+          reject(err);
         });
       }).then((config, next) => { // 检测 版本
         const yylPkg = util.requireJs(util.path.join(__dirname, '../package.json'));
@@ -31,7 +30,7 @@ var
           log('msg', 'error', `optimize fail, project require yyl at least ${config.version}`);
           log('msg', 'warn', 'please update your yyl: npm install yyl -g');
           log('finish');
-          throw new Error(`optimize fail, project require yyl at least ${config.version}`);
+          reject(`optimize fail, project require yyl at least ${config.version}`);
         } else {
           next(config);
         }
@@ -82,15 +81,22 @@ var
       }).then((config) => { // 运行命令
         const initPath = util.path.join(util.vars.INIT_FILE_PATH, config.workflow, 'index.js');
         log('finish');
-        const opzer = require(initPath);
+        let opzer;
+        try {
+          opzer = util.requireJs(initPath);
+        } catch (er) {
+          return reject(er);
+        }
         opzer(config, iArgv[0], iEnv).then(() => {
           done(config);
+        }).catch((er) => {
+          return Promise.reject(er);
         });
       }).start();
     };
 
-    return new Promise((next) => {
-      runner(next);
+    return new Promise((next, reject) => {
+      runner(next, reject);
     });
   };
 

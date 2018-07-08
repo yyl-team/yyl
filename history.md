@@ -1,4 +1,27 @@
 # 版本信息
+## 2.24.1 (2018-07-06)
+* [EDIT] 优化 `rev-build` 与 `rev-update` 衔接逻辑
+* [FIX] 修复 `gulp-requirejs` tpl 文件内 路径不会替换对应的 hash 问题
+* [FIX] 修复 `gulp-requirejs` 中 路径替换 相对路径会出现 替换错误的问题
+
+## 2.24.0 (2018-07-03)
+* [EDIT] 升级 yyl node 最低支持版本 为 `6.0.0`
+* [ADD] 新增 `webpack-vue2`, `webpack` `process.env.NODE_ENV` 变量
+* [EDIT] 优化 `webpack-vue2`, `webpack` 构建速度
+* [EDIT] 优化 `yyl` throw error 逻辑
+
+## 2.22.5 (2018-06-14)
+* [ADD] 新增 `config.js` `disableHash` 配置项用于禁止项目生成 hash 文件
+
+## 2.22.4 (2018-06-14)
+* [FIX] 补充 `webpack` `webpack-vue2` 对 `.css` 文件的 解析支持
+
+## 2.22.3 (2018-06-14)
+* [FIX] 修复 yyl `gulp-requirejs` `watch` 检查 `pug` 文件 遇到 `include  ../w-giving\w-giving` 两个空格无法正常检测的问题
+
+## 2.21.2 (2018-06-04)
+* [FIX] 修复 yyl 运行时会出现 `express is not define` 错误的问题
+
 ## 2.21.1 (2018-06-03)
 * [FIX] 修复 `gulp-requirejs` watch 时 如发生报错, 第二次执行时将不能正常完成 optimize 的问题
 

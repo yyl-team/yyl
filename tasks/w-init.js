@@ -385,13 +385,10 @@ var
     }
   };
 
-module.exports = function() {
-  var iArgv = [...arguments];
-  var op = util.envParse(iArgv.slice(1));
-
-  if (op.h || op.help) {
+module.exports = function(iEnv) {
+  if (iEnv.h || iEnv.help) {
     return events.help();
   } else {
-    return events.init(op);
+    return events.init(iEnv);
   }
 };

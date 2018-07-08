@@ -383,7 +383,7 @@ var fn = {
           // 查找 文件当中 有引用当前 地址的, 此处应有递归
           sourceFiles.forEach((iSource) => {
             var iCnt = fs.readFileSync(iSource).toString();
-            iCnt.replace(/(extends|include) ([^ \r\n\t]+)/g, (str, $1, $2) => {
+            iCnt.replace(/(extends|include)[ ]+([^ \r\n\t]+)/g, (str, $1, $2) => {
               var myPath = util.joinFormat(path.dirname(iSource), `${$2}.pug`);
               rMap.set(iSource, myPath);
               return str;
@@ -404,6 +404,7 @@ var fn = {
           }
 
           var r = [];
+
 
           if (isPage(iPath) || isTpl(iPath)) { // 如果自己是 p-xx 文件 也添加到 返回 array
             r.push(iPath);
@@ -1214,6 +1215,7 @@ var
         .pipe(through.obj(function(file, enc, next) {
           const self = this;
           const fileDir = path.dirname(path.join(file.base, file.relative));
+
           inlinesource({
             content: file.contents,
             baseUrl: fileDir,
@@ -1224,7 +1226,7 @@ var
             minify: false,
             type: 'html'
           }).then((iCnt) => {
-            if (file.toString() != iCnt) {
+            if (file.contents != iCnt) {
               fn.logDest(path.join(file.base, file.relative));
             }
             file.contents = Buffer.from(iCnt, 'utf-8');

@@ -7,6 +7,11 @@ const wServer = require('./w-server.js');
 const log = require('./w-log.js');
 
 
+const cache = {
+  reject: null
+};
+
+
 var TEMPLATE = {
   'JADE': {
     'LAYOUT': [
@@ -80,18 +85,24 @@ var TEMPLATE = {
 
 };
 
-var
-  fn = {
-    render: function(tmpl, op) {
-      var r = tmpl;
-      for (var key in op) {
-        if (op.hasOwnProperty(key)) {
-          r = r.replace(new RegExp(`\\{\\{${  key  }\\}\\}`, 'g'), op[key] || '');
-        }
+const fn = {
+  render: function(tmpl, op) {
+    var r = tmpl;
+    for (var key in op) {
+      if (op.hasOwnProperty(key)) {
+        r = r.replace(new RegExp(`\\{\\{${  key  }\\}\\}`, 'g'), op[key] || '');
       }
-      return r;
     }
-  };
+    return r;
+  },
+  throwError: function() {
+    if (cache.reject) {
+      cache.reject(...arguments);
+    } else {
+      throw new Error(...arguments);
+    }
+  }
+};
 
 var
   wMake = {
@@ -106,7 +117,7 @@ var
           }).catch((err) => {
             log('msg', 'error', ['build server config fail', err]);
             log('finish');
-            throw new Error(err);
+            return fn.throwError(err);
           });
         })).then((config, next) => {
           var srcRoot = config.alias.srcRoot;
@@ -345,7 +356,8 @@ var
         }).start();
       };
 
-      return new Promise((next) => {
+      return new Promise((next, reject) => {
+        cache.reject = reject;
         runner(next);
       });
     },
@@ -356,9 +368,9 @@ var
           'command': 'w-xx, r-xx wigets or p-xx pages component'
         }
       });
+      return Promise.resolve();
     },
-    run: function() {
-      var iArgv = util.makeArray(arguments);
+    run: function(iArgv) {
       var ctx = iArgv[0];
       var op = util.envParse(iArgv.slice(1));
 
