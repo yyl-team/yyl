@@ -1805,11 +1805,24 @@ gulp.task('watch', ['all'], () => {
   watchit(util.joinFormat(config.alias.srcRoot, '**/**.*'), (file) => {
     log('clear');
     log('start', 'watch');
-    var runtimeFiles = fn.srcRelative(file.history, {
+    const iPath = util.path.join(file.base, file.relative);
+    const files = [iPath];
+    if (/\.bak$/.test(iPath)) {
+      const sPath = iPath.replace(/\.bak$/, '');
+      if (fs.existsSync(sPath)) {
+        files.push(sPath);
+      }
+    }
+    var runtimeFiles = fn.srcRelative(files, {
       base: config.alias.srcRoot,
       jslib: util.joinFormat(config.alias.srcRoot, 'js/lib'),
       rConfig: util.joinFormat(config.alias.srcRoot, 'js/rConfig/rConfig.js')
     });
+
+    // console.log('======================')
+    // console.log(util.path.join(file.base, file.relative))
+    // console.log(runtimeFiles);
+    // console.log('======================')
 
 
     const htmlDestFiles = [];
