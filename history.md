@@ -1,4 +1,7 @@
 # 版本信息
+## 2.24.2 (2018-07-12)
+* [FIX] 修复 `gulp-requirejs` watch 时 如 同目录下 同时存在 `a.js`, `a.js.bak` 时, 修改 `a.js` 不能正常触发 压缩逻辑的问题
+
 ## 2.24.1 (2018-07-06)
 * [EDIT] 优化 `rev-build` 与 `rev-update` 衔接逻辑
 * [FIX] 修复 `gulp-requirejs` tpl 文件内 路径不会替换对应的 hash 问题
