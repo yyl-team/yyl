@@ -1,4 +1,7 @@
 # 版本信息
+## 2.24.3 (2018-07-18)
+* [FIX] 修复 `webpack-vue2` `webpack-vue2-for pc` 种子 不兼容 ie 10 问题
+
 ## 2.24.2 (2018-07-12)
 * [FIX] 修复 `gulp-requirejs` watch 时 如 同目录下 同时存在 `a.js`, `a.js.bak` 时, 修改 `a.js` 不能正常触发 压缩逻辑的问题
 

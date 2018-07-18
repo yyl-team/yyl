@@ -128,7 +128,8 @@ const config = {
     'tplDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath),
 
     // webpackconfig 中的 alias
-    'jquery': path.join('./src/js/lib/jquery/jquery-1.11.1.js')
+    'jquery': path.join('./src/js/lib/jquery/jquery-1.11.1.js'),
+    'babel-polyfill': path.join('./src/js/lib/babel-polyfill/babel-polyfill.js')
     // + yyl make
     // - yyl make
   },
@@ -138,7 +139,8 @@ const config = {
   // = 用 {$变量名} 方式代替, 没有合适变量可以自行添加到 alias 上
   'concat': {
     '{$jsDest}/vendors.js': [
-      '{$jquery}'
+      '{$jquery}',
+      '{$babel-polyfill}'
     ]
   },
 
