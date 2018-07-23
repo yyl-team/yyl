@@ -8,7 +8,7 @@ const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const color = require('yyl-color');
-const express = require('express');
+const connect = require('connect');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
 const livereload = require('connect-livereload');
@@ -662,7 +662,7 @@ const wServer = {
         log('msg', 'success', `   address : ${chalk.yellow(serverAddress)}`);
         log('msg', 'success', `   lr port : ${chalk.yellow(lrPort)}`);
 
-        var app = express();
+        var app = connect();
         app.use(livereload({
           port: lrPort,
           src: `http://localhost:${lrPort}/livereload.js?snipver=1`
