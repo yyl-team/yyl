@@ -14,6 +14,7 @@ const serveStatic = require('serve-static');
 const livereload = require('connect-livereload');
 const wRemove = require('./w-remove.js');
 const wProxy = require('./w-proxy.js');
+const wMock = require('./w-mock.js');
 const log = require('./w-log');
 
 const jsonServer = require('json-server');
@@ -666,6 +667,12 @@ const wServer = {
         app.use(livereload({
           port: lrPort,
           src: `http://localhost:${lrPort}/livereload.js?snipver=1`
+        }));
+
+        // mock
+        app.use(wMock({
+          dbPath: path.join(util.vars.PROJECT_PATH, 'mock/db.json'),
+          routesPath: path.join(util.vars.PROJECT_PATH, 'mock/routes.json')
         }));
 
         // 执行 post 请求本地服务器时处理

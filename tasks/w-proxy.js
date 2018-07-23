@@ -20,37 +20,6 @@ const easyCert = new EasyCert({
   ]
 });
 
-
-// const MIME_TYPE_MAP = {
-//   'css': 'text/css',
-//   'js': 'text/javascript',
-//   'html': 'text/html',
-//   'xml': 'text/xml',
-//   'txt': 'text/plain',
-
-//   'json': 'application/json',
-//   'pdf': 'application/pdf',
-//   'swf': 'application/x-shockwave-flash',
-
-//   'woff': 'application/font-woff',
-//   'ttf': 'application/font-ttf',
-//   'eot': 'application/vnd.ms-fontobject',
-//   'otf': 'application/font-otf',
-
-//   'wav': 'audio/x-wav',
-//   'wmv': 'video/x-ms-wmv',
-//   'mp4': 'video/mp4',
-
-//   'gif': 'image/gif'
-//   ,
-//   'ico': 'image/x-icon',
-//   'jpeg': 'image/jpeg',
-//   'jpg': 'image/jpeg',
-//   'png': 'image/png',
-//   'svg': 'image/svg+xml',
-//   'tiff': 'image/tiff'
-// };
-
 // var PROXY_INFO_HTML = [
 //   '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
 //   '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
