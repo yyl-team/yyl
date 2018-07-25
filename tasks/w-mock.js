@@ -18,7 +18,7 @@ const wMock = function (op) {
   const REG = {
     KEY: /:([^/&?]+)/g,
     ANY: /\*+/g,
-    OPERATOR: /_(gte|lte|ne|like)$/
+    OPERATOR: /^(.+)_(gte|lte|ne|like)$/
   };
 
   // url db 匹配
@@ -49,10 +49,10 @@ const wMock = function (op) {
     }
 
     // url to data
-    let rData = db;
+    let rData = util.extend(true, {}, db);
     paths.map((key, index) => {
       if (index === paths.length - 1) {
-          if (util.type(rData) == 'array') {
+        if (util.type(rData) == 'array') {
           let isMatch = null;
           rData.map((item) => {
             if (typeof item == 'object' && `${item.id}` === `${key}`) {
@@ -94,11 +94,29 @@ const wMock = function (op) {
         if (sParam._sort) {
           let sortKeys = sParam._sort.split(/\s*,\s*/);
           let order = 'desc';
-          if (sParam._sort !== 'desc') {
+          if (sParam._order !== 'desc') {
             order = 'asc';
           }
 
-          // TODO
+          rData.sort((item1, item2) => {
+            let str1 = '';
+            let str2 = '';
+            sortKeys.map((key) => {
+              if (item1[key]) {
+                str1 += item1[key];
+              }
+
+              if (item2[key]) {
+                str2 += item2[key];
+              }
+            });
+
+            if (order !== 'asc') {
+              return str2.localeCompare(str1);
+            } else {
+              return str1.localeCompare(str2);
+            }
+          });
 
           delete sParam._sort;
           delete sParam._order;
@@ -106,15 +124,43 @@ const wMock = function (op) {
 
         // slice: _start, _end, _limit
         if (sParam._start) {
-          // TODO
+          let iStart = +sParam._start;
+          if (isNaN(iStart) || iStart < 0) {
+            rData = [];
+          } else {
+            rData.splice(0, iStart);
+          }
+          if (sParam._end) {
+            sParam._end = sParam._end - sParam._start;
+          }
           delete sParam._start;
+        }
+
+        if (sParam._end) {
+          let iEnd = +sParam._end;
+          if (isNaN(iEnd) || iEnd < 0) {
+            rData = [];
+          } else {
+            rData.splice(iEnd);
+          }
           delete sParam._end;
+        }
+
+        if (sParam._limit) {
+          let iLimit = + sParam._limit;
+          if (isNaN(iLimit) || iLimit < 0) {
+            rData = [];
+          } else {
+            if (rData.length > iLimit) {
+              rData.splice(iLimit);
+            }
+          }
+
           delete sParam._limit;
         }
 
         // 暂时不做 获取子资源
         if (sParam._embed) {
-          // TODO
           delete sParam._embed;
         }
 
@@ -125,13 +171,69 @@ const wMock = function (op) {
 
         Object.keys(sParam).forEach((key) => {
           // operator
-          let operators = key.match(REG.OPERATOR);
-          if (operators) {
-            let operator = operator[1];
-            // TODO
-          // equal
+          let iMatchs = key.match(REG.OPERATOR);
+          if (iMatchs) {
+            let oKey = iMatchs[1];
+            let oCtrl = iMatchs[2];
+            let iVal = decodeURIComponent(sParam[key]);
+            let nVal = +iVal;
+            let filterHandle;
+            switch (oCtrl) {
+              case 'gte':
+                if (isNaN(nVal)) {
+                  rData = [];
+                } else {
+                  filterHandle = (item) =>  {
+                    if (item[oKey] >= nVal) {
+                      return true;
+                    }
+                    return false;
+                  };
+                }
+                break;
+
+              case 'lte':
+                if (isNaN(nVal)) {
+                  rData = [];
+                } else {
+                  filterHandle = (item) =>  {
+                    if (item[oKey] >= nVal) {
+                      return true;
+                    }
+                    return false;
+                  };
+                }
+                break;
+
+              case 'ne':
+                filterHandle = (item) =>  {
+                  if (item[oKey] != iVal) {
+                    return true;
+                  }
+                  return false;
+                };
+                break;
+
+              case 'like':
+                filterHandle = (item) =>  {
+                  if (`${item[oKey]}`.match(new RegExp(iVal))) {
+                    return true;
+                  }
+                  return false;
+                };
+                break;
+            }
+
+            if (rData.length && filterHandle) {
+              rData = rData.filter(filterHandle);
+            }
           } else {
-            // TODO
+            rData = rData.filter((item) =>  {
+              if (item[key] == sParam[key]) {
+                return true;
+              }
+              return false;
+            });
           }
         });
       }
