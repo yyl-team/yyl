@@ -50,11 +50,11 @@ const wMock = function (op) {
 
     // url to data
     let rData = util.extend(true, {}, db);
-    paths.map((key, index) => {
+    paths.some((key, index) => {
       if (index === paths.length - 1) {
         if (util.type(rData) == 'array') {
           let isMatch = null;
-          rData.map((item) => {
+          rData.some((item) => {
             if (typeof item == 'object' && `${item.id}` === `${key}`) {
               isMatch = item;
               return true;
@@ -101,7 +101,7 @@ const wMock = function (op) {
           rData.sort((item1, item2) => {
             let str1 = '';
             let str2 = '';
-            sortKeys.map((key) => {
+            sortKeys.some((key) => {
               if (item1[key]) {
                 str1 += item1[key];
               }
@@ -245,7 +245,7 @@ const wMock = function (op) {
   const routes2db = function(remoteUrl) {
     let tUrl = remoteUrl;
     if (routes) {
-      Object.keys(routes).map((key) => {
+      Object.keys(routes).some((key) => {
         if (typeof routes[key] !== 'string') {
           return;
         }
@@ -264,7 +264,7 @@ const wMock = function (op) {
         const resultMatch = remoteUrl.match(urlReg);
         if (resultMatch && resultMatch.length) {
           resultMatch.shift();
-          resultMatch.map((val, i) => {
+          resultMatch.some((val, i) => {
             data[dataKeys[i]] = val;
           });
           tUrl = routes[key].replace(REG.KEY, (str, key) => {
