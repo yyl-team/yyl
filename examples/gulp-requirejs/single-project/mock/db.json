@@ -1,9 +1,6 @@
 {
-    "posts": [
-      { "id": 1, "title": "json-server", "author": "typicode" }
+    "list": [
+      { "id": 1, "title": "mock list 01"}
     ],
-    "comments": [
-      { "id": 1, "body": "some comment", "postId": 1 }
-    ],
-    "profile": { "name": "typicode" }
+    "object": { "title": "mock object" }
 }

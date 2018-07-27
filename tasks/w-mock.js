@@ -17,7 +17,7 @@ const wMock = function (op) {
 
   const REG = {
     KEY: /:([^/&?]+)/g,
-    ANY: /\*+/g,
+    ANY: /\*+$/,
     OPERATOR: /^(.+)_(gte|lte|ne|like)$/
   };
 
@@ -34,6 +34,7 @@ const wMock = function (op) {
     if (remoteUrl === '/') {
       return;
     }
+
 
     const urlObj = url.parse(remoteUrl);
 
@@ -249,19 +250,22 @@ const wMock = function (op) {
         if (typeof routes[key] !== 'string') {
           return;
         }
+
         const dataKeys = [];
         const data = {};
         const urlRegStr = key
           .replace(REG.KEY, (str, $1) => {
             dataKeys.push($1);
             return '([^/&?]+)';
-          })
-          .replace(REG.ANY, () => {
-            return '.*';
+          }).replace(REG.ANY, (str) => {
+            dataKeys.push(str);
+            return '(.*)';
           });
 
+
+
         const urlReg = new RegExp(`^${urlRegStr}$`, '');
-        const resultMatch = remoteUrl.match(urlReg);
+        const resultMatch = tUrl.match(urlReg);
         if (resultMatch && resultMatch.length) {
           resultMatch.shift();
           resultMatch.some((val, i) => {
@@ -274,6 +278,13 @@ const wMock = function (op) {
               return str;
             }
           });
+
+          if ('*' in data) {
+            tUrl = tUrl.replace(/\$1/g, () => {
+              return data['*'];
+            });
+          }
+
           return true;
         }
       });

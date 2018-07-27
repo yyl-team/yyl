@@ -38,7 +38,7 @@ Options:
 ```
 
 ### 项目初始化相关命令
-```shell
+```
 Usage: yyl init
 
 Commands:
@@ -54,7 +54,7 @@ Options:
 ```
 
 ### 项目信息 显示
-```shell
+```
 Usage: yyl info
 
 Commands:
@@ -120,6 +120,23 @@ Options:
     -p, --path    打开本地服务所在路径
 ```
 
+### mock 相关说明
+#### mock 目录
+```
+| + src
+| ~ mock
+|   | - db.json
+|   ` - routes.json
+` + dest
+```
+
+#### api 参照
+[https://github.com/typicode/json-server](https://github.com/typicode/json-server)
+
+#### 尚未实现
+* ?_embed
+* ?_expand
+
 ### 例子相关命令
 ```
 Usage: yyl example <command>
@@ -171,15 +188,6 @@ rollup + es6 技术架构, 适用于 PC 端开发
 #### 例子
 * [hello world](./examples/rollup/single-project)
 * [一个项目集成多个子工程例子](./examples/rollup/multi-project)
-
-### webpack-vue
-适用于 移动端开发
-
-#### 说明文档
-* [说明文档](./init-files/webpack-vue/README.md)
-
-#### 例子
-* [hello world](./examples/webpack-vue/single-project)
 
 ### webpack-vue2
 适用于 移动端开发

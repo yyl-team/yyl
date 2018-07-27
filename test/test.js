@@ -15,20 +15,20 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 util.cleanScreen();
 
 const TEST_CTRL = {
-  SERVER: true,
-  SERVER_INIT: true,
-  ALL: true,
-  ALL_MAIN: true,
-  ALL_IS_COMMIT: true,
-  ALL_CONFIG: true,
-  VERSION: true,
-  HELP: true,
-  PATH: true,
-  INFO: true,
-  EXAMPLE: true,
-  MAKE: true,
+  // SERVER: true,
+  // SERVER_INIT: true,
+  // ALL: true,
+  // ALL_MAIN: true,
+  // ALL_IS_COMMIT: true,
+  // ALL_CONFIG: true,
+  // VERSION: true,
+  // HELP: true,
+  // PATH: true,
+  // INFO: true,
+  // EXAMPLE: true,
+  // MAKE: true,
   MOCK: true,
-  COMMIT: true
+  // COMMIT: true
   // --- spical
   // SERVER_CLEAR: true,
   // INIT: true,
@@ -1194,6 +1194,39 @@ if (TEST_CTRL.MOCK) {
     it('/justObject', function(done) {
       this.timeout(0);
       const testPath = 'http://127.0.0.1:5000/justObject';
+      get(testPath).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+    it('routes test /api/1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/api/1';
+      get(testPath).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+    it('routes test /api', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/api';
+      get(testPath).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).not.equal(0);
+        done();
+      });
+    });
+
+    it('routes test /mapi/1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mapi/1';
       get(testPath).then((argv) => {
         const [res, data] = argv;
         expect(res.statusCode).equal(200);

@@ -1,4 +1,5 @@
 {
   "/api/:id": "/mockapi/:id",
-  "/api": "/mockapi"
+  "/api": "/mockapi",
+  "/mapi*": "/mockapi$1"
 }
