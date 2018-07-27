@@ -137,7 +137,7 @@ const wMock = function (op) {
         }
 
         if (sParam._end) {
-          let iEnd = +sParam._end;
+          let iEnd = +sParam._end + 1;
           if (isNaN(iEnd) || iEnd < 0) {
             rData = [];
           } else {
@@ -197,7 +197,7 @@ const wMock = function (op) {
                   rData = [];
                 } else {
                   filterHandle = (item) =>  {
-                    if (item[oKey] >= nVal) {
+                    if (item[oKey] <= nVal) {
                       return true;
                     }
                     return false;
