@@ -28,7 +28,7 @@ const wMock = function (op) {
     }
     // 路径匹配
     if (remoteUrl === '/db') {
-      return db;
+      return JSON.stringify(db);
     }
 
     if (remoteUrl === '/') {
@@ -87,7 +87,21 @@ const wMock = function (op) {
       }
     }
 
-    if (rData && sParam) {
+    // jsonp
+    let jsonp = null;
+    if (sParam && sParam.callback) {
+      jsonp = sParam.callback;
+      delete sParam.callback;
+    }
+
+    if (sParam && sParam.jsonp) {
+      jsonp = sParam[sParam.jsonp];
+      delete sParam.jsonp;
+      delete sParam[sParam.jsonp];
+    }
+
+
+    if (rData && sParam && Object.keys(sParam).length) { // filter
       if (util.type(rData) !== 'array') {
         rData = {};
       } else {
@@ -170,7 +184,13 @@ const wMock = function (op) {
           delete sParam._expand;
         }
 
+
+
         Object.keys(sParam).forEach((key) => {
+          if (key === 'callback' || key === 'jsonp') { // jsonp 用参数 忽略
+            return;
+          }
+
           // operator
           let iMatchs = key.match(REG.OPERATOR);
           if (iMatchs) {
@@ -239,7 +259,16 @@ const wMock = function (op) {
         });
       }
     }
-    return rData;
+
+    // jsonp
+    if (jsonp && rData) {
+      return `${jsonp}(${JSON.stringify(rData)});`;
+    // normal
+    } else if (rData) {
+      return JSON.stringify(rData);
+    } else {
+      return null;
+    }
   };
 
   // url 路由匹配
@@ -301,7 +330,7 @@ const wMock = function (op) {
     if (r) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json;charset=UTF-8');
-      res.write(JSON.stringify(r));
+      res.write(r);
       res.end();
     } else {
       next();

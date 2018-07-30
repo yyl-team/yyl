@@ -137,6 +137,10 @@ Options:
 * ?_embed
 * ?_expand
 
+#### 额外实现 jsonp 用
+* ?callback
+* ?jsonp
+
 ### 例子相关命令
 ```
 Usage: yyl example <command>

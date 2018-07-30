@@ -297,11 +297,13 @@ const wProxy = {
                 method: req.method
               });
               x.on('request', (xReq, xRes) => {
-                fn.log.u({
-                  src: xReq.url,
-                  dest: 'remote',
-                  status: xRes.statusCode
-                });
+                if (xRes) {
+                  fn.log.u({
+                    src: xReq.url,
+                    dest: 'remote',
+                    status: xRes.statusCode
+                  });
+                }
               });
 
               req.pipe(x);
