@@ -497,7 +497,7 @@ var
               });
 
               // 生成 hash 列表
-              const revMap = {};
+              let revMap = {};
               // 重置 mark
               selfFn.mark.reset();
 
@@ -561,6 +561,20 @@ var
                   config.alias.revDest,
                   supercall.rev.filename.replace(/(\.\w+$)/g, `-${revMap.version}$1`)
                 );
+
+                // 存在 则合并
+                if (fs.existsSync(revPath)) {
+                  let oRevMap = null;
+                  try {
+                    oRevMap = JSON.parse(fs.readFileSync(revPath));
+                  } catch (er) {
+                    log('msg', 'warn', 'oRegMap parse error');
+                  }
+                  if (oRevMap) {
+                    revMap = util.extend(true, oRevMap, revMap);
+                    log('msg', 'success', 'original regMap concat finished');
+                  }
+                }
 
                 fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
                 selfFn.mark.add('create', revPath);
