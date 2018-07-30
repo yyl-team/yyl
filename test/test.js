@@ -15,20 +15,20 @@ const FRAG_PATH2 = path.join(__dirname, '__frag2');
 util.cleanScreen();
 
 const TEST_CTRL = {
-  // SERVER: true,
-  // SERVER_INIT: true,
-  // ALL: true,
-  // ALL_MAIN: true,
-  // ALL_IS_COMMIT: true,
-  // ALL_CONFIG: true,
-  // VERSION: true,
-  // HELP: true,
-  // PATH: true,
-  // INFO: true,
-  // EXAMPLE: true,
-  // MAKE: true,
+  SERVER: true,
+  SERVER_INIT: true,
+  ALL: true,
+  ALL_MAIN: true,
+  ALL_IS_COMMIT: true,
+  ALL_CONFIG: true,
+  VERSION: true,
+  HELP: true,
+  PATH: true,
+  INFO: true,
+  EXAMPLE: true,
+  MAKE: true,
   MOCK: true,
-  // COMMIT: true
+  COMMIT: true
   // --- spical
   // SERVER_CLEAR: true,
   // INIT: true,

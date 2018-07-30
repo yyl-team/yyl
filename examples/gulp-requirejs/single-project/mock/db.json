@@ -1,6 +1,6 @@
 {
-    "list": [
+    "mock-list": [
       { "id": 1, "title": "mock list 01"}
     ],
-    "object": { "title": "mock object" }
+    "mock-object": { "title": "mock object" }
 }
