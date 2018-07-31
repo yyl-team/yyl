@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 
-import tpl from './p-index.pug';
-import './p-index.scss';
+import tpl from './p-sub.pug';
+import './p-sub.scss';
 import vDemo from '../../widget/v-demo/v-demo.vue';
 import vNav from '../../widget/v-nav/v-nav.vue';
 
@@ -24,6 +24,6 @@ export default Vue.extend({
   },
   mounted() {
     const vm = this;
-    vm.addDemoLog('p-index is ready');
+    vm.addDemoLog('p-sub is ready');
   }
 });
