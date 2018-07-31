@@ -24,11 +24,22 @@ class BuildAsyncRevPlugin {
       'buildAsyncRev',
       (compilation, done) => {
         let revMap = {};
+        const NO_HASH_REG = /-\w{8}\.js$/;
         for (let filename in compilation.assets) {
           const iPath = util.joinFormat(config.alias.jsDest, filename);
           const revPath = util.path.relative(config.alias.revRoot, iPath);
           if (/async_component/.test(iPath)) {
-            revMap[revPath.replace(/-\w{8}\.js$/, '.js')] = revPath;
+            revMap[revPath.replace(NO_HASH_REG, '.js')] = revPath;
+
+            // 生成不带hash 的文件
+            compilation.assets[filename.replace(NO_HASH_REG, '.js')] = {
+              source() {
+                return compilation.assets[filename].source();
+              },
+              size() {
+                return compilation.assets[filename].size();
+              }
+            };
           }
         }
         const revPath = util.path.join(config.alias.revDest, 'rev-manifest.json');

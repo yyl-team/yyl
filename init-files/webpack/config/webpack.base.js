@@ -17,6 +17,50 @@ if (fs.existsSync(CONFIG_PATH)) {
   config = util.requireJs(CONFIG_PATH);
 }
 
+// + 生成 async_component 中 rev-manifest 插件
+class BuildAsyncRevPlugin {
+  apply(compiler) {
+    compiler.hooks.emit.tapAsync(
+      'buildAsyncRev',
+      (compilation, done) => {
+        let revMap = {};
+        const NO_HASH_REG = /-\w{8}\.js$/;
+        for (let filename in compilation.assets) {
+          const iPath = util.joinFormat(config.alias.jsDest, filename);
+          const revPath = util.path.relative(config.alias.revRoot, iPath);
+          if (/async_component/.test(iPath)) {
+            revMap[revPath.replace(NO_HASH_REG, '.js')] = revPath;
+
+            // 生成不带hash 的文件
+            compilation.assets[filename.replace(NO_HASH_REG, '.js')] = {
+              source() {
+                return compilation.assets[filename].source();
+              },
+              size() {
+                return compilation.assets[filename].size();
+              }
+            };
+          }
+        }
+        const revPath = util.path.join(config.alias.revDest, 'rev-manifest.json');
+        let originRev = null;
+        if (fs.existsSync(revPath)) {
+          try {
+            originRev = util.requireJs(revPath);
+          } catch (er) {}
+        } else {
+          util.mkdirSync(config.alias.revDest);
+        }
+        revMap = util.extend(true, originRev, revMap);
+
+        fs.writeFileSync(revPath, JSON.stringify(revMap, null, 2));
+        done();
+      }
+    );
+  }
+}
+// - 生成 async_component 中 rev-manifest 插件
+
 const webpackconfig = {
   entry: (function() {
     const iSrcRoot = path.isAbsolute(config.alias.srcRoot) ?
@@ -66,7 +110,7 @@ const webpackconfig = {
         loader: 'babel-loader',
         query: {
           babelrc: false,
-          cacheDirectory: false,
+          cacheDirectory: true,
           presets: [
             'babel-preset-es2015',
             'babel-preset-stage-2'
@@ -82,7 +126,7 @@ const webpackconfig = {
             loader: 'babel-loader',
             query: {
               babelrc: false,
-              cacheDirectory: false,
+              cacheDirectory: true,
               presets: [
                 'babel-preset-es2015',
                 'babel-preset-stage-2'
@@ -140,7 +184,9 @@ const webpackconfig = {
       'vue$': 'vue/dist/vue.common.js'
     }, config.alias)
   },
-  plugins: []
+  plugins: [
+    new BuildAsyncRevPlugin()
+  ]
 };
 
 // html output

@@ -1,6 +1,7 @@
 # 版本信息
-## 2.25.0 (2018-07-27)
+## 2.25.0 (2018-07-31)
 * [EDIT] `yyl 新增 mock 功能`
+* [EDIT] `webpack-vue2` `webpack` 中的 `async_component` hash 支持在 hash 映射表中显示
 
 ## 2.24.3 (2018-07-18)
 * [FIX] 修复 `webpack-vue2` `webpack-vue2-for pc` 种子 不兼容 ie 10 问题
