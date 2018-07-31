@@ -4,8 +4,10 @@ import VueRouter from 'vue-router';
 
 import store from '../../vuex/store.js';
 import './index.scss';
-import pageIndex from '../../components/page/p-index/p-index.js';
-// const pageIndex = () => import('../../components/page/p-index/p-index.js');
+
+const pageIndex = () => import(/* webpackChunkName: "pageIndex" */ '../../components/page/p-index/p-index.js');
+const pageSub = () => import(/* webpackChunkName: "pageSub" */ '../../components/page/p-sub/p-sub.js');
+
 
 Vue.use(VueRouter);
 
@@ -14,8 +16,11 @@ const router = new VueRouter({
     path: '/index',
     component: pageIndex
   }, {
+    path: '/sub',
+    component: pageSub
+  }, {
     path: '*',
-    component: pageIndex
+    redirect: '/index'
   }]
 });
 

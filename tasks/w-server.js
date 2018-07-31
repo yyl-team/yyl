@@ -8,12 +8,13 @@ const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const color = require('yyl-color');
-const express = require('express');
+const connect = require('connect');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
 const livereload = require('connect-livereload');
 const wRemove = require('./w-remove.js');
 const wProxy = require('./w-proxy.js');
+const wMock = require('./w-mock.js');
 const log = require('./w-log');
 
 const jsonServer = require('json-server');
@@ -662,11 +663,18 @@ const wServer = {
         log('msg', 'success', `   address : ${chalk.yellow(serverAddress)}`);
         log('msg', 'success', `   lr port : ${chalk.yellow(lrPort)}`);
 
-        var app = express();
+        var app = connect();
         app.use(livereload({
           port: lrPort,
           src: `http://localhost:${lrPort}/livereload.js?snipver=1`
         }));
+
+        // mock
+        app.use(wMock({
+          dbPath: path.join(util.vars.PROJECT_PATH, 'mock/db.json'),
+          routesPath: path.join(util.vars.PROJECT_PATH, 'mock/routes.json')
+        }));
+
         // 执行 post 请求本地服务器时处理
         app.use((req, res, next) => {
           if (req.method == 'POST') {
@@ -692,14 +700,14 @@ const wServer = {
         app.use(serveIndex(iPath));
 
 
-        //+ mock server
-        let routesPath = path.join(process.cwd(), 'mock/routes.json');
+        // + mock server
+        let routesPath = path.join(iPath, 'mock/routes.json');
         if (fs.existsSync(routesPath)) {
           let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
           app.use(jsonServerRewrite);
         }
 
-        let dbPath = path.join(process.cwd(), 'mock/db.json');
+        let dbPath = path.join(iPath, 'mock/db.json');
         if (fs.existsSync(dbPath)) {
           let jsonServerRouter = jsonServer.router(dbPath);
           app.use(jsonServerRouter);
@@ -707,7 +715,7 @@ const wServer = {
 
         let jsonServerMiddlewares = jsonServer.defaults();
         app.use(jsonServerMiddlewares);
-        //- mock server
+        // - mock server
 
         var server = http.createServer(app);
         var lrServer = tinylr();

@@ -27,6 +27,7 @@ const TEST_CTRL = {
   INFO: true,
   EXAMPLE: true,
   MAKE: true,
+  MOCK: true,
   COMMIT: true
   // --- spical
   // SERVER_CLEAR: true,
@@ -341,7 +342,8 @@ if (TEST_CTRL.INIT) {
 if (TEST_CTRL.ALL) {
   if (TEST_CTRL.ALL_MAIN) {
     describe('yyl all test', () => {
-      const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
+      // const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
+      const workflows = ['webpack-vue2'];
 
       const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
       const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
@@ -977,6 +979,296 @@ if (TEST_CTRL.UPDATE) {
       this.timeout(0);
       yyl.run('update --silent --logLevel 0').then(() => {
         expect(true).equal(true);
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+  });
+}
+
+if (TEST_CTRL.MOCK) {
+  describe('yyl mock test', () => {
+    const mockPath = path.join(__dirname, './workflow-test/gulp-requirejs');
+    const get = function (iPath, isJson) {
+      const runner = function(next) {
+        http.get(iPath, (res) => {
+          let rawData = '';
+          res.on('data', (chunk) => {
+            rawData += chunk;
+          });
+          res.on('end', () => {
+            let data = rawData;
+            if (isJson) {
+              data = JSON.parse(rawData);
+            }
+            next([res, data]);
+          });
+        });
+      };
+      return new Promise(runner);
+    };
+
+    it('mock server start', function(done) {
+      this.timeout(0);
+      yyl.run('server start --silent --logLevel 0', mockPath).then(() => {
+        done();
+      }).catch((er) => {
+        throw new Error(er);
+      });
+    });
+
+    it('/db', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/db';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+    it('/mockapi', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).not.equal(0);
+        done();
+      });
+    });
+
+    it('/mockapi/1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi/1';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+    it('/mockapi?_sort=id', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_sort=id';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data[0].id).equal(1);
+        done();
+      });
+    });
+
+    it('/mockapi?_sort=id&_order=desc', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_sort=id&_order=desc';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data[0].id).equal(5);
+        done();
+      });
+    });
+
+    it('/mockapi?_start=1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_start=1';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(4);
+        done();
+      });
+    });
+
+    it('/mockapi?_end=3', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_end=3';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(4);
+        done();
+      });
+    });
+
+    it('/mockapi?_limit=3', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_limit=3';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(3);
+        done();
+      });
+    });
+
+    it('/mockapi?_limit=-1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_limit=-1';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(0);
+        done();
+      });
+    });
+
+    it('/mockapi?_start=1&_end=3', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_start=1&_end=3';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(3);
+        done();
+      });
+    });
+
+    it('/mockapi?_start=1&_end=3&_limit=2', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?_start=1&_end=3&_limit=2';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(2);
+        done();
+      });
+    });
+
+    it('/mockapi?id_gte=2', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?id_gte=2';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(4);
+        done();
+      });
+    });
+
+    it('/mockapi?id_lte=2', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?id_lte=2';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(2);
+        done();
+      });
+    });
+
+    it('/mockapi?id_ne=2', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?id_ne=2';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(4);
+        done();
+      });
+    });
+
+    it('/mockapi?title_like=又', function(done) {
+      this.timeout(0);
+      const testPath = `http://127.0.0.1:5000/mockapi?title_like=${encodeURIComponent('又')}`;
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(1);
+        done();
+      });
+    });
+
+    it('/mockapi?uid=1369446333', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mockapi?uid=1369446333';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).equal(1);
+        done();
+      });
+    });
+
+
+    it('/justObject', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/justObject';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+    it('routes test /api/1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/api/1';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+    it('routes test /api', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/api';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(data.length).not.equal(0);
+        done();
+      });
+    });
+
+    it('routes test /mapi/1', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mapi/1';
+      get(testPath, true).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        expect(typeof data).equal('object');
+        done();
+      });
+    });
+
+
+    const jsonpMatch = /^aa\((.+)\);$/;
+    it('jsonp test /mapi/1?callback=aa', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mapi/1?callback=aa';
+      get(testPath).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        const iMatch = data.match(jsonpMatch);
+        expect(iMatch).not.equal(null);
+        expect(typeof JSON.parse(iMatch[1])).equal('object');
+        done();
+      });
+    });
+    it('jsonp test /mapi?jsonp=bb&bb=aa', function(done) {
+      this.timeout(0);
+      const testPath = 'http://127.0.0.1:5000/mapi?jsonp=bb&bb=aa';
+      get(testPath).then((argv) => {
+        const [res, data] = argv;
+        expect(res.statusCode).equal(200);
+        const iMatch = data.match(jsonpMatch);
+        expect(iMatch).not.equal(null);
+        expect(typeof JSON.parse(iMatch[1])).equal('object');
+        done();
+      });
+    });
+
+    it('mock server abort', function(done) {
+      this.timeout(0);
+      yyl.run('server abort').then(() => {
         done();
       }).catch((er) => {
         throw new Error(er);

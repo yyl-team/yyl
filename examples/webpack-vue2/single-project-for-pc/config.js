@@ -67,7 +67,7 @@ const config = {
   'eslint': true,
 
   // 需要构建工具额外安装的 npm 组件放这里 如 axios
-  'plugins': [],
+  'plugins': ['axios'],
   // +此部分 yyl server 端config 会进行替换
   'localserver': setting.localserver,
   'resource': { // 自定义项目中其他需打包的文件夹

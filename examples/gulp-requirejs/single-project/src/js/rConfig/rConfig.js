@@ -6,7 +6,7 @@ var require = {
         // for demo
         'rDemo' : '../../components/r-demo/r-demo',
         // global
-        'jquery' : '../../js/lib/jQuery/jquery-1.11.3.min'
+        'ajax': '../../js/lib/ajax/ajax'
         // + yyl make
         // - yyl make
     },
