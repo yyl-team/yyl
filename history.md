@@ -1,4 +1,7 @@
 # 版本信息
+## 2.26.0 (2018-07-31)
+* [EDIT] 将 `gulp-requirejs` `rollup` `webpack` `webpack-vue2` 拆分成 4个 独立的 npm 包，省去二次安装时间
+
 ## 2.25.0 (2018-07-31)
 * [EDIT] `yyl 新增 mock 功能`
 * [EDIT] `webpack-vue2` `webpack` 中的 `async_component` hash 支持在 hash 映射表中显示
