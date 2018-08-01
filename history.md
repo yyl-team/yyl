@@ -1,6 +1,6 @@
 # 版本信息
-## 2.26.0 (2018-07-31)
-* [EDIT] 将 `gulp-requirejs` `rollup` `webpack` `webpack-vue2` 拆分成 4个 独立的 npm 包，省去二次安装时间
+## 2.25.1 (2018-08-01)
+* [FIX] 修复 `webpack-vue2`, `webpack` 在 `watch --remote` 模式下构建 目录不正确问题
 
 ## 2.25.0 (2018-07-31)
 * [EDIT] `yyl 新增 mock 功能`
