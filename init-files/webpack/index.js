@@ -7,6 +7,7 @@ const through = require('through2');
 
 const webpackDevConfig = require('./config/webpack.dev.js');
 const webpackPublishConfig = require('./config/webpack.publish.js');
+const webpackRemoteConfig = require('./config/webpack.remote.js');
 
 const supercall = require('../../tasks/w-supercall.js');
 const util = require('../../tasks/w-util.js');
@@ -44,6 +45,8 @@ gulp.task('webpack', (done) => {
   let iWconfig;
   if (iEnv.isCommit) {
     iWconfig = webpackPublishConfig;
+  } else if (iEnv.remote) {
+    iWconfig = webpackRemoteConfig;
   } else {
     iWconfig = webpackDevConfig;
   }
