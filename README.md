@@ -120,6 +120,9 @@ Options:
     -p, --path    打开本地服务所在路径
 ```
 
+### https 证书信任设置
+[这里](http://note.youdao.com/noteshare?id=76e426d3d815b614b7c2092f0ff16167)
+
 ### mock 相关说明
 #### mock 目录
 ```
