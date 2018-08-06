@@ -1,4 +1,7 @@
 # 版本信息
+## 2.25.2 (2018-08-06)
+* [FIX] 调整 `gulp-requirejs` `no-component` example
+
 ## 2.25.1 (2018-08-01)
 * [FIX] 修复 `webpack-vue2`, `webpack` 在 `watch --remote` 模式下构建 目录不正确问题
 
