@@ -55,6 +55,7 @@ var fn = {
   },
   // src => dest 路径替换
   src2destPathFormat: function(iPath, basePath, type) {
+    let query = fn.getUrlQuery(iPath);
     let rPath = fn.hideUrlTail(iPath);
     if (rPath.match(util.REG.HTML_IGNORE_REG) || rPath.match(util.REG.IS_HTTP) || !rPath) {
       return iPath;
@@ -80,7 +81,7 @@ var fn = {
       rPath = absPath
         .split(`${config.alias.destRoot}/`)
         .join(rPath.match(util.REG.IS_MAIN_REMOTE)? mainRemotePath : staticRemotePath);
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换全局 图片
@@ -88,7 +89,7 @@ var fn = {
       rPath = absPath
         .split(config.alias.globalcomponents)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.imagesDest), 'globalcomponents'));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换 common 下 lib
@@ -96,7 +97,7 @@ var fn = {
       rPath = absPath
         .split(config.alias.globallib)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest), 'globallib'));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换 jslib
@@ -105,7 +106,7 @@ var fn = {
       rPath = absPath
         .split(srcJslibPath)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jslibDest)));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换 js
@@ -114,7 +115,7 @@ var fn = {
       rPath = absPath
         .split(srcJsPath)
         .join(util.joinFormat(staticRemotePath, fn.relateDest(config.alias.jsDest)));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
 
@@ -127,7 +128,7 @@ var fn = {
           staticRemotePath,
           fn.relateDest(config.alias.cssDest)
         ));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换公用图片
@@ -136,7 +137,7 @@ var fn = {
       rPath = absPath
         .split(srcImagesPath)
         .join(util.joinFormat( staticRemotePath, fn.relateDest(config.alias.imagesDest)));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换公用tpl
@@ -145,7 +146,7 @@ var fn = {
       rPath = absPath
         .split(srcTplPath)
         .join(util.joinFormat( mainRemotePath, fn.relateDest(config.alias.tplDest)));
-      return rPath;
+      return `${rPath}${query}`;
     }
 
 
@@ -164,7 +165,7 @@ var fn = {
           '/$1.js'
         )
       );
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换 components 中的 images
@@ -177,7 +178,7 @@ var fn = {
           '$1'
         )
       );
-      return rPath;
+      return `${rPath}${query}`;
     }
 
     // 替换 resource 里面的资源
@@ -191,17 +192,28 @@ var fn = {
               iPath.match(util.REG.IS_MAIN_REMOTE)? mainRemotePath : staticRemotePath,
               fn.relateDest(resource[key]))
             );
-          return rPath;
+          return `${rPath}${query}`;
         }
       });
     }
-    return rPath;
+    return `${rPath}${query}`;
   },
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
   },
   matchFront: function(iPath, frontPath) {
     return iPath.substr(0, frontPath.length) === frontPath;
+  },
+  getUrlQuery: function(url) {
+    let r = '';
+    url.replace(/\?.*?$/, (str) => {
+      r += str;
+      return '';
+    }).replace(/#.*?$/g, (str) => {
+      r += str;
+      return '';
+    });
+    return r;
   },
   hideUrlTail: function(url) {
     return url
