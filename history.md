@@ -1,4 +1,7 @@
 # 版本信息
+## 2.25.3 (2018-08-08)
+* [EDIT] `config.plugins` 支持 `@yy/xxxx` 形式
+
 ## 2.25.2 (2018-08-06)
 * [FIX] 调整 `gulp-requirejs` `no-component` example
 * [EDIT] `gulp-requirejs` 生成 `dest` 文件 地址保留 query 相关信息 如 `a.js?2018xxx`
