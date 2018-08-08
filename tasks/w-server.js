@@ -530,15 +530,25 @@ const wServer = {
           var installLists = [];
 
           iConfig.plugins.forEach((str) => {
-            var iDir;
-            var iVer;
-            if (~str.indexOf('@')) {
-              iDir = str.split('@')[0];
-              iVer = str.split('@')[1];
+            let iDir = '';
+            let iVer = '';
+            const pathArr = str.split(/[\\/]+/);
+            let pluginPath = '';
+            let pluginName = '';
+            if (pathArr.length > 1) {
+              pluginName = pathArr.pop();
+              pluginPath = pathArr.join('/');
             } else {
-              iDir = str;
+              pluginName = pathArr[0];
             }
-            var iPath = path.join(iNodeModulePath, iDir);
+
+            if (~pluginName.indexOf('@')) {
+              iDir = pluginName.split('@')[0];
+              iVer = pluginName.split('@')[1];
+            } else {
+              iDir = pluginName;
+            }
+            let iPath = path.join(iNodeModulePath, pluginPath, iDir);
             var iPkg;
             if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
               if (iVer) {
