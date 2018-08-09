@@ -526,7 +526,6 @@ const wServer = {
       }).then((iConfig, next) => { // 更新 config 内 插件
         if (iConfig.plugins && iConfig.plugins.length) {
           var iNodeModulePath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'node_modules');
-          var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
           var installLists = [];
 
           iConfig.plugins.forEach((str) => {
@@ -549,6 +548,7 @@ const wServer = {
               iDir = pluginName;
             }
             let iPath = path.join(iNodeModulePath, pluginPath, iDir);
+            let iPkgPath = path.join(iPath, 'package.json');
             var iPkg;
             if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
               if (iVer) {

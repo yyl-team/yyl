@@ -1,4 +1,7 @@
 # 版本信息
+## 2.25.4 (2018-08-09)
+* [EDIT] `config.plugins` 支持 `@yy/xxxx@version` 形式
+
 ## 2.25.3 (2018-08-08)
 * [EDIT] `config.plugins` 支持 `@yy/xxxx` 形式
 
