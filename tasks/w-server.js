@@ -563,10 +563,6 @@ const wServer = {
           });
 
           if (installLists.length) {
-            if (!fs.existsSync(iPkgPath)) {
-              fs.writeFileSync(iPkgPath, '{}');
-            }
-
             var cmd = `npm install ${installLists.join(' ')} --loglevel http`;
             log('msg', 'info', `run cmd ${cmd}`);
             process.chdir(workFlowPath);
