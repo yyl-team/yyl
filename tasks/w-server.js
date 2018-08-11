@@ -526,19 +526,29 @@ const wServer = {
       }).then((iConfig, next) => { // 更新 config 内 插件
         if (iConfig.plugins && iConfig.plugins.length) {
           var iNodeModulePath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'node_modules');
-          var iPkgPath = path.join(util.vars.INIT_FILE_PATH, iConfig.workflow, 'package.json');
           var installLists = [];
 
           iConfig.plugins.forEach((str) => {
-            var iDir;
-            var iVer;
-            if (~str.indexOf('@')) {
-              iDir = str.split('@')[0];
-              iVer = str.split('@')[1];
+            let iDir = '';
+            let iVer = '';
+            const pathArr = str.split(/[\\/]+/);
+            let pluginPath = '';
+            let pluginName = '';
+            if (pathArr.length > 1) {
+              pluginName = pathArr.pop();
+              pluginPath = pathArr.join('/');
             } else {
-              iDir = str;
+              pluginName = pathArr[0];
             }
-            var iPath = path.join(iNodeModulePath, iDir);
+
+            if (~pluginName.indexOf('@')) {
+              iDir = pluginName.split('@')[0];
+              iVer = pluginName.split('@')[1];
+            } else {
+              iDir = pluginName;
+            }
+            let iPath = path.join(iNodeModulePath, pluginPath, iDir);
+            let iPkgPath = path.join(iPath, 'package.json');
             var iPkg;
             if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
               if (iVer) {
@@ -553,10 +563,6 @@ const wServer = {
           });
 
           if (installLists.length) {
-            if (!fs.existsSync(iPkgPath)) {
-              fs.writeFileSync(iPkgPath, '{}');
-            }
-
             var cmd = `npm install ${installLists.join(' ')} --loglevel http`;
             log('msg', 'info', `run cmd ${cmd}`);
             process.chdir(workFlowPath);
