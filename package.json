@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "2.25.7",
+  "version": "2.25.8",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -9,7 +9,7 @@
   "author": "yylive FE team",
   "license": "ISC",
   "bin": {
-    "yyl": "./bin/init.js"
+    "yyl": "bin/init.js"
   },
   "scripts": {
     "test": "mocha ./test/test.js"
@@ -30,6 +30,7 @@
     "node": ">= 6.0.0"
   },
   "dependencies": {
+    "chalk": "^2.4.1",
     "concat-with-sourcemaps": "~1.0.4",
     "connect": "~3.6.6",
     "connect-livereload": "~0.6.0",
@@ -44,7 +45,7 @@
     "serve-static": "~1.11.1",
     "tiny-lr": "~1.0.3",
     "yyl-color": "^1.0.0",
-    "yyl-util": "~1.14.2"
+    "yyl-util": "~1.14.4"
   },
   "devDependencies": {
     "chai": "~4.1.2",
