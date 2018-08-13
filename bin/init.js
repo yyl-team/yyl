@@ -1,8 +1,6 @@
 #!/usr/bin/env node
-'use strict';
-
-const myArgv = process.argv.splice(2);
 const domain = require('domain');
+const myArgv = process.argv.splice(2);
 const path = require('path');
 const d = domain.create();
 
@@ -12,9 +10,6 @@ d.on('error', (err) => {
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:\n', err.stack);
-});
-process.on('exit', (code) => {
-  // console.error(' the exit: ' + code);
 });
 
 d.run(() => {

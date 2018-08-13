@@ -342,8 +342,8 @@ if (TEST_CTRL.INIT) {
 if (TEST_CTRL.ALL) {
   if (TEST_CTRL.ALL_MAIN) {
     describe('yyl all test', () => {
-      // const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
-      const workflows = ['webpack-vue2'];
+      const workflows = util.readdirSync(path.join(__dirname, 'workflow-test'), /\.DS_Store|commons/);
+      // const workflows = ['webpack-vue2'];
 
       const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
       const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
