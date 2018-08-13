@@ -41,7 +41,7 @@ var
           '--config': 'change the config file to the setting'
         }
       };
-      if (!iEnv.silent) {
+      if (!iEnv || !iEnv.silent) {
         util.help(h);
       }
       return Promise.resolve(h);
