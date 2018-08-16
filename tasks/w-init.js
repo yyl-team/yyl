@@ -223,7 +223,7 @@ const events = {
         const questions = [];
 
         if (data.workflow) {
-          const expType = SEED[data.workflow].example;
+          const expType = SEED[data.workflow].examples;
           if (op.init && ~expType.indexOf(op.init)) {
             data.init = op.init;
           } else if (expType.length == 1) {
@@ -320,13 +320,23 @@ const events = {
           reject(er);
         };
 
-        SEED[data.workflow].init(data.init, util.vars.PROJECT_PATH).then(() => {
-          fn.initProject(data).then(() => {
-            log('msg', 'success', ['init finished']);
-            log('finished');
-            done();
-          }).catch(errHandle);
-        }).catch(errHandle);
+        SEED[data.workflow].init(data.init, util.vars.PROJECT_PATH)
+          .on('start', (...argv) => {
+            // TODO
+          })
+          .on('clear', (...argv) => {
+            // TODO
+          })
+          .on('msg', (...argv) => {
+            // TODO
+          })
+          .on('finished', (...argv) => {
+            fn.initProject(data).then(() => {
+              log('msg', 'success', ['init finished']);
+              log('finished');
+              done();
+            }).catch(errHandle);
+          });
       }).start();
     };
     return new Promise((next) => {
