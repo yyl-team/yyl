@@ -17,8 +17,6 @@ const wProxy = require('./w-proxy.js');
 const wMock = require('./w-mock.js');
 const log = require('./w-log');
 
-const jsonServer = require('json-server');
-
 const cache = {
   lrServer: null,
   server: null,
@@ -705,23 +703,6 @@ const wServer = {
         }));
         app.use(serveIndex(iPath));
 
-
-        // + mock server
-        let routesPath = path.join(iPath, 'mock/routes.json');
-        if (fs.existsSync(routesPath)) {
-          let jsonServerRewrite = jsonServer.rewriter(util.readJSON(routesPath));
-          app.use(jsonServerRewrite);
-        }
-
-        let dbPath = path.join(iPath, 'mock/db.json');
-        if (fs.existsSync(dbPath)) {
-          let jsonServerRouter = jsonServer.router(dbPath);
-          app.use(jsonServerRouter);
-        }
-
-        let jsonServerMiddlewares = jsonServer.defaults();
-        app.use(jsonServerMiddlewares);
-        // - mock server
 
         var server = http.createServer(app);
         var lrServer = tinylr();

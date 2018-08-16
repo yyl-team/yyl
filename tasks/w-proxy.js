@@ -10,6 +10,8 @@ const request = require('request');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
+
+util.mkdirSync(util.vars.SERVER_PATH);
 const easyCert = new EasyCert({
   rootDirPath: util.vars.SERVER_CERTS_PATH,
   defaultCertAttrs: [
