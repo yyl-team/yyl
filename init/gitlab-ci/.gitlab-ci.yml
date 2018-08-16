@@ -1,0 +1,24 @@
+image: harbor.yy.com/front_end/yyl:0.3.0
+
+stages:
+    - build
+
+build:
+    stage: build
+    tags:
+        - webfe
+    artifacts:
+        expire_in: 1 week
+        paths:
+            - dist/
+            - gitlog
+    script:
+        - yyl all --isCommit --logLevel 2
+        - projectName=$(ls ./dist/project/)
+        - cp -rf ./dist/project/$projectName/* ./dist/
+        - rm -rf ./dist/project
+
+    after_script:
+        - git log -1 --pretty=medium >> gitlog
+    only:
+        - /^(master|dev)$/

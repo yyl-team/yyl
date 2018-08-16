@@ -5,6 +5,9 @@ module.exports = {
     	"amd": true,
       "mocha": true
     },
+    "globals": {
+      "__data": true
+    },
     "plugins": ["node"],
     "extends": ["eslint:recommended", "plugin:node/recommended"],
     "settings": {

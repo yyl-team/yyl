@@ -15,8 +15,8 @@ const rUtil = util.extend(true, util, {
     // 本程序根目录
     BASE_PATH: path.join(__dirname, '..'),
 
-    // init-files path
-    INIT_FILE_PATH: path.join(__dirname, '../init-files'),
+    // init path
+    INIT_PATH: path.join(__dirname, '../init'),
 
     IS_WINDOWS: process.platform == 'win32',
 

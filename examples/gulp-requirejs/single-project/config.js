@@ -135,7 +135,7 @@ const config = {
     },
 
     commit: {
-         // 上线配置
+        // 上线配置
         revAddr: 'http://yyweb.yystatic.com/pc/assets/rev-manifest.json',
         hostname: 'http://yyweb.yystatic.com/',
         git: {

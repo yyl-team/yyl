@@ -45,6 +45,8 @@
     "tiny-lr": "~1.0.3",
     "yyl-color": "^1.0.0",
     "yyl-file-replacer": "^0.3.0",
+    "yyl-fs": "^0.1.1",
+    "yyl-seed-gulp-requirejs": "~1.0.2",
     "yyl-util": "~1.14.2"
   },
   "devDependencies": {
