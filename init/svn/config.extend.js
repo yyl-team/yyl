@@ -34,11 +34,11 @@ Object.assign(config.localserver, setting.localserver);
 
 // + commit
 const SVN_ROOT_PATH = '../../../svn.yy.com';
-config.assign(config.alias, {
+Object.assign(config.alias, {
   dev: `${SVN_ROOT_PATH}/yy-music/web/publish/src/3g/mobile-website-static/trunk/${PROJECT_NAME}`,
   trunk: `${SVN_ROOT_PATH}/yy-music/web/publish/src/3g/mobile-website-static/branches/release/${PROJECT_NAME}`
 });
-config.assign(config.commit, {
+Object.assign(config.commit, {
   // 上线配置
   revAddr: `http://s1.yy.com/website_static/${PROJECT_NAME}/assets/rev-manifest.json`,
   hostname: 'http://s1.yy.com',

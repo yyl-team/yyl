@@ -3,25 +3,23 @@ const path = require('path');
 const fs = require('fs');
 const inquirer = require('inquirer');
 
+const SEED = require('./w-seed.js');
+
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
 const util = require('./w-util.js');
 const wServer = require('./w-server');
 const log = require('./w-log.js');
 
-const seedGulpRequirejs = require('yyl-seed-gulp-requirejs');
-
-// seed 包
-const SEED = {};
-[seedGulpRequirejs].forEach((seed) => {
-  SEED[seed.name] = seed;
-});
 
 // 选择倾向
 const PREFER = {
-  PC: seedGulpRequirejs.name,
-  MOBILE: seedGulpRequirejs.name
+  PC: 'gulp-requirejs',
+  MOBILE: 'gulp-requirejs'
 };
+
+// 平台选择
+const PLATFORMS = ['pc', 'mobile'];
 
 // 提交类型
 const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
@@ -38,13 +36,13 @@ const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
     }
   });
 
-const CONFIG_SUGAR_DATA_REG = /__data\(['"](\w+)["']\)/;
+const CONFIG_SUGAR_DATA_REG = /__data\(['"](\w+)["']\)/g;
 
 const fn = {
   // 初始化 最后一步, 公用部分拷贝
   initProject(data) {
     const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
-    const INIT_COMMON_CONFIG_PATH = path.join(util.vars.INIT_PATH, 'config.extend.js');
+    const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
     const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, data.commitType);
     const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
     const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
@@ -58,12 +56,12 @@ const fn = {
       });
 
       Promise.all([task01, task02]).then(() => {
-        const nodeData = Object.assign(
+        const dataMap = Object.assign(
           fn.pickUpConfig(INIT_COMMON_CONFIG_PATH, data),
           fn.pickUpConfig(INIT_CUSTOM_CONFIG_PATH, data)
         );
 
-        fn.rewriteConfig(PROJECT_CONFIG_PATH, nodeData).then(() => {
+        fn.rewriteConfig(PROJECT_CONFIG_PATH, dataMap).then(() => {
           next();
         }).catch((er) => {
           reject(er);
@@ -76,7 +74,7 @@ const fn = {
     return new Promise(runner);
   },
   buildKeyReg(key) {
-    return new RegExp(`(// + ${key})([\\w\\W]+)(// - ${key})`);
+    return new RegExp(`(// \\+ ${key})([\\w\\W]+)(// \\- ${key})`);
   },
   // 根据特殊注释提取 config 内容
   pickUpConfig(iPath, data) {
@@ -96,20 +94,22 @@ const fn = {
         });
       });
     });
+
     return dataMap;
   },
   // 重写 config 内容
-  rewriteConfig(configPath, nodeMap) {
-    if (!fs.existSync(configPath)) {
-      return Promise.reject(`config path not exists ${configPath}`);
-    }
+  rewriteConfig(configPath, dataMap) {
     const runner = (next, reject) => {
+      if (!fs.existsSync(configPath)) {
+        return reject(`config path not exists ${configPath}`);
+      }
       let content = fs.readFileSync(configPath).toString();
-      Object.keys(nodeMap).forEach((key) => {
+      Object.keys(dataMap).forEach((key) => {
         content = content.replace(fn.buildKeyReg(key), (str, $1, $2, $3) => {
-          return `${$1}${nodeMap[key]}${$3}`;
+          return `${$1}${dataMap[key]}${$3}`;
         });
       });
+
 
       fs.writeFile(configPath, content, (err) => {
         if (err) {
@@ -132,7 +132,7 @@ const events = {
         '-h, --help': 'print usage information',
         '-f': 'init forcibly',
         '--name': 'project name',
-        '--platform': 'platform: pc or mobile',
+        '--platform': `platform: ${PLATFORMS.join(' or ')}`,
         '--workflow': 'workflow type',
         '--init': 'workflow init type',
         '--cwd': 'runtime path',
@@ -170,8 +170,8 @@ const events = {
             name: 'platform',
             message: 'platform',
             type: 'list',
-            choices: ['pc', 'mobile'],
-            default: ['pc']
+            choices: PLATFORMS,
+            default: PLATFORMS[0]
           });
         }
 
@@ -285,9 +285,9 @@ const events = {
             ' ----------------------------------------',
             ` name             : ${data.name}`,
             ` platform         : ${data.platform}`,
-            ` workflow         : ${data.workflow || ''}`,
-            ` init             : ${data.init || ''}`,
-            ` commit type      : ${data.commitType || ''}`,
+            ` workflow         : ${data.workflow}`,
+            ` init             : ${data.init}`,
+            ` commit type      : ${data.commitType}`,
             ` yyl version      : ${data.version}`,
             ' ----------------------------------------',
             ` project ${chalk.yellow(data.name)} path initial like this:`,
@@ -319,7 +319,7 @@ const events = {
 
         SEED[data.workflow].init(data.init, util.vars.PROJECT_PATH)
           .on('start', (type) => {
-            console.log('start', type)
+            log('clear');
             log('start', type);
           })
           .on('clear', () => {
@@ -331,22 +331,30 @@ const events = {
           .on('finished', (type) => {
             fn.initProject(data).then(() => {
               log('msg', 'success', ['init finished']);
-              log('finished', type);
+              log('finish', type);
+              if (!op.silent) {
+                util.openPath(util.vars.PROJECT_PATH);
+              }
               done();
             }).catch(errHandle);
           });
       }).start();
     };
-    return new Promise((next) => {
-      runner(next);
-    });
+    return new Promise(runner);
   }
 };
 
-module.exports = function(iEnv) {
+const r = (iEnv) => {
   if (iEnv.h || iEnv.help) {
     return events.help();
   } else {
     return events.init(iEnv);
   }
 };
+r.ENV = {
+  PLATFORMS,
+  COMMIT_TYPES,
+  CONFIG_SUGAR_DATA_REG
+};
+
+module.exports = r;

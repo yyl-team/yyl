@@ -3,13 +3,14 @@ const config = {};
 const setting = {};
 
 // + base
-config.assign(config, {
+Object.assign(config, {
   workflow: __data('workflow'),
   name: __data('name'),
   version: __data('version'),
   platform: __data('platform'),
   proxy: setting.proxy,
-  localserver: setting.localserver
+  localserver: setting.localserver,
+  commit: {}
 });
 // - base
 

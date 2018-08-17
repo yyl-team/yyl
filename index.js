@@ -1,8 +1,12 @@
-'use strict';
-var cmd = require('./tasks/w-cmd.js');
-var util = require('./tasks/w-util.js');
-var r = {
-  run: function(ctx, cwd) {
+const cmd = require('./tasks/w-cmd.js');
+const util = require('./tasks/w-util.js');
+const server = require('./tasks/w-server.js');
+
+const init = require('./tasks/w-init.js');
+
+
+const r = {
+  run(ctx, cwd) {
     var iArgv = ctx.split(/\s+/);
 
     if (iArgv[0] == 'yyl') {
@@ -19,8 +23,8 @@ var r = {
 
     return cmd.apply(global, iArgv);
   },
-  server: require('./tasks/w-server.js')
-
+  server,
+  init
 };
 
 

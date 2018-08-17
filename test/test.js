@@ -8,30 +8,34 @@ const querystring = require('querystring');
 const http = require('http');
 // const webdriverio = require('webdriverio');
 
+const extFs = require('yyl-fs');
 const yyl = require('../index.js');
+const SEED = require('../tasks/w-seed.js');
+
+
 const FRAG_PATH = path.join(__dirname, '__frag');
 const FRAG_PATH2 = path.join(__dirname, '__frag2');
 
 util.cleanScreen();
 
 const TEST_CTRL = {
-  SERVER: true,
-  SERVER_INIT: true,
-  ALL: true,
-  ALL_MAIN: true,
-  ALL_IS_COMMIT: true,
-  ALL_CONFIG: true,
-  VERSION: true,
-  HELP: true,
-  PATH: true,
-  INFO: true,
-  EXAMPLE: true,
-  MAKE: true,
-  MOCK: true,
-  COMMIT: true
+  // SERVER: true,
+  // SERVER_INIT: true,
+  // ALL: true,
+  // ALL_MAIN: true,
+  // ALL_IS_COMMIT: true,
+  // ALL_CONFIG: true,
+  // VERSION: true,
+  INIT: true,
+  // HELP: true,
+  // PATH: true,
+  // INFO: true,
+  // EXAMPLE: true,
+  // MAKE: true,
+  // MOCK: true,
+  // COMMIT: true
   // --- spical
   // SERVER_CLEAR: true,
-  // INIT: true,
   // UPDATE: true
 };
 
@@ -255,85 +259,54 @@ if (TEST_CTRL.SERVER) {
 
 if (TEST_CTRL.INIT) {
   describe('yyl init test', () => {
-    var iWorkflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
-    var copyTask = function(workflow, init) {
-      it(`yyl init copy test, ${workflow}:${init}`, function(done) {
-        this.timeout(0); // 设置用例超时时间
-        fn.frag.destroy();
-        fn.frag.build();
+    it('frag build', function(done) {
+      this.timeout(0);
+      fn.frag.build().then(() => {
+        done();
+      });
+    });
+    Object.keys(SEED).forEach((workflow) => {
+      const seed = SEED[workflow];
+      seed.examples.forEach((init) => {
+        yyl.init.ENV.PLATFORMS.forEach((platform) => {
+          yyl.init.ENV.COMMIT_TYPES.forEach((commitType) => {
+            const data = {
+              workflow,
+              platform,
+              init,
+              commitType,
+              name: `${workflow}-${platform}-${init}-${commitType}`,
+              silent: true
+            };
+            const cmd = util.envStringify(data);
+            it(`yyl init ${cmd}`, function(done) {
+              this.timeout(0);
+              const cwdPath = path.join(FRAG_PATH, data.name);
+              extFs.mkdirSync(cwdPath);
 
-        var sourcePath01 = path.join(__dirname, '../init-files', workflow);
-        var sourcePath02 = path.join(__dirname, '../examples', workflow, init);
-        var projectPath = FRAG_PATH;
-        const cmd = `init ${util.envStringify({
-          name: FRAG_PATH.split(/[/\\]+/).pop(),
-          platform: 'pc',
-          workflow: workflow,
-          init: init,
-          doc: 'git',
-          silent: true
-        })}`;
+              yyl.run(`init ${cmd}`, cwdPath).then(() => {
+                // 检测是否含有 config.extend.js
+                expect(fs.existsSync(path.join(cwdPath, 'config.extend.js'))).to.equal(false);
 
-        yyl.run(cmd, FRAG_PATH).then(() => { // 文件校验
-          var rFiles = util.readFilesSync(projectPath);
-          var s01Files = util.readFilesSync(sourcePath01, (iPath) => {
-            var relativePath = util.joinFormat(path.relative(sourcePath01, iPath));
-            if (/readme\.md|\.gitignore|\.eslintrc\.js|\.editorconfig/i.test(iPath) && !/node_modules/.test(relativePath)) {
-              return true;
-            } else {
-              return false;
-            }
+                // 检测 config.js 中是否含有 __data() 变量
+                const configCnt = fs.readFileSync(path.join(cwdPath, 'config.js')).toString();
+                expect(configCnt.match(yyl.init.ENV.CONFIG_SUGAR_DATA_REG)).to.equal(null);
+
+                // TODO 还要检测程序是否能跑
+                done();
+              }).catch((er) => {
+                throw new Error(er);
+              });
+            });
           });
-          var s02Files = util.readFilesSync(
-            sourcePath02,
-            (iPath) => {
-              if (/package\.json|gulple\.js|\.DS_Store|\.sass-cache|dist|webpack\.config\.js|config\.mine\.js|node_modules/g.test(iPath)) {
-                return false;
-              } else {
-                return true;
-              }
-            }
-
-          );
-          var sFiles = [];
-
-          rFiles = rFiles.map((iPath) => {
-            return util.joinFormat(path.relative(projectPath, iPath));
-          });
-
-          s01Files = s01Files.map((iPath) => {
-            return util.joinFormat(path.relative(sourcePath01, iPath));
-          });
-
-          s02Files = s02Files.map((iPath) => {
-            return util.joinFormat(path.relative(sourcePath02, iPath));
-          });
-
-          sFiles = s01Files.concat(s02Files);
-
-          rFiles.sort((a, b) => {
-            return a.localeCompare(b);
-          });
-
-          sFiles.sort((a, b) => {
-            return a.localeCompare(b);
-          });
-
-          expect(rFiles).to.deep.equal(sFiles);
-
-          fn.frag.destroy().then(() => {
-            done();
-          });
-        }).catch((er) => {
-          throw new Error(er);
         });
       });
-    };
+    });
 
-    iWorkflows.forEach((workflow) => {
-      var inits = util.readdirSync(path.join(__dirname, '../examples', workflow), /^\./);
-      inits.forEach((init) => {
-        copyTask(workflow, init);
+    it('frag destroy', function(done) {
+      this.timeout(0);
+      fn.frag.destroy().then(() => {
+        done();
       });
     });
   });
