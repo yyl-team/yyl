@@ -311,9 +311,6 @@ const events = {
           next(data);
         }
       }).then((data) => {
-        log('clear');
-        log('start', 'init');
-
         const errHandle = (er) => {
           log('msg', 'error', ['init error', er]);
           log('finished');
@@ -321,19 +318,20 @@ const events = {
         };
 
         SEED[data.workflow].init(data.init, util.vars.PROJECT_PATH)
-          .on('start', (...argv) => {
-            // TODO
+          .on('start', (type) => {
+            console.log('start', type)
+            log('start', type);
           })
-          .on('clear', (...argv) => {
-            // TODO
+          .on('clear', () => {
+            log('clear');
           })
-          .on('msg', (...argv) => {
-            // TODO
+          .on('msg', (type, argv) => {
+            log('msg', type, argv);
           })
-          .on('finished', (...argv) => {
+          .on('finished', (type) => {
             fn.initProject(data).then(() => {
               log('msg', 'success', ['init finished']);
-              log('finished');
+              log('finished', type);
               done();
             }).catch(errHandle);
           });
