@@ -32,22 +32,22 @@ const wOpzer = function(ctx, iEnv, configPath) {
         return reject(`optimize fail handle [${ctx}] is not exists`);
       }
 
+      const infobarName = ctx === 'watch'? 'watch' : 'optimize';
+
       opzer[ctx]()
         .on('start', () => {
-          console.log('?????', ctx)
           log('clear');
-          log('start', ctx);
+          log('start', infobarName);
         })
         .on('clear', () => {
           log('clear');
         })
         .on('msg', (type, argv) => {
-          console.log('msg', type, argv)
           log('msg', type, argv);
         })
-        .on('finished', (type) => {
-          log('msg', 'success', [`${ctx} finished`]);
-          log('finish', type);
+        .on('finished', () => {
+          log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
+          log('finish', infobarName);
         });
 
       // 启动服务器
