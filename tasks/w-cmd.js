@@ -112,11 +112,6 @@ module.exports = function(ctx) {
   const iArgv = util.makeArray(arguments);
   const iEnv = util.envPrase(arguments);
 
-  var iVer = process.versions.node;
-  if (iVer.localeCompare('4.0.0') < 0) {
-    return util.msg.error('please makesure your node >= 4.0.0');
-  }
-
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     events.server.setLogLevel(iEnv.logLevel, true, true);
   }
@@ -131,8 +126,16 @@ module.exports = function(ctx) {
     }
   };
 
+  let configPath;
+  if (iEnv.config) {
+    configPath = util.path.resolve(util.vars.PROJECT_PATH, iEnv.config);
+  } else {
+    configPath = util.path.resolve(util.vars.PROJECT_PATH, 'config.js');
+  }
+
+  // optimize
   if (~opzerHandles.indexOf(ctx)) {
-    return makePromise(events.optimize, [ctx, iEnv]);
+    return makePromise(events.optimize, [ctx, iEnv, configPath]);
   }
 
   switch (ctx) {

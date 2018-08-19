@@ -1,13 +1,67 @@
 'use strict';
 const fs = require('fs');
 const chalk = require('chalk');
+const path = require('path');
 
 const util = require('./w-util.js');
 const wServer = require('./w-server');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
 
-const wOpzer = function(ctx, iEnv) {
+const SUGAR_REG = /(\{\$)(\w+)(\})/g;
+
+const wOpzer = function(ctx, iEnv, configPath) {
+  const runner = (next, reject) => {
+    wOpzer.parseConfig(configPath, iEnv).then((config) => {
+      // 版本检查
+      const yylPkg = util.requireJs(path.join(__dirname, '../package.json'));
+
+      if (util.compareVersion(config.version, yylPkg.version)) {
+        return reject(`optimize fail, project required yyl at least ${config.version}`);
+      }
+
+      // workflow exists check
+      const seed = SEED[config.workflow];
+      if (!seed) {
+        return reject(`optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`);
+      }
+      const opzer = seed.optimize(config, path.dirname(configPath));
+
+      // handle exists check
+      if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
+        return reject(`optimize fail handle [${ctx}] is not exists`);
+      }
+
+      opzer[ctx]()
+        .on('start', () => {
+          console.log('?????', ctx)
+          log('clear');
+          log('start', ctx);
+        })
+        .on('clear', () => {
+          log('clear');
+        })
+        .on('msg', (type, argv) => {
+          console.log('msg', type, argv)
+          log('msg', type, argv);
+        })
+        .on('finished', (type) => {
+          log('msg', 'success', [`${ctx} finished`]);
+          log('finish', type);
+        });
+
+      // 启动服务器
+      if (ctx === 'watch') {
+
+      }
+      // TODO
+
+    }).catch((er) => {
+      reject(`yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`);
+    });
+  };
+
+  return new Promise(runner);
   // const runner = (done, reject) => {
   //   new util.Promise((next) => {
   //     log('clear');
@@ -101,27 +155,120 @@ const wOpzer = function(ctx, iEnv) {
 
 // 获取 可操作的 句柄
 wOpzer.getHandles = (configPath) => {
-  console.log('00000000000',configPath)
   let r = [];
   if (!fs.existsSync(configPath)) {
-    console.log(111111)
     return r;
   }
   let config = null;
   try {
     config = require(configPath);
-  } catch (er) {
-    console.log('???', er)
-  }
+  } catch (er) {}
 
-  console.log('===', config.workflow)
   if (config && config.workflow && SEED[config.workflow]) {
-    console.log(22222)
     const seed = SEED[config.workflow];
     r = seed.optimize.handles;
   }
-  console.log(3333333333)
   return r;
+};
+
+// 文本 sugar 替换
+wOpzer.sugarReplace = (str, alias) => {
+  return str.replace(SUGAR_REG, (str, $1, $2) => {
+    if ($2 in alias) {
+      return alias[$2];
+    } else {
+      return str;
+    }
+  });
+};
+
+// 解析 config 文件
+wOpzer.parseConfig = (configPath, iEnv) => {
+  const runner = (next, reject) => {
+    let config = {};
+    if (!fs.existsSync(configPath)) {
+      return reject(`config path not exists: ${configPath}`);
+    }
+
+    try {
+      Object.assign(config, require(configPath));
+    } catch (er) {
+      return reject(`config parse error: ${configPath}`, er);
+    }
+
+    // extend config.mine.js
+    let mineConfig = {};
+    const mineConfigPath = configPath.replace(/\.js$/, 'mine.js');
+
+    if (fs.existsSync(mineConfigPath)) {
+      try {
+        mineConfig = require(mineConfigPath);
+      } catch (er) {}
+    }
+
+    util.extend(true, config, mineConfig);
+
+    // 单文件多配置情况处理
+    if (iEnv.name && !config.workflow) {
+      if (!config[iEnv.name]) {
+        return reject(`--name ${iEnv.name} is not the right command, usage: ${Object.keys(config).join('|')}`);
+      } else {
+        config = config[iEnv.name];
+      }
+    }
+
+    if (!config.workflow) {
+      return reject('config.workflow is not defined');
+    }
+
+    // alias format to absolute
+    Object.keys(config.alias).forEach((key) => {
+      config.alias[key] = util.path.resolve(
+        path.dirname(configPath),
+        config.alias[key]
+      );
+    });
+
+
+    // 文件变量解析
+    const deep = (obj) => {
+      Object.keys(obj).forEach((key) => {
+        switch (util.type(obj[key])) {
+          case 'array':
+            obj[key] = obj[key].map((val) => {
+              if (util.type(val) === 'string') {
+                return wOpzer.sugarReplace(val, config.alias);
+              } else {
+                return val;
+              }
+            });
+
+          case 'object':
+            deep(obj[key]);
+            break;
+
+          case 'string':
+            obj[key] = wOpzer.sugarReplace(obj[key], config.alias);
+            break;
+
+          case 'number':
+            break;
+
+          default:
+            break;
+        }
+      });
+    };
+    ['resource', 'concat', 'commit'].forEach((key) => {
+      if (util.type(config[key]) === 'object') {
+        deep(config[key]);
+      }
+    });
+
+    next(config);
+  };
+
+  return new Promise(runner);
 };
 
 module.exports = wOpzer;
