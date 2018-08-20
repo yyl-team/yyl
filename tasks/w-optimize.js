@@ -2,42 +2,95 @@
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('path');
+const extFs = require('yyl-fs');
 
 const util = require('./w-util.js');
-const wServer = require('./w-server');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
 
 const SUGAR_REG = /(\{\$)(\w+)(\})/g;
 
+const fn = {
+  exit(errMsg, reject) {
+    log('msg', 'error', errMsg);
+    log('finish');
+    reject(errMsg);
+  }
+};
+
 const wOpzer = function(ctx, iEnv, configPath) {
-  const runner = (next, reject) => {
-    wOpzer.parseConfig(configPath, iEnv).then((config) => {
+  const infobarName = ctx === 'watch'? 'watch' : 'optimize';
+  const runner = (done, reject) => {
+    log('clear');
+    log('start', infobarName);
+    new util.Promise((next) => { // parseConfig
+      log('msg', 'info', 'parse config start');
+      wOpzer.parseConfig(configPath, iEnv).then((config) => {
+        log('msg', 'success', 'parse config finished');
+        next(config);
+      }).catch((er) => {
+        fn.exit(`yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`, reject);
+      });
+    }).then((config, next) => { // prefix check
       // 版本检查
       const yylPkg = util.requireJs(path.join(__dirname, '../package.json'));
 
-      if (util.compareVersion(config.version, yylPkg.version)) {
-        return reject(`optimize fail, project required yyl at least ${config.version}`);
+      if (util.compareVersion(config.version, yylPkg.version) > 0) {
+        return fn.exit(`optimize fail, project required yyl at least ${config.version}`, reject);
       }
 
       // workflow exists check
       const seed = SEED[config.workflow];
       if (!seed) {
-        return reject(`optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`);
+        return fn.exit(`optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`, reject);
       }
       const opzer = seed.optimize(config, path.dirname(configPath));
 
       // handle exists check
       if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
-        return reject(`optimize fail handle [${ctx}] is not exists`);
+        return fn.exit(`optimize fail handle [${ctx}] is not exists`, reject);
       }
-
-      const infobarName = ctx === 'watch'? 'watch' : 'optimize';
-
+      next(config, opzer);
+    }).then((config, opzer, next) => { // package check
+      wOpzer.initPlugins(config).then(() => {
+        next(config, opzer);
+      }).catch((er) => {
+        return fn.exit(`optimize fail, plugins install error: ${er.message}`, reject);
+      });
+    }).then((config, opzer, next) => { // clean dist
+      extFs.removeFiles(config.localserver.root).then(() => {
+        next(config, opzer);
+      });
+    }).then((config, opzer, next) => { // localserver start
+      if (ctx === 'watch' && iEnv.proxy) {
+        if (config.localserver.port) {
+          util.checkPortUseage(config.localserver.port, (canUse) => {
+            if (canUse) {
+              let cmd = 'yyl server start --silent';
+              if (iEnv.name) {
+                cmd = `${cmd} --name ${iEnv.name}`;
+              }
+              util.runCMD(cmd, () => {
+                next(config, opzer);
+              }, util.vars.PROJECT_PATH, true, true);
+            } else {
+              log('msg', 'warn', `port ${chalk.yellow(config.localserver.port)} is occupied, yyl server start failed`);
+              next(config, opzer);
+            }
+          });
+        } else {
+          next(config, opzer);
+        }
+      } else {
+        next(config, opzer);
+      }
+    }).then((config, opzer, next) => { // optimize
+      let frag = 0;
       opzer[ctx]()
         .on('start', () => {
-          log('clear');
-          log('start', infobarName);
+          if (frag) {
+            log('clear');
+          }
         })
         .on('clear', () => {
           log('clear');
@@ -46,111 +99,25 @@ const wOpzer = function(ctx, iEnv, configPath) {
           log('msg', type, argv);
         })
         .on('finished', () => {
+          frag = 1;
           log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
           log('finish', infobarName);
+          if (
+            infobarName === 'watch' &&
+            !frag &&
+            !iEnv.silent &&
+            iEnv.proxy
+          ) {
+
+          }
         });
+      next(config, opzer);
+    }).then(() => {
 
-      // 启动服务器
-      if (ctx === 'watch') {
-
-      }
-      // TODO
-
-    }).catch((er) => {
-      reject(`yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`);
-    });
+    }).start();
   };
 
   return new Promise(runner);
-  // const runner = (done, reject) => {
-  //   new util.Promise((next) => {
-  //     log('clear');
-  //     log('cmd', `yyl ${iArgv.join(' ')}`);
-  //     log('start', 'server', 'init config...');
-  //     log('msg', 'info', 'build server config start');
-  //     wServer.buildConfig(iEnv.name, iEnv).then((config) => {
-  //       log('msg', 'success', 'init config finished');
-  //       next(config);
-  //     }).catch((err) => {
-  //       log('msg', 'error', ['init server config error:', err.message]);
-  //       log('finish');
-  //       reject(err);
-  //     });
-  //   }).then((config, next) => { // 检测 版本
-  //     const yylPkg = util.requireJs(util.path.join(__dirname, '../package.json'));
-  //     if (util.compareVersion(config.version, yylPkg.version) > 0) {
-  //       log('msg', 'error', `optimize fail, project require yyl at least ${config.version}`);
-  //       log('msg', 'warn', 'please update your yyl: npm install yyl -g');
-  //       log('finish');
-  //       reject(`optimize fail, project require yyl at least ${config.version}`);
-  //     } else {
-  //       next(config);
-  //     }
-  //   }).then((config, next) => { // 清除 localserver 目录下原有文件
-  //     if (fs.existsSync(config.localserver.root)) {
-  //       log('msg', 'info', `clean Path start: ${config.localserver.root}`);
-  //       util.removeFiles(config.localserver.root, () => {
-  //         log('msg', 'success', `clean path finished: ${chalk.yellow(config.localserver.root)}`);
-  //         next(config);
-  //       });
-  //     } else {
-  //       next(config);
-  //     }
-  //   }).then((config, next) => { // server init
-  //     if (/watch/.test(iArgv[0])) {
-  //       if (config.localserver.port) {
-  //         util.checkPortUseage(config.localserver.port, (canUse) => {
-  //           if (canUse) {
-  //             log('end');
-  //             let cmd = 'yyl server start --silent';
-  //             if (iEnv.name) {
-  //               cmd = `${cmd} --name ${iEnv.name}`;
-  //             }
-  //             util.runCMD(cmd, () => {
-  //               next(config);
-  //             }, util.vars.PROJECT_PATH, true, true);
-  //           } else {
-  //             log('msg', 'warn', `port ${chalk.yellow(config.localserver.port)} is occupied, yyl server start failed`);
-  //             next(config);
-  //           }
-  //         });
-  //       } else {
-  //         log('msg', 'info', 'config.localserver.port is not setted, next');
-  //         next(config);
-  //       }
-  //     } else {
-  //       next(config);
-  //     }
-  //   }).then((config, next) => { // check node_modules was installed
-  //     wServer.updateNodeModules(config.workflow).then((err) => {
-  //       if (err) {
-  //         log('msg', 'error', err);
-  //         log('finish');
-  //       } else {
-  //         next(config);
-  //       }
-  //     });
-  //   }).then((config) => { // 运行命令
-  //     const initPath = util.path.join(util.vars.INIT_FILE_PATH, config.workflow, 'index.js');
-  //     log('finish');
-  //     let opzer;
-  //     try {
-  //       opzer = util.requireJs(initPath);
-  //     } catch (er) {
-  //       return reject(er);
-  //     }
-  //     opzer(config, iArgv[0], iEnv).then(() => {
-  //       done(config);
-  //     }).catch((er) => {
-  //       return Promise.reject(er);
-  //     });
-  //   }).start();
-  // };
-
-  return Promise.resolve(null);
-  // return new Promise((next, reject) => {
-  //   runner(next, reject);
-  // });
 };
 
 // 获取 可操作的 句柄
@@ -265,10 +232,131 @@ wOpzer.parseConfig = (configPath, iEnv) => {
       }
     });
 
+    // 必要字段检查
+    if (!config.alias) {
+      config.alias = {};
+      log('msg', 'warn', `${chalk.yellow('config.alias')} is not exist, build it config.alias = {}`);
+    }
+    if (!config.alias.dirname) {
+      config.alias.dirname = util.vars.PROJECT_PATH;
+      log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
+    }
+
+    if (!config.platform) {
+      config.platform = 'pc';
+      log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${config.platform}`)}`);
+    }
+
+    // localserver
+    if (!config.localserver) {
+      config.localserver = {};
+    }
+
+    if (!config.localserver.root) {
+      config.localserver.root = util.path.join(util.vars.PROJECT_PATH, 'dist');
+    }
+
+    // 必要字段
+    [
+      'srcRoot',
+      'destRoot'
+    ].some((key) => {
+      if (!config.alias[key]) {
+        return reject(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
+      }
+    });
+
+    // 必要字段 2
+    if (!config.commit || !config.commit.hostname) {
+      return reject(`${chalk.yellow(config.commit.hostname)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
+    }
+
+    // 选填字段
+    [
+      'globalcomponents',
+      'globallib',
+      'destRoot',
+      'imagesDest',
+      'jsDest',
+      'revDest',
+      'jslibDest',
+      'cssDest',
+      'imagesDest',
+      'htmlDest',
+      'tplDest'
+    ].some((key) => {
+      if (!config.alias[key]) {
+        config.alias[key] = config.alias.destRoot;
+        log('msg', 'warn', `${chalk.yellow(`config.alias.${key}`)} is not set, auto fill it: ${chalk.cyan(`config.alias.${key} = '${config.alias.destRoot}'`)}`);
+      }
+    });
+
     next(config);
   };
 
   return new Promise(runner);
+};
+
+// 更新 packages
+wOpzer.initPlugins = (config) => {
+  if (!config.plugins || !config.plugins.length) {
+    return Promise.resolve();
+  }
+  const iNodeModulePath = util.path.join(util.vars.BASE_PATH, 'node_modules');
+  const installLists = [];
+
+  config.plugins.forEach((str) => {
+    let iDir = '';
+    let iVer = '';
+    const pathArr = str.split(/[\\/]+/);
+    let pluginPath = '';
+    let pluginName = '';
+    if (pathArr.length > 1) {
+      pluginName = pathArr.pop();
+      pluginPath = pathArr.join('/');
+    } else {
+      pluginName = pathArr[0];
+    }
+
+    if (~pluginName.indexOf('@')) {
+      iDir = pluginName.split('@')[0];
+      iVer = pluginName.split('@')[1];
+    } else {
+      iDir = pluginName;
+    }
+    let iPath = path.join(iNodeModulePath, pluginPath, iDir);
+    let iPkgPath = path.join(iPath, 'package.json');
+    var iPkg;
+    if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
+      if (iVer) {
+        iPkg = require(iPkgPath);
+        if (iPkg.version != iVer) {
+          installLists.push(str);
+        }
+      }
+    } else {
+      installLists.push(str);
+    }
+  });
+
+  if (installLists.length) {
+    var cmd = `npm install ${installLists.join(' ')} --loglevel http`;
+    log('msg', 'info', `run cmd ${cmd}`);
+    process.chdir(util.vars.BASE_PATH);
+
+    log('end');
+    return new Promise((next, reject) => {
+      util.runCMD(cmd, (err) => {
+        if (err) {
+          return reject(err);
+        }
+
+        next();
+      }, util.vars.BASE_PATH);
+    });
+  } else {
+    return Promise.resolve();
+  }
 };
 
 module.exports = wOpzer;

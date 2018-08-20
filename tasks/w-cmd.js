@@ -117,13 +117,13 @@ module.exports = function(ctx) {
   }
 
   const makePromise = function (handle, argv) {
-    if (!iEnv.nocatch) {
-      return handle(...argv).catch((er) => {
-        console.log(er);
-      });
-    } else {
-      return handle(...argv).catch(() => {});
-    }
+    // if (!iEnv.nocatch) {
+    //   return handle(...argv).catch((er) => {
+    //     console.log(er);
+    //   });
+    // } else {
+    return handle(...argv).catch(() => {});
+    // }
   };
 
   let configPath;
@@ -162,7 +162,7 @@ module.exports = function(ctx) {
       return makePromise(events.init, [iEnv]);
 
     case 'server':
-      return makePromise(events.server.run, [iArgv]);
+      return makePromise(events.server, [iArgv[1], iEnv, configPath]);
 
     case 'commit':
       return makePromise(events.commit.run, [iEnv]);
