@@ -72,7 +72,6 @@ const rUtil = util.extend(true, util, {
       }
       return '127.0.0.1';
     })()
-
   },
   readJSON: function (path) {
     if (!fs.existsSync(path)) {
@@ -82,7 +81,7 @@ const rUtil = util.extend(true, util, {
   },
 
   livereload: function() {
-    var reloadPath = `http://${  util.vars.LOCAL_SERVER  }:35729/changed?files=1`;
+    var reloadPath = `http://${util.vars.LOCAL_SERVER}:35729/changed?files=1`;
     util.get(reloadPath);
   },
 
