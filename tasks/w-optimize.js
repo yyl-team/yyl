@@ -89,7 +89,7 @@ const wOpzer = function(ctx, iEnv, configPath) {
       }
     }).then((config, opzer, next) => { // optimize
       let isUpdate = 0;
-      opzer[ctx]()
+      opzer[ctx](iEnv)
         .on('start', () => {
           if (isUpdate) {
             log('clear');
@@ -1086,6 +1086,7 @@ wOpzer.initPlugins = (config) => {
   }
 };
 
+// open page
 wOpzer.openHomePage = (config, iEnv) => {
   const runner = (next, reject) => {
     extFs.readFilePaths(config.alias.destRoot, /\.html$/, true).then((htmls) => {
