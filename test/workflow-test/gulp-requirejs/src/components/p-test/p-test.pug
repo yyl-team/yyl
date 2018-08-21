@@ -105,7 +105,7 @@ block body
 
 
     div.p-test-module
-        div.tl html template tes
+        div.tl html template test (__url)
         t
         div#tmplCnt.cnt
 
@@ -116,7 +116,7 @@ block body
             img(src="../../images/logo.png")
             img(src="/pc/images/test/logo.png")
             img(src="{{url}}")
-            img(src="{{url2}}")
+            img(src="{{url2}}", alt="__url")
             img(src="{{url3}}")
 
     div.p-test-module
@@ -134,7 +134,7 @@ block body
         div.tl html __inner script test
         div#innerScriptCnt2.cnt
         script.
-            (function(){
+            (function(){ //__url imgEl
                 var cntEl = document.getElementById('innerScriptCnt2');
                 var imgEl = document.createElement('img');
                 var imgEl2 = document.createElement('img');

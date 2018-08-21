@@ -153,8 +153,7 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
 };
 
 wOpzer.afterTask = (config, iEnv, isUpdate) => {
-  return Promise.resolve();
-
+  // return Promise.resolve();
   return new Promise((done) => {
     new util.Promise((next) => { // resoucce
       wOpzer.resource(config, iEnv).then(() => {
@@ -169,6 +168,7 @@ wOpzer.afterTask = (config, iEnv, isUpdate) => {
         next();
       });
     }).then(() => { // rev
+      // return done();
       if (isUpdate) {
         wOpzer.rev.update(config, iEnv).then(() => {
           done();
@@ -281,7 +281,17 @@ wOpzer.resource = (config) => {
 };
 
 wOpzer.rev = {
+  use(config) {
+    wOpzer.rev.cache.config = config;
+  },
+  getConfigSync() {
+    return wOpzer.rev.cache.config;
+  },
+  cache: {
+    config: null
+  },
   fn: {
+
     mark: {
       source: {
         create: [],
@@ -312,7 +322,7 @@ wOpzer.rev = {
     resolveUrl: function(cnt, filePath, revMap, op) {
       var iExt = path.extname(filePath).replace(/^\./g, '');
       var iDir = path.dirname(filePath);
-      var config = util.getConfigCacheSync();
+      var config = wOpzer.rev.getConfigSync();
       var iHostname = (function() {
         if (op.isCommit || op.ver  == 'remote') {
           return config.commit.hostname;
@@ -463,7 +473,7 @@ wOpzer.rev = {
     },
     // hash map 生成
     buildHashMap: function(iPath, revMap) {
-      var config = util.getConfigCacheSync();
+      var config = wOpzer.rev.getConfigSync();
       var revSrc = util.joinFormat(path.relative(config.alias.revRoot, iPath));
       var hash = `-${revHash(fs.readFileSync(iPath))}`;
       var revDest = revSrc.replace(/(\.[^.]+$)/g, `${hash}$1`);
@@ -487,7 +497,7 @@ wOpzer.rev = {
       }
     },
     buildRevMapDestFiles: function(revMap) {
-      var config = util.getConfigCacheSync();
+      var config = wOpzer.rev.getConfigSync();
       var selfFn = this;
       if (!config) {
         return;
@@ -509,7 +519,7 @@ wOpzer.rev = {
   filename: 'rev-manifest.json',
 
   getRemoteManifest: function(op) {
-    const config = util.getConfigSync(op);
+    const config = wOpzer.rev.getConfigSync(op);
     let disableHash = false;
 
     if (config.disableHash) {
@@ -545,12 +555,15 @@ wOpzer.rev = {
   },
   // rev-build 入口
   build: function(config, op) {
+
     return new Promise((NEXT, err) => {
       const self = this;
       const selfFn = self.fn;
       if (!config) {
         return err('rev-build run fail', 'config not exist');
       }
+
+      self.use(config);
 
       let disableHash = false;
 
@@ -584,7 +597,7 @@ wOpzer.rev = {
         }
       }).then(() => {
         // 清除 dest 目录下所有带 hash 文件
-        wOpzer.rev.clean(op).then(() => {
+        wOpzer.rev.clean(config, op).then(() => {
           const htmlFiles = [];
           const jsFiles = [];
           const cssFiles = [];
@@ -733,10 +746,12 @@ wOpzer.rev = {
     return new Promise((NEXT, err) => {
       const self = this;
       const selfFn = self.fn;
-      const config = util.getConfigSync(op);
+      const config = self.getConfigSync(op);
       if (!config) {
         return err('rev-update run fail', 'config not exist');
       }
+
+      self.use(config);
 
       let disableHash = false;
 
@@ -865,12 +880,14 @@ wOpzer.rev = {
     });
   },
   // rev-clean 入口
-  clean: function(op) {
+  clean: function(config, op) {
     return new Promise((next, err) => {
-      var config = util.getConfigSync(op);
+      const self = this;
       if (!config) {
         return err('rev-clean run fail, config not exist');
       }
+
+      self.use(config);
 
       var files = util.readFilesSync(config.alias.root);
       files.forEach((iPath) => {
@@ -940,6 +957,8 @@ wOpzer.parseConfig = (configPath, iEnv) => {
       return reject(`config path not exists: ${configPath}`);
     }
 
+    const dirname = path.dirname(configPath);
+
     try {
       Object.assign(config, require(configPath));
     } catch (er) {
@@ -974,10 +993,19 @@ wOpzer.parseConfig = (configPath, iEnv) => {
     // alias format to absolute
     Object.keys(config.alias).forEach((key) => {
       config.alias[key] = util.path.resolve(
-        path.dirname(configPath),
+        dirname,
         config.alias[key]
       );
     });
+
+    // config.resource to absolute
+    if (config.resource) {
+      Object.keys(config.resource).forEach((key) => {
+        const curKey = util.path.resolve(dirname, key);
+        config.resource[curKey] = util.path.resolve(dirname, config.resource[key]);
+        delete config.resource[key];
+      });
+    }
 
 
     // 文件变量解析
@@ -1015,7 +1043,7 @@ wOpzer.parseConfig = (configPath, iEnv) => {
         }
       });
     };
-    ['resource', 'concat', 'commit'].forEach((key) => {
+    ['concat', 'commit'].forEach((key) => {
       if (util.type(config[key]) === 'object') {
         deep(config[key]);
       }
