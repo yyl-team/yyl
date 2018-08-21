@@ -117,12 +117,15 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
         .on('finished', () => {
           log('msg', 'success', [`opzer.${ctx}() finished`]);
           const finishHandle = () => {
+            log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
             if (isUpdate) {
               wOpzer.livereload(config, iEnv);
+              log('finish', infobarName);
+            } else {
+              isUpdate = 1;
+              log('finish', infobarName);
+              next(config, opzer);
             }
-            isUpdate = 1;
-            log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
-            log('finish', infobarName);
           };
           wOpzer.afterTask(config, iEnv, isUpdate).then(() => {
             if (
@@ -143,9 +146,8 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
             fn.exit(er, reject);
           });
         });
-      next(config, opzer);
     }).then(() => {
-
+      done();
     }).start();
   };
 

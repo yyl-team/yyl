@@ -287,10 +287,12 @@ const wCommit = {
     });
   },
   step03: function(iEnv, config) {
+    console.log(iEnv);
     const svnConfig = config.commit.svn[iEnv.sub];
     const runner = (done) => {
       const iPromise = new util.Promise();
 
+      console.log(svnConfig.commit);
       svnConfig.commit.forEach((iPath) => {
         if (!fs.existsSync(iPath)) {
           log('msg', 'warn', `commit path not exist, continue: ${iPath}`);
@@ -353,7 +355,7 @@ const wCommit = {
       new util.Promise((next) => { // get config
         log('clear');
         log('start', 'init');
-        wOptimize.parseConfig(configPath).then((config) => {
+        wOptimize.parseConfig(configPath, iEnv).then((config) => {
           next(config);
         }).catch((er) => {
           return fn.exit(er, reject);
@@ -375,7 +377,6 @@ const wCommit = {
         } else {
           next(config);
         }
-        next(config);
       }).then((config, next) => { // optimize
         iEnv.isCommit = true;
         wOptimize('all', iEnv, configPath, true).then(() => {

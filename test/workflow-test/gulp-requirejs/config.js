@@ -179,7 +179,7 @@ var
                         ]
                     },
                     commit: [
-                        '{$dev}/pc/dist'
+                        '{$trunk}/pc'
                     ]
                 }
 
