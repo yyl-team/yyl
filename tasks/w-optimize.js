@@ -23,6 +23,15 @@ const fn = {
 
 const wOpzer = function(ctx, iEnv, configPath, noclear) {
   const infobarName = ctx === 'watch'? 'watch' : 'optimize';
+
+  // env format
+  if (iEnv.ver == 'remote') {
+    iEnv.remote = true;
+  }
+  if (iEnv.remote) {
+    iEnv.ver = 'remote';
+  }
+
   const runner = (done, reject) => {
     if (!noclear) {
       log('clear');
@@ -144,6 +153,8 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
 };
 
 wOpzer.afterTask = (config, iEnv, isUpdate) => {
+  return Promise.resolve();
+
   return new Promise((done) => {
     new util.Promise((next) => { // resoucce
       wOpzer.resource(config, iEnv).then(() => {
@@ -154,7 +165,9 @@ wOpzer.afterTask = (config, iEnv, isUpdate) => {
         next();
       });
     }).then((next) => { // var sugar
-      next();
+      wOpzer.varSugar(config, iEnv).then(() => {
+        next();
+      });
     }).then(() => { // rev
       if (isUpdate) {
         wOpzer.rev.update(config, iEnv).then(() => {
@@ -166,6 +179,46 @@ wOpzer.afterTask = (config, iEnv, isUpdate) => {
         });
       }
     }).start();
+  });
+};
+
+// var sugar
+wOpzer.varSugar = (config, iEnv) => {
+  const varObj = util.extend({}, config.alias);
+  let mainPrefix = '/';
+  let staticPrefix = '/';
+  let root = varObj.destRoot;
+
+  if (iEnv.remote || iEnv.isCommit) {
+    mainPrefix = config.commit.mainHost || config.commit.hostname || '/';
+    staticPrefix = config.commit.staticHost || config.commit.hostname || '/';
+  }
+
+  Object.keys(varObj).forEach((key) => {
+    let iPrefix = '';
+    if (varObj[key].match(frp.IS_MAIN_REMOTE)) {
+      iPrefix = mainPrefix;
+    } else {
+      iPrefix = staticPrefix;
+    }
+    varObj[key] = util.path.join(
+      iPrefix,
+      path.relative(root, varObj[key])
+    );
+  });
+
+
+  return new Promise((next) => {
+    extFs.readFilePaths(config.destRoot, /\.html$/, true).then((htmls) => {
+      htmls.forEach((iPath) => {
+        let iCnt = fs.readFileSync(iPath).toString();
+        iCnt = frp.htmlPathMatch(iCnt, (rPath) => {
+          return wOpzer.sugarReplace(rPath, varObj);
+        });
+        fs.writeFileSync(iPath, iCnt);
+      });
+      next();
+    });
   });
 };
 
@@ -181,9 +234,9 @@ wOpzer.concat = (config) => {
         }
 
         if (path.extname(item) == '.js') {
-          concat.add(null, `;/* ${  path.basename(item)  } */`);
+          concat.add(null, `;/* ${path.basename(item)} */`);
         } else {
-          concat.add(null, `/* ${  path.basename(item)  } */`);
+          concat.add(null, `/* ${path.basename(item)} */`);
         }
         concat.add(item, fs.readFileSync(item));
       });
@@ -930,9 +983,15 @@ wOpzer.parseConfig = (configPath, iEnv) => {
     // 文件变量解析
     const deep = (obj) => {
       Object.keys(obj).forEach((key) => {
-        switch (util.type(obj[key])) {
+        const curKey = wOpzer.sugarReplace(key, config.alias);
+        if (curKey !== key) {
+          obj[curKey] = obj[key];
+          delete obj[key];
+        }
+
+        switch (util.type(obj[curKey])) {
           case 'array':
-            obj[key] = obj[key].map((val) => {
+            obj[curKey] = obj[curKey].map((val) => {
               if (util.type(val) === 'string') {
                 return wOpzer.sugarReplace(val, config.alias);
               } else {
@@ -941,11 +1000,11 @@ wOpzer.parseConfig = (configPath, iEnv) => {
             });
 
           case 'object':
-            deep(obj[key]);
+            deep(obj[curKey]);
             break;
 
           case 'string':
-            obj[key] = wOpzer.sugarReplace(obj[key], config.alias);
+            obj[curKey] = wOpzer.sugarReplace(obj[curKey], config.alias);
             break;
 
           case 'number':
