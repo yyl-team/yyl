@@ -34,6 +34,7 @@ Object.assign(config.localserver, setting.localserver);
 // + commit
 Object.assign(config, {
   commit: {
+    type: 'gitlab-ci',
     // 上线配置
     revAddr: `http://web.yystatic.com${setting.dest.basePath}/${setting.dest.revPath}/rev-manifest.json`,
     hostname: '//web.yystatic.com',

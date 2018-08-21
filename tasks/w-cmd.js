@@ -165,7 +165,7 @@ module.exports = function(ctx) {
       return makePromise(events.server, [iArgv[1], iEnv, configPath]);
 
     case 'commit':
-      return makePromise(events.commit.run, [iEnv]);
+      return makePromise(events.commit.run, [iEnv, configPath]);
 
     case 'examples':
     case 'example':

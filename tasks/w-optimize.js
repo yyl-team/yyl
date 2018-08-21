@@ -21,10 +21,13 @@ const fn = {
   }
 };
 
-const wOpzer = function(ctx, iEnv, configPath) {
+const wOpzer = function(ctx, iEnv, configPath, noclear) {
   const infobarName = ctx === 'watch'? 'watch' : 'optimize';
   const runner = (done, reject) => {
-    log('clear');
+    if (!noclear) {
+      log('clear');
+    }
+    log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
     log('start', infobarName);
     new util.Promise((next) => { // parseConfig
       log('msg', 'info', 'parse config start');

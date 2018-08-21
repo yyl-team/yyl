@@ -11,12 +11,10 @@ const fn = {
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
   },
-  throwError: function() {
-    if (cache.reject) {
-      cache.reject(...arguments);
-    } else {
-      throw new Error(...arguments);
-    }
+  exit: function(errMsg, reject) {
+    log('msg', 'error', errMsg);
+    log('finish');
+    reject(errMsg);
   }
 };
 
@@ -46,9 +44,9 @@ const wCommit = {
     const gitConfig = config.commit.git;
     const iBranch = iEnv.sub;
 
-    const runner = (done) => {
+    const runner = (done, reject) => {
       if (!svnConfig) {
-        return fn.throwError(`--sub ${iEnv.sub} is not exist`);
+        return reject(`--sub ${iEnv.sub} is not exist`);
       }
 
       new util.Promise(((NEXT) => { // update the svn.sub.update & svn.sub.commit files
@@ -128,13 +126,11 @@ const wCommit = {
         }
       }).start();
     };
-    return new Promise((next) => {
-      runner(next);
-    });
+    return new Promise(runner);
   },
   copy: function(iEnv, config) {
     const svnConfig = config.commit.svn[iEnv.sub];
-    const runner = (done) => {
+    const runner = (done, reject) => {
       if (!svnConfig.copy) {
         log('msg', 'warn', 'svnConfig.copy is blank');
         return done();
@@ -142,7 +138,7 @@ const wCommit = {
 
       util.copyFiles(svnConfig.copy, (err, files) => {
         if (err) {
-          return fn.throwError(err);
+          return reject(err);
         }
         files.forEach((iPath) => {
           fn.logDest(iPath);
@@ -152,9 +148,7 @@ const wCommit = {
       }, /\.sass-cache|\.DS_Store|node_modules/, null, util.vars.PROJECT_PATH, true);
     };
 
-    return new Promise((next) => {
-      runner(next);
-    });
+    return new Promise(runner);
   },
   step02: function(iEnv, config) {
     const svnConfig = config.commit.svn[iEnv.sub];
@@ -350,28 +344,44 @@ const wCommit = {
       iPromise.start();
     };
 
-    return new Promise((next) => {
-      runner(next);
-    });
+    return new Promise(runner);
   },
-  run: function(iEnv) {
+  run: function(iEnv, configPath) {
     var start = new Date();
 
-    const runner = (done) => {
-      new util.Promise((next) => {// optimize
-        if (!iEnv.sub) {
-          wCommit.help();
-          done(null);
-        } else {
-          next();
-        }
-      }).then((next) => { // optimize
-        iEnv.isCommit = true;
-        wOptimize(['all'].concat(util.envStringify(iEnv).split(' '))).then((config) => {
+    const runner = (done, reject) => {
+      new util.Promise((next) => { // get config
+        log('clear');
+        log('start', 'init');
+        wOptimize.parseConfig(configPath).then((config) => {
           next(config);
         }).catch((er) => {
-          log('msg', 'error', er);
+          return fn.exit(er, reject);
+        });
+      }).then((config, next) => { // check options
+        if (!config.commit) {
+          return fn.exit('commit task run fail, config.commit is not exists ');
+        }
+        if (config.commit.type === 'gitlab-ci') {
+          log('msg', 'warn', 'commit task run fail, gitlab-ci need not run this task');
           log('finish');
+          return done(null);
+        }
+
+        if (!iEnv.sub) {
+          log('finish');
+          wCommit.help();
+          return done(null);
+        } else {
+          next(config);
+        }
+        next(config);
+      }).then((config, next) => { // optimize
+        iEnv.isCommit = true;
+        wOptimize('all', iEnv, configPath, true).then(() => {
+          next(config);
+        }).catch((er) => {
+          fn.exit(er, reject);
         });
       }).then((config, next) => { // svn update
         if (iEnv.nosvn) {
