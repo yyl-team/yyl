@@ -45,6 +45,10 @@ const wServer = (ctx, iEnv, configPath) => {
     case 'abort':
       return she.abort(iEnv);
 
+    case 'clear':
+    case 'clean':
+      return she.clear();
+
     case '--h':
     case '--help':
       return she.help(iEnv);
@@ -60,7 +64,8 @@ wServer.help = (iEnv) => {
     usage: 'yyl server',
     commands: {
       'start': 'start local server',
-      'abort': 'abort local server'
+      'abort': 'abort local server',
+      'clear': 'clear local yyl file'
     },
     options: {
       '--proxy': 'start with proxy server',
@@ -282,6 +287,20 @@ wServer.abort = () => {
     }).start();
   };
   return new Promise(runner);
+};
+
+wServer.clear = function() {
+  return new Promise(() => {
+    log('clear');
+    log('start', 'server', 'clear server start...');
+
+    extFs.removeFiles(util.vars.SERVER_PATH).then((list) => {
+      list.forEach((iPath) => {
+        log('msg', 'del', iPath);
+      });
+      log('finish', 'clear finished');
+    });
+  });
 };
 
 wServer.setLogLevel = function(level, notSave, silent) {

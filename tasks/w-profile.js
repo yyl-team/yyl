@@ -2,6 +2,7 @@ const util = require('./w-util.js');
 const extFs = require('yyl-fs');
 const fs = require('fs');
 const path = require('path');
+const chalk = require('chalk');
 
 const PROFILE_PATH = path.join(util.vars.SERVER_DATA_PATH, 'profile.js');
 
@@ -50,5 +51,39 @@ wProfile.clear = function() {
   she.data = {};
   she.save();
 };
+
+wProfile.print = function() {
+  const she = wProfile;
+  she.init();
+
+  const keyStr = (() => {
+    const r = [];
+    Object.keys(she.data).forEach((key) => {
+      switch (typeof she.data[key]) {
+        case 'string':
+          r.push(`${chalk.white.bold(key)}: ${she.data[key]}`);
+          break;
+        case 'object':
+          r.push(`${chalk.white.bold(key)}: ${JSON.stringify(she.data[key])}`);
+        default:
+          return;
+      }
+    });
+    return r.join(' \n');
+  })();
+
+  console.log([
+    '',
+    ` ${chalk.yellow.bold('profile path')}: ${chalk.yellow(PROFILE_PATH)}`,
+    ` ${chalk.white.bold('data:')}`,
+    ' ----------------------',
+    ` ${keyStr}`,
+    ' ----------------------',
+    ''
+  ].join('\n'));
+
+  return Promise.resolve();
+};
+
 
 module.exports = wProfile;

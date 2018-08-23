@@ -1,4 +1,10 @@
 # 版本信息
+## 3.0.0
+* [EDIT] 优化构建逻辑 构建项目不再需要二次安装
+* [DEL] 去掉 `yyl examples`
+* [DEL] 去掉 `yyl supercall`
+* [DEL] 去掉 `yyl jade2pug`
+
 ## 2.25.8 (2018-08-13)
 * [EDIT] 适配 `linux` 环境
 

@@ -1,33 +1,14 @@
 'use strict';
-const util = require('./w-util.js');
 const chalk = require('chalk');
 const path = require('path');
+const util = require('./w-util.js');
+const SEED = require('./w-seed.js');
 
-const version = require('./w-version.js');
-const init = require('./w-init.js');
-const optimize = require('./w-optimize.js');
-const server = require('./w-server.js');
-const commit = require('./w-commit.js');
-const remove = require('./w-remove');
-const make = require('./w-make.js');
-const info = require('./w-info.js');
-const jade2pug = require('./w-jade2pug.js');
-const test = require('./w-test.js');
-
-const opzerHandles = optimize.getHandles(path.join(util.vars.PROJECT_PATH, 'config.js'));
+const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
+const opzerHandles = SEED.getHandles(PROJECT_CONFIG_PATH) || [];
 
 const events = {
-  version,
-  init,
-  optimize,
-  server,
-  test,
-  commit,
-  remove,
-  make,
-  info,
-  jade2pug,
-  help: function(iEnv) {
+  help(iEnv) {
     const h = {
       usage: 'yyl',
       commands: {
@@ -36,8 +17,7 @@ const events = {
         'server': 'local server commands',
         'examples': 'show yyl examples',
         'commit': 'commit code to svn/git server(need config)',
-        'make': 'make new component',
-        'jade2pug': 'transform *.jade to *.pug'
+        'make': 'make new component'
       },
       options: {
         '-h, --help': 'print usage information',
@@ -47,7 +27,6 @@ const events = {
         '--config': 'change the config file to the setting'
       }
     };
-
     opzerHandles.forEach((key) => {
       h.commands[key] = 'optimize';
     });
@@ -56,7 +35,7 @@ const events = {
     }
     return Promise.resolve(h);
   },
-  path: function(iEnv) {
+  path(iEnv) {
     if (!iEnv.silent) {
       console.log([
         '',
@@ -67,20 +46,6 @@ const events = {
       util.openPath(util.vars.BASE_PATH);
     }
     return Promise.resolve(util.vars.BASE_PATH);
-  },
-  examples: function(iEnv) {
-    var iPath = util.joinFormat(util.vars.BASE_PATH, 'examples');
-    if (!iEnv.silent) {
-      console.log([
-        '',
-        'yyl examples:',
-        chalk.yellow(iPath),
-        ''
-      ].join('\n'));
-      util.openPath(iPath);
-    }
-
-    return Promise.resolve(iPath);
   }
 };
 
@@ -94,13 +59,7 @@ module.exports = function(ctx) {
   }
 
   const makePromise = function (handle, argv) {
-    // if (!iEnv.nocatch) {
-    //   return handle(...argv).catch((er) => {
-    //     console.log(er);
-    //   });
-    // } else {
     return handle(...argv).catch(() => {});
-    // }
   };
 
   let configPath;
@@ -112,19 +71,19 @@ module.exports = function(ctx) {
 
   // optimize
   if (~opzerHandles.indexOf(ctx)) {
-    return makePromise(events.optimize, [ctx, iEnv, configPath]);
+    return makePromise(require('./w-optimize.js'), [ctx, iEnv, configPath]);
   }
 
   switch (ctx) {
     case '-v':
     case '--version':
-      return makePromise(events.version, [iEnv]);
+      return makePromise(require('./w-version.js'), [iEnv]);
 
     case '--logLevel':
       if (iArgv[1]) {
-        return makePromise(events.server.setLogLevel, [iArgv[1]]);
+        return makePromise(require('./w-server.js').setLogLevel, [iArgv[1]]);
       } else {
-        return makePromise(events.server.getLogLevel, []);
+        return makePromise(require('./w-server.js').getLogLevel, []);
       }
 
     case '-h':
@@ -136,34 +95,28 @@ module.exports = function(ctx) {
       return makePromise(events.path, [iEnv]);
 
     case 'init':
-      return makePromise(events.init, [iEnv]);
+      return makePromise(require('./w-init.js'), [iEnv]);
 
     case 'server':
-      return makePromise(events.server, [iArgv[1], iEnv, configPath]);
+      return makePromise(require('./w-server.js'), [iArgv[1], iEnv, configPath]);
 
     case 'commit':
-      return makePromise(events.commit.run, [iEnv, configPath]);
-
-    case 'examples':
-    case 'example':
-      return makePromise(events.examples, [iEnv]);
+      return makePromise(require('./w-commit.js').run, [iEnv, configPath]);
 
     case 'rm':
-      return makePromise(events.remove, [iArgv[1]]);
+      return makePromise(require('./w-remove.js'), [iArgv[1]]);
 
     case 'test':
-      return makePromise(events.test, []);
+      return makePromise(require('./w-test.js'), []);
 
-
+    case 'profile':
+      return makePromise(require('./w-profile.js').print, []);
 
     case 'make':
-      return makePromise(events.make.run, [iArgv.slice(1)]);
-
-    case 'jade2pug':
-      return makePromise(events.jade2pug.run, [iEnv]);
+      return makePromise(require('./w-make.js').run, [iArgv.slice(1)]);
 
     case 'info':
-      return makePromise(events.info.run, [iEnv]);
+      return makePromise(require('./w-info.js').run, [iEnv]);
 
     default:
       return makePromise(events.help, []);

@@ -55,7 +55,7 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
       }
 
       // workflow exists check
-      const seed = SEED[config.workflow];
+      const seed = SEED.find(config);
       if (!seed) {
         return fn.exit(`optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`, reject);
       }
@@ -557,7 +557,6 @@ wOpzer.rev = {
   },
   // rev-build 入口
   build: function(config, op) {
-
     return new Promise((NEXT, err) => {
       const self = this;
       const selfFn = self.fn;
@@ -882,7 +881,7 @@ wOpzer.rev = {
     });
   },
   // rev-clean 入口
-  clean: function(config, op) {
+  clean: function(config) {
     return new Promise((next, err) => {
       const self = this;
       if (!config) {
