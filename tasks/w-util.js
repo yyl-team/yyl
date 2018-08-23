@@ -37,22 +37,14 @@ const rUtil = util.extend(true, util, {
     // server 根目录
     SERVER_PATH: util.joinFormat(USERPROFILE, '.yyl'),
 
-    // server 工作流目录
-    SERVER_WORKFLOW_PATH: util.joinFormat(USERPROFILE, '.yyl/init-files'),
-    // server lib 目录
-    SERVER_LIB_PATH: util.joinFormat(USERPROFILE, '.yyl/lib'),
-
     // server 数据存放目录
     SERVER_DATA_PATH: util.joinFormat(USERPROFILE, '.yyl/data'),
-
-    // server 存放 更新程序目录
-    SERVER_UPDATE_PATH: util.joinFormat(USERPROFILE, '.yyl/update/yyl'),
 
     // server 存放 https 证书的目录
     SERVER_CERTS_PATH: util.joinFormat(USERPROFILE, '.yyl/certs'),
 
-    // server 存放 项目 plugins 目录
-    SERVER_NPM_PATH: util.joinFormat(USERPROFILE, '.yyl/npm'),
+    // server 存放构建生成的 config 的缓存文件
+    SERVER_CONFIG_LOG_PATH: util.joinFormat(USERPROFILE, '.yyl/config-log'),
 
     // 本机 ip地址
     LOCAL_SERVER: (function() {

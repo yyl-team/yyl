@@ -55,7 +55,7 @@ module.exports = function(ctx) {
   const iEnv = util.envPrase(arguments);
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
-    events.server.setLogLevel(iEnv.logLevel, true, true);
+    require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
   }
 
   const makePromise = function (handle, argv) {

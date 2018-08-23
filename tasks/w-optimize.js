@@ -42,6 +42,7 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
       log('msg', 'info', 'parse config start');
       wOpzer.parseConfig(configPath, iEnv).then((config) => {
         log('msg', 'success', 'parse config finished');
+        wOpzer.saveConfigToServer(config);
         next(config);
       }).catch((er) => {
         fn.exit(`yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`, reject);
@@ -1177,6 +1178,7 @@ wOpzer.initPlugins = (config) => {
   }
 };
 
+
 // open page
 wOpzer.openHomePage = (config, iEnv) => {
   const runner = (next, reject) => {
@@ -1234,6 +1236,20 @@ wOpzer.openHomePage = (config, iEnv) => {
   };
 
   return new Promise(runner);
+};
+
+
+wOpzer.saveConfigToServer = (config) => {
+  if (!config || !config.workflow || !config.name) {
+    return Promise.resolve();
+  }
+  extFs.mkdirSync(util.vars.SERVER_CONFIG_LOG_PATH);
+  const filename = `${config.workflow}-${config.name}.js`;
+  const serverConfigPath = path.join(util.vars.SERVER_CONFIG_LOG_PATH, filename);
+  const printPath = `~/.yyl/${path.relative(util.vars.SERVER_PATH, serverConfigPath)}`;
+  fs.writeFileSync(serverConfigPath, JSON.stringify(config, null, 2));
+  log('msg', 'success', `config saved ${chalk.yellow(printPath)}`);
+  return Promise.resolve();
 };
 
 module.exports = wOpzer;

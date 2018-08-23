@@ -313,10 +313,16 @@ wServer.setLogLevel = function(level, notSave, silent) {
   }
   return Promise.resolve(level);
 };
-wServer.getLogLevel = function() {
+wServer.getLogLevel = function(silent) {
   const level = wProfile('logLevel') ||  1;
   log.update(+level);
-  log('msg', 'success', `yyl logLevel: ${level}`);
+  if (!silent) {
+    console.log([
+      '',
+      ` ${chalk.yellow.bold('logLevel')}: ${chalk.yellow(level)}`,
+      ''
+    ].join('\n'));
+  }
   return Promise.resolve(level);
 };
 
