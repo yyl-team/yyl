@@ -9,32 +9,12 @@ const optimize = require('./w-optimize.js');
 const server = require('./w-server.js');
 const commit = require('./w-commit.js');
 const remove = require('./w-remove');
-const supercall = require('./w-supercall.js');
-const update = require('./w-update.js');
 const make = require('./w-make.js');
 const info = require('./w-info.js');
 const jade2pug = require('./w-jade2pug.js');
 const test = require('./w-test.js');
 
 const opzerHandles = optimize.getHandles(path.join(util.vars.PROJECT_PATH, 'config.js'));
-
-// // 获取当前目录可操作的 optimize 句柄
-// const configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
-// let curSeed = null;
-// const opzerHandles = [];
-// if (fs.existsSync(configPath)) {
-//   try {
-//     const config = require(configPath)
-//   } catch (er) {}
-//   if (config && config.workflow) {
-//     curSeed = SEED[config.workflow];
-
-//     if (curSeed) {
-//       const opzer =
-
-//     }
-//   }
-// }
 
 const events = {
   version,
@@ -44,8 +24,6 @@ const events = {
   test,
   commit,
   remove,
-  supercall,
-  update,
   make,
   info,
   jade2pug,
@@ -58,7 +36,6 @@ const events = {
         'server': 'local server commands',
         'examples': 'show yyl examples',
         'commit': 'commit code to svn/git server(need config)',
-        'update': 'update yyl from npm',
         'make': 'make new component',
         'jade2pug': 'transform *.jade to *.pug'
       },
@@ -177,11 +154,7 @@ module.exports = function(ctx) {
     case 'test':
       return makePromise(events.test, []);
 
-    case 'supercall':
-      return makePromise(events.supercall.run, [iArgv]);
 
-    case 'update':
-      return makePromise(events.update.run, [iArgv.slice(1)]);
 
     case 'make':
       return makePromise(events.make.run, [iArgv.slice(1)]);

@@ -7,6 +7,7 @@ const http = require('http');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
 
+const wProfile = require('./w-profile.js');
 const wOpzer = require('./w-optimize.js');
 const util = require('./w-util.js');
 const connect = require('connect');
@@ -285,7 +286,7 @@ wServer.abort = () => {
 
 wServer.setLogLevel = function(level, notSave, silent) {
   if (!notSave) {
-    wServer.profile('logLevel', level);
+    wProfile('logLevel', level);
   }
   log.update(level);
   if (!silent) {
@@ -294,46 +295,10 @@ wServer.setLogLevel = function(level, notSave, silent) {
   return Promise.resolve(level);
 };
 wServer.getLogLevel = function() {
-  const level = wServer.profile('logLevel') ||  1;
+  const level = wProfile('logLevel') ||  1;
   log.update(+level);
   log('msg', 'success', `yyl logLevel: ${level}`);
   return Promise.resolve(level);
-};
-
-// 获取
-wServer.profile = function(key, val) {
-  const iPath = util.joinFormat(util.vars.SERVER_DATA_PATH, 'profile.js');
-  let data = {};
-
-  if (util.type(key) == 'object') {
-    util.mkdirSync(path.dirname(iPath));
-    fs.writeFileSync(iPath, JSON.stringify(data, null, 4));
-    return data;
-  }
-
-  if (fs.existsSync(iPath)) {
-    try {
-      data = JSON.parse(fs.readFileSync(iPath, 'utf8'));
-    } catch (er) {}
-  }
-
-
-  if (key === undefined && val === undefined) {
-    return data;
-  }
-
-  if (!key) {
-    return;
-  }
-
-  if (val !== undefined) { //set
-    util.mkdirSync(path.dirname(iPath));
-    data[key] = val;
-    fs.writeFileSync(iPath, JSON.stringify(data, null, 4));
-    return val;
-  } else { // get
-    return data[key];
-  }
 };
 
 module.exports = wServer;
