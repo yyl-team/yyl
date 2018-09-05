@@ -190,7 +190,7 @@ const events = {
       }).then((data, next) => { // workflow
         const prompt = inquirer.createPromptModule();
         const questions = [];
-        const workflows = Object.keys(SEED);
+        const workflows = SEED.workflows;
         const iQuestion = {
           name: 'workflow',
           type: 'list',
@@ -223,7 +223,7 @@ const events = {
         const questions = [];
 
         if (data.workflow) {
-          const expType = SEED[data.workflow].examples;
+          const expType = SEED.find(data.workflow).examples;
           if (op.init && ~expType.indexOf(op.init)) {
             data.init = op.init;
           } else if (expType.length == 1) {
@@ -317,7 +317,7 @@ const events = {
           reject(er);
         };
 
-        SEED[data.workflow].init(data.init, util.vars.PROJECT_PATH)
+        SEED.find(data.workflow).init(data.init, util.vars.PROJECT_PATH)
           .on('start', (type) => {
             log('clear');
             log('start', type);

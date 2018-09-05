@@ -7,20 +7,28 @@ const seeds = [
 ];
 
 const SEED = {
+  // config, configPath, workflowName in, useful workflow out
+  ctx2workflow(ctx) {
+    const she = this;
+    if (typeof ctx == 'string' && ~seeds.indexOf(`yyl-seed-${ctx}`)) {
+      return ctx;
+    } else {
+      const config = she.initConfig(ctx);
+      if (config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
+        return config.workflow;
+      } else {
+        return;
+      }
+    }
+  },
   find(ctx) {
     const she = this;
-    const config = she.initConfig(ctx);
-    if (!config) {
+    const workflow = she.ctx2workflow(ctx);
+    if (workflow) {
+      return require(`yyl-seed-${workflow}`);
+    } else {
       return null;
     }
-
-    const { workflow } = config;
-    const seedName = `yyl-seed-${workflow}`;
-
-    if (!~seeds.indexOf(seedName)) {
-      return null;
-    }
-    return require(seedName);
   },
   initConfig(ctx) {
     let config = null;
@@ -39,6 +47,7 @@ const SEED = {
     }
     return config;
   },
+  // 返回 config 中的 workflow 对应的可操作句柄
   getHandles(ctx) {
     const she = this;
     const config = she.initConfig(ctx);
@@ -64,7 +73,8 @@ const SEED = {
       wProfile('handleMap', handleMap);
       return handles;
     }
-  }
+  },
+  workflows: seeds.map((str) => str.replace(/^yyl-seed-/, ''))
 };
 
 module.exports = SEED;

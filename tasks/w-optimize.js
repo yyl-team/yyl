@@ -920,25 +920,6 @@ wOpzer.livereload = (config, iEnv) => {
   return Promise.resolve();
 };
 
-// 获取 可操作的 句柄
-wOpzer.getHandles = (configPath) => {
-  let r = [];
-  if (!fs.existsSync(configPath)) {
-    return r;
-  }
-  let config = null;
-  try {
-    config = require(configPath);
-  } catch (er) {}
-
-  if (config && config.workflow && SEED[config.workflow]) {
-    const seed = SEED[config.workflow];
-    r = seed.optimize.handles;
-  }
-  return r;
-};
-
-
 
 // 文本 sugar 替换
 wOpzer.sugarReplace = (str, alias) => {
