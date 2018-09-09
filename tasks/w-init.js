@@ -152,7 +152,7 @@ const events = {
         const prompt = inquirer.createPromptModule();
         const questions = [];
 
-        if (op.name) {
+        if (op.name !== '') {
           data.name = op.name;
         } else {
           questions.push({
@@ -316,6 +316,7 @@ const events = {
           log('finished');
           reject(er);
         };
+
 
         SEED.find(data.workflow).init(data.init, util.vars.PROJECT_PATH)
           .on('start', (type) => {

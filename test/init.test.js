@@ -1,6 +1,8 @@
 const extFs = require('yyl-fs');
 const path = require('path');
 const fs = require('fs');
+const chai = require('chai');
+const expect = chai.expect;
 
 const yyl = require('../index');
 const util = require('../tasks/w-util');
@@ -37,18 +39,22 @@ const fn = {
 };
 
 const cmds = [];
+const buildCmd = (op) => {
+  return `init --silent --name ${op.name} --workflow ${op.workflow} --platform ${op.platform} --init ${op.example} --commitType ${op.commitType}`;
+};
 
 SEED.workflows.forEach((workflow) => {
-  let cmd = `init --name ${cmds.length} --workflow ${workflow}`;
   const seed = SEED.find(workflow);
-
   ['pc', 'mobile'].forEach((platform) => {
-    cmd = `${cmd} --platform ${platform}`;
     seed.examples.forEach((example) => {
-      cmd = `${cmd} --init ${example}`;
       wInit.ENV.COMMIT_TYPES.forEach((commitType) => {
-        cmd = `${cmd} --commitType ${commitType}`;
-        cmds.push(cmd);
+        cmds.push(buildCmd({
+          name: cmds.length,
+          workflow,
+          platform,
+          example,
+          commitType
+        }));
       });
     });
   });
@@ -60,45 +66,62 @@ const pkgConfig = require(YYL_PKG_PATH);
 async function dirCheck (iPath, iEnv) {
   // 检查 config 各项属性是否正确
   const configPath = path.join(iPath, 'config.js');
-  expect(fs.existsSync(configPath)).toBe(true);
+  expect(fs.existsSync(configPath)).to.equal(true);
 
   const config = util.requireJs(configPath);
-  expect(typeof config).toBe('object');
+  expect(typeof config).to.equal('object');
 
-  expect(config.version).toBe(pkgConfig.version);
-  expect(config.workflow).toBe(iEnv.workflow);
-  expect(config.name).toBe(iEnv.name);
-  expect(config.platform).toBe(iEnv.platform);
+  expect(config.version).to.equal(pkgConfig.version);
+  expect(config.workflow).to.equal(iEnv.workflow);
+  expect(`${config.name}`).to.equal(`${iEnv.name}`);
+  expect(config.platform).to.equal(iEnv.platform);
 
   // 内部文件 config.extend.js
   const extConfigPath = path.join(iPath, 'config.extend.js');
-  expect(fs.existsSync(extConfigPath)).toBe(false);
-
+  expect(fs.existsSync(extConfigPath)).to.equal(false);
 
   // 拷贝的完整性校验
   const readFilter = /\.DS_Store|config\.extend\.js$/;
-  const projectPaths = await extFs.readFilePaths(iPath, readFilter);
+  const pjFullPaths = await extFs.readFilePaths(iPath);
+  const pjRelativePaths = pjFullPaths.map((rPath) => path.relative(iPath, rPath));
 
   // check commons files completable
   const initCommonPath = path.join(util.vars.BASE_PATH, 'init/commons');
-  const fromCommonPaths = await extFs.readFilePaths(initCommonPath, readFilter);
+  const fromCommonFullPaths = await extFs.readFilePaths(initCommonPath, readFilter);
+  fromCommonFullPaths.map((rPath) => {
+    const fPath = path.relative(initCommonPath, rPath);
+    expect(pjRelativePaths.indexOf(fPath)).to.not.equal(-1);
+  });
 
   // check commitType completable
   const initCommitTypePath = path.join(util.vars.BASE_PATH, 'init', iEnv.commitType);
-  const fromCommitTypePaths = await extFs.readFilePaths(initCommitTypePath, readFilter);
-};
-
-cmds.forEach((cmd, index) => {
-  test(cmd, async () => {
-    const initPath = path.join(FRAG_PATH, index);
-    extFs.mkdirSync(initPath);
-    await fn.frag.build();
+  const fromCommitTypeFullPaths = await extFs.readFilePaths(initCommitTypePath, readFilter);
+  fromCommitTypeFullPaths.map((rPath) => {
+    const fPath = path.relative(initCommitTypePath, rPath);
+    expect(pjRelativePaths.indexOf(fPath)).to.not.equal(-1);
+  });
+}
 
 
-    await yyl.run(cmd, initPath);
-    await dirCheck(initPath, util.envParse(cmd));
+describe('yyl init test', () => {
+  cmds.forEach((cmd, index) => {
+    it(cmd, function (done) {
+      this.timeout(0);
+      async function runner () {
+        const initPath = path.join(FRAG_PATH, `${index}`);
+        extFs.mkdirSync(initPath);
+        await fn.frag.build();
 
-    await fn.frag.destroy();
+        extFs.mkdirSync(initPath);
+
+        await yyl.run(cmd, initPath);
+        await dirCheck(initPath, util.envParse(cmd));
+
+        await fn.frag.destroy();
+      }
+      runner().then(() => {
+        done();
+      });
+    });
   });
 });
-

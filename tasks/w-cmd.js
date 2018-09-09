@@ -50,17 +50,13 @@ const events = {
 };
 
 
-module.exports = function(ctx) {
+module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
   const iEnv = util.envPrase(arguments);
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
   }
-
-  const makePromise = function (handle, argv) {
-    return handle(...argv).catch(() => {});
-  };
 
   let configPath;
   if (iEnv.config) {
@@ -70,55 +66,87 @@ module.exports = function(ctx) {
   }
 
   // optimize
+  let handle = null;
+  let argv = [];
   if (~opzerHandles.indexOf(ctx)) {
-    return makePromise(require('./w-optimize.js'), [ctx, iEnv, configPath]);
+    handle = require('./w-optimize.js');
+    argv = [ctx, iEnv, configPath];
+  } else {
+    switch (ctx) {
+      case '-v':
+      case '--version':
+        handle = require('./w-version.js');
+        argv = [iEnv];
+        break;
+
+      case '--logLevel':
+        if (iArgv[1]) {
+          handle = require('./w-server.js').setLogLevel;
+          argv = [iArgv[1]];
+        } else {
+          handle = require('./w-server.js').getLogLevel;
+          argv = [];
+        }
+        break;
+
+      case '-h':
+      case '--help':
+        handle = events.help;
+        argv = [iEnv];
+        break;
+
+      case '--path':
+      case '-p':
+        handle = events.path;
+        argv = [iEnv];
+        break;
+
+      case 'init':
+        handle = require('./w-init.js');
+        argv = [iEnv];
+        break;
+
+      case 'server':
+        handle = require('./w-server.js');
+        argv = [iArgv[1], iEnv, configPath];
+        break;
+
+      case 'commit':
+        handle = require('./w-commit.js').run;
+        argv = [iEnv, configPath];
+        break;
+
+      case 'rm':
+        handle = require('./w-remove.js');
+        argv = [iArgv[1]];
+        break;
+
+      case 'test':
+        handle = require('./w-test.js');
+        argv = [];
+        break;
+
+      case 'profile':
+        handle = require('./w-profile.js').print;
+        argv = [];
+        break;
+
+      case 'make':
+        handle = require('./w-make.js').run;
+        argv = [iArgv.slice(1)];
+        break;
+
+      case 'info':
+        handle = require('./w-info.js').run;
+        argv = [iEnv];
+        break;
+
+      default:
+        handle = events.help;
+        argv = [];
+        break;
+    }
   }
 
-  switch (ctx) {
-    case '-v':
-    case '--version':
-      return makePromise(require('./w-version.js'), [iEnv]);
-
-    case '--logLevel':
-      if (iArgv[1]) {
-        return makePromise(require('./w-server.js').setLogLevel, [iArgv[1]]);
-      } else {
-        return makePromise(require('./w-server.js').getLogLevel, []);
-      }
-
-    case '-h':
-    case '--help':
-      return makePromise(events.help, [iEnv]);
-
-    case '--path':
-    case '-p':
-      return makePromise(events.path, [iEnv]);
-
-    case 'init':
-      return makePromise(require('./w-init.js'), [iEnv]);
-
-    case 'server':
-      return makePromise(require('./w-server.js'), [iArgv[1], iEnv, configPath]);
-
-    case 'commit':
-      return makePromise(require('./w-commit.js').run, [iEnv, configPath]);
-
-    case 'rm':
-      return makePromise(require('./w-remove.js'), [iArgv[1]]);
-
-    case 'test':
-      return makePromise(require('./w-test.js'), []);
-
-    case 'profile':
-      return makePromise(require('./w-profile.js').print, []);
-
-    case 'make':
-      return makePromise(require('./w-make.js').run, [iArgv.slice(1)]);
-
-    case 'info':
-      return makePromise(require('./w-info.js').run, [iEnv]);
-
-    default:
-      return makePromise(events.help, []);
-  }
+  return await handle(...argv);
 };
