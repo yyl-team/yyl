@@ -1,0 +1,151 @@
+extends ../w-layout/w-layout
+block title
+    | test page
+
+block head
+    link(rel="stylesheet", href="//yyweb.yystatic.com/pc/css/headfoot.css", type="text/css")
+    link(rel="stylesheet", href="./p-test.scss", type="text/css")
+    style.
+        .style-test-1 {
+            background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .style-test-2 {
+            background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .style-test-3 {
+            background-image: url(../../images/test/logo.png);
+        }
+        .style-test-4 {
+            background-image: url(/pc/images/test/logo.png);
+        }
+
+block body
+    div.p-test-module
+        div.tl css concat test
+        div.cnt
+            span.box.concat-test-1
+            span.box.concat-test-2
+
+    div.p-test-module
+        div.tl css fontface test
+        div.cnt
+            span.iconfont &#xe624;
+            span.iconfont &#xe625;
+            span.iconfont &#xe626;
+            span.iconfont &#xe627;
+            span.iconfont &#xe628;
+
+    div.p-test-module
+        div.tl scss style test
+        div.cnt
+            span.box.scss-style-1
+            span.box.scss-style-2
+            span.box.scss-style-3
+            span.box.scss-style-4
+            span.box.scss-style-5
+            span.box.scss-style-6
+
+    div.p-test-module
+        div.tl html img src test
+        div.cnt
+            img(src="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="./images/logo.png")
+            img(src="../../images/logo.png")
+            img(src="/pc/images/test/logo.png")
+
+    div.p-test-module
+        div.tl html a href test
+        div.cnt
+            a(href="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            a(href="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            a(href="./images/logo.png") 链接测试
+            a(href="../../images/logo.png") 链接测试
+            a(href="../../../../commons/components/w-test/images/logo.png") 链接测试
+            a(href="/pc/images/test/logo.png") 链接测试
+
+    div.p-test-module
+        div.tl html data-main test
+        div.cnt
+            span(data-main="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            span(data-main="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png") 链接测试
+            span(data-main="./images/logo.png") 链接测试
+            span(data-main="../../images/logo.png") 链接测试
+            span(data-main="../../../../commons/components/w-test/images/logo.png") 链接测试
+            span(data-main="/pc/images/test/logo.png") 链接测试
+
+    div.p-test-module
+        div.tl html iframe src test
+        div.cnt
+            iframe(width="200", height="200", src="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            iframe(width="200", height="200", src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            iframe(width="200", height="200", src="./images/logo.png")
+            iframe(width="200", height="200", src="../../images/logo.png")
+            iframe(width="200", height="200", src="../../../../commons/components/w-test/images/logo.png")
+            iframe(width="200", height="200", src="/pc/images/test/logo.png")
+
+    div.p-test-module
+        div.tl html insert style test
+        div.cnt
+            span.box(style="background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png)")
+            span.box(style="background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png)")
+            span.box(style="background-image: url('../../images/test/logo.png')")
+            span.box(style="background-image: url('/pc/images/test/logo.png')")
+
+    div.p-test-module
+        div.tl html insert style tag test
+        div.cnt
+            span.box.style-test-1
+            span.box.style-test-2
+            span.box.style-test-3
+            span.box.style-test-4
+
+
+
+
+
+    div.p-test-module
+        div.tl html template test (__url)
+        t
+        div#tmplCnt.cnt
+
+        script#tmpl(type="text/html")
+            img(src="http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png")
+            img(src="./images/logo.png")
+            img(src="../../images/logo.png")
+            img(src="/pc/images/test/logo.png")
+            img(src="{{url}}")
+            img(src="{{url2}}", alt="__url")
+            img(src="{{url3}}")
+
+    div.p-test-module
+        div.tl html inner script test
+        div#innerScriptCnt.cnt
+        script.
+            (function(){
+                var cntEl = document.getElementById('innerScriptCnt');
+                var imgEl = document.createElement('img');
+                var src = 'pc/images/components/w-head/images/icons-head.png';
+                imgEl.src = '//yyweb.yystatic.com/' + src;
+                cntEl.appendChild(imgEl);
+            })();
+    div.p-test-module
+        div.tl html __inner script test
+        div#innerScriptCnt2.cnt
+        script.
+            (function(){ //__url imgEl
+                var cntEl = document.getElementById('innerScriptCnt2');
+                var imgEl = document.createElement('img');
+                var imgEl2 = document.createElement('img');
+                imgEl.src = __url('../../images/logo.png');
+                var src2 = '../../images/test/logo.png/123';
+                imgEl2.src = src2.replace('/123', '');
+
+                cntEl.appendChild(imgEl);
+                cntEl.appendChild(imgEl2);
+            })();
+
+
+append script
+    script(src="../../js/lib/requirejs/require.js", data-main="./p-test.js")

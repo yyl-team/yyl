@@ -1,0 +1,48 @@
+@charset "utf-8";
+@import '../../sass/base/fontface';
+@include fontface('../../sass/base');
+
+.p-test-module {
+    padding: 8px;
+    .tl {
+        margin-bottom: 8px;
+        line-height: 20px;
+        background: #eee;
+        font-size: 14px;
+        text-indent: 8px;
+        display: block;
+    }
+    .cnt {
+        display: block;
+        a, iframe, span, img {
+            margin-right: 8px;
+        }
+        .box {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            margin-right: 8px;
+            border: 1px solid #eee;
+            background-repeat: no-repeat;
+        }
+
+        .scss-style-1 {
+            background-image: url(http://yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .scss-style-2 {
+            background-image: url(//yyweb.yystatic.com/pc/images/components/w-head/images/icons-head.png);
+        }
+        .scss-style-3 {
+            background-image: url(./images/logo.png);
+        }
+        .scss-style-4 {
+            background-image: url(../../images/logo.png);
+        }
+        .scss-style-5 {
+            background-image: url(../../../../commons/components/w-test/images/logo.png);
+        }
+        .scss-style-6 {
+            background-image: url(/pc/images/test/logo.png);
+        }
+    }
+}

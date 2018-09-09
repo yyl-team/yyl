@@ -124,7 +124,7 @@ wServer.start = (configPath, iEnv) => {
       }
 
       if (iEnv.path) {
-        setting.server.root = iEnv.path;
+        setting.server.root = path.resolve(util.vars.PROJECT_PATH, iEnv.path);
       }
       if (iEnv.port) {
         setting.server.port = iEnv.port;
@@ -245,16 +245,16 @@ wServer.start = (configPath, iEnv) => {
         if (canUse) {
           wProxy.init(setting.proxy, () => {
             log('msg', 'success', 'proxy server init finished');
-            next();
+            next(setting);
           });
         } else {
           log('msg', 'error', `port ${chalk.yellow(setting.port)} is occupied, please check`);
-          next();
+          next(setting);
         }
       });
-    }).then(() => { // finished
+    }).then((setting) => { // finished
       log('finish');
-      done();
+      done(setting);
     }).start();
   };
 
