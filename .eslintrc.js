@@ -3,7 +3,8 @@ module.exports = {
       "node": true,
       "es6": true,
     	"amd": true,
-      "mocha": true
+      "mocha": true,
+      "jest": true
     },
     "globals": {
       "__data": true
