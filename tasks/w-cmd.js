@@ -71,6 +71,9 @@ module.exports = async function(ctx) {
   if (~opzerHandles.indexOf(ctx)) {
     handle = require('./w-optimize.js');
     argv = [ctx, iEnv, configPath];
+  } else if (ctx === 'make') {
+    handle = require('./w-make.js');
+    argv = [iArgv[1], iEnv, configPath];
   } else {
     switch (ctx) {
       case '-v':
