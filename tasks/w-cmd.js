@@ -4,11 +4,11 @@ const path = require('path');
 const util = require('./w-util.js');
 const SEED = require('./w-seed.js');
 
-const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
-const opzerHandles = SEED.getHandles(PROJECT_CONFIG_PATH) || [];
+
+
 
 const events = {
-  help(iEnv) {
+  help(iEnv, opzerHandles) {
     const h = {
       usage: 'yyl',
       commands: {
@@ -54,6 +54,9 @@ module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
   const iEnv = util.envPrase(arguments);
 
+  const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
+  const opzerHandles = SEED.getHandles(PROJECT_CONFIG_PATH) || [];
+
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
   }
@@ -95,7 +98,7 @@ module.exports = async function(ctx) {
       case '-h':
       case '--help':
         handle = events.help;
-        argv = [iEnv];
+        argv = [iEnv, opzerHandles];
         break;
 
       case '--path':
@@ -146,7 +149,7 @@ module.exports = async function(ctx) {
 
       default:
         handle = events.help;
-        argv = [];
+        argv = [iEnv, opzerHandles];
         break;
     }
   }

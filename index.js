@@ -21,7 +21,8 @@ const r = {
     util.vars.USER_CONFIG_FILE = util.joinFormat(CWD, 'config.js');
     util.vars.USER_PKG_FILE = util.joinFormat(CWD, 'package.json');
 
-    return cmd(...iArgv);
+
+    return await cmd(...iArgv);
   },
   server,
   init

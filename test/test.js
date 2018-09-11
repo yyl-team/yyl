@@ -12,6 +12,15 @@ const wInit = require('../tasks/w-init');
 
 const FRAG_PATH = path.join(__dirname, '__frag');
 const fn = {
+  makeAsync: function (fn) {
+    const r = function (done) {
+      this.timeout(0);
+      fn().then(() => {
+        done();
+      });
+    };
+    return r;
+  },
   frag: {
     build() {
       if (fs.existsSync(FRAG_PATH)) {
@@ -40,15 +49,16 @@ const fn = {
 };
 
 const TEST_CTRL = {
-  SERVER: true,
-  VERSION: true,
-  HELP: true,
-  PATH: true,
-  MOCK: true,
-  INIT: true,
+  // SERVER: true,
+  // VERSION: true,
+  // HELP: true,
+  // PATH: true,
+  // INFO: true,
+  // MOCK: true,
+  // INIT: true,
   ALL: true,
-  WATCH: true,
-  COMMIT: true
+  // WATCH: true,
+  // COMMIT: true
 };
 
 if (TEST_CTRL.SERVER) {
@@ -581,6 +591,42 @@ if (TEST_CTRL.INIT) {
       });
     });
   });
+}
+
+if (TEST_CTRL.ALL) {
+  describe('yyl all test', () => {
+    it('test prepare', fn.makeAsync(async () => {
+      // frag init
+      await fn.frag.build();
+
+      // copy files
+      const copyParam = {};
+      copyParam[path.join(__dirname, './workflow-test/commons')] = [
+        path.join(FRAG_PATH, 'commons')
+      ];
+      copyParam[path.join(__dirname, './workflow-test/gulp-requirejs')] = [
+        path.join(FRAG_PATH, 'gulp-requirejs')
+      ];
+      await extFs.copyFiles(copyParam);
+    }));
+
+    it('yyl all', fn.makeAsync(async () => {
+      const projectPath = path.join(FRAG_PATH, 'gulp-requirejs');
+      const distPath = path.join(projectPath, 'dist');
+
+      // clear dist
+      await extFs.removeFiles(distPath);
+
+      // run all
+      await yyl.run('all --logLevel 0', projectPath);
+
+      // check
+    }));
+  });
+}
+
+if (TEST_CTRL.WATCH) {
+  // TODO
 }
 
 if (TEST_CTRL.COMMIT) {
