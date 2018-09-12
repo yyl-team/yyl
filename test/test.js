@@ -71,7 +71,7 @@ const TEST_CTRL = {
   MOCK: true,
   INIT: true,
   ALL: true,
-  // // WATCH: true,
+  WATCH: true,
   COMMIT: true
 };
 
