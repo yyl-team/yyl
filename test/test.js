@@ -1,4 +1,5 @@
 const extFs = require('yyl-fs');
+const frp = require('yyl-file-replacer');
 const path = require('path');
 const fs = require('fs');
 const chai = require('chai');
@@ -9,6 +10,7 @@ const yyl = require('../index');
 const util = require('../tasks/w-util');
 const SEED = require('../tasks/w-seed');
 const wInit = require('../tasks/w-init');
+const wOpzer = require('../tasks/w-optimize');
 
 const FRAG_PATH = path.join(__dirname, '__frag');
 const fn = {
@@ -20,6 +22,18 @@ const fn = {
       });
     };
     return r;
+  },
+  get: function (url) {
+    return new Promise((next) => {
+      http.get(url, (res) => {
+        next(res);
+      });
+    });
+  },
+  hideUrlTail: function(url) {
+    return url
+      .replace(/\?.*?$/g, '')
+      .replace(/#.*?$/g, '');
   },
   frag: {
     build() {
@@ -49,168 +63,116 @@ const fn = {
 };
 
 const TEST_CTRL = {
-  // SERVER: true,
-  // VERSION: true,
-  // HELP: true,
-  // PATH: true,
-  // INFO: true,
-  // MOCK: true,
-  // INIT: true,
+  SERVER: true,
+  VERSION: true,
+  HELP: true,
+  PATH: true,
+  INFO: true,
+  MOCK: true,
+  INIT: true,
   ALL: true,
-  // WATCH: true,
-  // COMMIT: true
+  // // WATCH: true,
+  COMMIT: true
 };
 
 if (TEST_CTRL.SERVER) {
   describe('yyl server test', () => {
-    it('yyl server -h', (done) => {
-      yyl.run('server -h --silent', __dirname).then((h) => {
-        expect(h).not.equal(undefined);
-        done();
-      });
-    });
-    it('yyl server --help', (done) => {
-      yyl.run('server --help --silent', __dirname).then((h) => {
-        expect(h).not.equal(undefined);
-        done();
-      });
-    });
-    it('yyl server start', function(done) {
-      this.timeout(0);
+    it('yyl server -h', fn.makeAsync(async () => {
+      const h = await yyl.run('server -h --silent', __dirname);
+      expect(h).not.equal(undefined);
+    }));
 
-      yyl.run('server start --logLevel 0 --silent', __dirname).then((setting) => {
-        expect(setting.server).not.equal(false);
-        const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
-        http.get(testPath, (res) => {
-          expect(res.statusCode).equal(200);
-          yyl.run('server abort').then(() => {
-            done();
-          });
-        });
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('yyl server --help', fn.makeAsync(async () => {
+      const h = await yyl.run('server --help --silent', __dirname);
+      expect(h).not.equal(undefined);
+    }));
 
-    it(`yyl server start --path ${__dirname}`, (done) => {
-      yyl.run(`server start --logLevel 0 --silent --path ${__dirname}`).then((setting) => {
-        expect(setting.server).not.equal(false);
-        const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
-        http.get(testPath, (res) => {
-          expect(res.statusCode).equal(200);
-          yyl.run('server abort').then(() => {
-            done();
-          });
-        });
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('yyl server start', fn.makeAsync(async () => {
+      const setting = await yyl.run('server start --logLevel 0 --silent', __dirname);
+      expect(setting.server).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
+      const res = await fn.get(testPath);
+      expect(res.statusCode).equal(200);
+      await yyl.run('server abort');
+    }));
 
-    it('yyl server start --path ./', (done) => {
-      yyl.run('server start --logLevel 0 --silent --path ./', __dirname).then((setting) => {
-        expect(setting.server).not.equal(false);
-        const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
-        http.get(testPath, (res) => {
-          expect(res.statusCode).equal(200);
-          yyl.run('server abort').then(() => {
-            done();
-          });
-        });
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-    it('yyl server -p', (done) => {
-      yyl.run('server -p --silent', __dirname).then((iPath) => {
-        expect(iPath).to.equal(util.vars.SERVER_PATH);
-        done();
-      });
-    });
-    it('yyl server --path', (done) => {
-      yyl.run('server --path --silent', __dirname).then((iPath) => {
-        expect(iPath).to.equal(util.vars.SERVER_PATH);
-        done();
-      });
-    });
+    it(`yyl server start --path ${__dirname}`, fn.makeAsync(async () => {
+      const setting = await yyl.run(`server start --logLevel 0 --silent --path ${__dirname}`);
+      expect(setting.server).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
+      const res = await fn.get(testPath);
+      expect(res.statusCode).equal(200);
+      await yyl.run('server abort');
+    }));
+
+    it('yyl server start --path ./', fn.makeAsync(async () => {
+      const setting = await yyl.run('server start --logLevel 0 --silent --path ./', __dirname);
+      expect(setting.server).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
+      const res = await fn.get(testPath);
+      expect(res.statusCode).equal(200);
+      await yyl.run('server abort');
+    }));
+
+    it('yyl server -p', fn.makeAsync(async () => {
+      const iPath = await yyl.run('server -p --silent', __dirname);
+      expect(iPath).to.equal(util.vars.SERVER_PATH);
+    }));
+
+    it('yyl server --path', fn.makeAsync(async () => {
+      const iPath = await yyl.run('server --path --silent', __dirname);
+      expect(iPath).to.equal(util.vars.SERVER_PATH);
+    }));
   });
 }
 
 if (TEST_CTRL.VERSION) {
   describe('yyl -v test', () => {
-    it('yyl -v', (done) => {
-      yyl.run('yyl -v --silent').then((v) => {
-        expect(v).not.equal(undefined);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-    it('yyl --version', (done) => {
-      yyl.run('yyl --version --silent').then((v) => {
-        expect(v).not.equal(undefined);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('yyl -v', fn.makeAsync(async () => {
+      const v = await yyl.run('yyl -v --silent');
+      expect(v).not.equal(undefined);
+    }));
+    it('yyl --version', fn.makeAsync(async () => {
+      const v = await yyl.run('yyl --version --silent');
+      expect(v).not.equal(undefined);
+    }));
   });
 }
 
 if (TEST_CTRL.HELP) {
   describe('yyl -h test', () => {
-    it('yyl -h', (done) => {
-      yyl.run('yyl -h --silent').then((h) => {
-        expect(h).not.equal(undefined);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
-    it('yyl --help', (done) => {
-      yyl.run('yyl --help --silent').then((h) => {
-        expect(h).not.equal(undefined);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('yyl -h', fn.makeAsync(async () => {
+      const h = await yyl.run('yyl -h --silent');
+      expect(h).not.equal(undefined);
+    }));
+    it('yyl --help', fn.makeAsync(async () => {
+      const h = await yyl.run('yyl --help --silent');
+      expect(h).not.equal(undefined);
+    }));
   });
 }
 
 if (TEST_CTRL.PATH) {
   describe('yyl -p test', () => {
-    it('yyl -p', (done) => {
-      yyl.run('yyl -p --silent').then((p) => {
-        expect(p).to.equal(util.vars.BASE_PATH);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('yyl -p', fn.makeAsync(async () => {
+      const p = await yyl.run('yyl -p --silent');
+      expect(p).to.equal(util.vars.BASE_PATH);
+    }));
 
-    it('yyl --path', (done) => {
-      yyl.run('yyl -p --silent').then((p) => {
-        expect(p).to.equal(util.vars.BASE_PATH);
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('yyl --path', fn.makeAsync(async () => {
+      const p = await yyl.run('yyl -p --silent');
+      expect(p).to.equal(util.vars.BASE_PATH);
+    }));
   });
 }
 
 if (TEST_CTRL.INFO) {
   describe('yyl info test', () => {
-    it('yyl info', (done) => {
+    it('yyl info', fn.makeAsync(async () => {
       const workflowPath = util.path.join(__dirname, './workflow-test/gulp-requirejs');
-      yyl.run('yyl info --silent', workflowPath).then((info) => {
-        expect(info.workflow).to.equal('gulp-requirejs');
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+      const info = await yyl.run('yyl info --silent', workflowPath);
+      expect(info.workflow).to.equal('gulp-requirejs');
+    }));
   });
 }
 
@@ -236,271 +198,196 @@ if (TEST_CTRL.MOCK) {
       return new Promise(runner);
     };
 
-    it('mock server start', function(done) {
-      this.timeout(0);
-      yyl.run('server start --silent --logLevel 0', mockPath).then(() => {
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('mock server start', fn.makeAsync(async () => {
+      await yyl.run('server start --silent --logLevel 0', mockPath);
+    }));
 
-    it('/db', function(done) {
-      this.timeout(0);
+    it('/db', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/db';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(typeof data).equal('object');
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(typeof data).equal('object');
+    }));
 
-    it('/mockapi', function(done) {
-      this.timeout(0);
+    it('/mockapi', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).not.equal(0);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).not.equal(0);
+    }));
 
-    it('/mockapi/1', function(done) {
-      this.timeout(0);
+    it('/mockapi/1', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi/1';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(typeof data).equal('object');
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(typeof data).equal('object');
+    }));
 
-    it('/mockapi?_sort=id', function(done) {
-      this.timeout(0);
+    it('/mockapi?_sort=id', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_sort=id';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data[0].id).equal(1);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data[0].id).equal(1);
+    }));
 
-    it('/mockapi?_sort=id&_order=desc', function(done) {
-      this.timeout(0);
+    it('/mockapi?_sort=id&_order=desc', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_sort=id&_order=desc';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data[0].id).equal(5);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data[0].id).equal(5);
+    }));
 
-    it('/mockapi?_start=1', function(done) {
-      this.timeout(0);
+    it('/mockapi?_start=1', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_start=1';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(4);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(4);
+    }));
 
-    it('/mockapi?_end=3', function(done) {
-      this.timeout(0);
+    it('/mockapi?_end=3', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_end=3';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(4);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(4);
+    }));
 
-    it('/mockapi?_limit=3', function(done) {
-      this.timeout(0);
+    it('/mockapi?_limit=3', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_limit=3';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(3);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(3);
+    }));
 
-    it('/mockapi?_limit=-1', function(done) {
-      this.timeout(0);
+    it('/mockapi?_limit=-1', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_limit=-1';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(0);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(0);
+    }));
 
-    it('/mockapi?_start=1&_end=3', function(done) {
-      this.timeout(0);
+    it('/mockapi?_start=1&_end=3', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_start=1&_end=3';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(3);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(3);
+    }));
 
-    it('/mockapi?_start=1&_end=3&_limit=2', function(done) {
-      this.timeout(0);
+    it('/mockapi?_start=1&_end=3&_limit=2', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?_start=1&_end=3&_limit=2';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(2);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(2);
+    }));
 
-    it('/mockapi?id_gte=2', function(done) {
-      this.timeout(0);
+    it('/mockapi?id_gte=2', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?id_gte=2';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(4);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(4);
+    }));
 
-    it('/mockapi?id_lte=2', function(done) {
-      this.timeout(0);
+    it('/mockapi?id_lte=2', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?id_lte=2';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(2);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(2);
+    }));
 
-    it('/mockapi?id_ne=2', function(done) {
-      this.timeout(0);
+    it('/mockapi?id_ne=2', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?id_ne=2';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(4);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(4);
+    }));
 
-    it('/mockapi?title_like=又', function(done) {
-      this.timeout(0);
+    it('/mockapi?title_like=又', fn.makeAsync(async () => {
       const testPath = `http://127.0.0.1:5000/mockapi?title_like=${encodeURIComponent('又')}`;
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(1);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(1);
+    }));
 
-    it('/mockapi?uid=1369446333', function(done) {
-      this.timeout(0);
+    it('/mockapi?uid=1369446333', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mockapi?uid=1369446333';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).equal(1);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).equal(1);
+    }));
 
 
-    it('/justObject', function(done) {
-      this.timeout(0);
+    it('/justObject', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/justObject';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(typeof data).equal('object');
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(typeof data).equal('object');
+    }));
 
-    it('routes test /api/1', function(done) {
-      this.timeout(0);
+    it('routes test /api/1', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/api/1';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(typeof data).equal('object');
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(typeof data).equal('object');
+    }));
 
-    it('routes test /api', function(done) {
-      this.timeout(0);
+    it('routes test /api', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/api';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(data.length).not.equal(0);
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(data.length).not.equal(0);
+    }));
 
-    it('routes test /mapi/1', function(done) {
-      this.timeout(0);
+    it('routes test /mapi/1', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mapi/1';
-      get(testPath, true).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        expect(typeof data).equal('object');
-        done();
-      });
-    });
+      const argv = await get(testPath, true);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      expect(typeof data).equal('object');
+    }));
 
 
     const jsonpMatch = /^aa\((.+)\);$/;
-    it('jsonp test /mapi/1?callback=aa', function(done) {
-      this.timeout(0);
+    it('jsonp test /mapi/1?callback=aa', fn.makeAsync(async () => {
       const testPath = 'http://127.0.0.1:5000/mapi/1?callback=aa';
-      get(testPath).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        const iMatch = data.match(jsonpMatch);
-        expect(iMatch).not.equal(null);
-        expect(typeof JSON.parse(iMatch[1])).equal('object');
-        done();
-      });
-    });
-    it('jsonp test /mapi?jsonp=bb&bb=aa', function(done) {
-      this.timeout(0);
-      const testPath = 'http://127.0.0.1:5000/mapi?jsonp=bb&bb=aa';
-      get(testPath).then((argv) => {
-        const [res, data] = argv;
-        expect(res.statusCode).equal(200);
-        const iMatch = data.match(jsonpMatch);
-        expect(iMatch).not.equal(null);
-        expect(typeof JSON.parse(iMatch[1])).equal('object');
-        done();
-      });
-    });
+      const argv = await get(testPath);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      const iMatch = data.match(jsonpMatch);
+      expect(iMatch).not.equal(null);
+      expect(typeof JSON.parse(iMatch[1])).equal('object');
+    }));
 
-    it('mock server abort', function(done) {
-      this.timeout(0);
-      yyl.run('server abort').then(() => {
-        done();
-      }).catch((er) => {
-        throw new Error(er);
-      });
-    });
+    it('jsonp test /mapi?jsonp=bb&bb=aa', fn.makeAsync(async () => {
+      const testPath = 'http://127.0.0.1:5000/mapi?jsonp=bb&bb=aa';
+      const argv = await get(testPath);
+      const [res, data] = argv;
+      expect(res.statusCode).equal(200);
+      const iMatch = data.match(jsonpMatch);
+      expect(iMatch).not.equal(null);
+      expect(typeof JSON.parse(iMatch[1])).equal('object');
+    }));
+
+    it('mock server abort', fn.makeAsync(async () => {
+      await yyl.run('server abort');
+    }));
   });
 }
 
@@ -571,24 +458,18 @@ if (TEST_CTRL.INIT) {
     }
 
     cmds.forEach((cmd, index) => {
-      it(cmd, function (done) {
-        this.timeout(0);
-        async function runner () {
-          const initPath = path.join(FRAG_PATH, `${index}`);
-          extFs.mkdirSync(initPath);
-          await fn.frag.build();
+      it(cmd, fn.makeAsync(async () => {
+        const initPath = path.join(FRAG_PATH, `${index}`);
+        extFs.mkdirSync(initPath);
+        await fn.frag.build();
 
-          extFs.mkdirSync(initPath);
+        extFs.mkdirSync(initPath);
 
-          await yyl.run(cmd, initPath);
-          await dirCheck(initPath, util.envParse(cmd));
+        await yyl.run(cmd, initPath);
+        await dirCheck(initPath, util.envParse(cmd));
 
-          await fn.frag.destroy();
-        }
-        runner().then(() => {
-          done();
-        });
-      });
+        await fn.frag.destroy();
+      }));
     });
   });
 }
@@ -610,17 +491,170 @@ if (TEST_CTRL.ALL) {
       await extFs.copyFiles(copyParam);
     }));
 
+    async function destCheck (projectPath, selfConfigPath) {
+      let configPath = path.join(projectPath, 'config.js');
+      if (selfConfigPath) {
+        configPath = selfConfigPath;
+      }
+
+      // check
+      const config = await wOpzer.parseConfig(configPath, {});
+      const { destRoot } = config.alias;
+      const htmlList = await extFs.readFilePaths(destRoot, /\.html$/, true);
+      const cssList = await extFs.readFilePaths(destRoot, /\.css$/, true);
+      const jsList = await extFs.readFilePaths(destRoot, /\.js$/, true);
+
+      const bothHostArr = [];
+      if (config.commit.mainHost) {
+        bothHostArr.push(config.commit.mainHost);
+      }
+      if (config.commit.staticHost) {
+        bothHostArr.push(config.commit.staticHost);
+      }
+      if (config.commit.hostname) {
+        bothHostArr.push(config.commit.hostname);
+      }
+      const BOTH_SOURCE_REG = new RegExp(`^(${bothHostArr.join('|')})`);
+
+      const remoteSource = [];
+      const localSource = [];
+      const bothMap = {};
+      const sourcePickup = (iPath, dirname) => {
+        const rPath = fn.hideUrlTail(iPath);
+        if (rPath.match(frp.REG.HTML_IGNORE_REG)) { // 可忽略 的 url
+          return;
+        } else if (rPath.match(frp.REG.IS_HTTP)) { // http
+          remoteSource.push(rPath);
+          if (rPath.match(BOTH_SOURCE_REG)) {
+            bothMap[rPath] = path.join(destRoot, rPath.replace(BOTH_SOURCE_REG, ''));
+          }
+        } else if (rPath.match(frp.REG.HTML_IS_ABSLUTE)) { // 绝对地址 /
+          localSource.push(path.join(destRoot, rPath));
+        } else { // 相对地址
+          localSource.push(path.join(dirname, rPath));
+        }
+      };
+
+      htmlList.forEach((iPath) => {
+        const ctx = fs.readFileSync(iPath).toString();
+        frp.htmlPathMatch(ctx, (rPath) => {
+          sourcePickup(rPath, path.dirname(iPath));
+          return rPath;
+        });
+      });
+      cssList.forEach((iPath) => {
+        const ctx = fs.readFileSync(iPath).toString();
+        frp.cssPathMatch(ctx, (rPath) => {
+          sourcePickup(rPath, path.dirname(iPath));
+          return rPath;
+        });
+      });
+      jsList.forEach((iPath) => {
+        const ctx = fs.readFileSync(iPath).toString();
+        frp.jsPathMatch(ctx, (rPath) => {
+          sourcePickup(rPath, path.dirname(iPath));
+          return rPath;
+        });
+      });
+
+      const revPath = path.join(config.alias.revDest, 'rev-manifest.json');
+      const hashMap = util.requireJs(revPath);
+
+      // check hash map exist
+      Object.keys(hashMap).forEach((key) => {
+        if (key == 'version') {
+          return;
+        }
+        const url1 = util.path.join(config.alias.revRoot, key);
+        const url2 = util.path.join(config.alias.revRoot, hashMap[key]);
+
+        expect(fs.existsSync(url1)).to.equal(true);
+        expect(fs.existsSync(url2)).to.equal(true);
+      });
+
+      localSource.forEach((iPath) => {
+        expect(fs.existsSync(iPath)).to.equal(true);
+      });
+
+      await (() => {
+        const NO_PROTOCOL = /^\/\/(\w)/;
+        return new Promise((next) => {
+          const promiseArr = [];
+          remoteSource.forEach((iPath) => {
+            var rPath = iPath;
+            if (rPath.match(NO_PROTOCOL)) {
+              rPath = rPath.replace(NO_PROTOCOL, 'http://$1');
+            }
+
+            promiseArr.push(fn.get(rPath));
+          });
+          Promise.all(promiseArr).then((values) => {
+            values.forEach((res, i) => {
+              const remoteUrl = remoteSource[i];
+              if (res.statusCode !== 200 && bothMap[remoteUrl]) {
+                expect(fs.existsSync(bothMap[remoteUrl])).to.equal(true);
+              } else {
+                expect(res.statusCode).to.equal(200);
+              }
+            });
+            next();
+          });
+        });
+      })();
+    }
+
+    const FRAG_WORKFLOW_PATH = path.join(FRAG_PATH, 'gulp-requirejs');
+    const ABSOLUTE_CONFIG_PATH = util.path.join(FRAG_WORKFLOW_PATH, 'config.test.js');
+    const RELATIVE_CONFIG_PATH = 'config.test.js';
+
     it('yyl all', fn.makeAsync(async () => {
-      const projectPath = path.join(FRAG_PATH, 'gulp-requirejs');
-      const distPath = path.join(projectPath, 'dist');
+      const distPath = path.join(FRAG_WORKFLOW_PATH, 'dist');
 
       // clear dist
       await extFs.removeFiles(distPath);
 
       // run all
-      await yyl.run('all --logLevel 0', projectPath);
+      await yyl.run('all --logLevel 0', FRAG_WORKFLOW_PATH);
 
-      // check
+      await destCheck(FRAG_WORKFLOW_PATH);
+    }));
+
+    it('yyl all --isCommit', fn.makeAsync(async () => {
+      const distPath = path.join(FRAG_WORKFLOW_PATH, 'dist');
+
+      // clear dist
+      await extFs.removeFiles(distPath);
+
+      // run all
+      await yyl.run('all --isCommit --logLevel 0', FRAG_WORKFLOW_PATH);
+
+      await destCheck(FRAG_WORKFLOW_PATH);
+    }));
+
+
+
+    it(`yyl all --config ${ABSOLUTE_CONFIG_PATH}`, fn.makeAsync(async () => {
+      const distPath = path.join(FRAG_WORKFLOW_PATH, 'dist');
+
+      // clear dist
+      await extFs.removeFiles(distPath);
+
+      // run all
+      await yyl.run(`all --config ${ABSOLUTE_CONFIG_PATH} --logLevel 0`, FRAG_WORKFLOW_PATH);
+
+      await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH);
+    }));
+
+    it(`yyl all --config ${RELATIVE_CONFIG_PATH}`, fn.makeAsync(async () => {
+      const distPath = path.join(FRAG_WORKFLOW_PATH, 'dist');
+
+      // clear dist
+      await extFs.removeFiles(distPath);
+
+      // run all
+      await yyl.run(`all --config ${RELATIVE_CONFIG_PATH} --logLevel 0`, FRAG_WORKFLOW_PATH);
+
+      await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH);
     }));
   });
 }
@@ -633,48 +667,40 @@ if (TEST_CTRL.COMMIT) {
   describe('yyl commit test', () => {
     const workflows = ['gulp-requirejs'];
     workflows.forEach((workflow) => {
-      it(`yyl commit for ${workflow}`, function(done) {
-        this.timeout(0);
+      it(`yyl commit for ${workflow}`, fn.makeAsync(async () => {
         const WORKFLOW_PATH = path.join(__dirname, 'workflow-test', workflow);
         const COMMON_PATH = path.join(__dirname, 'workflow-test/commons');
         const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
         const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
-        new util.Promise((next) => {
-          fn.frag.destroy();
-          fn.frag.build();
-          util.mkdirSync(FRAG_WORKFLOW_PATH);
-          util.mkdirSync(FRAG_COMMONS_PATH);
-          const obj = {};
-          obj[WORKFLOW_PATH] = FRAG_WORKFLOW_PATH;
-          obj[COMMON_PATH] = FRAG_COMMONS_PATH;
-          util.copyFiles(obj, () => {
-            setTimeout(() => {
+
+        await fn.frag.build();
+        util.mkdirSync(FRAG_WORKFLOW_PATH);
+        util.mkdirSync(FRAG_COMMONS_PATH);
+        const obj = {};
+        obj[WORKFLOW_PATH] = FRAG_WORKFLOW_PATH;
+        obj[COMMON_PATH] = FRAG_COMMONS_PATH;
+
+        await extFs.copyFiles(obj);
+
+        const svnPath = 'https://svn.yy.com/yy-music/static/project/workflow_demo';
+        const svnDir = util.path.join(FRAG_WORKFLOW_PATH, '../__committest');
+        util.mkdirSync(svnDir);
+
+        await (async () => {
+          return new Promise((next) => {
+            util.runCMD(`svn checkout ${svnPath}`, (err) => {
+              if (err) {
+                throw new Error(err);
+              }
               next();
-            }, 100);
+            }, svnDir);
           });
-        }).then((next) => { // svn init
-          const svnPath = 'https://svn.yy.com/yy-music/static/project/workflow_demo';
-          const svnDir = util.path.join(FRAG_WORKFLOW_PATH, '../__committest');
-          util.mkdirSync(svnDir);
-          util.runCMD(`svn checkout ${svnPath}`, (err) => {
-            if (err) {
-              throw new Error(err);
-            }
-            next();
-          }, svnDir);
-        }).then((next) => {
-          yyl.run('commit --sub dev --silent --logLevel 0', FRAG_WORKFLOW_PATH).then(() => {
-            expect(true).equal(true);
-            next();
-          }).catch((er) => {
-            throw new Error(er);
-          });
-        }).then(() => {
-          fn.frag.destroy().then(() => {
-            done();
-          });
-        }).start();
-      });
+        })();
+
+        await yyl.run('commit --sub dev --silent --logLevel 0', FRAG_WORKFLOW_PATH);
+        expect(true).equal(true);
+        fn.frag.destroy();
+      }));
     });
   });
 }

@@ -12,7 +12,7 @@ var
             jslibPath: 'js/lib/tt',
             cssPath: 'css/tt',
             htmlPath: 'html/tt',
-            imagesPath: 'images/tt',
+            imagesPath: 'images/test',
             fontPath: 'font/tt',
             revPath: 'assets/tt'
         }

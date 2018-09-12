@@ -411,7 +411,6 @@ const log4Silent = (module, type, argv) => {
   switch (module) {
     case 'msg':
       switch (type) {
-        case 'warn':
         case 'error':
           util.msg[type].apply(util.msg, argv);
           break;

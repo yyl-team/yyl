@@ -943,18 +943,18 @@ wOpzer.parseConfig = (configPath, iEnv) => {
     const dirname = path.dirname(configPath);
 
     try {
-      Object.assign(config, require(configPath));
+      util.extend(true, config, util.requireJs(configPath));
     } catch (er) {
       return reject(`config parse error: ${configPath}`, er);
     }
 
     // extend config.mine.js
     let mineConfig = {};
-    const mineConfigPath = configPath.replace(/\.js$/, 'mine.js');
+    const mineConfigPath = configPath.replace(/\.js$/, '.mine.js');
 
     if (fs.existsSync(mineConfigPath)) {
       try {
-        mineConfig = require(mineConfigPath);
+        mineConfig = util.requireJs(mineConfigPath);
       } catch (er) {}
     }
 
