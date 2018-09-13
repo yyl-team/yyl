@@ -71,7 +71,6 @@ const TEST_CTRL = {
   MOCK: true,
   INIT: true,
   ALL: true,
-  WATCH: true,
   COMMIT: true
 };
 
@@ -657,10 +656,6 @@ if (TEST_CTRL.ALL) {
       await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH);
     }));
   });
-}
-
-if (TEST_CTRL.WATCH) {
-  // TODO
 }
 
 if (TEST_CTRL.COMMIT) {
