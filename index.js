@@ -20,7 +20,6 @@ var r = {
     return cmd.apply(global, iArgv);
   },
   server: require('./tasks/w-server.js')
-
 };
 
 

@@ -1,26 +1,44 @@
 'use strict';
+const path = require('path');
 const http = require('http');
-const https = require('https');
 const net = require('net');
+const fs = require('fs');
 const url = require('url');
 const chalk = require('chalk');
-const tls = require('tls');
-const EasyCert = require('node-easy-cert');
-const request = require('request');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
 
-util.mkdirSync(util.vars.SERVER_PATH);
-const easyCert = new EasyCert({
-  rootDirPath: util.vars.SERVER_CERTS_PATH,
-  defaultCertAttrs: [
-    { name: 'countryName', value: 'CN' },
-    { name: 'organizationName', value: 'AnyProxy' },
-    { shortName: 'ST', value: 'SH' },
-    { shortName: 'OU', value: 'AnyProxy SSL Proxy' }
-  ]
-});
+const MIME_TYPE_MAP = {
+  'css': 'text/css',
+  'js': 'text/javascript',
+  'html': 'text/html',
+  'xml': 'text/xml',
+  'txt': 'text/plain',
+
+  'json': 'application/json',
+  'pdf': 'application/pdf',
+  'swf': 'application/x-shockwave-flash',
+
+  'woff': 'application/font-woff',
+  'ttf': 'application/font-ttf',
+  'eot': 'application/vnd.ms-fontobject',
+  'otf': 'application/font-otf',
+
+  'wav': 'audio/x-wav',
+  'wmv': 'video/x-ms-wmv',
+  'mp4': 'video/mp4',
+
+  'gif': 'image/gif'
+  ,
+  'ico': 'image/x-icon',
+  'jpeg': 'image/jpeg',
+  'jpg': 'image/jpeg',
+  'png': 'image/png',
+  'svg': 'image/svg+xml',
+  'tiff': 'image/tiff'
+
+};
 
 // var PROXY_INFO_HTML = [
 //   '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
@@ -28,9 +46,6 @@ const easyCert = new EasyCert({
 // ].join('');
 
 var fn = {
-  hideProtocol: function(url) {
-    return url.replace(/^http[s]?:/, '');
-  },
   blank: function(num) {
     return new Array(num + 1).join(' ');
   },
@@ -83,23 +98,165 @@ var fn = {
         ]
       }).end();
     }
-  },
-  createHttpsServer(op, oreq, socket, head, done) {
-    const addr = oreq.url.split(':');
-    let needProxy = false;
-    Object.keys(op.localRemote).map((key) => {
-      if (addr[0] === url.parse(key).hostname) {
-        needProxy = true;
-        return true;
+  }
+};
+
+const cache = {
+  server: null,
+  index: 0
+};
+
+const wProxy = {
+  init: function(op, done) {
+    const iPort = op.port || 8887;
+
+    const server = http.createServer((req, res) => {
+      const reqUrl = req.url;
+      const iAddrs = Object.keys(op.localRemote || {});
+
+      // 本地代理
+      const remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
+      let localData = '';
+      let localUrl = '';
+      let httpRemoteUrl = '';
+      let proxyIgnore = false;
+
+      if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
+        proxyIgnore = true;
+      }
+
+      iAddrs.forEach((addr) => {
+        var localAddr = op.localRemote[addr];
+
+        if (!localAddr || !addr) {
+          return true;
+        }
+
+
+        if (addr === remoteUrl.substr(0, addr.length)) {
+          var subAddr = util.joinFormat(localAddr, remoteUrl.substr(addr.length));
+
+          if (/^http(s)?:/.test(localAddr)) {
+            httpRemoteUrl = subAddr;
+            return false;
+          }
+
+          if (fs.existsSync(subAddr)) {
+            localData = fs.readFileSync(subAddr);
+            localUrl = subAddr;
+            return false;
+          }
+        }
+      });
+
+      if (localData && !proxyIgnore) { // 存在本地文件
+        fn.log.u({
+          src: reqUrl,
+          dest: localUrl,
+          status: 200
+        });
+
+        const iExt = path.extname(req.url).replace(/^\./, '');
+        if (MIME_TYPE_MAP[iExt]) {
+          res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+        }
+
+        res.write(localData);
+        res.end();
+      } else { // 透传 or 转发
+        let iUrl = httpRemoteUrl || req.url;
+        if (proxyIgnore) {
+          iUrl = req.url;
+        }
+        let body = [];
+        const linkit = function(iUrl, iBuffer) {
+          const vOpts = url.parse(iUrl);
+          vOpts.method = req.method;
+          vOpts.headers = req.headers;
+          vOpts.body = body;
+
+
+          const vRequest = http.request(vOpts, (vRes) => {
+            if (/^404|405$/.test(vRes.statusCode) && httpRemoteUrl == iUrl) {
+              vRes.on('end', () => {
+                linkit(req.url, iBuffer);
+              });
+
+              return vRequest.abort();
+            }
+
+            vRes.on('data', (chunk) => {
+              res.write(chunk, 'binary');
+            });
+
+            vRes.on('end', () => {
+              fn.log.u({
+                src: reqUrl,
+                dest: iUrl,
+                status: vRes.statusCode
+              });
+
+              // if(/text\/html/.test(res.getHeader('content-type'))){
+              //     res.write(PROXY_INFO_HTML);
+              // }
+              res.end();
+            });
+            vRes.on('error', () => {
+              res.end();
+            });
+
+            const iHeader = util.extend(true, {}, vRes.headers);
+
+            // 设置 header
+            const iType = vRes.headers['content-type'];
+            if (iType) {
+              res.setHeader('Content-Type', iType);
+            } else {
+              const iExt = path.extname(req.url).replace(/^\./, '');
+
+              if (MIME_TYPE_MAP[iExt]) {
+                res.setHeader('Content-Type', MIME_TYPE_MAP[iExt]);
+              }
+            }
+
+            res.writeHead(vRes.statusCode, iHeader);
+          });
+
+          vRequest.on('error', () => {
+            res.end();
+          });
+
+          vRequest.write(body);
+          vRequest.end();
+        };
+
+        req.on('data', (chunk) => {
+          body.push(chunk);
+        });
+
+
+        req.on('end', () => {
+          body = Buffer.concat(body).toString();
+          linkit(iUrl, body);
+        });
       }
     });
 
+    log('msg', 'success', 'proxy server start');
+    Object.keys(op.localRemote).forEach((key) => {
+      log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(op.localRemote[key])}`);
+    });
+    log('msg', 'success', `proxy server port: ${chalk.yellow(iPort)}`);
 
-    if (!needProxy) { // TODO 暂时想不到 判断 ws wss 的方法
+    server.listen(iPort);
+
+    // ws 监听, 转发
+    server.on('connect', (req, socket) => {
+      var addr = req.url.split(':');
       //creating TCP connection to remote server
       var conn = net.connect(addr[1] || 443, addr[0], () => {
         // tell the client that the connection is established
-        socket.write(`HTTP/${oreq.httpVersion} 200 OK\r\n\r\n`, 'UTF-8', () => {
+        socket.write(`HTTP/${  req.httpVersion  } 200 OK\r\n\r\n`, 'UTF-8', () => {
           // creating pipes in both ends
           conn.pipe(socket);
           socket.pipe(conn);
@@ -115,221 +272,19 @@ var fn = {
         socket.end();
         conn.end();
       });
-    } else {
-      const srvUrl = url.parse(`http://${oreq.url}`);
-      let srvSocket = null;
-      easyCert.getCertificate(srvUrl.hostname, (err, keyContent, certContent) => {
-        if (err) {
-          return done(err);
-        }
-        const server = new https.Server({
-          key: keyContent,
-          cert: certContent,
-          SNICallback: (hostname, next) => {
-            easyCert.getCertificate(hostname, (err, sKey, sCert) => {
-              next(null, tls.createSecureContext({
-                key: sKey,
-                cert: sCert
-              }));
-            });
-          }
-        });
+    });
 
-        server.on('request', (req, res) => {
-          done(null, req, res, srvSocket);
-        });
-
-        server.on('error', () => {
-          if (srvSocket) {
-            srvSocket.end();
-          }
-        });
-
-        server.listen(0, () => {
-          const address = server.address();
-          srvSocket = net.connect(address.port, '127.0.0.1', () => {
-            socket.write(`HTTP/${oreq.httpVersion} 200 OK\r\n\r\n`, 'UTF-8');
-            srvSocket.write(head);
-            srvSocket.pipe(socket);
-            socket.pipe(srvSocket);
-          });
-          srvSocket.on('error', () => {
-            srvSocket.end();
-            server.end();
-          });
-        });
-      });
-    }
-  },
-  proxyToLocal(op, req, done) {
-    let reqUrl = req.url;
-    if (!/^http[s]?:/.test(reqUrl)) { // 适配 https
-      reqUrl = `https://${req.headers.host}${req.url}`;
-    }
-    const iAddrs = Object.keys(op.localRemote || {});
-
-    // 本地代理
-    const remoteUrl = reqUrl.replace(/\?.*$/, '').replace(/#.*$/, '');
-    let proxyUrl = '';
-    let proxyIgnore = false;
-
-    if (op.ignores && ~op.ignores.indexOf(remoteUrl)) {
-      proxyIgnore = true;
-    }
-
-    if (!proxyIgnore) {
-      iAddrs.map((addr) => {
-        const localAddr = op.localRemote[addr];
-        const iAddr = fn.hideProtocol(addr);
-        const iReqUrl = fn.hideProtocol(reqUrl);
-
-        if (!localAddr || !addr) {
-          return true;
-        }
-
-        if (iAddr === iReqUrl.substr(0, iAddr.length)) {
-          const subAddr = util.joinFormat(localAddr, iReqUrl.substr(iAddr.length));
-          if (/^http(s)?:/.test(localAddr)) {
-            proxyUrl = subAddr;
-            return false;
-          }
-        }
-      });
-    }
-
-    if (proxyIgnore || !proxyUrl) {
-      done(null);
-    } else { // 透传 or 转发
-      const vOpts = url.parse(proxyUrl);
-      vOpts.method = req.method;
-      vOpts.headers = req.headers;
-      const vRequest = http.request(vOpts, (vRes) => {
-        if (/^404|405$/.test(vRes.statusCode)) {
-          vRes.on('end', () => {
-            done(null);
-          });
-
-          return vRequest.abort();
-        } else {
-          fn.log.u({
-            src: reqUrl,
-            dest: proxyUrl,
-            status: 200
-          });
-          done(vRes);
-        }
-      });
-      req.pipe(vRequest);
-    }
-  }
-};
-
-const cache = {
-  server: null,
-  crtMgr: null,
-  index: 0
-};
-
-const wProxy = {
-  init: function(op, done) {
-    const iPort = op.port || 8887;
-
-    // cert
-    new util.Promise((next) => {
-      if (easyCert.isRootCAFileExists()) {
-        log('msg', 'success', ['cert  cert already exists']);
-        log('msg', 'success', [`cert  ${chalk.yellow('please double click the rootCA.crt and trust it')}`]);
-        log('msg', 'success', [`cert  ${chalk.yellow(util.vars.SERVER_CERTS_PATH)}`]);
-        next();
+    server.on('error', (err) => {
+      if (err.code == 'EADDRINUSE') {
+        log('msg', 'error', `proxy server start fail: ${chalk.yellow(iPort)} is occupied, please check`);
       } else {
-        log('end');
-        easyCert.generateRootCA({
-          commonName: 'yyl-cert',
-          overwrite: false
-        }, (err) => {
-          if (err) {
-            log('msg', 'warn', ['cert: generate error', err]);
-          } else {
-            log('msg', 'success', ['cert: generate success']);
-          }
-          next();
-        });
+        log('msg', 'error', ['proxy server error', err]);
       }
-    // server
-    }).then(() => {
-      const server = http.createServer((req, res) => {
-        fn.proxyToLocal(op, req, (vRes) => {
-          if (!vRes) { // 透传
-            const vOpts = url.parse(req.url);
-            vOpts.method = req.method;
-            vOpts.headers = req.headers;
+    });
 
-            const vRequest = http.request(vOpts, (vvRes) => {
-              res.writeHead(vvRes.statusCode, vvRes.headers);
-              vvRes.pipe(res);
-            });
-            vRequest.on('error', () => {
-              res.end();
-            });
+    cache.server = server;
 
-            req.pipe(vRequest);
-          } else {
-            res.writeHead(vRes.statusCode, vRes.headers);
-            vRes.pipe(res);
-          }
-        });
-      });
-
-      log('msg', 'success', 'proxy server start');
-      Object.keys(op.localRemote).forEach((key) => {
-        log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(op.localRemote[key])}`);
-      });
-      log('msg', 'success', `proxy server port: ${chalk.yellow(iPort)}`);
-
-      server.listen(iPort);
-
-      // ws 监听, 转发
-      server.on('connect', (oReq, socket, head) => {
-        fn.createHttpsServer(op, oReq, socket, head, (err, req, res) => {
-          fn.proxyToLocal(op, req, (vRes) => {
-            if (!vRes) { // TODO 这部分有问题 wss, ws 代理不了
-              const x = request({
-                url: `https://${req.headers.host}${req.url}`,
-                headers: req.headers,
-                method: req.method
-              });
-              x.on('request', (xReq, xRes) => {
-                if (xRes) {
-                  fn.log.u({
-                    src: xReq.url,
-                    dest: 'remote',
-                    status: xRes.statusCode
-                  });
-                }
-              });
-
-              req.pipe(x);
-              x.pipe(res);
-            } else {
-              res.writeHead(vRes.statusCode, vRes.headers);
-              vRes.pipe(res);
-            }
-          });
-        });
-      });
-
-      server.on('error', (err) => {
-        if (err.code == 'EADDRINUSE') {
-          log('msg', 'error', `proxy server start fail: ${chalk.yellow(iPort)} is occupied, please check`);
-        } else {
-          log('msg', 'error', ['proxy server error', err]);
-        }
-      });
-
-      cache.server = server;
-
-      return done && done();
-    }).start();
+    return done && done();
   },
   abort: function() {
     if (cache.server) {
@@ -346,5 +301,4 @@ const wProxy = {
 };
 
 module.exports = wProxy;
-
 

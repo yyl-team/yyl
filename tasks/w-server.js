@@ -682,14 +682,8 @@ const wServer = {
         // 执行 post 请求本地服务器时处理
         app.use((req, res, next) => {
           if (req.method == 'POST') {
-            var filePath = path.join(iPath, url.parse(req.url).pathname);
-
-            if (fs.existsSync(filePath)) {
-              res.write(fs.readFileSync(filePath));
-            } else {
-              res.statusCode = 404;
-            }
-
+            console.log('=== post!', req.url)
+            res.statusCode = 404;
             res.end();
           } else {
             next();
