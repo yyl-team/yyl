@@ -5,6 +5,9 @@
 * [DEL] 去掉 `yyl supercall`
 * [DEL] 去掉 `yyl jade2pug`
 
+## 2.25.9 (2018-08-13)
+* [FIX] `w-proxy` 有问题 先回档
+
 ## 2.25.8 (2018-08-13)
 * [EDIT] 适配 `linux` 环境
 
