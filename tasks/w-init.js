@@ -19,12 +19,14 @@ const PREFER = {
 };
 
 // 平台选择
-const PLATFORMS = ['pc', 'mobile'];
+const PLATFORMS = ['pc', 'mobile', 'both'];
 
 // 提交类型
 const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
   .filter((name) => {
-    return !name.match(/^\.DS_Store|commons$/);
+    return name.match(/^commit-type-/);
+  }).map((str) => {
+    return str.replace(/^commit-type-/, '');
   }).sort((a, b) => {
     const name = 'gitlab-ci';
     if (a === name) {
@@ -39,39 +41,160 @@ const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
 const CONFIG_SUGAR_DATA_REG = /__data\(['"](\w+)["']\)/g;
 
 const fn = {
+  makeAwait(fn) {
+    return new Promise(fn);
+  },
+
   // 初始化 最后一步, 公用部分拷贝
-  initProject(data) {
-    const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
-    const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
-    const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, data.commitType);
-    const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
-    const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
-
-    const runner = (next, reject) => {
-      const task01 = extFs.copyFiles(INIT_COMMON_PATH, util.vars.PROJECT_PATH, (iPath) => {
-        return INIT_COMMON_CONFIG_PATH != iPath;
+  async initProject(data) {
+    if (data.platform === 'both') {
+      // TODO
+    } else {
+      await fn.makeAwait((next) => {
+        const param = data[data.platform];
+        SEED.find(param.workflow).init(param.init, util.vars.PROJECT_PATH)
+          .on('start', (type) => {
+            log('clear');
+            log('start', type);
+          })
+          .on('clear', () => {
+            log('clear');
+          })
+          .on('msg', (type, argv) => {
+            log('msg', type, argv);
+          })
+          .on('finished', () => {
+            next();
+          });
       });
-      const task02 = extFs.copyFiles(INIT_CUSTOM_PATH, util.vars.PROJECT_PATH, (iPath) => {
-        return INIT_CUSTOM_CONFIG_PATH !== iPath;
-      });
+    }
+    // TODO
 
-      Promise.all([task01, task02]).then(() => {
-        const dataMap = Object.assign(
-          fn.pickUpConfig(INIT_COMMON_CONFIG_PATH, data),
-          fn.pickUpConfig(INIT_CUSTOM_CONFIG_PATH, data)
-        );
+    // return console.log(data)
+    // // TODO need change
+    // const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
+    // const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
+    // const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, data.commitType);
+    // const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
+    // const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
 
-        fn.rewriteConfig(PROJECT_CONFIG_PATH, dataMap).then(() => {
-          next();
-        }).catch((er) => {
-          reject(er);
-        });
-      }).catch((er) => {
-        reject(er);
-      });
+    // const runner = (next, reject) => {
+    //   const task01 = extFs.copyFiles(INIT_COMMON_PATH, util.vars.PROJECT_PATH, (iPath) => {
+    //     return INIT_COMMON_CONFIG_PATH != iPath;
+    //   });
+    //   const task02 = extFs.copyFiles(INIT_CUSTOM_PATH, util.vars.PROJECT_PATH, (iPath) => {
+    //     return INIT_CUSTOM_CONFIG_PATH !== iPath;
+    //   });
+
+    //   Promise.all([task01, task02]).then(() => {
+    //     const dataMap = Object.assign(
+    //       fn.pickUpConfig(INIT_COMMON_CONFIG_PATH, data),
+    //       fn.pickUpConfig(INIT_CUSTOM_CONFIG_PATH, data)
+    //     );
+
+    //     fn.rewriteConfig(PROJECT_CONFIG_PATH, dataMap).then(() => {
+    //       next();
+    //     }).catch((er) => {
+    //       reject(er);
+    //     });
+    //   }).catch((er) => {
+    //     reject(er);
+    //   });
+    // };
+
+    // return new Promise(runner);
+  },
+  async initPlatform(platform, iEnv) {
+    let data = { platform };
+    data = await fn.initWorkflow(data, iEnv);
+    data = await fn.initExample(data, iEnv);
+    return data;
+  },
+  async initWorkflow(data, iEnv) {
+    const prompt = inquirer.createPromptModule();
+    const questions = [];
+    const workflows = SEED.workflows;
+
+    const iQuestion = {
+      name: 'workflow',
+      type: 'list',
+      message: `${data.platform} workflow`,
+      choices: workflows
     };
 
-    return new Promise(runner);
+    if (data.platform === 'pc') {
+      iQuestion.default = PREFER.PC;
+    } else {
+      iQuestion.default = PREFER.MOBILE;
+    }
+
+    const dWorkflow = iEnv[`${data.platform}Workflow`];
+
+    if (dWorkflow && ~workflows.indexOf(dWorkflow)) {
+      data.workflow = data.workflow;
+    } else {
+      questions.push(iQuestion);
+    }
+
+    if (questions.length) {
+      data.confirm = true;
+      const d = await prompt(questions);
+      util.extend(data, d);
+    }
+    return data;
+  },
+  async initExample(data, iEnv) {
+    const prompt = inquirer.createPromptModule();
+    const questions = [];
+
+    if (data.workflow) {
+      const expType = SEED.find(data.workflow).examples;
+      const dInit = iEnv[`${data.platform}Init`];
+      if (dInit && ~expType.indexOf(dInit)) {
+        data.init = dInit;
+      } else if (expType.length == 1) {
+        data.init = expType[0];
+      } else {
+        questions.push({
+          name: 'init',
+          message: `${data.platform} workflow init type`,
+          type: 'list',
+          choices: expType,
+          default: 'single-project'
+        });
+      }
+
+      if (questions.length) {
+        data.confirm = true;
+        const d = await prompt(questions);
+        util.extend(data, d);
+      }
+    }
+    return data;
+  },
+  async initCommitType(data, iEnv) {
+    const prompt = inquirer.createPromptModule();
+    const questions = [];
+    const iQuestion = {
+      name: 'commitType',
+      type: 'list',
+      message: 'commmit type',
+      choices: COMMIT_TYPES,
+      default: COMMIT_TYPES[0]
+    };
+
+    if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
+      data.commitType = iEnv.commitType;
+    } else {
+      questions.push(iQuestion);
+    }
+
+    if (questions.length) {
+      data.confirm = true;
+      const d = await prompt(questions);
+      util.extend(data, d);
+    }
+    return data;
   },
   buildKeyReg(key) {
     return new RegExp(`(// \\+ ${key})([\\w\\W]+)(// \\- ${key})`);
@@ -125,7 +248,7 @@ const fn = {
 
 
 const events = {
-  help: function() {
+  async help() {
     util.help({
       usage: 'yyl init',
       options: {
@@ -141,207 +264,155 @@ const events = {
     });
     return Promise.resolve(null);
   },
-  init: function(op) {
-    if (op.silent) {
+  async init(iEnv) {
+    if (iEnv.silent) {
       wServer.setLogLevel(0, true);
     }
-    const runner = (done, reject) => {
-      // 信息收集
-      new util.Promise(((next) => {
-        const data = {};
-        const prompt = inquirer.createPromptModule();
-        const questions = [];
 
-        if (op.name !== '') {
-          data.name = op.name;
-        } else {
-          questions.push({
-            name: 'name',
-            message: 'name',
-            type: 'input',
-            default: util.vars.PROJECT_PATH.split('/').pop()
-          });
-        }
+    let data = {};
+    data = await fn.makeAwait((next) => {
+      const prompt = inquirer.createPromptModule();
+      const questions = [];
 
-        if (op.platform && /^pc|mobile$/.test(op.platform)) {
-          data.platform = op.platform;
-        } else {
-          questions.push({
-            name: 'platform',
-            message: 'platform',
-            type: 'list',
-            choices: PLATFORMS,
-            default: PLATFORMS[0]
-          });
-        }
+      if (iEnv.name) {
+        data.name = iEnv.name;
+      } else {
+        questions.push({
+          name: 'name',
+          message: 'name',
+          type: 'input',
+          default: util.vars.PROJECT_PATH.split('/').pop()
+        });
+      }
 
-        if (questions.length) {
-          data.confirm = true;
-          prompt(questions, (d) => {
-            next(util.extend(data, d));
-          });
-        } else {
-          next(data);
-        }
-      })).then((data, next) => {
-        data.commonPath = util.joinFormat(util.vars.PROJECT_PATH, '../commons').trim();
 
+      if (iEnv.platform && PLATFORMS.indexOf(iEnv.platform) !== -1) {
+        data.platform = iEnv.platform;
+      } else {
+        questions.push({
+          name: 'platform',
+          message: 'platform',
+          type: 'list',
+          choices: PLATFORMS,
+          default: PLATFORMS[0]
+        });
+      }
+
+      if (questions.length) {
+        data.confirm = true;
+        prompt(questions).then((d) => {
+          next(util.extend(data, d));
+        });
+      } else {
         next(data);
-      }).then((data, next) => { // workflow
-        const prompt = inquirer.createPromptModule();
-        const questions = [];
-        const workflows = SEED.workflows;
-        const iQuestion = {
-          name: 'workflow',
-          type: 'list',
-          message: 'workflow',
-          choices: workflows
-        };
+      }
+    });
 
-        if (data.platform == 'pc') {
-          iQuestion.default = PREFER.PC;
-        } else {
-          iQuestion.default = PREFER.MOBILE;
-        }
+    data.commonPath = util.joinFormat(util.vars.PROJECT_PATH, '../commons').trim();
+    data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
+    let arr = [];
+    let confirm = false;
 
-        if (op.workflow && ~workflows.indexOf(op.workflow)) {
-          data.workflow = op.workflow;
-        } else {
-          questions.push(iQuestion);
-        }
+    if (data.platform === 'both') {
+      arr = ['pc', 'mobile'];
+    } else {
+      arr = [data.platform];
+    }
+    for (var i = 0, len = arr.length; i < len; i++) {
+      let platform = arr[i];
+      data[platform] = await fn.initPlatform(platform, iEnv);
+      if (data[platform].confirm) {
+        confirm = true;
+      }
+    }
 
-        if (questions.length) {
-          data.confirm = true;
-          prompt(questions, (d) => {
-            next(util.extend(data, d));
-          });
-        } else {
-          next(data);
-        }
-      }).then((data, next) => { // workflow resetFiles init
-        const prompt = inquirer.createPromptModule();
-        const questions = [];
+    data = await fn.initCommitType(data, iEnv);
 
-        if (data.workflow) {
-          const expType = SEED.find(data.workflow).examples;
-          if (op.init && ~expType.indexOf(op.init)) {
-            data.init = op.init;
-          } else if (expType.length == 1) {
-            data.init = expType[0];
-          } else {
-            questions.push({
-              name: 'init',
-              message: 'workflow init type',
-              type: 'list',
-              choices: expType,
-              default: 'single-project'
-            });
-          }
+    if (!iEnv.silent && confirm) {
+      let msgArr = [];
+      if (data.platform === 'both') {
+        msgArr = [
+          '',
+          ' project info',
+          ' ----------------------------------------',
+          ` name             : ${data.name}`,
+          ` pc workflow      : ${data.pc.workflow}`,
+          ` pc init          : ${data.pc.init}`,
+          ` mobile workflow  : ${data.mobile.workflow}`,
+          ` mobile init      : ${data.mobile.init}`,
+          ` commit type      : ${data.commitType}`,
+          ` yyl version      : ${data.version}`,
+          ' ----------------------------------------',
+          ''
+        ];
+      } else {
+        msgArr = [
+          '',
+          ' project info',
+          ' ----------------------------------------',
+          ` name             : ${data.name}`,
+          ` platform         : ${data.platform}`,
+          ` workflow         : ${data[data.platform].workflow}`,
+          ` init             : ${data[data.platform].init}`,
+          ` commit type      : ${data.commitType}`,
+          ` yyl version      : ${data.version}`,
+          ' ----------------------------------------',
+          ''
+        ];
+      }
+      console.log(msgArr.join('\n'));
+    }
 
-          if (questions.length) {
-            data.confirm = true;
-            prompt(questions, (d) => {
-              next(util.extend(data, d));
-            });
-          } else {
+    data = await fn.makeAwait((next) => {
+      const prompt = inquirer.createPromptModule();
+      if (data.confirm) {
+        prompt([{
+          name: 'ok',
+          message: 'ok?',
+          type: 'confirm'
+        }], (d) => {
+          if (d.ok) {
             next(data);
+          } else {
+            next(null);
           }
-        } else {
-          next(data);
-        }
-      }).then((data, next) => { // commit type
-        const prompt = inquirer.createPromptModule();
-        const questions = [];
-        const iQuestion = {
-          name: 'commitType',
-          type: 'list',
-          message: 'commmit type',
-          choices: COMMIT_TYPES,
-          default: COMMIT_TYPES[0]
-        };
+        });
+      } else {
+        next(data);
+      }
+    });
 
-        if (op.commitType && ~COMMIT_TYPES.indexOf(op.commitType)) {
-          data.commitType = op.commitType;
-        } else {
-          questions.push(iQuestion);
-        }
+    if (!data) {
+      return;
+    }
 
-        if (questions.length) {
-          data.confirm = true;
-          prompt(questions, (d) => {
-            next(util.extend(data, d));
-          });
-        } else {
-          next(data);
-        }
-      }).then((data, next) => {
-        data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
+    // TODO init 初始化
 
-        if (!op.silent && data.confirm) {
-          // 基本信息
-          console.log([
-            '',
-            ' project info',
-            ' ----------------------------------------',
-            ` name             : ${data.name}`,
-            ` platform         : ${data.platform}`,
-            ` workflow         : ${data.workflow}`,
-            ` init             : ${data.init}`,
-            ` commit type      : ${data.commitType}`,
-            ` yyl version      : ${data.version}`,
-            ' ----------------------------------------',
-            ` project ${chalk.yellow(data.name)} path initial like this:`,
-            ''
-          ].join('\n'));
-        }
+    await fn.initProject(data);
 
-        const prompt = inquirer.createPromptModule();
-
-        if (data.confirm) {
-          prompt([{
-            name: 'ok',
-            message: 'ok?',
-            type: 'confirm'
-          }], (d) => {
-            if (d.ok) {
-              next(data);
-            }
-          });
-        } else {
-          next(data);
-        }
-      }).then((data) => {
-        const errHandle = (er) => {
-          log('msg', 'error', ['init error', er]);
-          log('finished');
-          reject(er);
-        };
-
-
-        SEED.find(data.workflow).init(data.init, util.vars.PROJECT_PATH)
-          .on('start', (type) => {
-            log('clear');
-            log('start', type);
-          })
-          .on('clear', () => {
-            log('clear');
-          })
-          .on('msg', (type, argv) => {
-            log('msg', type, argv);
-          })
-          .on('finished', (type) => {
-            fn.initProject(data).then(() => {
-              log('msg', 'success', ['init finished']);
-              log('finish', type);
-              if (!op.silent) {
-                util.openPath(util.vars.PROJECT_PATH);
-              }
-              done();
-            }).catch(errHandle);
-          });
-      }).start();
-    };
-    return new Promise(runner);
+    /*
+    SEED.find(data.workflow).init(data.init, util.vars.PROJECT_PATH)
+      .on('start', (type) => {
+        log('clear');
+        log('start', type);
+      })
+      .on('clear', () => {
+        log('clear');
+      })
+      .on('msg', (type, argv) => {
+        log('msg', type, argv);
+      })
+      .on('finished', (type) => {
+        fn.initProject(data).then(() => {
+          log('msg', 'success', ['init finished']);
+          log('finish', type);
+          if (!op.silent) {
+            util.openPath(util.vars.PROJECT_PATH);
+          }
+          done();
+        }).catch(errHandle);
+      });
+    */
   }
 };
 
