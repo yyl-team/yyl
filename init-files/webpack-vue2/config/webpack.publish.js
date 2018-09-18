@@ -99,7 +99,7 @@ const webpackConfig = {
   plugins: [
     // 环境变量 (全局替换 含有这 变量的 js)
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('publish')
+      'process.env.NODE_ENV': JSON.stringify('production')
     }),
     new uglifyjsWebpackPlugin(),
     // 样式分离插件
