@@ -129,7 +129,9 @@ const config = {
 
     // webpackconfig 中的 alias
     'jquery': path.join('./src/js/lib/jquery/jquery-1.11.1.js'),
-    'babel-polyfill': path.join('./src/js/lib/babel-polyfill/babel-polyfill.js')
+    'babel-polyfill': path.join('./src/js/lib/babel-polyfill/babel-polyfill.js'),
+    '@': path.resolve(__dirname, 'src'),
+    '~@': path.resolve(__dirname, 'src/components')
     // + yyl make
     // - yyl make
   },
