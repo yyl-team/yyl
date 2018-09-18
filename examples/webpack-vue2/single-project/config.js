@@ -128,7 +128,9 @@ const config = {
     'tplDest': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.tplPath),
 
     // webpackconfig 中的 alias
-    'flexlayout': path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js')
+    'flexlayout': path.join('./src/js/lib/flexLayout/flexLayout-1.4.2.js'),
+    '@': path.resolve(__dirname, 'src'),
+    '~@': path.resolve(__dirname, 'src/components')
     // + yyl make
     // - yyl make
   },
