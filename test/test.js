@@ -806,7 +806,9 @@ if (TEST_CTRL.EXAMPLE) {
 
 if (TEST_CTRL.MAKE) {
   describe('yyl make test', () => {
-    const workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
+    let workflows = util.readdirSync(path.join(__dirname, '../init-files'), /^\./);
+
+    workflows = ['gulp-requirejs'];
 
     workflows.forEach((workflow) => {
       it(`yyl make for ${workflow}`, function(done) {
