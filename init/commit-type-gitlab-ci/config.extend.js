@@ -3,13 +3,14 @@ const config = {};
 
 // + setting
 const PROJECT_NAME = __data('name');
+const PLATFORM = __data('platform');
 const setting = {
   localserver: { // 本地服务器配置
     root: './dist', // 服务器输出地址
     port: 5000 // 服务器 port
   },
   dest: {
-    basePath: `/project/${PROJECT_NAME}/pc`,
+    basePath: `/project/${PROJECT_NAME}/${PLATFORM}`,
     jsPath: 'js',
     jslibPath: 'js/lib',
     cssPath: 'css',

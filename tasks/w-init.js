@@ -5,7 +5,6 @@ const inquirer = require('inquirer');
 
 const SEED = require('./w-seed.js');
 
-const chalk = require('chalk');
 const extFs = require('yyl-fs');
 const util = require('./w-util.js');
 const wServer = require('./w-server');
@@ -30,9 +29,9 @@ const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
   }).sort((a, b) => {
     const name = 'gitlab-ci';
     if (a === name) {
-      return 1;
-    } else if (b === name) {
       return -1;
+    } else if (b === name) {
+      return 1;
     } else {
       return a.localeCompare(b);
     }
@@ -47,121 +46,172 @@ const fn = {
 
   // 初始化 最后一步, 公用部分拷贝
   async initProject(data) {
-    if (data.platform === 'both') {
-      // TODO
-    } else {
-      await fn.makeAwait((next) => {
-        const param = data[data.platform];
-        SEED.find(param.workflow).init(param.init, util.vars.PROJECT_PATH)
-          .on('start', (type) => {
-            log('clear');
-            log('start', type);
-          })
-          .on('clear', () => {
-            log('clear');
-          })
-          .on('msg', (type, argv) => {
-            log('msg', type, argv);
-          })
+    const pjPath = util.vars.PROJECT_PATH;
+    const fragPath = path.join(pjPath, '__frag');
+
+    const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
+    const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
+    const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, `commit-type-${data.commitType}`);
+    const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
+    const INIT_BOTH_PATH = path.join(util.vars.INIT_PATH, 'platform-both');
+
+    const initSeed = (param) => {
+      return new Promise((next) => {
+        SEED.find(param.workflow).init(param.init, pjPath)
           .on('finished', () => {
             next();
           });
       });
+    };
+
+    // 调整 文件结构 (用于 多个项目)
+    const resetFilePaths = async (platform, sameWorkflow) => {
+      const srcPath = path.join(pjPath, 'src');
+      const configPath = path.join(pjPath, 'config.js');
+      const otherFiles = await extFs.readFilePaths(pjPath, (iPath) => {
+        if (
+          /^\./.test(path.relative(srcPath, iPath)) &&
+          configPath !== iPath &&
+          !/__frag/.test(iPath)
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+
+      // copy src => __frag/src/${platform}
+      await extFs.copyFiles(srcPath, path.join(fragPath, `src/${platform}`));
+
+      // copy config.js => __frag/config.${platform}.js
+      await extFs.copyFiles(configPath, path.join(fragPath, `config.${platform}.js`));
+
+      // copy eslintrc, editorconfig => __frag/xx or __frag/src/${platform}/xx
+      const otherParam = (() => {
+        const r = {};
+        otherFiles.forEach((iPath) => {
+          if (sameWorkflow) {
+            r[iPath] = path.join(fragPath, path.relative(pjPath, iPath));
+          } else {
+            r[iPath] = path.join(fragPath, `src/${platform}`, path.relative(pjPath, iPath));
+          }
+        });
+        return r;
+      })();
+      await extFs.copyFiles(otherParam);
+
+      // remove src
+      await extFs.removeFiles(srcPath, true);
+
+      // remove config
+      await extFs.removeFiles(configPath, true);
+
+      // remove eslint, editorconfig
+      await extFs.removeFiles(otherFiles, true);
+    };
+
+    const buildDataMap = (platform, dataExtend) => {
+      let d = util.extend(true, {}, data);
+      delete d.mobile;
+      delete d.pc;
+      d = Object.assign(d, data[platform]);
+
+      if (dataExtend) {
+        d = Object.assign(d, dataExtend);
+      }
+
+      return Object.assign(
+        fn.pickUpConfig(INIT_COMMON_CONFIG_PATH, d),
+        fn.pickUpConfig(INIT_CUSTOM_CONFIG_PATH, d)
+      );
+    };
+
+    if (data.platform === 'both') {
+      const pcParam = data.pc;
+      const pcDataMap = buildDataMap('pc', { srcRoot: './src/pc' });
+      const mbParam = data.mobile;
+      const mbDataMap = buildDataMap('mobile', { srcRoot: './src/mobile' });
+      const sameWorkflow = pcParam.workflow === mbParam.workflow;
+
+      // pc 项目初始化
+      await initSeed(pcParam);
+      // 将生成出来的 src 文件夹里面的内容放到 src/pc 里面
+      await resetFilePaths('pc', sameWorkflow);
+
+      // mobile 项目初始化
+      await initSeed(mbParam);
+      // 将生成出来的 src 文件夹里面的内容放到 src/mobile 里面
+      await resetFilePaths('mobile', sameWorkflow);
+
+      // 将 __frag 移动到 根目录
+      await extFs.copyFiles(fragPath, pjPath);
+      // 删除 __frag 文件
+      await extFs.removeFiles(fragPath, true);
+
+      // 初始化 config.pc.js
+      const pcConfigPath = path.join(pjPath, 'config.pc.js');
+      await fn.rewriteConfig(pcConfigPath, pcDataMap);
+
+      // 初始化 config.mobile.js
+      const mbConfigPath = path.join(pjPath, 'config.mobile.js');
+      await fn.rewriteConfig(mbConfigPath, mbDataMap);
+    } else {
+      const param = data[data.platform];
+      const dataMap = buildDataMap(data.platform, { srcRoot: './src' });
+      await initSeed(param);
+
+      // 初始化 config.js
+      const configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
+      await fn.rewriteConfig(configPath, dataMap);
     }
-    // TODO
 
-    // return console.log(data)
-    // // TODO need change
-    // const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
-    // const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
-    // const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, data.commitType);
-    // const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
-    // const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
+    // svn or ci files init
+    await extFs.copyFiles(INIT_CUSTOM_PATH, pjPath, (iPath) => {
+      return util.path.join(iPath) != util.path.join(INIT_CUSTOM_CONFIG_PATH);
+    });
 
-    // const runner = (next, reject) => {
-    //   const task01 = extFs.copyFiles(INIT_COMMON_PATH, util.vars.PROJECT_PATH, (iPath) => {
-    //     return INIT_COMMON_CONFIG_PATH != iPath;
-    //   });
-    //   const task02 = extFs.copyFiles(INIT_CUSTOM_PATH, util.vars.PROJECT_PATH, (iPath) => {
-    //     return INIT_CUSTOM_CONFIG_PATH !== iPath;
-    //   });
+    // common files init
+    await extFs.copyFiles(INIT_COMMON_PATH, pjPath, (iPath) => {
+      return util.path.join(iPath) != util.path.join(INIT_COMMON_CONFIG_PATH);
+    });
 
-    //   Promise.all([task01, task02]).then(() => {
-    //     const dataMap = Object.assign(
-    //       fn.pickUpConfig(INIT_COMMON_CONFIG_PATH, data),
-    //       fn.pickUpConfig(INIT_CUSTOM_CONFIG_PATH, data)
-    //     );
+    // both files init
+    if (data.platform === 'both') {
+      await extFs.copyFiles(INIT_BOTH_PATH, pjPath);
+    }
 
-    //     fn.rewriteConfig(PROJECT_CONFIG_PATH, dataMap).then(() => {
-    //       next();
-    //     }).catch((er) => {
-    //       reject(er);
-    //     });
-    //   }).catch((er) => {
-    //     reject(er);
-    //   });
-    // };
-
-    // return new Promise(runner);
+    // logs
+    const builds = await extFs.readFilePaths(pjPath);
+    builds.forEach((iPath) => {
+      log('msg', 'create', iPath);
+    });
   },
   async initPlatform(platform, iEnv) {
     let data = { platform };
-    data = await fn.initWorkflow(data, iEnv);
-    data = await fn.initExample(data, iEnv);
-    return data;
-  },
-  async initWorkflow(data, iEnv) {
-    const prompt = inquirer.createPromptModule();
-    const questions = [];
-    const workflows = SEED.workflows;
+    data = await (async () => {
+      const prompt = inquirer.createPromptModule();
+      const questions = [];
+      const workflows = SEED.workflows;
 
-    const iQuestion = {
-      name: 'workflow',
-      type: 'list',
-      message: `${data.platform} workflow`,
-      choices: workflows
-    };
+      const iQuestion = {
+        name: 'workflow',
+        type: 'list',
+        message: `${data.platform} workflow`,
+        choices: workflows
+      };
 
-    if (data.platform === 'pc') {
-      iQuestion.default = PREFER.PC;
-    } else {
-      iQuestion.default = PREFER.MOBILE;
-    }
-
-    const dWorkflow = iEnv[`${data.platform}Workflow`];
-
-    if (dWorkflow && ~workflows.indexOf(dWorkflow)) {
-      data.workflow = data.workflow;
-    } else {
-      questions.push(iQuestion);
-    }
-
-    if (questions.length) {
-      data.confirm = true;
-      const d = await prompt(questions);
-      util.extend(data, d);
-    }
-    return data;
-  },
-  async initExample(data, iEnv) {
-    const prompt = inquirer.createPromptModule();
-    const questions = [];
-
-    if (data.workflow) {
-      const expType = SEED.find(data.workflow).examples;
-      const dInit = iEnv[`${data.platform}Init`];
-      if (dInit && ~expType.indexOf(dInit)) {
-        data.init = dInit;
-      } else if (expType.length == 1) {
-        data.init = expType[0];
+      if (data.platform === 'pc') {
+        iQuestion.default = PREFER.PC;
       } else {
-        questions.push({
-          name: 'init',
-          message: `${data.platform} workflow init type`,
-          type: 'list',
-          choices: expType,
-          default: 'single-project'
-        });
+        iQuestion.default = PREFER.MOBILE;
+      }
+
+      const dWorkflow = iEnv[`${data.platform}Workflow`];
+
+      if (dWorkflow && ~workflows.indexOf(dWorkflow)) {
+        data.workflow = data.workflow;
+      } else {
+        questions.push(iQuestion);
       }
 
       if (questions.length) {
@@ -169,31 +219,37 @@ const fn = {
         const d = await prompt(questions);
         util.extend(data, d);
       }
-    }
-    return data;
-  },
-  async initCommitType(data, iEnv) {
-    const prompt = inquirer.createPromptModule();
-    const questions = [];
-    const iQuestion = {
-      name: 'commitType',
-      type: 'list',
-      message: 'commmit type',
-      choices: COMMIT_TYPES,
-      default: COMMIT_TYPES[0]
-    };
+      return data;
+    })();
+    data = await (async () => {
+      const prompt = inquirer.createPromptModule();
+      const questions = [];
 
-    if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
-      data.commitType = iEnv.commitType;
-    } else {
-      questions.push(iQuestion);
-    }
+      if (data.workflow) {
+        const expType = SEED.find(data.workflow).examples;
+        const dInit = iEnv[`${data.platform}Init`];
+        if (dInit && ~expType.indexOf(dInit)) {
+          data.init = dInit;
+        } else if (expType.length == 1) {
+          data.init = expType[0];
+        } else {
+          questions.push({
+            name: 'init',
+            message: `${data.platform} workflow init type`,
+            type: 'list',
+            choices: expType,
+            default: 'single-project'
+          });
+        }
 
-    if (questions.length) {
-      data.confirm = true;
-      const d = await prompt(questions);
-      util.extend(data, d);
-    }
+        if (questions.length) {
+          data.confirm = true;
+          const d = await prompt(questions);
+          util.extend(data, d);
+        }
+      }
+      return data;
+    })();
     return data;
   },
   buildKeyReg(key) {
@@ -206,7 +262,7 @@ const fn = {
     }
 
     const dataMap = {};
-    const keys = ['base', 'setting', 'commit', 'extends'];
+    const keys = ['base', 'setting', 'vars', 'commit', 'extends'];
     const content = fs.readFileSync(iPath).toString();
 
     keys.forEach((key) => {
@@ -270,7 +326,9 @@ const events = {
     }
 
     let data = {};
-    data = await fn.makeAwait((next) => {
+
+    // init name, platform
+    data = await (async () => {
       const prompt = inquirer.createPromptModule();
       const questions = [];
 
@@ -300,16 +358,17 @@ const events = {
 
       if (questions.length) {
         data.confirm = true;
-        prompt(questions).then((d) => {
-          next(util.extend(data, d));
-        });
-      } else {
-        next(data);
+        const d = await prompt(questions);
+        util.extend(data, d);
       }
-    });
+      return data;
+    })();
 
+    // init commonPath, version
     data.commonPath = util.joinFormat(util.vars.PROJECT_PATH, '../commons').trim();
     data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
+
+    // init pc.init, pc.workflow, mobile.init, mobile.workflow
     let arr = [];
     let confirm = false;
 
@@ -326,7 +385,31 @@ const events = {
       }
     }
 
-    data = await fn.initCommitType(data, iEnv);
+    // init commitType
+    data = await(async () => {
+      const prompt = inquirer.createPromptModule();
+      const questions = [];
+      const iQuestion = {
+        name: 'commitType',
+        type: 'list',
+        message: 'commmit type',
+        choices: COMMIT_TYPES,
+        default: COMMIT_TYPES[0]
+      };
+
+      if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
+        data.commitType = iEnv.commitType;
+      } else {
+        questions.push(iQuestion);
+      }
+
+      if (questions.length) {
+        data.confirm = true;
+        const d = await prompt(questions);
+        util.extend(data, d);
+      }
+      return data;
+    })();
 
     if (!iEnv.silent && confirm) {
       let msgArr = [];
@@ -363,56 +446,36 @@ const events = {
       console.log(msgArr.join('\n'));
     }
 
-    data = await fn.makeAwait((next) => {
+    data = await (async (iData) => {
       const prompt = inquirer.createPromptModule();
       if (data.confirm) {
-        prompt([{
+        const d = await prompt([{
           name: 'ok',
           message: 'ok?',
           type: 'confirm'
-        }], (d) => {
-          if (d.ok) {
-            next(data);
-          } else {
-            next(null);
-          }
-        });
+        }]);
+        if (d.ok) {
+          return iData;
+        } else {
+          return null;
+        }
       } else {
-        next(data);
+        return iData;
       }
-    });
+    })(data);
 
     if (!data) {
       return;
     }
 
-    // TODO init 初始化
-
+    log('clear');
+    log('start', 'init');
     await fn.initProject(data);
+    log('finish', 'init finished');
 
-    /*
-    SEED.find(data.workflow).init(data.init, util.vars.PROJECT_PATH)
-      .on('start', (type) => {
-        log('clear');
-        log('start', type);
-      })
-      .on('clear', () => {
-        log('clear');
-      })
-      .on('msg', (type, argv) => {
-        log('msg', type, argv);
-      })
-      .on('finished', (type) => {
-        fn.initProject(data).then(() => {
-          log('msg', 'success', ['init finished']);
-          log('finish', type);
-          if (!op.silent) {
-            util.openPath(util.vars.PROJECT_PATH);
-          }
-          done();
-        }).catch(errHandle);
-      });
-    */
+    if (!iEnv.silent) {
+      util.openPath(util.vars.PROJECT_PATH);
+    }
   }
 };
 
