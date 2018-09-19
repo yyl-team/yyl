@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const domain = require('domain');
 const myArgv = process.argv.splice(2);
-const path = require('path');
 const d = domain.create();
 
 d.on('error', (err) => {
@@ -13,7 +12,8 @@ process.on('uncaughtException', (err) => {
 });
 
 d.run(() => {
-  require(path.join(__dirname, '../tasks/w-cmd')).apply(global, myArgv);
+  const wCmd = require('../tasks/w-cmd.js');
+  wCmd(...myArgv).catch((er) => {});
 });
 
 
