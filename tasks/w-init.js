@@ -226,7 +226,7 @@ const fn = {
       const questions = [];
 
       if (data.workflow) {
-        const expType = SEED.find(data.workflow).examples;
+        const expType = SEED.getExamples(data.workflow);
         const dInit = iEnv[`${data.platform}Init`];
         if (dInit && ~expType.indexOf(dInit)) {
           data.init = dInit;

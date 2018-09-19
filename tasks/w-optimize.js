@@ -961,8 +961,16 @@ wOpzer.parseConfig = (configPath, iEnv) => {
     util.extend(true, config, mineConfig);
 
     // 单文件多配置情况处理
-    if (iEnv.name && !config.workflow) {
-      if (!config[iEnv.name]) {
+    if (!config.workflow) {
+      let usefulKeys = [];
+      Object.keys(config).forEach((key) => {
+        if (config[key] && config[key].workflow) {
+          usefulKeys.push(key);
+        }
+      });
+      if (!iEnv.name) {
+        return reject(`missing --name options: --name ${usefulKeys.join('|')}`);
+      } else if (iEnv.name && usefulKeys.indexOf(iEnv.name) === -1) {
         return reject(`--name ${iEnv.name} is not the right command, usage: ${Object.keys(config).join('|')}`);
       } else {
         config = config[iEnv.name];
