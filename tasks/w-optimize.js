@@ -969,7 +969,7 @@ wOpzer.parseConfig = (configPath, iEnv) => {
         }
       });
       if (!iEnv.name) {
-        return reject(`missing --name options: --name ${usefulKeys.join('|')}`);
+        return reject(`missing --name options: ${usefulKeys.join('|')}`);
       } else if (iEnv.name && usefulKeys.indexOf(iEnv.name) === -1) {
         return reject(`--name ${iEnv.name} is not the right command, usage: ${Object.keys(config).join('|')}`);
       } else {
