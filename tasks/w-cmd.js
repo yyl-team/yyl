@@ -55,6 +55,7 @@ module.exports = async function(ctx) {
   const iEnv = util.envPrase(arguments);
 
   const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
+
   const opzerHandles = SEED.getHandles(PROJECT_CONFIG_PATH) || [];
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {

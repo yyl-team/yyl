@@ -63,15 +63,15 @@ const fn = {
 };
 
 const TEST_CTRL = {
-  // SERVER: true,
-  // VERSION: true,
-  // HELP: true,
-  // PATH: true,
-  // INFO: true,
-  // MOCK: true,
+  SERVER: true,
+  VERSION: true,
+  HELP: true,
+  PATH: true,
+  INFO: true,
+  MOCK: true,
   INIT: true,
-  // ALL: true,
-  // COMMIT: true
+  ALL: true,
+  COMMIT: true
 };
 
 if (TEST_CTRL.SERVER) {
@@ -564,6 +564,28 @@ if (TEST_CTRL.INIT) {
       });
 
       // TODO 跑一下看是否有东西生成
+      const dest = {
+        async clear() {
+          await extFs.removeFiles(path.join(pjPath, 'dist'));
+        },
+        async check() {
+          const destFiles = await extFs.readFilePaths(path.join(pjPath, 'dist'));
+          expect(destFiles.length).not.equal(0);
+        }
+      };
+      if (iEnv.platform === 'both') {
+        await dest.clear();
+        await yyl.run('all --name pc --silent', pjPath);
+        await dest.check();
+
+        await dest.clear();
+        await yyl.run('all --name mobile --silent', pjPath);
+        await dest.check();
+      } else {
+        await dest.clear();
+        await yyl.run('all --silent', pjPath);
+        await dest.check();
+      }
     }
 
 

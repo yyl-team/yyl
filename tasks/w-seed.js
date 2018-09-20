@@ -112,6 +112,11 @@ const SEED = {
             configs.push(config[key]);
           }
         });
+      } else {
+        config = she.initConfig(ctx);
+        if (config && config.workflow) {
+          configs.push(config);
+        }
       }
     } else {
       config = she.initConfig(ctx);
