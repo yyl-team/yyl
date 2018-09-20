@@ -125,6 +125,11 @@ util.infoBar.init({
         name: 'CMD>',
         color: 'white',
         bgColor: 'bgBlack'
+      },
+      'yyl': {
+        name: 'YYL>',
+        color: 'white',
+        bgColor: 'bgBlack'
       }
       // - w-update
     }
@@ -182,6 +187,13 @@ const log4Detail = (module, type, argv) => {
       util.msg.cmd.apply(util.msg, argv);
       break;
 
+    case 'yyl':
+      if (!argv.length) {
+        argv = [type];
+      }
+      util.msg.yyl.apply(util.msg, argv);
+      break;
+
 
     case 'msg':
       if (!util.msg[type]) {
@@ -236,7 +248,7 @@ const log4Base = (module, type, argv) => {
     argv = [type].concat(argv);
   }
 
-  if (!iStatus && module != 'clear' && module != 'cmd') {
+  if (!iStatus && module != 'clear' && module != 'cmd' && module != 'yyl') {
     return log4Detail(module, type, argv);
   }
 
@@ -301,6 +313,17 @@ const log4Base = (module, type, argv) => {
         argv = [type];
       }
       util.infoBar.print('cmd', {
+        barLeft: chalk.cyan(argv.join(' ')),
+        foot: util.getTime()
+      }).end();
+      break;
+
+    case 'yyl':
+      cache.isEnd = true;
+      if (!argv.length) {
+        argv = [type];
+      }
+      util.infoBar.print('yyl', {
         barLeft: chalk.cyan(argv.join(' ')),
         foot: util.getTime()
       }).end();

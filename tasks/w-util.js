@@ -74,9 +74,7 @@ const rUtil = util.extend(true, util, {
   livereload: function() {
     var reloadPath = `http://${util.vars.LOCAL_SERVER}:35729/changed?files=1`;
     util.get(reloadPath);
-  },
-
-
+  }
 });
 
 rUtil.msg.init({
@@ -89,7 +87,8 @@ rUtil.msg.init({
     proxyBack: {name: 'Proxy <=', color: 'cyan'},
     supercall: {name: 'Supercal', color: 'magenta'},
     optimize: {name: 'Optimize', color: 'green'},
-    cmd: {name: 'CMD', color: 'gray'}
+    cmd: {name: 'CMD', color: 'gray'},
+    yyl: {name: 'YYL', color: 'gray'}
   }
 });
 

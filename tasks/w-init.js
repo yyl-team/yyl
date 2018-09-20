@@ -44,6 +44,46 @@ const fn = {
     return new Promise(fn);
   },
 
+  // readme 格式化
+  async formatREADME(readmePath, extendPath, data) {
+    const buildReg = (key) => {
+      return new RegExp(`(\\[//\\]: # \\(\\+ ${key}\\))([\\w\\W]+)(\\[//\\]: # \\(- ${key}\\))`);
+    };
+    const keys = ['title','bussiness', 'environment', 'workflow'];
+    const pickDataMap = (cnt, data) => {
+      let rCnt = `${cnt}`.replace(CONFIG_SUGAR_DATA_REG, (str, $1) => {
+        return data[$1] || '';
+      });
+
+      let r = {};
+
+      keys.forEach((key) => {
+        rCnt.replace(buildReg(key), (str, $1, $2) => {
+          r[key] = $2;
+        });
+      });
+      return r;
+    };
+
+    const readmeCnt = fs.readFileSync(readmePath).toString();
+    const extendCnt = fs.readFileSync(extendPath).toString();
+
+    const readmeMap = pickDataMap(readmeCnt, data);
+    const extendMap = pickDataMap(extendCnt, data);
+
+    const rMap = util.extend(readmeMap, extendMap);
+
+    const r = [];
+
+    Object.keys(rMap).forEach((key) => {
+      r.push(rMap[key]);
+    });
+
+    return r.join('\n')
+      .replace(/[\n]{2,}/g, '\n\n')
+      .replace(/^\n/, '');
+  },
+
   // 初始化 最后一步, 公用部分拷贝
   async initProject(data) {
     const pjPath = util.vars.PROJECT_PATH;
@@ -51,8 +91,12 @@ const fn = {
 
     const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
     const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
+    const INIT_COMMON_README_PATH = path.join(INIT_COMMON_PATH, 'README.md');
+
     const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, `commit-type-${data.commitType}`);
     const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
+    const INIT_CUSTOM_README_PATH = path.join(INIT_CUSTOM_PATH, 'README.extend.md');
+
     const INIT_BOTH_PATH = path.join(util.vars.INIT_PATH, 'platform-both');
 
     const initSeed = (param) => {
@@ -167,13 +211,23 @@ const fn = {
 
     // svn or ci files init
     await extFs.copyFiles(INIT_CUSTOM_PATH, pjPath, (iPath) => {
-      return util.path.join(iPath) != util.path.join(INIT_CUSTOM_CONFIG_PATH);
+      const f = (p) => util.path.join(p);
+      // 不拷贝 README.extend.md, config.extend.js
+      return f(iPath) != f(INIT_CUSTOM_CONFIG_PATH) && f(iPath) != f(INIT_CUSTOM_README_PATH);
     });
 
     // common files init
     await extFs.copyFiles(INIT_COMMON_PATH, pjPath, (iPath) => {
-      return util.path.join(iPath) != util.path.join(INIT_COMMON_CONFIG_PATH);
+      const f = (p) => util.path.join(p);
+      // 不拷贝 config.extend.js
+      return f(iPath) != f(INIT_COMMON_CONFIG_PATH);
     });
+
+
+    const readmeCnt = await fn.formatREADME(INIT_COMMON_README_PATH, INIT_CUSTOM_README_PATH, data);
+    const readmePath = path.join(pjPath, 'README.md');
+    fs.writeFileSync(readmePath, readmeCnt);
+
 
     // both files init
     if (data.platform === 'both') {

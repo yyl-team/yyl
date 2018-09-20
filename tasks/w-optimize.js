@@ -11,6 +11,8 @@ const util = require('./w-util.js');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
 
+const pkg = require('../package.json');
+
 const SUGAR_REG = /(\{\$)(\w+)(\})/g;
 
 const fn = {
@@ -36,6 +38,7 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
     if (!noclear) {
       log('clear');
     }
+    log('yyl', `${chalk.yellow(pkg.version)}`);
     log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
     log('start', infobarName);
     new util.Promise((next) => { // parseConfig
