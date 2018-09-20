@@ -260,7 +260,7 @@ const fn = {
         iQuestion.default = PREFER.MOBILE;
       }
 
-      const dWorkflow = iEnv[`${data.platform}Workflow`];
+      const dWorkflow = iEnv[`${data.platform}Workflow`] || iEnv.workflow;
 
       if (dWorkflow && ~workflows.indexOf(dWorkflow)) {
         data.workflow = data.workflow;
@@ -281,7 +281,7 @@ const fn = {
 
       if (data.workflow) {
         const expType = SEED.getExamples(data.workflow);
-        const dInit = iEnv[`${data.platform}Init`];
+        const dInit = iEnv[`${data.platform}Init`] || iEnv.init;
         if (dInit && ~expType.indexOf(dInit)) {
           data.init = dInit;
         } else if (expType.length == 1) {

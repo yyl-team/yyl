@@ -392,9 +392,30 @@ if (TEST_CTRL.MOCK) {
 
 if (TEST_CTRL.INIT) {
   describe('yyl init test', () => {
+    // single cmd
     const cmds = [];
     const buildCmd = (op) => {
-      return `init --silent --name ${op.name} --workflow ${op.workflow} --platform ${op.platform} --init ${op.example} --commitType ${op.commitType}`;
+      if (op.platform === 'both') {
+        return [
+          'init --silent',
+          `--name ${op.name}`,
+          `--platform ${op.platform}`,
+          `--pcWorkflow ${op.pc.workflow}`,
+          `--pcInit ${op.pc.init}`,
+          `--mobileWorkflow ${op.mobile.workflow}`,
+          `--mobileInit ${op.mobile.init}`,
+          `--commitType ${op.commitType}`
+        ].join(' ');
+      } else {
+        return [
+          'init --silent',
+          `--name ${op.name}`,
+          `--workflow ${op.workflow}`,
+          `--platform ${op.platform}`,
+          `--init ${op.example}`,
+          `--commitType ${op.commitType}`
+        ].join(' ');
+      }
     };
 
     SEED.workflows.forEach((workflow) => {
@@ -403,7 +424,6 @@ if (TEST_CTRL.INIT) {
         seed.examples.forEach((example) => {
           wInit.ENV.COMMIT_TYPES.forEach((commitType) => {
             cmds.push(buildCmd({
-              name: cmds.length,
               workflow,
               platform,
               example,
@@ -414,46 +434,134 @@ if (TEST_CTRL.INIT) {
       });
     });
 
+    // multi cmd
+    SEED.workflows.forEach((pcWorkflow) => {
+      const pcSeed = SEED.find(pcWorkflow);
+      pcSeed.examples.forEach((pcExample) => {
+        SEED.workflows.forEach((mobileWorkflow) => {
+          const mobileSeed = SEED.find(mobileWorkflow);
+          mobileSeed.examples.forEach((mobileExample) => {
+            wInit.ENV.COMMIT_TYPES.forEach((commitType) => {
+              cmds.push(buildCmd({
+                platform: 'both',
+                commitType: commitType,
+                pc: {
+                  example: pcExample,
+                  workflow: pcWorkflow
+                },
+                mobile: {
+                  example: mobileExample,
+                  workflow: mobileWorkflow
+                }
+              }));
+            });
+          });
+        });
+      });
+    });
+
     const YYL_PKG_PATH = path.join(util.vars.BASE_PATH, 'package.json');
     const pkgConfig = require(YYL_PKG_PATH);
 
-    async function dirCheck (iPath, iEnv) {
+    async function dirCheck (pjPath, iEnv) {
       // 检查 config 各项属性是否正确
-      const configPath = path.join(iPath, 'config.js');
+      const configPath = path.join(pjPath, 'config.js');
       expect(fs.existsSync(configPath)).to.equal(true);
 
       const config = util.requireJs(configPath);
+
       expect(typeof config).to.equal('object');
+      if (iEnv.platform === 'both') {
+        expect(typeof config.pc).to.equal('object');
+        expect(config.pc.version).to.equal(pkgConfig.version);
+        expect(config.pc.workflow).to.equal(pkgConfig.pcWorkflow);
+        expect(config.pc.name).to.equal(`${iEnv.name}`);
+        expect(config.pc.platform).to.equal('pc');
 
-      expect(config.version).to.equal(pkgConfig.version);
-      expect(config.workflow).to.equal(iEnv.workflow);
-      expect(`${config.name}`).to.equal(`${iEnv.name}`);
-      expect(config.platform).to.equal(iEnv.platform);
+        expect(typeof config.mobile).to.equal('object');
+        expect(config.mobile.version).to.equal(pkgConfig.version);
+        expect(config.mobile.workflow).to.equal(pkgConfig.mobileWorkflow);
+        expect(config.mobile.name).to.equal(`${iEnv.name}`);
+        expect(config.mobile.platform).to.equal('mobile');
+      } else {
+        expect(config.version).to.equal(pkgConfig.version);
+        expect(config.workflow).to.equal(iEnv.workflow);
+        expect(`${config.name}`).to.equal(`${iEnv.name}`);
+        expect(config.platform).to.equal(iEnv.platform);
+      }
 
-      // 内部文件 config.extend.js
-      const extConfigPath = path.join(iPath, 'config.extend.js');
-      expect(fs.existsSync(extConfigPath)).to.equal(false);
+      // 需要 存在的 地址列表
+      let existsList = [
+        'README.md'
+      ];
+
+      // 需要 忽略的 地址列表
+      let ignoreList = [
+        'config.extend.js',
+        'README.extend.md'
+      ];
+
+      // 需要检查 替换是否正确的 列表
+      let replaceList = [
+        'README.md',
+        'config.js'
+      ];
 
       // 拷贝的完整性校验
-      const readFilter = /\.DS_Store|config\.extend\.js$/;
-      const pjFullPaths = await extFs.readFilePaths(iPath);
-      const pjRelativePaths = pjFullPaths.map((rPath) => path.relative(iPath, rPath));
+      const readFilter = /\.DS_Store$/;
+      const checkingPaths = [
+        // commons path
+        path.join(util.vars.BASE_PATH, 'init/commons'),
+        // commit-type path
+        path.join(util.vars.BASE_PATH, 'init', `commit-type-${iEnv.commitType}`)
+      ];
 
-      // check commons files completable
-      const initCommonPath = path.join(util.vars.BASE_PATH, 'init/commons');
-      const fromCommonFullPaths = await extFs.readFilePaths(initCommonPath, readFilter);
-      fromCommonFullPaths.map((rPath) => {
-        const fPath = path.relative(initCommonPath, rPath);
-        expect(pjRelativePaths.indexOf(fPath)).to.not.equal(-1);
+      if (iEnv.platform === 'both') {
+        existsList = existsList.concat([
+          'config.pc.js',
+          'config.mobile.js'
+        ]);
+
+        replaceList = replaceList.concat([
+          'config.pc.js',
+          'config.mobile.js'
+        ]);
+
+        checkingPaths.push(
+          path.join(util.vars.BASE_PATH, 'init', 'platform-both')
+        );
+      }
+
+      for (let i = 0, len = checkingPaths.length; i < len; i++) {
+        let checkingPath = checkingPaths[i];
+        const rPaths = await extFs.readFilePaths(checkingPath, readFilter);
+        rPaths.forEach((rPath) => {
+          const relativePath = util.path.relative(checkingPath, rPath);
+          if (ignoreList.indexOf(relativePath) === -1 && existsList.indexOf(existsList) === -1) {
+            existsList.push(relativePath);
+          }
+        });
+      }
+
+      existsList.forEach((rPath) => {
+        const iPath = path.join(pjPath, rPath);
+        expect(fs.existsSync(iPath)).to.equal(true);
       });
 
-      // check commitType completable
-      const initCommitTypePath = path.join(util.vars.BASE_PATH, 'init', iEnv.commitType);
-      const fromCommitTypeFullPaths = await extFs.readFilePaths(initCommitTypePath, readFilter);
-      fromCommitTypeFullPaths.map((rPath) => {
-        const fPath = path.relative(initCommitTypePath, rPath);
-        expect(pjRelativePaths.indexOf(fPath)).to.not.equal(-1);
+      ignoreList.forEach((rPath) => {
+        const iPath = path.join(pjPath, rPath);
+        expect(fs.existsSync(iPath)).to.equal(false);
       });
+
+      // 替换类文件正确性校验
+      replaceList.forEach((rPath) => {
+        const iPath = path.join(pjPath, rPath);
+        const cnt = fs.readFileSync(iPath);
+        expect(cnt.split('undefined').length).to.equal(1);
+        expect(cnt.split('null').length).to.equal(1);
+      });
+
+      // TODO 跑一下看是否有东西生成
     }
 
     cmds.forEach((cmd, index) => {
