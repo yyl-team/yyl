@@ -60,7 +60,7 @@ const SEED = {
       return ctx;
     } else {
       const config = she.initConfig(ctx);
-      if (config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
+      if (config && config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
         return config.workflow;
       } else {
         return;

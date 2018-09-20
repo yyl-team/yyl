@@ -113,10 +113,11 @@ const fn = {
       const srcPath = path.join(pjPath, 'src');
       const configPath = path.join(pjPath, 'config.js');
       const otherFiles = await extFs.readFilePaths(pjPath, (iPath) => {
+        const rPath = path.relative(pjPath, iPath);
         if (
           /^\./.test(path.relative(srcPath, iPath)) &&
           configPath !== iPath &&
-          !/__frag/.test(iPath)
+          !/__frag/.test(rPath)
         ) {
           return true;
         } else {
@@ -142,6 +143,7 @@ const fn = {
         });
         return r;
       })();
+
       await extFs.copyFiles(otherParam);
 
       // remove src
@@ -152,6 +154,7 @@ const fn = {
 
       // remove eslint, editorconfig
       await extFs.removeFiles(otherFiles, true);
+
     };
 
     const buildDataMap = (platform, dataExtend) => {
@@ -179,6 +182,7 @@ const fn = {
 
       // pc 项目初始化
       await initSeed(pcParam);
+
       // 将生成出来的 src 文件夹里面的内容放到 src/pc 里面
       await resetFilePaths('pc', sameWorkflow);
 
@@ -263,7 +267,7 @@ const fn = {
       const dWorkflow = iEnv[`${data.platform}Workflow`] || iEnv.workflow;
 
       if (dWorkflow && ~workflows.indexOf(dWorkflow)) {
-        data.workflow = data.workflow;
+        data.workflow = dWorkflow;
       } else {
         questions.push(iQuestion);
       }
@@ -386,8 +390,8 @@ const events = {
       const prompt = inquirer.createPromptModule();
       const questions = [];
 
-      if (iEnv.name) {
-        data.name = iEnv.name;
+      if (iEnv.name !== undefined) {
+        data.name = `${iEnv.name}`;
       } else {
         questions.push({
           name: 'name',
@@ -415,11 +419,13 @@ const events = {
         const d = await prompt(questions);
         util.extend(data, d);
       }
+
       return data;
     })();
 
+
     // init commonPath, version
-    data.commonPath = util.joinFormat(util.vars.PROJECT_PATH, '../commons').trim();
+    data.commonPath = '../commons';
     data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
 
     // init pc.init, pc.workflow, mobile.init, mobile.workflow
@@ -521,6 +527,7 @@ const events = {
     if (!data) {
       return;
     }
+
 
     log('clear');
     log('start', 'init');

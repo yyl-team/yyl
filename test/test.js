@@ -63,15 +63,15 @@ const fn = {
 };
 
 const TEST_CTRL = {
-  SERVER: true,
-  VERSION: true,
-  HELP: true,
-  PATH: true,
-  INFO: true,
-  MOCK: true,
+  // SERVER: true,
+  // VERSION: true,
+  // HELP: true,
+  // PATH: true,
+  // INFO: true,
+  // MOCK: true,
   INIT: true,
-  ALL: true,
-  COMMIT: true
+  // ALL: true,
+  // COMMIT: true
 };
 
 if (TEST_CTRL.SERVER) {
@@ -401,9 +401,9 @@ if (TEST_CTRL.INIT) {
           `--name ${op.name}`,
           `--platform ${op.platform}`,
           `--pcWorkflow ${op.pc.workflow}`,
-          `--pcInit ${op.pc.init}`,
+          `--pcInit ${op.pc.example}`,
           `--mobileWorkflow ${op.mobile.workflow}`,
-          `--mobileInit ${op.mobile.init}`,
+          `--mobileInit ${op.mobile.example}`,
           `--commitType ${op.commitType}`
         ].join(' ');
       } else {
@@ -424,6 +424,7 @@ if (TEST_CTRL.INIT) {
         seed.examples.forEach((example) => {
           wInit.ENV.COMMIT_TYPES.forEach((commitType) => {
             cmds.push(buildCmd({
+              name: cmds.length,
               workflow,
               platform,
               example,
@@ -443,6 +444,7 @@ if (TEST_CTRL.INIT) {
           mobileSeed.examples.forEach((mobileExample) => {
             wInit.ENV.COMMIT_TYPES.forEach((commitType) => {
               cmds.push(buildCmd({
+                name: cmds.length,
                 platform: 'both',
                 commitType: commitType,
                 pc: {
@@ -474,13 +476,13 @@ if (TEST_CTRL.INIT) {
       if (iEnv.platform === 'both') {
         expect(typeof config.pc).to.equal('object');
         expect(config.pc.version).to.equal(pkgConfig.version);
-        expect(config.pc.workflow).to.equal(pkgConfig.pcWorkflow);
+        expect(config.pc.workflow).to.equal(iEnv.pcWorkflow);
         expect(config.pc.name).to.equal(`${iEnv.name}`);
         expect(config.pc.platform).to.equal('pc');
 
         expect(typeof config.mobile).to.equal('object');
         expect(config.mobile.version).to.equal(pkgConfig.version);
-        expect(config.mobile.workflow).to.equal(pkgConfig.mobileWorkflow);
+        expect(config.mobile.workflow).to.equal(iEnv.mobileWorkflow);
         expect(config.mobile.name).to.equal(`${iEnv.name}`);
         expect(config.mobile.platform).to.equal('mobile');
       } else {
@@ -556,13 +558,14 @@ if (TEST_CTRL.INIT) {
       // 替换类文件正确性校验
       replaceList.forEach((rPath) => {
         const iPath = path.join(pjPath, rPath);
-        const cnt = fs.readFileSync(iPath);
+        const cnt = fs.readFileSync(iPath).toString();
         expect(cnt.split('undefined').length).to.equal(1);
         expect(cnt.split('null').length).to.equal(1);
       });
 
       // TODO 跑一下看是否有东西生成
     }
+
 
     cmds.forEach((cmd, index) => {
       it(cmd, fn.makeAsync(async () => {
