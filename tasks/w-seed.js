@@ -4,7 +4,8 @@ const pkg = require('../package.json');
 
 // + seed
 const seeds = [
-  'yyl-seed-gulp-requirejs'
+  'yyl-seed-gulp-requirejs',
+  'yyl-seed-webpack-vue2'
 ];
 
 const seedCache = {
