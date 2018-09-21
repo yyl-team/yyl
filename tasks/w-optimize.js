@@ -112,9 +112,6 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
             log('start', infobarName);
           }
         })
-        .on('clear', () => {
-          log('clear');
-        })
         .on('msg', (type, argv) => {
           log('msg', type, argv);
         })
@@ -180,6 +177,7 @@ wOpzer.afterTask = (config, iEnv, isUpdate) => {
           done();
         });
       } else {
+        iEnv.revIgnore = /async_component/;
         wOpzer.rev.build(config, iEnv).then(() => {
           done();
         });

@@ -8,7 +8,7 @@ build:
     artifacts:
         expire_in: 1 week
         paths:
-            - dist/
+            - output/
             - gitlog
     script:
         - mkdir output
@@ -17,9 +17,7 @@ build:
         - cp --verbose -rf ./dist/project/$projectName/* ./output/
         - yyl all --isCommit --name mobile --logLevel 2
         - cp --verbose -rf ./dist/project/$projectName/* ./output/
-        - rm -rf ./dist/*
-        - cp --verbose -rf ./output/* ./dist/
-        - rm -rf ./output
+        - rm --verbose -rf ./dist
     after_script:
         - git log -1 --pretty=medium >> gitlog
     only:

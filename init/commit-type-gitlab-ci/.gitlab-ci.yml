@@ -10,13 +10,14 @@ build:
     artifacts:
         expire_in: 1 week
         paths:
-            - dist/
+            - output/
             - gitlog
     script:
         - yyl all --isCommit --logLevel 2
         - projectName=$(ls ./dist/project/)
-        - cp -rf ./dist/project/$projectName/* ./dist/
-        - rm -rf ./dist/project
+        - mkdir output
+        - cp --verbose -rf ./dist/project/$projectName/* ./output/
+        - rm --verbose -rf ./dist
 
     after_script:
         - git log -1 --pretty=medium >> gitlog

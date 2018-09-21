@@ -23,11 +23,12 @@ const setting = {
   proxy: {
     port: 8887,
     localRemote: {
-      'http://www.yy.com/web/': 'http://127.0.0.1:5000/',
       'http://web.yy.com/': 'http://127.0.0.1:5000/'
     }
   }
 };
+  // 代理服务器
+setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127.0.0.1:5000/project/${PROJECT_NAME}`;
 // - setting
 
 Object.assign(config.localserver, setting.localserver);

@@ -13,6 +13,7 @@ Object.assign(config, {
   platform: PLATFORM,
   proxy: setting.proxy,
   localserver: setting.localserver,
+  dest: setting.dest,
   commit: {}
 });
 // - base
