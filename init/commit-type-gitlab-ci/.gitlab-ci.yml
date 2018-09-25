@@ -1,4 +1,4 @@
-image: harbor.yy.com/front_end/yyl:0.3.0
+image: harbor.yy.com/front_end/yyl:latest
 
 stages:
     - build
