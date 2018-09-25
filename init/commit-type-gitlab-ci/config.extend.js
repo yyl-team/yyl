@@ -1,9 +1,10 @@
 'use strict';
 const config = {};
 
-// + setting
 const PROJECT_NAME = __data('name');
 const PLATFORM = __data('platform');
+
+// + setting
 const setting = {
   localserver: { // 本地服务器配置
     root: './dist', // 服务器输出地址

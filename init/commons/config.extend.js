@@ -5,11 +5,19 @@ const config = {};
 const setting = {};
 const PLATFORM = __data('platform');
 
+// + vars
+const PROJECT_NAME = __data('name');
+const VERSION = __data('version');
+const WORKFLOW = __data('workflow');
+const COMMON_PATH = __data('commonPath');
+const SRC_ROOT = __data('srcRoot');
+// - vars
+
 // + base
 Object.assign(config, {
-  workflow: __data('workflow'),
-  name: __data('name'),
-  version: __data('version'),
+  workflow: WORKFLOW,
+  name: PROJECT_NAME,
+  version: VERSION,
   platform: PLATFORM,
   proxy: setting.proxy,
   localserver: setting.localserver,
@@ -18,10 +26,6 @@ Object.assign(config, {
 });
 // - base
 
-// + vars
-const COMMON_PATH = __data('commonPath');
-const DEST_BASE_PATH = path.join(setting.localserver.root, setting.dest.basePath);
-const SRC_ROOT = __data('srcRoot');
-// - vars
+
 
 module.exports = config;
