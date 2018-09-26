@@ -5,6 +5,12 @@
 * [DEL] 去掉 `yyl supercall`
 * [DEL] 去掉 `yyl jade2pug`
 
+
+## 2.26.0 (2018-09-18)
+* [FIX] `webpack.publish.js`设置process.env.NODE_ENV=production
+* [EDIT] 新增vue2项目 通用alias
+* [EDIT] 新增vue2项目 vscode 支持文件 jsconfig.json
+
 ## 2.25.9 (2018-08-13)
 * [FIX] `w-proxy` 有问题 先回档
 
