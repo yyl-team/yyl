@@ -2,16 +2,17 @@
 /* eslint no-unused-vars: "none" */
 const path = require('path');
 const config = {};
-const setting = {};
-const PLATFORM = __data('platform');
 
 // + vars
 const PROJECT_NAME = __data('name');
-const VERSION = __data('version');
 const WORKFLOW = __data('workflow');
-const COMMON_PATH = __data('commonPath');
+const PLATFORM = __data('platform');
+const VERSION = __data('version');
 const SRC_ROOT = __data('srcRoot');
+const COMMON_PATH = __data('commonPath');
 // - vars
+
+const setting = {};
 
 // + base
 Object.assign(config, {

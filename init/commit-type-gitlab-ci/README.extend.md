@@ -3,7 +3,8 @@
 ### host
 ```
 # 测试环境 hsot
-14.17.108.184 	www.yy.com
+14.17.108.184 www.yy.com
+14.17.108.184 yyweb.yystatic.com
 
 183.36.117.141 web.yy.com
 183.36.117.141 web.yystatic.com
