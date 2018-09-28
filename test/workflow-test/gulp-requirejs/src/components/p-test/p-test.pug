@@ -145,7 +145,15 @@ block body
                 cntEl.appendChild(imgEl);
                 cntEl.appendChild(imgEl2);
             })();
+    div.p-test-module
+        div.tl t-xx test
+        div.cnt
+            div#tLoaderEl(
+                data-loader-src="../t-demo/t-demo.pug",
+                data-loader-id="tDemo"
+            )
 
 
 append script
+    script(src="../../js/lib/jQuery/jquery-1.11.1.js")
     script(src="../../js/lib/requirejs/require.js", data-main="./p-test.js")

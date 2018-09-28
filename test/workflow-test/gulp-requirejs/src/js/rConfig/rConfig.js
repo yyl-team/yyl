@@ -3,7 +3,9 @@ var require = {
     // baseUrl: '../js',
     paths: {
         // global
-        'artTemplate' : '../../js/lib/artTemplate/artTemplate'
+        'artTemplate' : '../../js/lib/artTemplate/artTemplate',
+        'yyloader': '../../js/lib/yyloader/yyloader',
+        'wSubWidget': '../../components/w-sub-widget/w-sub-widget'
         // + yyl make
         // - yyl make
     },
