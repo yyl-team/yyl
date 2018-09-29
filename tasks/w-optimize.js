@@ -1176,7 +1176,7 @@ wOpzer.initPlugins = (config) => {
         }
 
         next();
-      }, util.vars.BASE_PATH);
+      }, iNodeModulePath);
     });
   } else {
     return Promise.resolve();

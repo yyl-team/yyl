@@ -199,7 +199,7 @@ wServer.start = (configPath, iEnv) => {
       // 执行 post 请求本地服务器时处理
       app.use((req, res, next) => {
         if (req.method == 'POST') {
-          var filePath = path.join(setting.root, url.parse(req.url).pathname);
+          var filePath = path.join(setting.server.root, url.parse(req.url).pathname);
 
           if (fs.existsSync(filePath)) {
             res.write(fs.readFileSync(filePath));
