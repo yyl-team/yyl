@@ -13,7 +13,7 @@ const SEED = require('./w-seed.js');
 
 const pkg = require('../package.json');
 
-const SUGAR_REG = /(\{\$)(\w+)(\})/g;
+const SUGAR_REG = /(\{\$)([a-zA-Z0-9@_\-$.~]+)(\})/g;
 
 const fn = {
   exit(errMsg, reject) {
