@@ -1100,6 +1100,11 @@ wOpzer.parseConfig = (configPath, iEnv) => {
       }
     });
 
+    // 配置 resolveModule (适用于 webpack-vue2)
+    if (!config.resolveModule) {
+      config.resolveModule = util.path.join(util.vars.SERVER_PLUGIN_PATH, config.workflow, 'node_modules');
+    }
+
     next(config);
   };
 
@@ -1111,7 +1116,17 @@ wOpzer.initPlugins = (config) => {
   if (!config.plugins || !config.plugins.length) {
     return Promise.resolve();
   }
-  const iNodeModulePath = util.path.join(util.vars.BASE_PATH, 'node_modules');
+  const iNodeModulePath = config.resolveModule;
+
+  if (!iNodeModulePath) {
+    return new Promise((next, reject) => {
+      reject('init plugins fail, config.resolveModule is not set');
+    });
+  }
+
+  if (!fs.existsSync(iNodeModulePath)) {
+    extFs.mkdirSync(iNodeModulePath);
+  }
   const installLists = [];
 
   config.plugins.forEach((str) => {

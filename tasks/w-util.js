@@ -40,6 +40,9 @@ const rUtil = util.extend(true, util, {
     // server 数据存放目录
     SERVER_DATA_PATH: util.joinFormat(USERPROFILE, '.yyl/data'),
 
+    // server plugins 存放目录
+    SERVER_PLUGIN_PATH: util.joinFormat(USERPROFILE, '.yyl/plugins'),
+
     // server 存放 https 证书的目录
     SERVER_CERTS_PATH: util.joinFormat(USERPROFILE, '.yyl/certs'),
 
