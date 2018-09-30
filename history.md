@@ -2,6 +2,7 @@
 ## 3.0.2
 * [FIX] 修复 ci 执行 `yyl all` 报错后不会终止的问题
 * [FIX] 修复 `webpack-vue2` 执行带有 `@yy/tofu-ui` 会构建失败问题
+* [FIX] 修复 `yyl commit` 界面显示不正常问题
 
 ## 3.0.1
 * [EDIT] 将 `initPlugin` 存放目录挪到 `~/.yyl/plugin`

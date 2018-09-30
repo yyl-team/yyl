@@ -378,6 +378,7 @@ const wCommit = {
           next(config);
         }
       }).then((config, next) => { // optimize
+        log('finish');
         iEnv.isCommit = true;
         wOptimize('all', iEnv, configPath, true).then(() => {
           next(config);
