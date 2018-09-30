@@ -1,4 +1,15 @@
 # 版本信息
+## 3.0.2
+* [FIX] 修复 ci 执行 `yyl all` 报错后不会终止的问题
+* [FIX] 修复 `webpack-vue2` 执行带有 `@yy/tofu-ui` 会构建失败问题
+* [FIX] 修复 `yyl commit` 界面显示不正常问题
+
+## 3.0.1
+* [EDIT] 将 `initPlugin` 存放目录挪到 `~/.yyl/plugin`
+* [FIX] 修复 `gulp-requirejs` 下 生成 `t-xx.tpl` uglify 时 某种情况会导致 js报错的问题
+* [FIX] 修复 `{$xx-xx}` 不被识别问题
+
+
 ## 3.0.0
 * [EDIT] 优化构建逻辑 构建项目不再需要二次安装
 * [DEL] 去掉 `yyl examples`

@@ -13,7 +13,7 @@ const SEED = require('./w-seed.js');
 
 const pkg = require('../package.json');
 
-const SUGAR_REG = /(\{\$)(\w+)(\})/g;
+const SUGAR_REG = /(\{\$)([a-zA-Z0-9@_\-$.~]+)(\})/g;
 
 const fn = {
   exit(errMsg, reject) {
@@ -105,6 +105,7 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
       }
     }).then((config, opzer, next) => { // optimize
       let isUpdate = 0;
+      let isError = false;
       opzer[ctx](iEnv)
         .on('start', () => {
           if (isUpdate) {
@@ -114,8 +115,14 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
         })
         .on('msg', (type, argv) => {
           log('msg', type, argv);
+          if (type === 'error') {
+            isError = true;
+          }
         })
         .on('finished', () => {
+          if (ctx === 'all' && isError) {
+            return fn.exit(`${ctx} task run error`, reject);
+          }
           log('msg', 'success', [`opzer.${ctx}() finished`]);
           const finishHandle = () => {
             log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
@@ -1100,6 +1107,11 @@ wOpzer.parseConfig = (configPath, iEnv) => {
       }
     });
 
+    // 配置 resolveModule (适用于 webpack-vue2)
+    if (!config.resolveModule) {
+      config.resolveModule = util.path.join(util.vars.SERVER_PLUGIN_PATH, config.workflow, 'node_modules');
+    }
+
     next(config);
   };
 
@@ -1111,7 +1123,17 @@ wOpzer.initPlugins = (config) => {
   if (!config.plugins || !config.plugins.length) {
     return Promise.resolve();
   }
-  const iNodeModulePath = util.path.join(util.vars.BASE_PATH, 'node_modules');
+  const iNodeModulePath = config.resolveModule;
+
+  if (!iNodeModulePath) {
+    return new Promise((next, reject) => {
+      reject('init plugins fail, config.resolveModule is not set');
+    });
+  }
+
+  if (!fs.existsSync(iNodeModulePath)) {
+    extFs.mkdirSync(iNodeModulePath);
+  }
   const installLists = [];
 
   config.plugins.forEach((str) => {
@@ -1161,7 +1183,7 @@ wOpzer.initPlugins = (config) => {
         }
 
         next();
-      }, util.vars.BASE_PATH);
+      }, iNodeModulePath);
     });
   } else {
     return Promise.resolve();
