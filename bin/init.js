@@ -13,7 +13,13 @@ process.on('uncaughtException', (err) => {
 
 d.run(() => {
   const wCmd = require('../tasks/w-cmd.js');
-  wCmd(...iArgv).catch(() => {});
+  if (iArgv[0] === 'all') {
+    wCmd(...iArgv).catch(() => {
+      process.exit(1);
+    });
+  } else {
+    wCmd(...iArgv).catch(() => {});
+  }
 });
 
 

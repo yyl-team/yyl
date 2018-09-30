@@ -105,6 +105,7 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
       }
     }).then((config, opzer, next) => { // optimize
       let isUpdate = 0;
+      let isError = false;
       opzer[ctx](iEnv)
         .on('start', () => {
           if (isUpdate) {
@@ -114,8 +115,14 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
         })
         .on('msg', (type, argv) => {
           log('msg', type, argv);
+          if (type === 'error') {
+            isError = true;
+          }
         })
         .on('finished', () => {
+          if (ctx === 'all' && isError) {
+            return fn.exit(`${ctx} task run error`, reject);
+          }
           log('msg', 'success', [`opzer.${ctx}() finished`]);
           const finishHandle = () => {
             log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
