@@ -98,7 +98,9 @@ module.exports = {
         "brace-style": [2],
 
         // 要求遵循大括号约定
-        "curly": [2]
+        "curly": [2],
 
+        // async 语句需要有 await
+        "require-await": "error"
     }
 };
