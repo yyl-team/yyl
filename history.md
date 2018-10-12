@@ -1,4 +1,7 @@
 # 版本信息
+## 3.0.3
+* [EDIT] 更新 `yyl-seed-webpack-vue2` 到 `0.1.7`
+
 ## 3.0.2
 * [FIX] 修复 ci 执行 `yyl all` 报错后不会终止的问题
 * [FIX] 修复 `webpack-vue2` 执行带有 `@yy/tofu-ui` 会构建失败问题
