@@ -28,8 +28,7 @@ const setting = {
     }
   }
 };
-  // 代理服务器
-setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127.0.0.1:5000/project/${PROJECT_NAME}`;
+setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`;
 // - setting
 
 Object.assign(config.localserver, setting.localserver);
