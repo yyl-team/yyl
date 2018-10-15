@@ -1216,26 +1216,30 @@ wOpzer.openHomePage = (config, iEnv) => {
         }
       });
 
-      if (iEnv.proxy) {
-        let iAddr = '';
-        if (config.proxy && config.proxy.localRemote) {
-          for (let key in config.proxy.localRemote) {
-            iAddr = config.proxy.localRemote[key].replace(/\/$/, '');
-            if ((iAddr === localServerAddr || iAddr === localServerAddr2) && key.replace(/\/$/, '') !== iHost) {
-              addr = key;
-              break;
+      if (config.proxy && config.proxy.homePage) {
+        addr = config.proxy.homePage;
+      } else {
+        if (iEnv.proxy) {
+          let iAddr = '';
+          if (config.proxy && config.proxy.localRemote) {
+            for (let key in config.proxy.localRemote) {
+              iAddr = config.proxy.localRemote[key].replace(/\/$/, '');
+              if ((iAddr === localServerAddr || iAddr === localServerAddr2) && key.replace(/\/$/, '') !== iHost) {
+                addr = key;
+                break;
+              }
             }
           }
+          if (!addr) {
+            addr = config.commit.hostname;
+          }
+        } else {
+          addr = localServerAddr;
         }
-        if (!addr) {
-          addr = config.commit.hostname;
-        }
-      } else {
-        addr = localServerAddr;
-      }
 
-      if (htmls.length) {
-        addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
+        if (htmls.length) {
+          addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
+        }
       }
 
       log('msg', 'success', 'open addr:');
