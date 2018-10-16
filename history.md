@@ -1,4 +1,7 @@
 # 版本信息
+## 3.1.0
+* [FIX] 修复 `yyl init` 生成 没有 `.gitignore` 文件 问题
+
 ## 3.0.3
 * [ADD]  新增 `config.proxy.homePage` 属性 用于定义 默认打开的页面
 * [EDIT] 更新 `yyl-seed-webpack-vue2` 到 `0.1.7`
