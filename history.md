@@ -1,4 +1,7 @@
 # 版本信息
+## 3.1.1
+* [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.2` 来修复 `optimize` 路径替换异常问题
+
 ## 3.1.0
 * [FIX] 修复 `yyl init` 生成 没有 `.gitignore` 文件 问题
 
