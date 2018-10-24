@@ -1,4 +1,8 @@
 # 版本信息
+## 3.1.2
+* [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.3` 来修复 `optimize.watch` 多次触发问题
+* [EDIT] 调整 `yyl commit` 界面
+
 ## 3.1.1
 * [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.2` 来修复 `optimize` 路径替换异常问题
 

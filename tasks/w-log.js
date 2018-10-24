@@ -463,6 +463,4 @@ log.update = (lv) => {
   cache.logLevel = lv;
 };
 
-log.setLevel
-
 module.exports = log;
