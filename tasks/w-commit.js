@@ -354,7 +354,7 @@ const wCommit = {
     const runner = (done, reject) => {
       new util.Promise((next) => { // get config
         log('clear');
-        log('start', 'init');
+        log('start', 'init', 'init config start');
         wOptimize.parseConfig(configPath, iEnv).then((config) => {
           next(config);
         }).catch((er) => {
