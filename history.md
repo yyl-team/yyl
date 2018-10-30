@@ -1,7 +1,8 @@
 # 版本信息
 ## 3.1.2
-* [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.3` 来修复 `optimize.watch` 多次触发问题
+* [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.6` 来修复 `optimize.watch` 多次触发问题, 压缩出来的 js 不能在 ie8 下面运行问题
 * [EDIT] 调整 `yyl commit` 界面
+* [EDIT] 优化 `yyl server start` 功能
 
 ## 3.1.1
 * [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.2` 来修复 `optimize` 路径替换异常问题
