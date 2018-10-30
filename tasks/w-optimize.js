@@ -941,7 +941,7 @@ wOpzer.sugarReplace = (str, alias) => {
 };
 
 // 解析 config 文件
-wOpzer.parseConfig = (configPath, iEnv) => {
+wOpzer.parseConfig = (configPath, iEnv, returnKeys) => {
   const runner = (next, reject) => {
     let config = {};
     if (!fs.existsSync(configPath)) {
@@ -968,25 +968,46 @@ wOpzer.parseConfig = (configPath, iEnv) => {
 
     util.extend(true, config, mineConfig);
 
-    // 单文件多配置情况处理
-    if (!config.workflow) {
-      let usefulKeys = [];
+
+    let usefulKeys = [];
+    const isUseful = function (obj, ctx) {
+      let keys = [];
+      if (typeof ctx === 'string') {
+        keys.push(ctx);
+      } else if (util.type(ctx) === 'array') {
+        keys = ctx;
+      }
+      if (!keys.length) {
+        return true;
+      }
+      let r = false;
+      keys.forEach((key) => {
+        if (key in obj) {
+          r = true;
+        }
+      });
+      return r;
+    };
+    const usefulCtx = returnKeys || 'workflow';
+    if (!isUseful(config, usefulCtx)) {
       Object.keys(config).forEach((key) => {
-        if (config[key] && config[key].workflow) {
+        if (isUseful(config[key], usefulCtx)) {
           usefulKeys.push(key);
         }
       });
-      if (!iEnv.name) {
-        return reject(`missing --name options: ${usefulKeys.join('|')}`);
-      } else if (iEnv.name && usefulKeys.indexOf(iEnv.name) === -1) {
-        return reject(`--name ${iEnv.name} is not the right command, usage: ${Object.keys(config).join('|')}`);
-      } else {
-        config = config[iEnv.name];
-      }
     }
 
-    if (!config.workflow) {
-      return reject('config.workflow is not defined');
+    if (!iEnv.name && usefulKeys.length) {
+      return reject(`missing --name options: ${usefulKeys.join('|')}`);
+    } else if (iEnv.name && usefulKeys.indexOf(iEnv.name) === -1) {
+      return reject(`--name ${iEnv.name} is not the right command, usage: ${Object.keys(config).join('|')}`);
+    } else if (iEnv.name && config[iEnv.name]) {
+      config = config[iEnv.name];
+    }
+
+    if (!isUseful(config, usefulCtx)) {
+      let errMsg = util.type(usefulCtx) === 'array' ? usefulCtx.join(','): usefulCtx;
+      return reject(`config[${errMsg}] is not defined`);
     }
 
     // alias format to absolute
@@ -1049,70 +1070,84 @@ wOpzer.parseConfig = (configPath, iEnv) => {
     });
 
     // 必要字段检查
-    if (!config.alias) {
-      config.alias = {};
-      log('msg', 'warn', `${chalk.yellow('config.alias')} is not exist, build it config.alias = {}`);
-    }
-    if (!config.alias.dirname) {
-      config.alias.dirname = util.vars.PROJECT_PATH;
-      log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
+    // alias 相关检查
+    if (!returnKeys || (returnKeys && ~returnKeys.indexOf('alias'))) {
+      if (!config.alias) {
+        config.alias = {};
+        log('msg', 'warn', `${chalk.yellow('config.alias')} is not exist, build it config.alias = {}`);
+      }
+      if (config.alias && !config.alias.dirname) {
+        config.alias.dirname = util.vars.PROJECT_PATH;
+        log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
+      }
+
+      // 必要字段
+      [
+        'srcRoot',
+        'destRoot'
+      ].some((key) => {
+        if (!config.alias[key]) {
+          return reject(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
+        }
+      });
+
+      // 必要字段 2
+      if (!config.commit || !config.commit.hostname) {
+        return reject(`${chalk.yellow(config.commit.hostname)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
+      }
+
+      // 选填字段
+      [
+        'globalcomponents',
+        'globallib',
+        'destRoot',
+        'imagesDest',
+        'jsDest',
+        'revDest',
+        'jslibDest',
+        'cssDest',
+        'imagesDest',
+        'htmlDest',
+        'tplDest'
+      ].some((key) => {
+        if (!config.alias[key]) {
+          config.alias[key] = config.alias.destRoot;
+          log('msg', 'warn', `${chalk.yellow(`config.alias.${key}`)} is not set, auto fill it: ${chalk.cyan(`config.alias.${key} = '${config.alias.destRoot}'`)}`);
+        }
+      });
     }
 
-    if (!config.platform) {
+    // platform 相关检查
+    if (!returnKeys || (returnKeys && ~returnKeys.indexOf('platform'))) {
       config.platform = 'pc';
       log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${config.platform}`)}`);
     }
 
     // localserver
-    if (!config.localserver) {
-      config.localserver = {};
-    }
-
-    if (!config.localserver.root) {
-      config.localserver.root = util.path.join(util.vars.PROJECT_PATH, 'dist');
-    }
-
-    // 必要字段
-    [
-      'srcRoot',
-      'destRoot'
-    ].some((key) => {
-      if (!config.alias[key]) {
-        return reject(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
+    if (!returnKeys || (returnKeys && ~returnKeys.indexOf('localserver'))) {
+      if (!config.localserver) {
+        config.localserver = {};
       }
-    });
-
-    // 必要字段 2
-    if (!config.commit || !config.commit.hostname) {
-      return reject(`${chalk.yellow(config.commit.hostname)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
-    }
-
-    // 选填字段
-    [
-      'globalcomponents',
-      'globallib',
-      'destRoot',
-      'imagesDest',
-      'jsDest',
-      'revDest',
-      'jslibDest',
-      'cssDest',
-      'imagesDest',
-      'htmlDest',
-      'tplDest'
-    ].some((key) => {
-      if (!config.alias[key]) {
-        config.alias[key] = config.alias.destRoot;
-        log('msg', 'warn', `${chalk.yellow(`config.alias.${key}`)} is not set, auto fill it: ${chalk.cyan(`config.alias.${key} = '${config.alias.destRoot}'`)}`);
+      if (!config.localserver.root) {
+        config.localserver.root = util.path.join(util.vars.PROJECT_PATH, 'dist');
       }
-    });
+    }
 
     // 配置 resolveModule (适用于 webpack-vue2)
-    if (!config.resolveModule) {
+    if (!config.resolveModule && config.workflow) {
       config.resolveModule = util.path.join(util.vars.SERVER_PLUGIN_PATH, config.workflow, 'node_modules');
     }
 
-    next(config);
+    let r = {};
+    if (returnKeys) {
+      returnKeys.forEach((key) => {
+        r[key] = config[key];
+      });
+    } else {
+      r = config;
+    }
+
+    next(r);
   };
 
   return new Promise(runner);

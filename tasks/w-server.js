@@ -99,11 +99,11 @@ wServer.start = (configPath, iEnv) => {
 
 
     new util.Promise((next) => {
-      wOpzer.parseConfig(configPath, iEnv).then((config) => {
+      wOpzer.parseConfig(configPath, iEnv, ['localserver', 'proxy', 'commit']).then((config) => {
         log('msg', 'info', 'use local config setting');
         next(config);
-      }).catch(() => {
-        log('msg', 'info', 'use default config setting');
+      }).catch((er) => {
+        log('msg', 'warn', `${er}, use default config setting`);
         next(null);
       });
     }).then((config, next) => { // setting init
@@ -229,7 +229,11 @@ wServer.start = (configPath, iEnv) => {
         }
         lrServer.listen(setting.server.lrPort);
         if (!iEnv.silent) {
-          util.openBrowser(setting.server.serverAddress);
+          if (setting.proxy.homePage) {
+            util.openBrowser(setting.proxy.homePage);
+          } else {
+            util.openBrowser(setting.server.serverAddress);
+          }
         }
         next(setting);
       });
