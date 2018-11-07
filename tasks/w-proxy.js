@@ -8,6 +8,7 @@ const chalk = require('chalk');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
+const wOpzer = require('./w-optimize.js');
 
 const MIME_TYPE_MAP = {
   'css': 'text/css',
@@ -40,12 +41,15 @@ const MIME_TYPE_MAP = {
 
 };
 
-// var PROXY_INFO_HTML = [
-//   '<div id="YYL_PROXY_INFO" style="position: fixed; z-index: 10000; bottom: 10px; right: 10px; padding: 0.2em 0.5em; background: #000; background: rgba(0,0,0,.5); font-size: 1.5em; color: #fff;">yyl proxy</div>',
-//   '<script>setTimeout(function(){ var el = document.getElementById("YYL_PROXY_INFO"); try{el.parentNode.removeChild(el)}catch(er){} }, 10000)</script>'
-// ].join('');
-
 var fn = {
+  makeAwait(fn) {
+    return new Promise(fn);
+  },
+  checkPortUseage(port) {
+    return Promise((next) => {
+      util.checkPortUseage(port, next);
+    });
+  },
   blank: function(num) {
     return new Array(num + 1).join(' ');
   },
@@ -107,6 +111,42 @@ const cache = {
 };
 
 const wProxy = {
+  async start (ctx, iEnv) {
+    let config;
+    if (typeof ctx === 'object') {
+      config = ctx;
+    } else {
+      try {
+        config = await wOpzer.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
+      } catch (er) {
+        config = null;
+        log('msg', 'warn', `${er}, use default config setting`);
+      }
+    }
+    let proxyConfig = {
+      port: 8887,
+      localRemote: {},
+      ignores: []
+    };
+
+    if (config && config.proxy) {
+      proxyConfig = util.extend(true, proxyConfig, config.proxy);
+    } else if (iEnv.proxy) {
+      proxyConfig.port = iEnv.proxy;
+    }
+    const portCanUse = await fn.checkPortUseage(proxyConfig.port);
+    if (!portCanUse) {
+      throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
+    }
+
+    await fn.makeAwait((next) => {
+      wProxy.init(proxyConfig, () => {
+        log('msg', 'success', 'proxy server init finished');
+        next(config);
+      });
+    });
+    return config;
+  },
   init: function(op, done) {
     const iPort = op.port || 8887;
 

@@ -7,6 +7,7 @@ const Concat = require('concat-with-sourcemaps');
 const revHash = require('rev-hash');
 const frp = require('yyl-file-replacer');
 
+// const wServer = require('./w-server.js');
 const util = require('./w-util.js');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
@@ -20,10 +21,17 @@ const fn = {
     log('msg', 'error', errMsg);
     log('finish');
     reject(errMsg);
+  },
+  checkPortUseage(port) {
+    return new Promise((next) => {
+      util.checkPortUseage(port, (canUse) => {
+        next(canUse);
+      });
+    });
   }
 };
 
-const wOpzer = function(ctx, iEnv, configPath, noclear) {
+const wOpzer = async function (ctx, iEnv, configPath, noclear) {
   const infobarName = ctx === 'watch'? 'watch' : 'optimize';
 
   // env format
@@ -34,132 +42,135 @@ const wOpzer = function(ctx, iEnv, configPath, noclear) {
     iEnv.ver = 'remote';
   }
 
-  const runner = (done, reject) => {
-    if (!noclear) {
-      log('clear');
-    }
-    log('yyl', `${chalk.yellow(pkg.version)}`);
-    log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
-    log('start', infobarName);
-    new util.Promise((next) => { // parseConfig
-      log('msg', 'info', 'parse config start');
-      wOpzer.parseConfig(configPath, iEnv).then((config) => {
-        log('msg', 'success', 'parse config finished');
-        wOpzer.saveConfigToServer(config);
-        next(config);
-      }).catch((er) => {
-        fn.exit(`yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`, reject);
-      });
-    }).then((config, next) => { // prefix check
-      // 版本检查
-      const yylPkg = util.requireJs(path.join(__dirname, '../package.json'));
+  if (!noclear) {
+    log('clear');
+  }
 
-      if (util.compareVersion(config.version, yylPkg.version) > 0) {
-        return fn.exit(`optimize fail, project required yyl at least ${config.version}`, reject);
-      }
+  log('yyl', `${chalk.yellow(pkg.version)}`);
+  log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
+  log('start', infobarName);
 
-      // workflow exists check
-      const seed = SEED.find(config);
-      if (!seed) {
-        return fn.exit(`optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`, reject);
-      }
-      const opzer = seed.optimize(config, path.dirname(configPath));
+  log('msg', 'info', 'parse config start');
 
-      // handle exists check
-      if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
-        return fn.exit(`optimize fail handle [${ctx}] is not exists`, reject);
-      }
-      next(config, opzer);
-    }).then((config, opzer, next) => { // package check
-      wOpzer.initPlugins(config).then(() => {
+  // init config
+  let config = null;
+  try {
+    config = await wOpzer.parseConfig(configPath, iEnv);
+  } catch (er) {
+    throw `yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`;
+  }
+
+  wOpzer.saveConfigToServer(config);
+
+  // 版本检查
+  const yylPkg = util.requireJs(path.join(__dirname, '../package.json'));
+
+  if (util.compareVersion(config.version, yylPkg.version) > 0) {
+    throw `optimize fail, project required yyl at least ${config.version}`;
+  }
+
+  const seed = SEED.find(config);
+  if (!seed) {
+    throw `optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`;
+  }
+
+  const opzer = seed.optimize(config, path.dirname(configPath));
+
+  // handle exists check
+  if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
+    throw `optimize fail handle [${ctx}] is not exists`;
+  }
+
+  // package check
+  try {
+    await wOpzer.initPlugins(config);
+  } catch (er) {
+    throw `optimize fail, plugins install error: ${er.message}`;
+  }
+
+  // clean dist
+  await extFs.removeFiles(config.localserver.root);
+
+  // find usage localserver port
+  await fn.makeAwait((next) => {
+    let iPort = config.localserver.port;
+    const checkPort = function (canUse) {
+      if (canUse) {
+        config.localserver.port = iPort;
         next(config, opzer);
-      }).catch((er) => {
-        return fn.exit(`optimize fail, plugins install error: ${er.message}`, reject);
-      });
-    }).then((config, opzer, next) => { // clean dist
-      extFs.removeFiles(config.localserver.root).then(() => {
-        next(config, opzer);
-      });
-    }).then((config, opzer, next) => { // localserver start
-      if (ctx === 'watch' && iEnv.proxy) {
-        if (config.localserver.port) {
-          util.checkPortUseage(config.localserver.port, (canUse) => {
-            if (canUse) {
-              let cmd = 'yyl server start --silent';
-              if (iEnv.name) {
-                cmd = `${cmd} --name ${iEnv.name}`;
-              }
-              util.runCMD(cmd, () => {
-                next(config, opzer);
-              }, util.vars.PROJECT_PATH, true, true);
-            } else {
-              log('msg', 'warn', `port ${chalk.yellow(config.localserver.port)} is occupied, yyl server start failed`);
-              next(config, opzer);
-            }
-          });
-        } else {
-          next(config, opzer);
-        }
       } else {
-        next(config, opzer);
+        iPort = config.localserver.port + Math.round(Math.random() * 1000);
+        util.checkPortUseage(iPort).then(checkPort);
       }
-    }).then((config, opzer, next) => { // optimize
-      let isUpdate = 0;
-      let isError = false;
-      opzer[ctx](iEnv)
-        .on('start', () => {
-          if (isUpdate) {
-            log('clear');
-            log('start', infobarName);
-          }
-        })
-        .on('msg', (type, argv) => {
-          log('msg', type, argv);
-          if (type === 'error') {
-            isError = true;
-          }
-        })
-        .on('finished', () => {
-          if (ctx === 'all' && isError) {
-            return fn.exit(`${ctx} task run error`, reject);
-          }
-          log('msg', 'success', [`opzer.${ctx}() finished`]);
-          const finishHandle = () => {
-            log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
-            if (isUpdate) {
-              wOpzer.livereload(config, iEnv);
-              log('finish', infobarName);
-            } else {
-              isUpdate = 1;
-              log('finish', infobarName);
-              next(config, opzer);
-            }
-          };
-          wOpzer.afterTask(config, iEnv, isUpdate).then(() => {
-            if (
-              infobarName === 'watch' &&
-              !isUpdate &&
-              !iEnv.silent &&
-              iEnv.proxy
-            ) {
-              wOpzer.openHomePage(config, iEnv).then(() => {
-                finishHandle();
-              }).catch(() => {
-                finishHandle();
-              });
-            } else {
-              finishHandle();
-            }
-          }).catch((er) => {
-            fn.exit(er, reject);
-          });
-        });
-    }).then(() => {
-      done();
-    }).start();
-  };
+    };
 
-  return new Promise(runner);
+    util.checkPortUseage(iPort).then(checkPort);
+  });
+
+  // localserver start
+  let cmd = 'yyl server start --silent';
+  if (iEnv.name) {
+    cmd = `${cmd} --name ${iEnv.name}`;
+  }
+  await fn.makeAwait((next) => {
+    util.runCMD(cmd, () => {
+      next();
+    }, util.vars.PROJECT_PATH, true, true);
+  });
+
+  // optimize
+  await fn.makeAwait((next) => {
+    let isUpdate = 0;
+    let isError = false;
+    opzer[ctx](iEnv)
+      .on('start', () => {
+        if (isUpdate) {
+          log('clear');
+          log('start', infobarName);
+        }
+      })
+      .on('msg', (type, argv) => {
+        log('msg', type, argv);
+        if (type === 'error') {
+          isError = true;
+        }
+      })
+      .on('finished', () => {
+        if (ctx === 'all' && isError) {
+          throw `${ctx} task run error`;
+        }
+        log('msg', 'success', [`opzer.${ctx}() finished`]);
+        const finishHandle = () => {
+          log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
+          if (isUpdate) {
+            wOpzer.livereload(config, iEnv);
+            log('finish', infobarName);
+          } else {
+            isUpdate = 1;
+            log('finish', infobarName);
+            next(config, opzer);
+          }
+        };
+        wOpzer.afterTask(config, iEnv, isUpdate).then(() => {
+          if (
+            infobarName === 'watch' &&
+            !isUpdate &&
+            !iEnv.silent &&
+            iEnv.proxy
+          ) {
+            wOpzer.openHomePage(config, iEnv).then(() => {
+              finishHandle();
+            }).catch(() => {
+              finishHandle();
+            });
+          } else {
+            finishHandle();
+          }
+        }).catch((er) => {
+          throw er;
+        });
+      });
+  });
 };
 
 wOpzer.afterTask = (config, iEnv, isUpdate) => {
