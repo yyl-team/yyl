@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -43,11 +43,12 @@
     "serve-index": "^1.9.1",
     "serve-static": "^1.13.2",
     "tiny-lr": "^1.0.3",
+    "webpack-hot-middleware": "^2.24.3",
     "yyl-color": "^1.0.0",
     "yyl-file-replacer": "^0.3.0",
     "yyl-fs": "^0.1.1",
     "yyl-seed-gulp-requirejs": "~2.5.6",
-    "yyl-seed-webpack-vue2": "~0.2.1",
+    "yyl-seed-webpack-vue2": "~0.2.2",
     "yyl-util": "^1.14.2"
   },
   "devDependencies": {

@@ -1,4 +1,7 @@
 # 版本信息
+## 3.1.3 (2018-11-07)
+* [FIX] 修复 `yyl` 构建不能正确识别 `config.platform` 属性问题
+
 ## 3.1.2
 * [FIX] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.6` 来修复 `optimize.watch` 多次触发问题, 压缩出来的 js 不能在 ie8 下面运行问题
 * [EDIT] 调整 `yyl commit` 界面

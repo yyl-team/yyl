@@ -1119,8 +1119,10 @@ wOpzer.parseConfig = (configPath, iEnv, returnKeys) => {
 
     // platform 相关检查
     if (!returnKeys || (returnKeys && ~returnKeys.indexOf('platform'))) {
-      config.platform = 'pc';
-      log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${config.platform}`)}`);
+      if (!config.platform) {
+        config.platform = 'pc';
+        log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${config.platform}`)}`);
+      }
     }
 
     // localserver
