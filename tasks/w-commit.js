@@ -6,6 +6,7 @@ const chalk = require('chalk');
 const util = require('./w-util.js');
 const log = require('./w-log.js');
 const wOptimize = require('./w-optimize.js');
+const extFn = require('./w-extFn.js');
 
 const fn = {
   logDest: function(iPath) {
@@ -355,7 +356,7 @@ const wCommit = {
       new util.Promise((next) => { // get config
         log('clear');
         log('start', 'init', 'init config start');
-        wOptimize.parseConfig(configPath, iEnv).then((config) => {
+        extFn.parseConfig(configPath, iEnv).then((config) => {
           next(config);
         }).catch((er) => {
           return fn.exit(er, reject);

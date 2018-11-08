@@ -6,6 +6,8 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 
+const SUGAR_REG = /(\{\$)([a-zA-Z0-9@_\-$.~]+)(\})/g;
+
 const USERPROFILE = process.env[process.platform == 'win32'? 'USERPROFILE': 'HOME'];
 const CWD = process.cwd();
 
@@ -77,6 +79,14 @@ const rUtil = util.extend(true, util, {
   livereload: function() {
     var reloadPath = `http://${util.vars.LOCAL_SERVER}:35729/changed?files=1`;
     util.get(reloadPath);
+  },
+
+  checkPort: function (port) {
+    return new Promise((next) => {
+      util.checkPortUseage(port, (canUse) => {
+        next(canUse);
+      });
+    });
   }
 });
 

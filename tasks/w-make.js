@@ -1,5 +1,5 @@
 const SEED = require('./w-seed.js');
-const wOpzer = require('./w-optimize.js');
+const extFn = require('./w-extFn.js');
 const util = require('./w-util.js');
 const log = require('./w-log');
 
@@ -18,7 +18,7 @@ async function wMake (name, iEnv, configPath) {
   let config = null;
 
   try {
-    config = await wOpzer.parseConfig(configPath, iEnv);
+    config = await extFn.parseConfig(configPath, iEnv);
   } catch (er) {
     fn.exit(`yyl make fail, ${er}`);
   }

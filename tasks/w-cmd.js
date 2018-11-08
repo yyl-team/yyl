@@ -3,9 +3,8 @@ const chalk = require('chalk');
 const path = require('path');
 const util = require('./w-util.js');
 const SEED = require('./w-seed.js');
-
-
-
+const log = require('./w-log');
+const pkg = require('../package.json');
 
 const events = {
   help(iEnv, opzerHandles) {
@@ -37,22 +36,17 @@ const events = {
   },
   path(iEnv) {
     if (!iEnv.silent) {
-      console.log([
-        '',
-        'yyl command path:',
-        chalk.yellow(util.vars.BASE_PATH),
-        ''
-      ].join('\n'));
+      log('msg', 'success', `path: ${chalk.yellow.bold(util.vars.BASE_PATH)}`);
       util.openPath(util.vars.BASE_PATH);
     }
     return Promise.resolve(util.vars.BASE_PATH);
   }
 };
 
-
 module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
   const iEnv = util.envPrase(arguments);
+  let type = '';
 
   const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
 
@@ -75,15 +69,18 @@ module.exports = async function(ctx) {
   if (~opzerHandles.indexOf(ctx)) {
     handle = require('./w-optimize.js');
     argv = [ctx, iEnv, configPath];
+    type = 'optimize';
   } else if (ctx === 'make') {
     handle = require('./w-make.js');
     argv = [iArgv[1], iEnv, configPath];
+    type = '';
   } else {
     switch (ctx) {
       case '-v':
       case '--version':
         handle = require('./w-version.js');
         argv = [iEnv];
+        type = '';
         break;
 
       case '--logLevel':
@@ -94,66 +91,106 @@ module.exports = async function(ctx) {
           handle = require('./w-server.js').getLogLevel;
           argv = [];
         }
+        type = 'info';
         break;
 
       case '-h':
       case '--help':
         handle = events.help;
         argv = [iEnv, opzerHandles];
+        type = '';
         break;
 
       case '--path':
       case '-p':
         handle = events.path;
         argv = [iEnv];
+        type = 'info';
         break;
 
       case 'init':
         handle = require('./w-init.js');
+        if (iEnv.help) {
+          handle = handle.help;
+        }
+
+        type = '';
         argv = [iEnv];
         break;
 
       case 'server':
         handle = require('./w-server.js');
         argv = [iArgv[1], iEnv, configPath];
+        type = '';
+        break;
+
+      case 'proxy':
+        handle = require('./w-proxy.js');
+        argv = [iArgv[1], iEnv, configPath];
+        type = '';
         break;
 
       case 'commit':
         handle = require('./w-commit.js').run;
         argv = [iEnv, configPath];
+        type = '';
         break;
 
       case 'rm':
         handle = require('./w-remove.js');
         argv = [iArgv[1]];
+        type = 'remove';
         break;
 
       case 'test':
         handle = require('./w-test.js');
         argv = [];
+        type = 'info';
         break;
 
       case 'profile':
         handle = require('./w-profile.js').print;
         argv = [];
+        type = 'info';
         break;
 
       case 'make':
         handle = require('./w-make.js').run;
         argv = [iArgv.slice(1)];
+        type = 'make';
         break;
 
       case 'info':
         handle = require('./w-info.js').run;
         argv = [iEnv];
+        type = 'info';
         break;
 
       default:
         handle = events.help;
         argv = [iEnv, opzerHandles];
+        type = '';
         break;
     }
   }
+  if (type) {
+    log('clear');
+    log('yyl', `${chalk.yellow(pkg.version)}`);
+    log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
+    log('start', type, 'starting...');
+  }
 
-  return await handle(...argv);
+  let r;
+
+  try {
+    r = await handle(...argv);
+  } catch (er) {
+    log('msg', 'error', er);
+  }
+
+  if (type) {
+    log('finished', 'finished');
+  }
+
+  return r;
 };

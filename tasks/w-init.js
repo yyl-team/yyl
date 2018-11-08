@@ -40,16 +40,12 @@ const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
 const CONFIG_SUGAR_DATA_REG = /__data\(['"](\w+)["']\)/g;
 
 const fn = {
-  makeAwait(fn) {
-    return new Promise(fn);
-  },
-
   // readme 格式化
-  async formatREADME(readmePath, extendPath, data) {
+  formatREADME(readmePath, extendPath, data) {
     const buildReg = (key) => {
       return new RegExp(`(\\[//\\]: # \\(\\+ ${key}\\))([\\w\\W]+)(\\[//\\]: # \\(- ${key}\\))`);
     };
-    const keys = ['title','bussiness', 'environment', 'workflow'];
+    const keys = ['title', 'bussiness', 'environment', 'workflow'];
     const pickDataMap = (cnt, data) => {
       let rCnt = `${cnt}`.replace(CONFIG_SUGAR_DATA_REG, (str, $1) => {
         return data[$1] || '';
@@ -79,9 +75,11 @@ const fn = {
       r.push(rMap[key]);
     });
 
-    return r.join('\n')
-      .replace(/[\n]{2,}/g, '\n\n')
-      .replace(/^\n/, '');
+    return new Promise.resolve(
+      r.join('\n')
+        .replace(/[\n]{2,}/g, '\n\n')
+        .replace(/^\n/, '')
+    );
   },
 
   // 初始化 最后一步, 公用部分拷贝
@@ -154,7 +152,6 @@ const fn = {
 
       // remove eslint, editorconfig
       await extFs.removeFiles(otherFiles, true);
-
     };
 
     const buildDataMap = (platform, dataExtend) => {
@@ -362,12 +359,11 @@ const fn = {
 
 
 const events = {
-  async help() {
-    util.help({
+  help() {
+    const h = {
       usage: 'yyl init',
       options: {
-        '-h, --help': 'print usage information',
-        '-f': 'init forcibly',
+        '--help': 'print usage information',
         '--name': 'project name',
         '--platform': `platform: ${PLATFORMS.join(' or ')}`,
         '--workflow': 'workflow type',
@@ -375,8 +371,9 @@ const events = {
         '--cwd': 'runtime path',
         '--nonpm': 'init without npm install'
       }
-    });
-    return Promise.resolve(null);
+    };
+    util.help(h);
+    return Promise.resolve(h);
   },
   async init(iEnv) {
     if (iEnv.silent) {
@@ -551,6 +548,10 @@ r.ENV = {
   PLATFORMS,
   COMMIT_TYPES,
   CONFIG_SUGAR_DATA_REG
+};
+
+r.help = () => {
+  return events.help();
 };
 
 module.exports = r;

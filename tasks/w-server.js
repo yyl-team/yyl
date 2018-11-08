@@ -8,7 +8,7 @@ const chalk = require('chalk');
 const extFs = require('yyl-fs');
 
 const wProfile = require('./w-profile.js');
-const wOpzer = require('./w-optimize.js');
+const extFn = require('./w-extFn.js');
 const util = require('./w-util.js');
 const connect = require('connect');
 const serveIndex = require('serve-index');
@@ -18,21 +18,12 @@ const wProxy = require('./w-proxy.js');
 const wMock = require('./w-mock.js');
 const log = require('./w-log');
 
+const pkg = require('../package.json');
+
 const cache = {
   lrServer: null,
   server: null,
   reject: null
-};
-
-const fn = {
-  exit(errMsg, reject) {
-    log('msg', 'error', errMsg);
-    log('finish');
-    reject(errMsg);
-  },
-  makeAwait(fn) {
-    return new Promise(fn);
-  }
 };
 
 const wServer = (ctx, iEnv, configPath) => {
@@ -43,17 +34,36 @@ const wServer = (ctx, iEnv, configPath) => {
       return she.path(iEnv);
 
     case 'start':
-      return async () => {
+      return (async () => {
         log('clear');
+        log('yyl', `${chalk.yellow(pkg.version)}`);
+        log('cmd', `yyl server ${ctx} ${util.envStringify(iEnv)}`);
         log('start', 'server', 'local server init...');
+        let config;
         try {
-          const config = await she.start(configPath, iEnv);
-          await wProxy.start(config, iEnv);
+          config = await she.start(configPath, iEnv);
         } catch (er) {
-          log('error', er);
+          log('msg', 'error', er);
         }
-        log('finish');
-      };
+        try {
+          config = await wProxy.start(config, iEnv);
+        } catch (er) {
+          log('msg', 'error', er);
+        }
+        if (!iEnv.silent && config) {
+          let serverPath = '';
+          if (config.proxy && config.proxy.homePage) {
+            serverPath = config.proxy.homePage;
+          } else if (config.localserver && config.localserver.serverAddress) {
+            serverPath = config.localserver.serverAddress;
+          }
+          if (serverPath) {
+            util.openBrowser(serverPath);
+            log('msg', 'success', `go to page     : ${chalk.yellow.bold(serverPath)}`);
+          }
+        }
+        log('finished');
+      })();
 
     case 'abort':
       return she.abort(iEnv);
@@ -106,60 +116,64 @@ wServer.path = (iEnv) => {
 
 // 启动服务器
 wServer.start = async function (ctx, iEnv) {
-  // init config
-  let config;
-  if (typeof ctx === 'object') {
-    config = ctx;
-  } else {
-    try {
-      config = await wOpzer.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
-    } catch (er) {
-      config = null;
-      log('msg', 'warn', `${er}, use default config setting`);
-    }
-  }
   const DEFAULT_CONFIG = {
     port: 5000,
     root: util.vars.PROJECT_PATH,
     lrPort: 50001
-  }
-
+  };
+  // init config
+  let config;
   let serverConfig;
-  if (config && config.localserver) {
-    serverConfig = util.extend(DEFAULT_CONFIG, config.localserver);
-    if (iEnv.path) {
-      serverConfig.root = path.resolve(util.vars.PROJECT_PATH, iEnv.path);
+  if (typeof ctx === 'object') {
+    config = ctx;
+    config.localserver = util.extend(DEFAULT_CONFIG, config.localserver);
+    serverConfig = config.localserver;
+  } else {
+    try {
+      config = await extFn.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
+      if (config && config.localserver) {
+        serverConfig = util.extend(DEFAULT_CONFIG, config.localserver);
+      }
+    } catch (er) {
+      config = {};
+      serverConfig = DEFAULT_CONFIG;
+      log('msg', 'warn', er);
+      log('msg', 'warn', 'use default server config');
     }
-    if (iEnv.port) {
-      serverConfig.port = iEnv.port;
-    }
-
-    if (iEnv.lrPort) {
-      serverConfig.lrPort = iEnv.lrPort;
-    } else {
-      serverConfig.lrPort = `${serverConfig.port}1`;
-    }
-    serverConfig.serverAddress = `http://${util.vars.LOCAL_SERVER}:${serverConfig.port}`;
   }
+
+  if (iEnv.path) {
+    serverConfig.root = path.resolve(util.vars.PROJECT_PATH, iEnv.path);
+  }
+  if (iEnv.port) {
+    serverConfig.port = iEnv.port;
+  }
+
+  if (iEnv.lrPort) {
+    serverConfig.lrPort = iEnv.lrPort;
+  } else {
+    serverConfig.lrPort = `${serverConfig.port}1`;
+  }
+  serverConfig.serverAddress = `http://${util.vars.LOCAL_SERVER}:${serverConfig.port}`;
 
   // check port usage
-  const portCanUse = await fn.checkPortUseage(serverConfig.port);
+  const portCanUse = await extFn.checkPort(serverConfig.port);
   if (portCanUse) {
     if (!fs.existsSync(serverConfig.root)) {
       extFs.mkdirSync(serverConfig.root);
     }
   } else {
-    throw `port ${chalk.yellow(serverConfig.port)} is occupied, please check`;
+    throw `port ${chalk.yellow(serverConfig.port)} was occupied, please check`;
   }
 
-  const lrPortCanUse = await fn.checkPortUseage(serverConfig.lrPort);
+  const lrPortCanUse = await extFn.checkPort(serverConfig.lrPort);
   if (!lrPortCanUse) {
-    throw `port ${chalk.yellow(serverConfig.lrPort)} is occupied, please check`;
+    throw `port ${chalk.yellow(serverConfig.lrPort)} was occupied, please check`;
   }
 
-  log('msg', 'success', `server path    : ${chalk.yellow(serverConfig.root)}`);
-  log('msg', 'success', `server address : ${chalk.yellow(serverConfig.serverAddress)}`);
-  log('msg', 'success', `server lr port : ${chalk.yellow(serverConfig.lrPort)}`);
+  log('msg', 'success', `server path    : ${chalk.yellow.bold(serverConfig.root)}`);
+  log('msg', 'success', `server address : ${chalk.yellow.bold(serverConfig.serverAddress)}`);
+  log('msg', 'success', `server lr port : ${chalk.yellow.bold(serverConfig.lrPort)}`);
 
   const app = connect();
   app.use(livereload({
@@ -204,8 +218,7 @@ wServer.start = async function (ctx, iEnv) {
     throw err;
   });
 
-
-  config.localserver = await fn.makeAwait((next, reject) => {
+  config.localserver = await extFn.makeAwait((next, reject) => {
     server.listen(serverConfig.port, (err) => {
       if (err) {
         return reject(err);
@@ -269,7 +282,7 @@ wServer.setLogLevel = function(level, notSave, silent) {
   }
   log.update(level);
   if (!silent) {
-    log('msg', 'success', `change logLevel: ${level}`);
+    log('msg', 'success', `change logLevel: ${chalk.yellow.bold(level)}`);
   }
   return Promise.resolve(level);
 };

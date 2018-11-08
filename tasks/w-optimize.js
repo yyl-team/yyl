@@ -7,33 +7,15 @@ const Concat = require('concat-with-sourcemaps');
 const revHash = require('rev-hash');
 const frp = require('yyl-file-replacer');
 
-// const wServer = require('./w-server.js');
+const wServer = require('./w-server.js');
 const util = require('./w-util.js');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
-
-const pkg = require('../package.json');
+const extFn = require('./w-extFn.js');
 
 const SUGAR_REG = /(\{\$)([a-zA-Z0-9@_\-$.~]+)(\})/g;
 
-const fn = {
-  exit(errMsg, reject) {
-    log('msg', 'error', errMsg);
-    log('finish');
-    reject(errMsg);
-  },
-  checkPortUseage(port) {
-    return new Promise((next) => {
-      util.checkPortUseage(port, (canUse) => {
-        next(canUse);
-      });
-    });
-  }
-};
-
 const wOpzer = async function (ctx, iEnv, configPath, noclear) {
-  const infobarName = ctx === 'watch'? 'watch' : 'optimize';
-
   // env format
   if (iEnv.ver == 'remote') {
     iEnv.remote = true;
@@ -46,16 +28,12 @@ const wOpzer = async function (ctx, iEnv, configPath, noclear) {
     log('clear');
   }
 
-  log('yyl', `${chalk.yellow(pkg.version)}`);
-  log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
-  log('start', infobarName);
-
   log('msg', 'info', 'parse config start');
 
   // init config
   let config = null;
   try {
-    config = await wOpzer.parseConfig(configPath, iEnv);
+    config = await extFn.parseConfig(configPath, iEnv);
   } catch (er) {
     throw `yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`;
   }
@@ -92,7 +70,7 @@ const wOpzer = async function (ctx, iEnv, configPath, noclear) {
   await extFs.removeFiles(config.localserver.root);
 
   // find usage localserver port
-  await fn.makeAwait((next) => {
+  await extFn.makeAwait((next) => {
     let iPort = config.localserver.port;
     const checkPort = function (canUse) {
       if (canUse) {
@@ -100,33 +78,40 @@ const wOpzer = async function (ctx, iEnv, configPath, noclear) {
         next(config, opzer);
       } else {
         iPort = config.localserver.port + Math.round(Math.random() * 1000);
-        util.checkPortUseage(iPort).then(checkPort);
+        extFn.checkPort(iPort).then(checkPort);
       }
     };
 
-    util.checkPortUseage(iPort).then(checkPort);
+    extFn.checkPort(iPort).then(checkPort);
   });
 
-  // localserver start
-  let cmd = 'yyl server start --silent';
-  if (iEnv.name) {
-    cmd = `${cmd} --name ${iEnv.name}`;
+  let afterConfig = await wServer.start(config, iEnv);
+  if (afterConfig) {
+    config = afterConfig;
   }
-  await fn.makeAwait((next) => {
-    util.runCMD(cmd, () => {
-      next();
-    }, util.vars.PROJECT_PATH, true, true);
-  });
+
+  // proxy server
+  const canUse = await extFn.checkPort(8887);
+  if (canUse) {
+    let cmd = 'yyl proxy start --silent';
+    await extFn.makeAwait((next) => {
+      util.runCMD(cmd, () => {
+        next();
+      }, util.vars.PROJECT_PATH, true, true);
+    });
+  } else {
+    log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
+  }
 
   // optimize
-  await fn.makeAwait((next) => {
+  await extFn.makeAwait((next) => {
     let isUpdate = 0;
     let isError = false;
     opzer[ctx](iEnv)
       .on('start', () => {
         if (isUpdate) {
           log('clear');
-          log('start', infobarName);
+          log('start', 'optimize');
         }
       })
       .on('msg', (type, argv) => {
@@ -144,16 +129,16 @@ const wOpzer = async function (ctx, iEnv, configPath, noclear) {
           log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
           if (isUpdate) {
             wOpzer.livereload(config, iEnv);
-            log('finish', infobarName);
+            log('finish');
           } else {
             isUpdate = 1;
-            log('finish', infobarName);
+            log('finish');
             next(config, opzer);
           }
         };
         wOpzer.afterTask(config, iEnv, isUpdate).then(() => {
           if (
-            infobarName === 'watch' &&
+            ctx === 'watch' &&
             !isUpdate &&
             !iEnv.silent &&
             iEnv.proxy
@@ -235,7 +220,7 @@ wOpzer.varSugar = (config, iEnv) => {
       htmls.forEach((iPath) => {
         let iCnt = fs.readFileSync(iPath).toString();
         iCnt = frp.htmlPathMatch(iCnt, (rPath) => {
-          return wOpzer.sugarReplace(rPath, varObj);
+          return extFn.sugarReplace(rPath, varObj);
         });
         fs.writeFileSync(iPath, iCnt);
       });
@@ -827,7 +812,7 @@ wOpzer.rev = {
 
           next(revMap);
         } else {
-          return err(`local rev file not exist: ${localRevPath}`);
+          return err(`local rev file not exist: ${chalk.yellow(localRevPath)}`);
         }
       }).then((revMap, next) => { // hash 表内html, css 文件 hash 替换
         // html, tpl 替换
@@ -939,232 +924,6 @@ wOpzer.livereload = (config, iEnv) => {
   return Promise.resolve();
 };
 
-
-// 文本 sugar 替换
-wOpzer.sugarReplace = (str, alias) => {
-  return str.replace(SUGAR_REG, (str, $1, $2) => {
-    if ($2 in alias) {
-      return alias[$2];
-    } else {
-      return str;
-    }
-  });
-};
-
-// 解析 config 文件
-wOpzer.parseConfig = (configPath, iEnv, returnKeys) => {
-  const runner = (next, reject) => {
-    let config = {};
-    if (!fs.existsSync(configPath)) {
-      return reject(`config path not exists: ${configPath}`);
-    }
-
-    const dirname = path.dirname(configPath);
-
-    try {
-      util.extend(true, config, util.requireJs(configPath));
-    } catch (er) {
-      return reject(`config parse error: ${configPath}`, er);
-    }
-
-    // extend config.mine.js
-    let mineConfig = {};
-    const mineConfigPath = configPath.replace(/\.js$/, '.mine.js');
-
-    if (fs.existsSync(mineConfigPath)) {
-      try {
-        mineConfig = util.requireJs(mineConfigPath);
-      } catch (er) {}
-    }
-
-    util.extend(true, config, mineConfig);
-
-
-    let usefulKeys = [];
-    const isUseful = function (obj, ctx) {
-      let keys = [];
-      if (typeof ctx === 'string') {
-        keys.push(ctx);
-      } else if (util.type(ctx) === 'array') {
-        keys = ctx;
-      }
-      if (!keys.length) {
-        return true;
-      }
-      let r = false;
-      keys.forEach((key) => {
-        if (key in obj) {
-          r = true;
-        }
-      });
-      return r;
-    };
-    const usefulCtx = returnKeys || 'workflow';
-    if (!isUseful(config, usefulCtx)) {
-      Object.keys(config).forEach((key) => {
-        if (isUseful(config[key], usefulCtx)) {
-          usefulKeys.push(key);
-        }
-      });
-    }
-
-    if (!iEnv.name && usefulKeys.length) {
-      return reject(`missing --name options: ${usefulKeys.join('|')}`);
-    } else if (iEnv.name && usefulKeys.indexOf(iEnv.name) === -1) {
-      return reject(`--name ${iEnv.name} is not the right command, usage: ${Object.keys(config).join('|')}`);
-    } else if (iEnv.name && config[iEnv.name]) {
-      config = config[iEnv.name];
-    }
-
-    if (!isUseful(config, usefulCtx)) {
-      let errMsg = util.type(usefulCtx) === 'array' ? usefulCtx.join(','): usefulCtx;
-      return reject(`config[${errMsg}] is not defined`);
-    }
-
-    // alias format to absolute
-    Object.keys(config.alias).forEach((key) => {
-      config.alias[key] = util.path.resolve(
-        dirname,
-        config.alias[key]
-      );
-    });
-
-    // config.resource to absolute
-    if (config.resource) {
-      Object.keys(config.resource).forEach((key) => {
-        const curKey = util.path.resolve(dirname, key);
-        config.resource[curKey] = util.path.resolve(dirname, config.resource[key]);
-        delete config.resource[key];
-      });
-    }
-
-
-    // 文件变量解析
-    const deep = (obj) => {
-      Object.keys(obj).forEach((key) => {
-        const curKey = wOpzer.sugarReplace(key, config.alias);
-        if (curKey !== key) {
-          obj[curKey] = obj[key];
-          delete obj[key];
-        }
-
-        switch (util.type(obj[curKey])) {
-          case 'array':
-            obj[curKey] = obj[curKey].map((val) => {
-              if (util.type(val) === 'string') {
-                return wOpzer.sugarReplace(val, config.alias);
-              } else {
-                return val;
-              }
-            });
-
-          case 'object':
-            deep(obj[curKey]);
-            break;
-
-          case 'string':
-            obj[curKey] = wOpzer.sugarReplace(obj[curKey], config.alias);
-            break;
-
-          case 'number':
-            break;
-
-          default:
-            break;
-        }
-      });
-    };
-    ['concat', 'commit'].forEach((key) => {
-      if (util.type(config[key]) === 'object') {
-        deep(config[key]);
-      }
-    });
-
-    // 必要字段检查
-    // alias 相关检查
-    if (!returnKeys || (returnKeys && ~returnKeys.indexOf('alias'))) {
-      if (!config.alias) {
-        config.alias = {};
-        log('msg', 'warn', `${chalk.yellow('config.alias')} is not exist, build it config.alias = {}`);
-      }
-      if (config.alias && !config.alias.dirname) {
-        config.alias.dirname = util.vars.PROJECT_PATH;
-        log('msg', 'warn', `${chalk.yellow('config.alias.dirname')} is not exist, build it ${chalk.cyan(`config.alias.dirname = ${util.vars.PROJECT_PATH}`)}`);
-      }
-
-      // 必要字段
-      [
-        'srcRoot',
-        'destRoot'
-      ].some((key) => {
-        if (!config.alias[key]) {
-          return reject(`${chalk.yellow(`config.alias.${key}`)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
-        }
-      });
-
-      // 必要字段 2
-      if (!config.commit || !config.commit.hostname) {
-        return reject(`${chalk.yellow(config.commit.hostname)} is necessary, please check your config: ${chalk.cyan(configPath)}`);
-      }
-
-      // 选填字段
-      [
-        'globalcomponents',
-        'globallib',
-        'destRoot',
-        'imagesDest',
-        'jsDest',
-        'revDest',
-        'jslibDest',
-        'cssDest',
-        'imagesDest',
-        'htmlDest',
-        'tplDest'
-      ].some((key) => {
-        if (!config.alias[key]) {
-          config.alias[key] = config.alias.destRoot;
-          log('msg', 'warn', `${chalk.yellow(`config.alias.${key}`)} is not set, auto fill it: ${chalk.cyan(`config.alias.${key} = '${config.alias.destRoot}'`)}`);
-        }
-      });
-    }
-
-    // platform 相关检查
-    if (!returnKeys || (returnKeys && ~returnKeys.indexOf('platform'))) {
-      if (!config.platform) {
-        config.platform = 'pc';
-        log('msg', 'warn', `${chalk.yellow('config.platform')} is not exist, build it ${chalk.cyan(`config.platform = ${config.platform}`)}`);
-      }
-    }
-
-    // localserver
-    if (!returnKeys || (returnKeys && ~returnKeys.indexOf('localserver'))) {
-      if (!config.localserver) {
-        config.localserver = {};
-      }
-      if (!config.localserver.root) {
-        config.localserver.root = util.path.join(util.vars.PROJECT_PATH, 'dist');
-      }
-    }
-
-    // 配置 resolveModule (适用于 webpack-vue2)
-    if (!config.resolveModule && config.workflow) {
-      config.resolveModule = util.path.join(util.vars.SERVER_PLUGIN_PATH, config.workflow, 'node_modules');
-    }
-
-    let r = {};
-    if (returnKeys) {
-      returnKeys.forEach((key) => {
-        r[key] = config[key];
-      });
-    } else {
-      r = config;
-    }
-
-    next(r);
-  };
-
-  return new Promise(runner);
-};
 
 // 更新 packages
 wOpzer.initPlugins = (config) => {

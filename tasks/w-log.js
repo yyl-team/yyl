@@ -20,7 +20,16 @@ const cache = {
 util.infoBar.init({
   head: {
     key: {
-
+      'help': {
+        name: 'HELP',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
+      'info': {
+        name: 'INFO',
+        color: 'white',
+        bgColor: 'bgBlue'
+      },
       'init': {
         name: 'INIT',
         color: 'white',
@@ -72,13 +81,6 @@ util.infoBar.init({
         color: 'white',
         bgColor: 'bgCyan'
       },
-      // + w-jade2pug
-      'jade2pug': {
-        name: 'JTOP',
-        color: 'white',
-        bgColor: 'bgBlue'
-      },
-      // - w-jade2pug
       // + w-commit
       'commit-copy': {
         name: 'COPY',
@@ -172,11 +174,12 @@ const log4Detail = (module, type, argv) => {
       util.msg.info(`[${type}] task start`);
       break;
 
+    case 'finished':
     case 'finish':
       if (cache.currentType) {
         cost = new Date() - cache.timer[cache.currentType];
         argv.push(`[${cache.currentType}] task finished, cost ${fn.costFormat(cost)}`);
-        util.msg.success.apply(util.msg, argv);
+        util.msg.success(...argv);
       }
       break;
 
@@ -184,21 +187,25 @@ const log4Detail = (module, type, argv) => {
       if (!argv.length) {
         argv = [type];
       }
-      util.msg.cmd.apply(util.msg, argv);
+      util.msg.cmd(...argv);
       break;
 
     case 'yyl':
       if (!argv.length) {
         argv = [type];
       }
-      util.msg.yyl.apply(util.msg, argv);
+      util.msg.yyl(...argv);
       break;
 
+    case 'clear':
+      util.msg.info(chalk.yellow('clear screen'));
+      break;
 
     case 'msg':
       if (!util.msg[type]) {
         type = 'info';
       }
+
       switch (type) {
         case 'optimize':
         case 'create':
@@ -215,7 +222,7 @@ const log4Detail = (module, type, argv) => {
           break;
 
         default:
-          util.msg[type].apply(util.msg, argv);
+          util.msg[type](...argv);
           break;
       }
       break;
@@ -244,7 +251,7 @@ const log4Base = (module, type, argv) => {
     iStatus = cache.status[cache.currentType];
   }
 
-  if (module == 'finish' && type) {
+  if ((module == 'finish' || module == 'finished') && type) {
     argv = [type].concat(argv);
   }
 
@@ -329,19 +336,38 @@ const log4Base = (module, type, argv) => {
       }).end();
       break;
 
+    case 'finished':
     case 'finish':
       cache.isEnd = true;
       util.infoBar.end();
       clearInterval(cache.timeIntervalKey);
       cost = new Date() - cache.timer[cache.currentType];
       if (iStatus.errors.length) {
-        util.infoBar.print('error', {
-          barRight: `cost ${fn.costFormat(cost)}`,
-          foot: util.getTime()
-        }).end();
-        iStatus.errors.forEach((argv) => {
-          console.error.apply(console, argv);
+        let allStr = true;
+        iStatus.errors.some((argv) => {
+          argv.some((arg) => {
+            if (typeof arg !== 'string') {
+              allStr = false;
+              return true;
+            }
+          });
+          if (!allStr) {
+            return true;
+          }
         });
+        if (allStr) {
+          util.infoBar.print('error', {
+            barLeft: iStatus.errors.map((a) => a.join(' '))
+          });
+        } else {
+          util.infoBar.print('error', {
+            barRight: `cost ${fn.costFormat(cost)}`,
+            foot: util.getTime()
+          }).end();
+          iStatus.errors.forEach((argv) => {
+            console.error(...argv);
+          });
+        }
       } else {
         util.infoBar.print('done', {
           barLeft: argv.join(' '),
@@ -435,7 +461,7 @@ const log4Silent = (module, type, argv) => {
     case 'msg':
       switch (type) {
         case 'error':
-          util.msg[type].apply(util.msg, argv);
+          util.msg[type](...argv);
           break;
       }
       break;
@@ -450,7 +476,7 @@ const log = (module, type, argv) => {
   if (!~cache.logLevel) {
     cache.logLevel = 1;
   }
-  switch (cache.logLevel) {
+  switch (+cache.logLevel) {
     case 0:
       return log4Silent(module, type, iArgv);
     case 1:
