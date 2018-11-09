@@ -1,7 +1,9 @@
 # 版本信息
 ## 3.2.0 ()
 * [EDIT] 将 `log('start', xx)` 统一放到 `w-cmd.js` 里面
-* [EDIT] `optimize` 包含 `localserver`, `proxy` 服务则独立开来
+* [EDIT] `optimize` 包含 `localserver` 部分,  而 `proxy` 服务则独立新开窗口执行
+* [EDIT] `yyl commit` 代码逻辑优化
+* [EDIT] `yyl server` 代码逻辑优化
 
 ## 3.1.4 (2018-11-08)
 * [FIX] 更新 `yyl-seed-webpack-vue2` 到 `0.2.3` 来修复 项目 不支持 `.webp` 格式 问题

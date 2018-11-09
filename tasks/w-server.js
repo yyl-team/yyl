@@ -18,8 +18,6 @@ const wProxy = require('./w-proxy.js');
 const wMock = require('./w-mock.js');
 const log = require('./w-log');
 
-const pkg = require('../package.json');
-
 const cache = {
   lrServer: null,
   server: null,
@@ -35,10 +33,6 @@ const wServer = (ctx, iEnv, configPath) => {
 
     case 'start':
       return (async () => {
-        log('clear');
-        log('yyl', `${chalk.yellow(pkg.version)}`);
-        log('cmd', `yyl server ${ctx} ${util.envStringify(iEnv)}`);
-        log('start', 'server', 'local server init...');
         let config;
         try {
           config = await she.start(configPath, iEnv);
@@ -62,7 +56,6 @@ const wServer = (ctx, iEnv, configPath) => {
             log('msg', 'success', `go to page     : ${chalk.yellow.bold(serverPath)}`);
           }
         }
-        log('finished');
       })();
 
     case 'abort':
@@ -72,7 +65,6 @@ const wServer = (ctx, iEnv, configPath) => {
     case 'clean':
       return she.clear();
 
-    case '--h':
     case '--help':
       return she.help(iEnv);
 
@@ -92,7 +84,7 @@ wServer.help = (iEnv) => {
     },
     options: {
       '--proxy': 'start with proxy server',
-      '-h, --help': 'print usage information',
+      '--help': 'print usage information',
       '-p, --path': 'show the yyl server local path'
     }
   };
@@ -105,10 +97,7 @@ wServer.help = (iEnv) => {
 // 路径
 wServer.path = (iEnv) => {
   if (!iEnv.silent) {
-    console.log(`
-      yyl server path:
-      ${chalk.yellow(util.vars.SERVER_PATH)}
-    `);
+    log('msg', 'success', `path: ${chalk.yellow.bold(util.vars.SERVER_PATH)}`);
     util.openPath(util.vars.SERVER_PATH);
   }
   return Promise.resolve(util.vars.SERVER_PATH);

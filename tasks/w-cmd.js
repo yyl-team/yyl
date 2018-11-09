@@ -46,6 +46,9 @@ const events = {
 module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
   const iEnv = util.envPrase(arguments);
+  const commands = iArgv.filter((t) => {
+    return /-[a-zA-Z0-9]+/.test(t);
+  });
   let type = '';
 
   const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
@@ -121,7 +124,12 @@ module.exports = async function(ctx) {
       case 'server':
         handle = require('./w-server.js');
         argv = [iArgv[1], iEnv, configPath];
-        type = '';
+        type = 'server';
+        if (iEnv.help) {
+          handle = handle.help;
+          argv = [iEnv];
+          type = '';
+        }
         break;
 
       case 'proxy':
@@ -131,9 +139,15 @@ module.exports = async function(ctx) {
         break;
 
       case 'commit':
-        handle = require('./w-commit.js').run;
+        if (iEnv.help) {
+          handle = require('./w-commit.js').help;
+          type = '';
+        } else {
+          handle = require('./w-commit.js').run;
+          type = 'info';
+        }
         argv = [iEnv, configPath];
-        type = 'info';
+
         break;
 
       case 'rm':
@@ -176,7 +190,7 @@ module.exports = async function(ctx) {
   if (type) {
     log('clear');
     log('yyl', `${chalk.yellow(pkg.version)}`);
-    log('cmd', `yyl ${ctx} ${util.envStringify(iEnv)}`);
+    log('cmd', `yyl ${ctx} ${commands.join(' ')} ${util.envStringify(iEnv)}`);
     log('start', type, 'starting...');
   }
 
