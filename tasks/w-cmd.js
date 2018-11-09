@@ -14,12 +14,12 @@ const events = {
         'init': 'init commands',
         'info': 'information',
         'server': 'local server commands',
-        'examples': 'show yyl examples',
+        'proxy': 'proxy server commands',
         'commit': 'commit code to svn/git server(need config)',
         'make': 'make new component'
       },
       options: {
-        '-h, --help': 'print usage information',
+        '--help': 'print usage information',
         '-v, --version': 'print yyl version',
         '-p, --path': 'show the yyl command local path',
         '--logLevel': 'log level',
@@ -46,9 +46,6 @@ const events = {
 module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
   const iEnv = util.envPrase(arguments);
-  const commands = iArgv.filter((t) => {
-    return /-[a-zA-Z0-9]+/.test(t);
-  });
   let type = '';
 
   const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
@@ -135,7 +132,12 @@ module.exports = async function(ctx) {
       case 'proxy':
         handle = require('./w-proxy.js');
         argv = [iArgv[1], iEnv, configPath];
-        type = '';
+        type = 'proxy';
+        if (iEnv.help) {
+          handle = handle.help;
+          argv = [ iEnv ];
+          type = '';
+        }
         break;
 
       case 'commit':
@@ -190,7 +192,7 @@ module.exports = async function(ctx) {
   if (type) {
     log('clear');
     log('yyl', `${chalk.yellow(pkg.version)}`);
-    log('cmd', `yyl ${ctx} ${commands.join(' ')} ${util.envStringify(iEnv)}`);
+    log('cmd', `yyl ${iArgv.join(' ')}`);
     log('start', type, 'starting...');
   }
 

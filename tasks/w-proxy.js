@@ -9,7 +9,6 @@ const chalk = require('chalk');
 const log = require('./w-log.js');
 const util = require('./w-util.js');
 const extFn = require('./w-extFn.js');
-const pkg = require('../package.json');
 
 const MIME_TYPE_MAP = {
   'css': 'text/css',
@@ -108,10 +107,6 @@ const wProxy = (ctx, iEnv, configPath) => {
   switch (ctx) {
     case 'start':
       return (async () => {
-        log('clear');
-        log('yyl', `${chalk.yellow(pkg.version)}`);
-        log('cmd', `yyl proxy ${ctx} ${util.envStringify(iEnv)}`);
-        log('start', 'server', 'proxy server init...');
         let config;
         try {
           config = await she.start(configPath, iEnv);
@@ -125,13 +120,29 @@ const wProxy = (ctx, iEnv, configPath) => {
     case 'abort':
       return she.abort(iEnv);
 
-    case '--h':
     case '--help':
       return she.help(iEnv);
 
     default:
       return she.help(iEnv);
   }
+};
+
+wProxy.help = (iEnv) => {
+  let h = {
+    usage: 'yyl proxy',
+    commands: {
+      'start': 'start proxy server',
+      'abort': 'abort proxy server'
+    },
+    options: {
+      '--help': 'print usage information'
+    }
+  };
+  if (!iEnv.silent) {
+    util.help(h);
+  }
+  return Promise.resolve(h);
 };
 
 wProxy.start = async function (ctx, iEnv) {
