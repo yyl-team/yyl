@@ -5,22 +5,13 @@ const chalk = require('chalk');
 
 const util = require('./w-util.js');
 const log = require('./w-log.js');
-const wOptimize = require('./w-optimize.js');
+const wOpzer = require('./w-optimize.js');
 const extFn = require('./w-extFn.js');
 
 const fn = {
   logDest: function(iPath) {
     log('msg', fs.existsSync(iPath) ? 'update' : 'create', iPath);
-  },
-  exit: function(errMsg, reject) {
-    log('msg', 'error', errMsg);
-    log('finish');
-    reject(errMsg);
   }
-};
-
-const cache = {
-  reject: null
 };
 
 const wCommit = {
@@ -74,7 +65,7 @@ const wCommit = {
               log('msg', 'info', `svn update path: ${iPath}`);
               log('end');
               util.runSpawn('svn update', () => {
-                log('msg', 'success', `svn update finish: ${iPath}`);
+                log('msg', 'success', `svn update finished: ${chalk.yellow(iPath)}`);
                 next();
               }, iPath, true);
             });
@@ -274,7 +265,7 @@ const wCommit = {
         });
 
         iPromise.then(() => {
-          log('msg', 'success', `total ${delFiles.length} files need delete`);
+          log('msg', 'success', `total ${chalk.yellow.bold(delFiles.length)} files need delete`);
           return done();
         });
         iPromise.start();
@@ -301,10 +292,10 @@ const wCommit = {
         }
 
         iPromise.then((next) => {
-          log('msg', 'info', `start cleanup: ${iPath}`);
+          log('msg', 'info', `start cleanup: ${chalk.yellow(iPath)}`);
           log('end');
           util.runSpawn('svn cleanup', () => {
-            log('msg', 'success', `cleanup finished: ${iPath} `);
+            log('msg', 'success', `cleanup finished: ${chalk.yellow(iPath)} `);
             next();
           }, iPath);
         });
@@ -314,11 +305,11 @@ const wCommit = {
           var idir = iPath.split(/[\\/]/).pop();
           var cmd = `svn add ${idir} --force`;
 
-          log('msg', 'info', `start svn add path: ${dirname}`);
+          log('msg', 'info', `svn path add start: ${chalk.yellow(dirname)}`);
           log('msg', 'info', `run cmd: ${cmd}`);
           log('end');
           util.runSpawn( cmd, () => {
-            log('msg', 'success', `svn add path finished: ${dirname}`);
+            log('msg', 'success', `svn path added finished: ${chalk.yellow(dirname)}`);
             next();
           }, dirname);
         });
@@ -330,12 +321,12 @@ const wCommit = {
         });
 
         iPromise.then((next) => {
-          log('msg', 'info', `start svn commit: ${iPath}`);
+          log('msg', 'info', `svn commit start: ${chalk.yellow(iPath)}`);
           util.runSpawn('svn commit -m gulpAutoCommit', (err) => {
             if (err) {
               return done(err);
             }
-            log('msg', 'success', `svn commmit finished: ${iPath}`);
+            log('msg', 'success', `svn commmit finished: ${chalk.yellow(iPath)}`);
             next();
           }, iPath);
         });
@@ -349,102 +340,62 @@ const wCommit = {
 
     return new Promise(runner);
   },
-  run: function(iEnv, configPath) {
-    var start = new Date();
+  async run (iEnv, configPath) {
+    const start = new Date();
 
-    const runner = (done, reject) => {
-      new util.Promise((next) => { // get config
-        log('clear');
-        log('start', 'init', 'init config start');
-        extFn.parseConfig(configPath, iEnv).then((config) => {
-          next(config);
-        }).catch((er) => {
-          return fn.exit(er, reject);
-        });
-      }).then((config, next) => { // check options
-        if (!config.commit) {
-          return fn.exit('commit task run fail, config.commit is not exists ');
-        }
-        if (config.commit.type === 'gitlab-ci') {
-          log('msg', 'warn', 'commit task run fail, gitlab-ci need not run this task');
-          log('finish');
-          return done(null);
-        }
+    // get config
+    const config = await extFn.parseConfig(configPath, iEnv);
 
-        if (!iEnv.sub) {
-          log('finish');
-          wCommit.help();
-          return done(null);
-        } else {
-          next(config);
-        }
-      }).then((config, next) => { // optimize
-        log('finish');
-        iEnv.isCommit = true;
-        wOptimize('all', iEnv, configPath, true).then(() => {
-          next(config);
-        }).catch((er) => {
-          fn.exit(er, reject);
-        });
-      }).then((config, next) => { // svn update
-        if (iEnv.nosvn) {
-          return next(config);
-        }
+    if (!config.commit) {
+      throw 'commit task run fail, config.commit is not exists';
+    }
 
-        log('start', 'commit-step01');
-        wCommit.step01(iEnv, config).then(() => {
-          log('finish', 'commit step01 finished');
-          next(config);
-        }).catch((err) => {
-          log('msg', 'error', err);
-          log('finish');
-        });
-      }).then((config, next) => { // copy
-        log('start', 'commit-copy');
-        wCommit.copy(iEnv, config).then(() => {
-          log('finish', 'commit-copy finished');
-          next(config);
-        }).catch((err) => {
-          log('msg', 'error', ['commit-copy run error', err]);
-          log('finish');
-        });
-      }).then((config, next) => { // step02
-        log('start', 'commit-step02');
-        wCommit.step02(iEnv, config).then(() => {
-          log('finish', 'commit-step02 finished');
-          next(config);
-        }).catch((err) => {
-          log('msg', 'error', ['commit-step02 run error', err]);
-          log('finish');
-        });
-      }).then((config, next) => { // commit
-        if (iEnv.nosvn) {
-          return next(config);
-        }
+    if (config.commit.type === 'gitlab-ci') {
+      throw 'commit task run fail, please commit with ci';
+    }
 
-        log('start', 'commit-step03');
-        wCommit.step03(iEnv, config).then(() => {
-          log('finsh', 'commit-step03 finished');
-          next(config);
-        }).catch((err) => {
-          log('msg', 'error', ['commit-step03 run error', err]);
-          log('finish');
-        });
-      }).then((config) => { // optimize
-        log('msg', 'success', 'all is finished');
-        var cost = new Date() -  start;
-        var min = Math.floor(cost / 1000 / 60);
-        var sec = Math.floor(cost / 1000) % 60;
-        var us = cost % 1000;
-        log('msg', 'success', `total ${chalk.cyan(min)} m ${chalk.cyan(sec)} s ${chalk.cyan(us)}ms`);
-        log('finish');
-        done(config);
-      }).start();
-    };
-    return new Promise((next, reject) => {
-      cache.reject = reject;
-      runner(next);
-    });
+    if (!iEnv.sub) {
+      throw 'commit task run fail, --sub is required';
+    }
+
+    // optimize
+    iEnv.isCommit = true;
+    if (!iEnv.nooptimize) {
+      log('finished');
+      log('start', 'optimize', 'optimizing...');
+      await wOpzer('all', iEnv, configPath, true);
+    }
+
+    if (!iEnv.nosvn) {
+      log('finished');
+      log('start', 'commit-step01', 'svn update');
+      await wCommit.step01(iEnv, config);
+    }
+
+
+    log('finished');
+    log('start', 'commit-copy');
+    await wCommit.copy(iEnv, config);
+
+    log('finished');
+    log('start', 'commit-step02', 'rev keep 3 versions');
+    await wCommit.step02(iEnv, config);
+
+    if (!iEnv.nosvn) {
+      log('finished', 'commit-step02 finished');
+      log('start', 'commit-step03', 'svn commit');
+      await wCommit.step03(iEnv, config);
+    }
+
+    log('msg', 'success', 'all is finished');
+    const cost = new Date() -  start;
+    const min = Math.floor(cost / 1000 / 60);
+    const sec = Math.floor(cost / 1000) % 60;
+    const us = cost % 1000;
+    log('msg', 'success', `total ${chalk.cyan(min)} m ${chalk.cyan(sec)} s ${chalk.cyan(us)}ms. ${chalk.green(util.getTime())}`);
+
+    log('finished', 'all finished');
+    return config;
   }
 };
 

@@ -13,19 +13,13 @@ const log = require('./w-log');
 const SEED = require('./w-seed.js');
 const extFn = require('./w-extFn.js');
 
-const SUGAR_REG = /(\{\$)([a-zA-Z0-9@_\-$.~]+)(\})/g;
-
-const wOpzer = async function (ctx, iEnv, configPath, noclear) {
+const wOpzer = async function (ctx, iEnv, configPath) {
   // env format
   if (iEnv.ver == 'remote') {
     iEnv.remote = true;
   }
   if (iEnv.remote) {
     iEnv.ver = 'remote';
-  }
-
-  if (!noclear) {
-    log('clear');
   }
 
   log('msg', 'info', 'parse config start');
@@ -85,22 +79,24 @@ const wOpzer = async function (ctx, iEnv, configPath, noclear) {
     extFn.checkPort(iPort).then(checkPort);
   });
 
-  let afterConfig = await wServer.start(config, iEnv);
-  if (afterConfig) {
-    config = afterConfig;
-  }
+  if (ctx === 'watch') {
+    let afterConfig = await wServer.start(config, iEnv);
+    if (afterConfig) {
+      config = afterConfig;
+    }
 
-  // proxy server
-  const canUse = await extFn.checkPort(8887);
-  if (canUse) {
-    let cmd = 'yyl proxy start --silent';
-    await extFn.makeAwait((next) => {
-      util.runCMD(cmd, () => {
-        next();
-      }, util.vars.PROJECT_PATH, true, true);
-    });
-  } else {
-    log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
+    // proxy server
+    const canUse = await extFn.checkPort(8887);
+    if (canUse) {
+      let cmd = 'yyl proxy start --silent';
+      await extFn.makeAwait((next) => {
+        util.runCMD(cmd, () => {
+          next();
+        }, util.vars.PROJECT_PATH, true, true);
+      });
+    } else {
+      log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
+    }
   }
 
   // optimize

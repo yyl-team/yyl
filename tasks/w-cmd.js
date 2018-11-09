@@ -133,7 +133,7 @@ module.exports = async function(ctx) {
       case 'commit':
         handle = require('./w-commit.js').run;
         argv = [iEnv, configPath];
-        type = '';
+        type = 'info';
         break;
 
       case 'rm':
