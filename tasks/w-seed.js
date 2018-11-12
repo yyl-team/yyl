@@ -1,6 +1,7 @@
 const fs = require('fs');
 const wProfile = require('./w-profile.js');
 const pkg = require('../package.json');
+const log = require('./w-log.js');
 
 // + seed
 const seeds = [
@@ -104,7 +105,9 @@ const SEED = {
     if (typeof ctx === 'string' && fs.existsSync(ctx)) {
       try {
         config = require(ctx);
-      } catch (er) {}
+      } catch (er) {
+        log('msg', 'warn', [`parse config error: ${ctx}`, er]);
+      }
 
       // 适配 multi config 情况
       if (config && !config.workflow) {
