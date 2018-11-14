@@ -1,4 +1,10 @@
 # 版本信息
+## 3.1.7 (2018-11-14)
+* [FIX] 修复 使用 `config.concat` 在 命令行 `--proxy` 不会补全 hostname 的问题
+
+## 3.1.6 (2018-11-12)
+* [FIX] 更新 `yyl-seed-webpack-vue2` 到 `0.2.5` 修复 `--NODE_ENV` 不生效问题
+
 ## 3.1.5 (2018-11-12)
 * [FIX] 更新 `yyl-seed-webpack-vue2` 到 `0.2.4` 提供 `--NODE_ENV` 属性支持
 
