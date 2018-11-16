@@ -104,12 +104,15 @@ wServer.path = (iEnv) => {
 };
 
 // 启动服务器
-wServer.start = async function (ctx, iEnv) {
+wServer.start = async function (ctx, iEnv, options) {
   const DEFAULT_CONFIG = {
     port: 5000,
     root: util.vars.PROJECT_PATH,
     lrPort: 50001
   };
+
+  const op = options || {};
+
   // init config
   let config;
   let serverConfig;
@@ -138,11 +141,6 @@ wServer.start = async function (ctx, iEnv) {
     serverConfig.port = iEnv.port;
   }
 
-  if (iEnv.lrPort) {
-    serverConfig.lrPort = iEnv.lrPort;
-  } else {
-    serverConfig.lrPort = `${serverConfig.port}1`;
-  }
   serverConfig.serverAddress = `http://${util.vars.LOCAL_SERVER}:${serverConfig.port}`;
 
   // check port usage
@@ -155,14 +153,25 @@ wServer.start = async function (ctx, iEnv) {
     throw `port ${chalk.yellow(serverConfig.port)} was occupied, please check`;
   }
 
-  const lrPortCanUse = await extFn.checkPort(serverConfig.lrPort);
-  if (!lrPortCanUse) {
-    throw `port ${chalk.yellow(serverConfig.lrPort)} was occupied, please check`;
-  }
-
   log('msg', 'success', `server path    : ${chalk.yellow.bold(serverConfig.root)}`);
   log('msg', 'success', `server address : ${chalk.yellow.bold(serverConfig.serverAddress)}`);
-  log('msg', 'success', `server lr port : ${chalk.yellow.bold(serverConfig.lrPort)}`);
+
+  // livereload
+  let lrServer;
+  if (!op.ignoreLiveReload) {
+    if (iEnv.lrPort) {
+      serverConfig.lrPort = iEnv.lrPort;
+    } else {
+      serverConfig.lrPort = `${serverConfig.port}1`;
+    }
+    const lrPortCanUse = await extFn.checkPort(serverConfig.lrPort);
+    if (!lrPortCanUse) {
+      throw `port ${chalk.yellow(serverConfig.lrPort)} was occupied, please check`;
+    }
+    log('msg', 'success', `server lr port : ${chalk.yellow.bold(serverConfig.lrPort)}`);
+
+    lrServer = tinylr();
+  }
 
   const app = connect();
   app.use(livereload({
@@ -199,8 +208,11 @@ wServer.start = async function (ctx, iEnv) {
 
   app.use(serveIndex(serverConfig.root));
 
-  var server = http.createServer(app);
-  var lrServer = tinylr();
+  if (typeof op.onInitMiddleWare === 'function') {
+    await op.onInitMiddleWare(app);
+  }
+
+  const server = http.createServer(app);
 
   server.on('error', (err) => {
     log('msg', 'error', err);
@@ -212,7 +224,9 @@ wServer.start = async function (ctx, iEnv) {
       if (err) {
         return reject(err);
       }
-      lrServer.listen(serverConfig.lrPort);
+      if (lrServer) {
+        lrServer.listen(serverConfig.lrPort);
+      }
       next(serverConfig);
     });
   });

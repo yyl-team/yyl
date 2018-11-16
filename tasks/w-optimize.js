@@ -80,7 +80,18 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   });
 
   if (ctx === 'watch') {
-    let afterConfig = await wServer.start(config, iEnv);
+    const op = {
+      livereload: opzer.ignoreLiveReload ? false: true
+    };
+
+    // 接入 seed 中间件
+    if (opzer.initServerMiddleWare) {
+      op.onInitMiddleWare = async function (app) {
+        await opzer.initServerMiddleWare(app);
+      };
+    }
+
+    let afterConfig = await wServer.start(config, iEnv, op);
     if (afterConfig) {
       config = afterConfig;
     }
