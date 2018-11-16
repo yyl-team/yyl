@@ -1,4 +1,7 @@
 # 版本信息
+## 3.1.8 (2018-11-14)
+* [EDIT] 更新 `yyl-seed-webpack-vue2` 到 `0.2.8` 用来处理 `svg` 格式文件
+
 ## 3.1.7 (2018-11-14)
 * [FIX] 修复 使用 `config.concat` 在 命令行 `--proxy` 不会补全 hostname 的问题
 
