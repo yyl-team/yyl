@@ -327,7 +327,7 @@ wOpzer.rev = {
       var iDir = path.dirname(filePath);
       var config = wOpzer.rev.getConfigSync();
       var iHostname = (function() {
-        if (op.isCommit || op.ver  == 'remote') {
+        if (op.isCommit || op.ver  == 'remote' || op.proxy) {
           return config.commit.hostname;
         } else {
           return '/';

@@ -279,12 +279,10 @@ const wCommit = {
     });
   },
   step03: function(iEnv, config) {
-    console.log(iEnv);
     const svnConfig = config.commit.svn[iEnv.sub];
     const runner = (done) => {
       const iPromise = new util.Promise();
 
-      console.log(svnConfig.commit);
       svnConfig.commit.forEach((iPath) => {
         if (!fs.existsSync(iPath)) {
           log('msg', 'warn', `commit path not exist, continue: ${iPath}`);
