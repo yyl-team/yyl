@@ -87,7 +87,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     // 接入 seed 中间件
     if (opzer.initServerMiddleWare) {
       op.onInitMiddleWare = async function (app) {
-        await opzer.initServerMiddleWare(app);
+        await opzer.initServerMiddleWare(app, iEnv);
       };
     }
 
