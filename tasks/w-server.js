@@ -56,6 +56,7 @@ const wServer = (ctx, iEnv, configPath) => {
             log('msg', 'success', `go to page     : ${chalk.yellow.bold(serverPath)}`);
           }
         }
+        return config;
       })();
 
     case 'abort':

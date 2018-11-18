@@ -10,7 +10,7 @@ const yyl = require('../index');
 const util = require('../tasks/w-util');
 const SEED = require('../tasks/w-seed');
 const wInit = require('../tasks/w-init');
-const wOpzer = require('../tasks/w-optimize');
+const extFn = require('../tasks/w-extFn.js');
 
 const FRAG_PATH = path.join(__dirname, '__frag');
 const fn = {
@@ -76,11 +76,6 @@ const TEST_CTRL = {
 
 if (TEST_CTRL.SERVER) {
   describe('yyl server test', () => {
-    it('yyl server -h', fn.makeAsync(async () => {
-      const h = await yyl.run('server -h --silent', __dirname);
-      expect(h).not.equal(undefined);
-    }));
-
     it('yyl server --help', fn.makeAsync(async () => {
       const h = await yyl.run('server --help --silent', __dirname);
       expect(h).not.equal(undefined);
@@ -88,8 +83,8 @@ if (TEST_CTRL.SERVER) {
 
     it('yyl server start', fn.makeAsync(async () => {
       const setting = await yyl.run('server start --logLevel 0 --silent', __dirname);
-      expect(setting.server).not.equal(false);
-      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
+      expect(setting.localserver).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.localserver.port}/test.js`;
       const res = await fn.get(testPath);
       expect(res.statusCode).equal(200);
       await yyl.run('server abort');
@@ -97,8 +92,8 @@ if (TEST_CTRL.SERVER) {
 
     it(`yyl server start --path ${__dirname}`, fn.makeAsync(async () => {
       const setting = await yyl.run(`server start --logLevel 0 --silent --path ${__dirname}`);
-      expect(setting.server).not.equal(false);
-      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
+      expect(setting.localserver).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.localserver.port}/test.js`;
       const res = await fn.get(testPath);
       expect(res.statusCode).equal(200);
       await yyl.run('server abort');
@@ -106,8 +101,8 @@ if (TEST_CTRL.SERVER) {
 
     it('yyl server start --path ./', fn.makeAsync(async () => {
       const setting = await yyl.run('server start --logLevel 0 --silent --path ./', __dirname);
-      expect(setting.server).not.equal(false);
-      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.server.port}/test.js`;
+      expect(setting.localserver).not.equal(false);
+      const testPath = `http://${util.vars.LOCAL_SERVER}:${setting.localserver.port}/test.js`;
       const res = await fn.get(testPath);
       expect(res.statusCode).equal(200);
       await yyl.run('server abort');
@@ -630,7 +625,7 @@ if (TEST_CTRL.ALL) {
       }
 
       // check
-      const config = await wOpzer.parseConfig(configPath, {});
+      const config = await extFn.parseConfig(configPath, {});
       const { destRoot } = config.alias;
       const htmlList = await extFs.readFilePaths(destRoot, /\.html$/, true);
       const cssList = await extFs.readFilePaths(destRoot, /\.css$/, true);
@@ -814,16 +809,14 @@ if (TEST_CTRL.COMMIT) {
         const svnDir = util.path.join(FRAG_WORKFLOW_PATH, '../__committest');
         util.mkdirSync(svnDir);
 
-        await (async () => {
-          return new Promise((next) => {
-            util.runCMD(`svn checkout ${svnPath}`, (err) => {
-              if (err) {
-                throw new Error(err);
-              }
-              next();
-            }, svnDir);
-          });
-        })();
+        extFn.makeAwait((next) => {
+          util.runCMD(`svn checkout ${svnPath}`, (err) => {
+            if (err) {
+              throw new Error(err);
+            }
+            next();
+          }, svnDir);
+        });
 
         await yyl.run('commit --sub dev --silent --logLevel 0', FRAG_WORKFLOW_PATH);
         expect(true).equal(true);

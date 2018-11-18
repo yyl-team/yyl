@@ -81,7 +81,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   if (ctx === 'watch') {
     const op = {
-      livereload: opzer.ignoreLiveReload ? false: true
+      livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false: true
     };
 
     // 接入 seed 中间件
@@ -135,7 +135,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         const finishHandle = () => {
           log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
           if (isUpdate) {
-            if (!opzer.ignoreLiveReload) {
+            if (!opzer.ignoreLiveReload || iEnv.livereload) {
               wOpzer.livereload(config, iEnv);
             }
             log('finish');

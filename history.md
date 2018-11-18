@@ -1,6 +1,7 @@
 # 版本信息
-## 3.2.0 ()
-* [ADD]  新增 `yyl proxy` 命令
+## 3.2.0 (2018-11-18)
+* [ADD] 新增 `yyl proxy` 命令
+* [ADD] seed `webpack-vue2` 支持 `hmr`
 * [EDIT] 将 `log('start', xx)` 统一放到 `w-cmd.js` 里面
 * [EDIT] `optimize` 包含 `localserver` 部分,  而 `proxy` 服务则独立新开窗口执行
 * [EDIT] `yyl commit` 代码逻辑优化
