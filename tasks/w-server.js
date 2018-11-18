@@ -158,7 +158,9 @@ wServer.start = async function (ctx, iEnv, options) {
 
   // livereload
   let lrServer;
-  if (!op.ignoreLiveReload) {
+  const app = connect();
+
+  if (op.livereload) {
     if (iEnv.lrPort) {
       serverConfig.lrPort = iEnv.lrPort;
     } else {
@@ -171,13 +173,11 @@ wServer.start = async function (ctx, iEnv, options) {
     log('msg', 'success', `server lr port : ${chalk.yellow.bold(serverConfig.lrPort)}`);
 
     lrServer = tinylr();
+    app.use(livereload({
+      port: serverConfig.lrPort,
+      src: `http://localhost:${serverConfig.lrPort}/livereload.js?snipver=1`
+    }));
   }
-
-  const app = connect();
-  app.use(livereload({
-    port: serverConfig.lrPort,
-    src: `http://localhost:${serverConfig.lrPort}/livereload.js?snipver=1`
-  }));
 
   // mock
   app.use(wMock({
@@ -203,6 +203,7 @@ wServer.start = async function (ctx, iEnv, options) {
   app.use(serveStatic(serverConfig.root, {
     'setHeaders': function(res) {
       res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Access-Control-Allow-Origin', '*');
     }
   }));
 

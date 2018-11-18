@@ -75,7 +75,7 @@ const fn = {
       r.push(rMap[key]);
     });
 
-    return new Promise.resolve(
+    return Promise.resolve(
       r.join('\n')
         .replace(/[\n]{2,}/g, '\n\n')
         .replace(/^\n/, '')

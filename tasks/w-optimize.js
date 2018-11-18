@@ -86,8 +86,8 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
     // 接入 seed 中间件
     if (opzer.initServerMiddleWare) {
-      op.onInitMiddleWare = async function (app) {
-        await opzer.initServerMiddleWare(app, iEnv);
+      op.onInitMiddleWare = function (app) {
+        opzer.initServerMiddleWare(app);
       };
     }
 
@@ -135,7 +135,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         const finishHandle = () => {
           log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
           if (isUpdate) {
-            wOpzer.livereload(config, iEnv);
+            if (!opzer.ignoreLiveReload) {
+              wOpzer.livereload(config, iEnv);
+            }
             log('finish');
           } else {
             isUpdate = 1;
