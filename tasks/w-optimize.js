@@ -8,6 +8,7 @@ const revHash = require('rev-hash');
 const frp = require('yyl-file-replacer');
 
 const wServer = require('./w-server.js');
+const wProxy = require('./w-proxy.js');
 const util = require('./w-util.js');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
@@ -127,42 +128,34 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           isError = true;
         }
       })
-      .on('finished', () => {
+      .on('finished', async () => {
         if (ctx === 'all' && isError) {
           throw `${ctx} task run error`;
         }
         log('msg', 'success', [`opzer.${ctx}() finished`]);
-        const finishHandle = () => {
-          log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
-          if (isUpdate) {
-            if (!opzer.ignoreLiveReload || iEnv.livereload) {
-              wOpzer.livereload(config, iEnv);
-            }
-            log('finish');
-          } else {
-            isUpdate = 1;
-            log('finish');
-            next(config, opzer);
+
+        await wOpzer.afterTask(config, iEnv, isUpdate);
+
+        // 更新 映射表
+        await wProxy.updateMapping(config, iEnv);
+
+        // 第一次构建 打开 对应页面
+        if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {
+          await wOpzer.openHompPage(config, iEnv);
+        }
+
+        log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
+        if (isUpdate) {
+          // 刷新页面
+          if (!opzer.ignoreLiveReload || iEnv.livereload) {
+            wOpzer.livereload(config, iEnv);
           }
-        };
-        wOpzer.afterTask(config, iEnv, isUpdate).then(() => {
-          if (
-            ctx === 'watch' &&
-            !isUpdate &&
-            !iEnv.silent &&
-            iEnv.proxy
-          ) {
-            wOpzer.openHomePage(config, iEnv).then(() => {
-              finishHandle();
-            }).catch(() => {
-              finishHandle();
-            });
-          } else {
-            finishHandle();
-          }
-        }).catch((er) => {
-          throw er;
-        });
+          log('finished');
+        } else {
+          isUpdate = 1;
+          log('finished');
+          next(config, opzer);
+        }
       });
   });
 };

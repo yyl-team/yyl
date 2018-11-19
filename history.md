@@ -1,4 +1,7 @@
 # 版本信息
+## 3.3.0 (2018-11-19)
+* [ADD] yyl proxy 代理 接入 `any-proxy`
+
 ## 3.2.0 (2018-11-18)
 * [ADD] 新增 `yyl proxy` 命令
 * [ADD] seed `webpack-vue2` 支持 `hmr`

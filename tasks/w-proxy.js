@@ -5,6 +5,7 @@ const net = require('net');
 const fs = require('fs');
 const url = require('url');
 const chalk = require('chalk');
+const extFs = require('yyl-fs');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
@@ -394,6 +395,21 @@ wProxy.abort = function () {
     });
   } else {
     return Promise.resolve(null);
+  }
+};
+
+// 更新映射表
+wProxy.updateMapping = async function (config) {
+  extFs.mkdirSync(util.vars.SERVER_DATA_PATH);
+  const serverRoot = config.alias.destRoot;
+  const proxyConfig = config.proxy;
+  if (!proxyConfig) {
+    return;
+  }
+
+  let { localRemote, ignores } = proxyConfig;
+  if (!localRemote) {
+    localRemote = {};
   }
 };
 

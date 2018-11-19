@@ -86,7 +86,7 @@ wServer.help = (iEnv) => {
     options: {
       '--proxy': 'start with proxy server',
       '--help': 'print usage information',
-      '-p, --path': 'show the yyl server local path'
+     '-p, --path': 'show the yyl server local path'
     }
   };
   if (!iEnv.silent) {
