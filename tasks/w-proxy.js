@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
+const request = require('request');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
@@ -12,7 +13,10 @@ const AnyProxy = require('anyproxy');
 
 const cache = {
   server: null,
-  index: 0
+  index: 0,
+  proxyConfig: {},
+  uiAddress: null,
+  port: null
 };
 
 const wProxy = (ctx, iEnv, configPath) => {
@@ -87,7 +91,7 @@ wProxy.start = async function (ctx, iEnv) {
     proxyConfig.port = iEnv.proxy;
   }
 
-  if (!await extFn.checkPortUseage(proxyConfig.port)) {
+  if (!await extFn.checkPort(proxyConfig.port)) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
 
@@ -98,36 +102,46 @@ wProxy.start = async function (ctx, iEnv) {
       enable: true,
       webPort: 8002
     },
+    rule: {
+      beforeSendRequest(req) {
+        // console.log('===', req);
+        // TODO
+        return Promise.resolve(null);
+      }
+    },
     throttle: 10000,
     forceProxyHttps: false,
     wsIntercept: false,
     silent: true
   };
 
-  if (!await extFn.checkPortUseage(proxyOpts.webInterface.webPort)) {
+  if (!await extFn.checkPort(proxyOpts.webInterface.webPort)) {
     throw `port ${chalk.yellow(proxyOpts.webInterface.webPort)} is occupied, please check`;
   }
 
   return await extFn.makeAwait((next) => {
     cache.server = new AnyProxy.ProxyServer(proxyOpts);
 
-    const uiAddress = `http://${util.vars.LOCAL_SERVER}:${proxyOpts.webInterface.webPort}/`;
+    cache.uiAddress = `http://${util.vars.LOCAL_SERVER}:${proxyOpts.webInterface.webPort}/`;
+    cache.port = proxyConfig.port;
 
     cache.server.on('ready', async () => {
       log('msg', 'success', 'proxy server start');
-      const localConfig = await wProxy.getMapping();
-      Object.keys(localConfig.localRemote).forEach((key) => {
-        log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow(localConfig.localRemote[key])}`);
-      });
-      log('msg', 'success', `proxy ui address : ${chalk.yellow(uiAddress)}`);
-      log('msg', 'success', `proxy server port: ${chalk.yellow(proxyConfig.port)}`);
+      await wProxy.updateCachePxyConfig();
       next(config);
     });
 
     cache.server.on('error', (e) => {
       throw e;
     });
-
+    fs.watchFile(util.vars.SERVER_PROXY_MAPPING_FILE, async (curr, prev) => {
+      log('clear');
+      log('start', 'server', 'proxy config changing');
+      if (curr.ctime !== prev.ctime) {
+        await wProxy.updateCachePxyConfig();
+      }
+      log('finished');
+    });
     cache.server.start();
   });
 };
@@ -172,17 +186,35 @@ wProxy.updateMapping = async function (config) {
 
 // 获取映射表
 wProxy.getMapping = function () {
-  let r = {};
+  let r = {
+    localRemote: []
+  };
   if (fs.existsSync(util.vars.SERVER_PROXY_MAPPING_FILE)) {
-    const ctx = fs.readFileSync(util.vars.SERVER_PROXY_MAPPING_FILE).toString();
+    const data = util.requireJs(util.vars.SERVER_PROXY_MAPPING_FILE);
     try {
-      r = JSON.parse(ctx);
+      r = util.extend(true, r, data);
     } catch (er) {
       log('msg', 'warn', `wProxy.getMapping parse error ${er}, use default mapping`);
       return r;
     }
   }
   return Promise.resolve(r);
+};
+
+// 更新 缓存中的 proxyConfig
+wProxy.updateCachePxyConfig = async function () {
+  cache.proxyConfig = await wProxy.getMapping();
+  Object.keys(cache.proxyConfig.localRemote).forEach((key) => {
+    log('msg', 'success', `proxy map: ${chalk.cyan(key)} => ${chalk.yellow.bold(cache.proxyConfig.localRemote[key])}`);
+  });
+
+  if (cache.uiAddress) {
+    log('msg', 'success', `proxy ui address : ${chalk.yellow.bold(cache.uiAddress)}`);
+  }
+
+  if (cache.port) {
+    log('msg', 'success', `proxy server port: ${chalk.yellow.bold(cache.port)}`);
+  }
 };
 
 module.exports = wProxy;
