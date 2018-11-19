@@ -141,7 +141,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
         // 第一次构建 打开 对应页面
         if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {
-          await wOpzer.openHompPage(config, iEnv);
+          await wOpzer.openHomePage(config, iEnv);
         }
 
         log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
