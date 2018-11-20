@@ -30,6 +30,7 @@ const setting = {
   }
 };
 setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`;
+setting.proxy.localRemote['http://www.yy.com/__webpack_hmr'] = 'http://127.0.0.1:5000/__webpack_hmr';
 // - setting
 
 Object.assign(config.localserver, setting.localserver);
