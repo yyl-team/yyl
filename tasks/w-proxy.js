@@ -3,7 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
-const request = require('request');
+// const request = require('request');
+const url = require('url');
+const http = require('http');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
@@ -95,6 +97,24 @@ wProxy.start = async function (ctx, iEnv) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
 
+  if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
+    await extFn.makeAwait((next) => {
+      log('end');
+      AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
+        log('start', 'server');
+        // let users to trust this CA before using proxy
+        if (!error) {
+          const certDir = path.dirname(keyPath);
+          log('msg', 'success', ['The cert is generated at', chalk.yellow.bold(certDir)]);
+          util.openPath(certDir);
+        } else {
+          log('msg', 'error', ['error when generating rootCA', error]);
+        }
+        next();
+      });
+    });
+  }
+
   const proxyOpts = {
     port: proxyConfig.port,
     // gui
@@ -103,14 +123,83 @@ wProxy.start = async function (ctx, iEnv) {
       webPort: 8002
     },
     rule: {
-      beforeSendRequest(req) {
-        console.log('===', req.url);
-        // TODO
-        return Promise.resolve(null);
+      async beforeSendRequest(req) {
+        const { localRemote, ignores } = cache.proxyConfig;
+        if (typeof localRemote !== 'object') {
+          return;
+        }
+
+        const iUrl = extFn.hideProtocol(req.url);
+
+        let isIgnore = false;
+        if (ignores && ignores.length) {
+          ignores.forEach((key) => {
+            const v1 = extFn.hideProtocol(key);
+            if (iUrl === v1) {
+              isIgnore = true;
+            }
+          });
+        }
+
+        if (isIgnore) {
+          return null;
+        }
+
+        let proxyUrl = null;
+        Object.keys(localRemote).forEach((key) => {
+          const v1 = extFn.hideProtocol(key);
+          if (iUrl.substr(0, v1.length) === v1) {
+            proxyUrl = util.path.join(localRemote[key], iUrl.substr(v1.length));
+          }
+        });
+
+        if (proxyUrl) {
+          return await extFn.makeAwait((next) => {
+            const vOpts = url.parse(proxyUrl);
+            vOpts.method = req.requestOptions.method;
+            vOpts.headers = req.requestOptions.headers;
+            if (vOpts.method !== 'GET') {
+              vOpts.body = req.requestData;
+            }
+            next(null);
+
+            // TODO 暂时不通
+            // const vRequest = http.request(vOpts, (vRes) => {
+            //   if (/^404|405$/.test(vRes.statusCode)) {
+            //     next(null);
+            //     return vRequest.abort();
+            //   }
+
+            //   let resBody = [];
+            //   vRes.on('data', (chunk) => {
+            //     resBody.push(chunk);
+            //   });
+            //   vRes.on('end', () => {
+            //     resBody = Buffer.concat(resBody).toString();
+            //     console.log('<==', resBody)
+            //     next({
+            //       response: {
+            //         statusCode: vRes.statusCode,
+            //         header: vRes.headers,
+            //         body: resBody
+            //       }
+            //     });
+            //   });
+            //   vRes.on('error', () => {
+            //     next(null);
+            //   });
+            // });
+            // vRequest.write(vOpts.body);
+            // vRequest.end();
+          });
+        } else {
+          return null;
+        }
+        // console.log('===', proxyUrl);
       }
     },
     throttle: 10000,
-    forceProxyHttps: false,
+    forceProxyHttps: true,
     wsIntercept: false,
     silent: true
   };

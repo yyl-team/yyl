@@ -11,6 +11,13 @@ const extFn = {
   makeAwait: function (fn) {
     return new Promise(fn);
   },
+  hideProtocol: function (str) {
+    if (typeof str === 'string') {
+      return str.replace(/^http[s]?:/, '');
+    } else {
+      return str;
+    }
+  },
   checkPort: function (port) {
     return new Promise((next) => {
       util.checkPortUseage(port, (canUse) => {
