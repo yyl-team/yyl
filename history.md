@@ -2,6 +2,12 @@
 ## 3.3.0 (2018-11-19)
 * [ADD] yyl proxy 代理 接入 `any-proxy`
 
+## 3.2.2 (2018-11-20)
+* [FIX] ci 默认config 修改
+
+## 3.2.1 (2018-11-19)
+* [FIX] 更新 `yyl-seed-webpack-vue2` 到 `0.3.3` 来优化 `--remote` 样式不生效的问题
+
 ## 3.2.0 (2018-11-18)
 * [ADD] 新增 `yyl proxy` 命令
 * [ADD] seed `webpack-vue2` 支持 `hmr`
