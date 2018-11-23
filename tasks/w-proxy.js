@@ -104,7 +104,7 @@ wProxy.start = async function (ctx, iEnv) {
     },
     rule: {
       beforeSendRequest(req) {
-        // console.log('===', req);
+        console.log('===', req.url);
         // TODO
         return Promise.resolve(null);
       }
