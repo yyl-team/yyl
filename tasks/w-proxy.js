@@ -119,7 +119,7 @@ wProxy.start = async function (ctx, iEnv) {
     // gui
     webInterface: {
       enable: true,
-      webPort: 8002
+      webPort: 5001
     },
     rule: {
       async beforeSendRequest(req) {
@@ -221,10 +221,9 @@ wProxy.start = async function (ctx, iEnv) {
 wProxy.abort = function () {
   if (cache.server) {
     return new Promise((next) => {
-      cache.server.close(() => {
-        cache.server = null;
-        return next();
-      });
+      cache.server.close();
+      cache.server = null;
+      return next();
     });
   } else {
     return Promise.resolve(null);
@@ -236,7 +235,7 @@ wProxy.updateMapping = async function (config) {
   await extFs.mkdirSync(util.vars.SERVER_DATA_PATH);
   const pxyConfig = config.proxy;
   if (!pxyConfig) {
-    return;
+    return config;
   }
 
   if (!pxyConfig.localRemote) {

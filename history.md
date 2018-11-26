@@ -1,6 +1,6 @@
 # 版本信息
-## 3.3.0 (2018-11-19)
-* [ADD] yyl proxy 代理 接入 `any-proxy`
+## 3.3.0 (2018-11-26)
+* [ADD] yyl proxy 代理 接入 `any-proxy` 端口 `5001`
 
 ## 3.2.2 (2018-11-20)
 * [FIX] ci 默认config 修改
