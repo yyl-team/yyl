@@ -3,9 +3,9 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
-// const request = require('request');
-const url = require('url');
-const http = require('http');
+const request = require('request');
+// const url = require('url');
+// const http = require('http');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
@@ -72,23 +72,22 @@ wProxy.start = async function (ctx, iEnv) {
   let proxyConfig;
   if (typeof ctx === 'object') {
     config = ctx;
-    config.proxy = util.extend(DEFAULT_CONFIG, config.proxy);
-    proxyConfig = config.proxy;
   } else if (!ctx) {
     config = {};
-    proxyConfig = DEFAULT_CONFIG;
     log('msg', 'warn', 'use default proxy config');
   } else {
     try {
-      config = await extFn.parseConfig(ctx, iEnv, ['proxy']);
-      proxyConfig = util.extend(true, DEFAULT_CONFIG, config.proxy);
+      config = await extFn.parseConfig(ctx, iEnv, ['proxy', 'commit', 'localserver']);
     } catch (er) {
       config = {};
-      proxyConfig = DEFAULT_CONFIG;
       log('msg', 'warn', `${er}, use default proxy config`);
     }
   }
 
+  config = await wProxy.updateMapping(config, iEnv);
+  proxyConfig = util.extend(true, DEFAULT_CONFIG, config.proxy);
+
+  // 更新 本地映射
   if (iEnv.proxy) {
     proxyConfig.port = iEnv.proxy;
   }
@@ -155,47 +154,31 @@ wProxy.start = async function (ctx, iEnv) {
 
         if (proxyUrl) {
           return await extFn.makeAwait((next) => {
-            const vOpts = url.parse(proxyUrl);
-            vOpts.method = req.requestOptions.method;
-            vOpts.headers = req.requestOptions.headers;
-            if (vOpts.method !== 'GET') {
+            const vOpts = {
+              url: proxyUrl,
+              headers: req.requestOptions.headers,
+              encoding: null
+            };
+            const iMethod = req.requestOptions.method.toLowerCase();
+            if (iMethod !== 'get') {
               vOpts.body = req.requestData;
             }
-            next(null);
-
-            // TODO 暂时不通
-            // const vRequest = http.request(vOpts, (vRes) => {
-            //   if (/^404|405$/.test(vRes.statusCode)) {
-            //     next(null);
-            //     return vRequest.abort();
-            //   }
-
-            //   let resBody = [];
-            //   vRes.on('data', (chunk) => {
-            //     resBody.push(chunk);
-            //   });
-            //   vRes.on('end', () => {
-            //     resBody = Buffer.concat(resBody).toString();
-            //     console.log('<==', resBody)
-            //     next({
-            //       response: {
-            //         statusCode: vRes.statusCode,
-            //         header: vRes.headers,
-            //         body: resBody
-            //       }
-            //     });
-            //   });
-            //   vRes.on('error', () => {
-            //     next(null);
-            //   });
-            // });
-            // vRequest.write(vOpts.body);
-            // vRequest.end();
+            request[iMethod](vOpts, (error, vRes, body) => {
+              if (error || /^404|405$/.test(vRes.statusCode)) {
+                return next(null);
+              }
+              return next({
+                response: {
+                  statusCode: vRes.statusCode,
+                  header: vRes.headers,
+                  body: body
+                }
+              });
+            });
           });
         } else {
           return null;
         }
-        // console.log('===', proxyUrl);
       }
     },
     throttle: 10000,
@@ -265,7 +248,7 @@ wProxy.updateMapping = async function (config) {
     const localHostname = config.commit.hostname.replace(/[\\/]$/, '');
     const port = config.localserver && config.localserver.port;
     if (!pxyConfig.localRemote[localHostname] && port) {
-      pxyConfig.localRemote[localHostname] = `//${util.vars.LOCAL_SERVER}:${port}`;
+      pxyConfig.localRemote[`${localHostname}/`] = `http://${util.vars.LOCAL_SERVER}:${port}/`;
     }
   }
   fs.writeFileSync(util.vars.SERVER_PROXY_MAPPING_FILE, `module.exports = ${JSON.stringify(pxyConfig, null, 2)}`);

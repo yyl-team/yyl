@@ -205,10 +205,13 @@ wServer.start = async function (ctx, iEnv, options) {
     'setHeaders': function(res) {
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Expires', 0);
+      res.setHeader('Pragma', 'no-cache');
     }
   }));
 
   app.use(serveIndex(serverConfig.root));
+
 
   if (typeof op.onInitMiddleWare === 'function') {
     await op.onInitMiddleWare(app);
