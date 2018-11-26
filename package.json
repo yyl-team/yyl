@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.2.2",
+  "version": "3.3.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -30,6 +30,7 @@
     "node": ">= 8.0.0"
   },
   "dependencies": {
+    "anyproxy": "^4.0.12",
     "chalk": "^2.4.1",
     "concat-with-sourcemaps": "^1.0.4",
     "connect": "^3.6.6",

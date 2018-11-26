@@ -45,6 +45,9 @@ const rUtil = util.extend(true, util, {
     // server plugins 存放目录
     SERVER_PLUGIN_PATH: util.joinFormat(USERPROFILE, '.yyl/plugins'),
 
+    // server proxy mapping 存放地址
+    SERVER_PROXY_MAPPING_FILE: util.joinFormat(USERPROFILE, '.yyl/data/proxy-mapping.js'),
+
     // server 存放 https 证书的目录
     SERVER_CERTS_PATH: util.joinFormat(USERPROFILE, '.yyl/certs'),
 
