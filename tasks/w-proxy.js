@@ -123,6 +123,7 @@ wProxy.start = async function (ctx, iEnv) {
     },
     rule: {
       async beforeSendRequest(req) {
+        console.log('beforeSendRequest', req.url)
         const { localRemote, ignores } = cache.proxyConfig;
         if (typeof localRemote !== 'object') {
           return;
@@ -153,28 +154,33 @@ wProxy.start = async function (ctx, iEnv) {
         });
 
         if (proxyUrl) {
+          console.log('===', 'start', proxyUrl)
           return await extFn.makeAwait((next) => {
-            const vOpts = {
-              url: proxyUrl,
-              headers: req.requestOptions.headers,
-              encoding: null
-            };
-            const iMethod = req.requestOptions.method.toLowerCase();
-            if (iMethod !== 'get') {
-              vOpts.body = req.requestData;
-            }
-            request[iMethod](vOpts, (error, vRes, body) => {
-              if (error || /^404|405$/.test(vRes.statusCode)) {
-                return next(null);
-              }
-              return next({
-                response: {
-                  statusCode: vRes.statusCode,
-                  header: vRes.headers,
-                  body: body
-                }
-              });
-            });
+            // console.log('===', 'proxyUrl', proxyUrl)
+            // const vOpts = {
+            //   url: proxyUrl,
+            //   headers: req.requestOptions.headers,
+            //   method: req.requestOptions.method
+            // };
+            // const iMethod = req.requestOptions.method;
+            // if (iMethod !== 'GET') {
+            //   vOpts.body = req.requestData;
+            // }
+
+            // console.log('===>', vOpts.url, iMethod)
+            // request(vOpts, (error, vRes, body) => {
+            //   console.log('===', 'back', req.url, vRes.status)
+            //   if (error || /^404|405$/.test(vRes.statusCode)) {
+            //     return next(null);
+            //   }
+            //   return next({
+            //     response: {
+            //       statusCode: vRes.statusCode,
+            //       header: vRes.headers,
+            //       body: body
+            //     }
+            //   });
+            // });
           });
         } else {
           return null;
