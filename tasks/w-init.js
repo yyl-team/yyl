@@ -14,7 +14,7 @@ const log = require('./w-log.js');
 // 选择倾向
 const PREFER = {
   PC: 'gulp-requirejs',
-  MOBILE: 'gulp-requirejs'
+  MOBILE: 'webpack-vue2'
 };
 
 // 平台选择
