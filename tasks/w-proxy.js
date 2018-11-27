@@ -3,9 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
-const request = require('request');
-// const url = require('url');
-// const http = require('http');
+// const request = require('request');
+
+const url = require('url');
+const http = require('http');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
@@ -123,7 +124,6 @@ wProxy.start = async function (ctx, iEnv) {
     },
     rule: {
       async beforeSendRequest(req) {
-        console.log('beforeSendRequest', req.url)
         const { localRemote, ignores } = cache.proxyConfig;
         if (typeof localRemote !== 'object') {
           return;
@@ -154,9 +154,36 @@ wProxy.start = async function (ctx, iEnv) {
         });
 
         if (proxyUrl) {
-          console.log('===', 'start', proxyUrl)
           return await extFn.makeAwait((next) => {
-            // console.log('===', 'proxyUrl', proxyUrl)
+            const vOpts = url.parse(proxyUrl);
+            vOpts.method = req.requestOptions.method;
+            vOpts.headers = req.requestOptions.headers;
+
+            if (vOpts.methd !== 'GET') {
+              vOpts.body = req.requestData;
+            }
+
+            const vRequest = http.request(vOpts, (vRes) => {
+              if (/^404|405$/.test(vRes.statusCode)) {
+                next(null);
+              }
+
+              vRes.on('error', () => {});
+
+              next({
+                requestOptions: vOpts
+              });
+              return vRequest.abort();
+            });
+
+            vRequest.on('error', () => {
+              next();
+            });
+
+            if (vOpts.body) {
+              vRequest.write(vOpts.body);
+            }
+            vRequest.end();
             // const vOpts = {
             //   url: proxyUrl,
             //   headers: req.requestOptions.headers,
@@ -167,9 +194,7 @@ wProxy.start = async function (ctx, iEnv) {
             //   vOpts.body = req.requestData;
             // }
 
-            // console.log('===>', vOpts.url, iMethod)
             // request(vOpts, (error, vRes, body) => {
-            //   console.log('===', 'back', req.url, vRes.status)
             //   if (error || /^404|405$/.test(vRes.statusCode)) {
             //     return next(null);
             //   }
@@ -189,7 +214,7 @@ wProxy.start = async function (ctx, iEnv) {
     },
     throttle: 10000,
     forceProxyHttps: true,
-    wsIntercept: false,
+    wsIntercept: true,
     silent: true
   };
 
