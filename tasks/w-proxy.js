@@ -171,6 +171,7 @@ wProxy.start = async function (ctx, iEnv) {
               vRes.on('error', () => {});
 
               next({
+                protocol: vOpts.protocol,
                 requestOptions: vOpts
               });
               return vRequest.abort();
