@@ -3,9 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
-const request = require('request');
-// const url = require('url');
-// const http = require('http');
+// const request = require('request');
+
+const url = require('url');
+const http = require('http');
 
 const log = require('./w-log.js');
 const util = require('./w-util.js');
@@ -154,27 +155,58 @@ wProxy.start = async function (ctx, iEnv) {
 
         if (proxyUrl) {
           return await extFn.makeAwait((next) => {
-            const vOpts = {
-              url: proxyUrl,
-              headers: req.requestOptions.headers,
-              encoding: null
-            };
-            const iMethod = req.requestOptions.method.toLowerCase();
-            if (iMethod !== 'get') {
+            const vOpts = url.parse(proxyUrl);
+            vOpts.method = req.requestOptions.method;
+            vOpts.headers = req.requestOptions.headers;
+
+            if (vOpts.methd !== 'GET') {
               vOpts.body = req.requestData;
             }
-            request[iMethod](vOpts, (error, vRes, body) => {
-              if (error || /^404|405$/.test(vRes.statusCode)) {
-                return next(null);
+
+            const vRequest = http.request(vOpts, (vRes) => {
+              if (/^404|405$/.test(vRes.statusCode)) {
+                next(null);
               }
-              return next({
-                response: {
-                  statusCode: vRes.statusCode,
-                  header: vRes.headers,
-                  body: body
-                }
+
+              vRes.on('error', () => {});
+
+              next({
+                protocol: vOpts.protocol,
+                requestOptions: vOpts
               });
+              return vRequest.abort();
             });
+
+            vRequest.on('error', () => {
+              next();
+            });
+
+            if (vOpts.body) {
+              vRequest.write(vOpts.body);
+            }
+            vRequest.end();
+            // const vOpts = {
+            //   url: proxyUrl,
+            //   headers: req.requestOptions.headers,
+            //   method: req.requestOptions.method
+            // };
+            // const iMethod = req.requestOptions.method;
+            // if (iMethod !== 'GET') {
+            //   vOpts.body = req.requestData;
+            // }
+
+            // request(vOpts, (error, vRes, body) => {
+            //   if (error || /^404|405$/.test(vRes.statusCode)) {
+            //     return next(null);
+            //   }
+            //   return next({
+            //     response: {
+            //       statusCode: vRes.statusCode,
+            //       header: vRes.headers,
+            //       body: body
+            //     }
+            //   });
+            // });
           });
         } else {
           return null;
@@ -183,7 +215,7 @@ wProxy.start = async function (ctx, iEnv) {
     },
     throttle: 10000,
     forceProxyHttps: true,
-    wsIntercept: false,
+    wsIntercept: true,
     silent: true
   };
 
