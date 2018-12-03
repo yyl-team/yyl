@@ -88,7 +88,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     // 接入 seed 中间件
     if (opzer.initServerMiddleWare) {
       op.onInitMiddleWare = function (app) {
-        opzer.initServerMiddleWare(app);
+        opzer.initServerMiddleWare(app, iEnv);
       };
     }
 
@@ -148,7 +148,8 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         if (isUpdate) {
           // 刷新页面
           if (!opzer.ignoreLiveReload || iEnv.livereload) {
-            wOpzer.livereload(config, iEnv);
+            log('msg', 'success', 'page reloaded');
+            await wOpzer.livereload(config, iEnv);
           }
           log('finished');
         } else {

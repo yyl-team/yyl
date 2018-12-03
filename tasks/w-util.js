@@ -79,11 +79,6 @@ const rUtil = util.extend(true, util, {
     return JSON.parse(fs.readFileSync(path));
   },
 
-  livereload: function() {
-    var reloadPath = `http://${util.vars.LOCAL_SERVER}:35729/changed?files=1`;
-    util.get(reloadPath);
-  },
-
   checkPort: function (port) {
     return new Promise((next) => {
       util.checkPortUseage(port, (canUse) => {
