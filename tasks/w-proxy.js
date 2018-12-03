@@ -274,6 +274,22 @@ wProxy.updateMapping = async function (config) {
     pxyConfig.localRemote = {};
   }
 
+  const formatLocalServer = (str) => {
+    if (typeof str === 'string') {
+      return str
+        .replace('127.0.0.1:5000', `${util.vars.LOCAL_SERVER}:${config.localserver.port}`)
+        .replace('localhost:5000', `${util.vars.LOCAL_SERVER}:${config.localserver.port}`);
+    } else {
+      return str;
+    }
+  };
+
+  // 数据处理
+  Object.keys(pxyConfig.localRemote).forEach((key) => {
+    pxyConfig.localRemote[key] = formatLocalServer(pxyConfig.localRemote[key]);
+  });
+
+
   // hostname mapping
   if (config.commit && config.commit.hostname) {
     const localHostname = config.commit.hostname.replace(/[\\/]$/, '');
