@@ -1,4 +1,8 @@
 # 版本信息
+## 3.3.3 (2018-12-17)
+* [EDIT] `config.proxy.https` 新增项， 设置为 `true` 才进行 https 代理
+* [EIDT] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.7` 修复 `config.mainHost`， `config.staticHost` 后不带 `/` 会生成路径不对问题
+
 ## 3.3.2 (2018-11-27)
 * [FIX] 修复在手机上不能 热更新问题
 

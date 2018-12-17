@@ -97,22 +97,24 @@ wProxy.start = async function (ctx, iEnv) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
 
-  if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
-    await extFn.makeAwait((next) => {
-      log('end');
-      AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
-        log('start', 'server');
-        // let users to trust this CA before using proxy
-        if (!error) {
-          const certDir = path.dirname(keyPath);
-          log('msg', 'success', ['The cert is generated at', chalk.yellow.bold(certDir)]);
-          util.openPath(certDir);
-        } else {
-          log('msg', 'error', ['error when generating rootCA', error]);
-        }
-        next();
+  if (iEnv.https) {
+    if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
+      await extFn.makeAwait((next) => {
+        log('end');
+        AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
+          log('start', 'server');
+          // let users to trust this CA before using proxy
+          if (!error) {
+            const certDir = path.dirname(keyPath);
+            log('msg', 'success', ['The cert is generated at', chalk.yellow.bold(certDir)]);
+            util.openPath(certDir);
+          } else {
+            log('msg', 'error', ['error when generating rootCA', error]);
+          }
+          next();
+        });
       });
-    });
+    }
   }
 
   const proxyOpts = {
@@ -214,7 +216,7 @@ wProxy.start = async function (ctx, iEnv) {
       }
     },
     throttle: 10000,
-    forceProxyHttps: true,
+    forceProxyHttps: iEnv.https ? true: false,
     wsIntercept: true,
     silent: true
   };

@@ -214,7 +214,7 @@ wServer.start = async function (ctx, iEnv, options) {
 
 
   if (typeof op.onInitMiddleWare === 'function') {
-    await op.onInitMiddleWare(app);
+    await op.onInitMiddleWare(app, serverConfig.port);
   }
 
   const server = http.createServer(app);
