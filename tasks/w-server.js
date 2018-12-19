@@ -86,7 +86,7 @@ wServer.help = (iEnv) => {
     options: {
       '--proxy': 'start with proxy server',
       '--help': 'print usage information',
-     '-p, --path': 'show the yyl server local path'
+      '-p, --path': 'show the yyl server local path'
     }
   };
   if (!iEnv.silent) {
@@ -176,7 +176,7 @@ wServer.start = async function (ctx, iEnv, options) {
     lrServer = tinylr();
     app.use(livereload({
       port: serverConfig.lrPort,
-      src: `http://localhost:${serverConfig.lrPort}/livereload.js?snipver=1`
+      src: `http://${util.vars.LOCAL_SERVER}:${serverConfig.lrPort}/livereload.js?snipver=1`
     }));
   }
 
@@ -214,7 +214,7 @@ wServer.start = async function (ctx, iEnv, options) {
 
 
   if (typeof op.onInitMiddleWare === 'function') {
-    await op.onInitMiddleWare(app);
+    await op.onInitMiddleWare(app, serverConfig.port);
   }
 
   const server = http.createServer(app);

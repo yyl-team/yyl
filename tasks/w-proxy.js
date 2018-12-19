@@ -97,22 +97,24 @@ wProxy.start = async function (ctx, iEnv) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
 
-  if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
-    await extFn.makeAwait((next) => {
-      log('end');
-      AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
-        log('start', 'server');
-        // let users to trust this CA before using proxy
-        if (!error) {
-          const certDir = path.dirname(keyPath);
-          log('msg', 'success', ['The cert is generated at', chalk.yellow.bold(certDir)]);
-          util.openPath(certDir);
-        } else {
-          log('msg', 'error', ['error when generating rootCA', error]);
-        }
-        next();
+  if (iEnv.https) {
+    if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
+      await extFn.makeAwait((next) => {
+        log('end');
+        AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
+          log('start', 'server');
+          // let users to trust this CA before using proxy
+          if (!error) {
+            const certDir = path.dirname(keyPath);
+            log('msg', 'success', ['The cert is generated at', chalk.yellow.bold(certDir)]);
+            util.openPath(certDir);
+          } else {
+            log('msg', 'error', ['error when generating rootCA', error]);
+          }
+          next();
+        });
       });
-    });
+    }
   }
 
   const proxyOpts = {
@@ -214,7 +216,7 @@ wProxy.start = async function (ctx, iEnv) {
       }
     },
     throttle: 10000,
-    forceProxyHttps: true,
+    forceProxyHttps: iEnv.https ? true: false,
     wsIntercept: true,
     silent: true
   };
@@ -273,6 +275,22 @@ wProxy.updateMapping = async function (config) {
   if (!pxyConfig.localRemote) {
     pxyConfig.localRemote = {};
   }
+
+  const formatLocalServer = (str) => {
+    if (typeof str === 'string') {
+      return str
+        .replace('127.0.0.1:5000', `${util.vars.LOCAL_SERVER}:${config.localserver.port}`)
+        .replace('localhost:5000', `${util.vars.LOCAL_SERVER}:${config.localserver.port}`);
+    } else {
+      return str;
+    }
+  };
+
+  // 数据处理
+  Object.keys(pxyConfig.localRemote).forEach((key) => {
+    pxyConfig.localRemote[key] = formatLocalServer(pxyConfig.localRemote[key]);
+  });
+
 
   // hostname mapping
   if (config.commit && config.commit.hostname) {
