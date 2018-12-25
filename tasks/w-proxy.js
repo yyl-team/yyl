@@ -89,7 +89,7 @@ wProxy.start = async function (ctx, iEnv) {
   proxyConfig = util.extend(true, DEFAULT_CONFIG, config.proxy);
 
   // 更新 本地映射
-  if (iEnv.proxy) {
+  if (iEnv.proxy && iEnv.proxy !== true) {
     proxyConfig.port = iEnv.proxy;
   }
 

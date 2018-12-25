@@ -100,7 +100,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     // proxy server
     const canUse = await extFn.checkPort(8887);
     if (canUse) {
-      let cmd = 'yyl proxy start --silent';
+      let cmd = `yyl proxy start --silent ${util.envStringify(iEnv)}`;
       await extFn.makeAwait((next) => {
         util.runCMD(cmd, () => {
           next();

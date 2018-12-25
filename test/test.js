@@ -793,7 +793,7 @@ if (TEST_CTRL.COMMIT) {
       it(`yyl commit for ${workflow}`, fn.makeAsync(async () => {
         const WORKFLOW_PATH = path.join(__dirname, 'workflow-test', workflow);
         const COMMON_PATH = path.join(__dirname, 'workflow-test/commons');
-        const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, 'workflow');
+        const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, `commit-workflow-${workflow}`);
         const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
 
         await fn.frag.build();
