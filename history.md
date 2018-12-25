@@ -1,4 +1,8 @@
 # 版本信息
+## 3.3.4 (2018-12-25)
+* [FIX] 修复 `yyl watch --name pc` 不会 把 `--name` 传到 proxy 那边 的问题
+* [ADD] 升级 `yyl-seed-webpack-vue2` 到 `0.4.1` 支持 `config.px2rem` 配置项
+
 ## 3.3.3 (2018-12-17)
 * [EDIT] `config.proxy.https` 新增项， 设置为 `true` 才进行 https 代理
 * [EIDT] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.7` 修复 `config.mainHost`， `config.staticHost` 后不带 `/` 会生成路径不对问题
