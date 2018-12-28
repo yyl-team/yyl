@@ -809,7 +809,7 @@ if (TEST_CTRL.COMMIT) {
         const svnDir = util.path.join(FRAG_WORKFLOW_PATH, '../__committest');
         util.mkdirSync(svnDir);
 
-        extFn.makeAwait((next) => {
+        await extFn.makeAwait((next) => {
           util.runCMD(`svn checkout ${svnPath}`, (err) => {
             if (err) {
               throw new Error(err);
