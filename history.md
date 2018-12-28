@@ -1,4 +1,7 @@
 # 版本信息
+## 3.3.5 (2018-12-26)
+* [ADD] tpl 类型 文件 经过 any-proxy 默认允许跨域访问
+
 ## 3.3.4 (2018-12-25)
 * [FIX] 修复 `yyl watch --name pc` 不会 把 `--name` 传到 proxy 那边 的问题
 * [ADD] 升级 `yyl-seed-webpack-vue2` 到 `0.4.1` 支持 `config.px2rem` 配置项

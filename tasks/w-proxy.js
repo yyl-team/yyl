@@ -213,6 +213,20 @@ wProxy.start = async function (ctx, iEnv) {
         } else {
           return null;
         }
+      },
+      beforeSendResponse(req, res) {
+        if (path.extname(req.url) === '.tpl') {
+          const newRes = res.response;
+          newRes.header['Content-Type'] = 'text/html; charset=UTF-8';
+          newRes.header['Access-Control-Allow-Origin'] = '*';
+          newRes.header['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS';
+          newRes.header['Access-Control-Allow-Headers'] = 'X-PINGOTHER, Content-Type';
+          return Promise.resolve({
+            response: newRes
+          });
+        } else {
+          return Promise.resolve(null);
+        }
       }
     },
     throttle: 10000,
