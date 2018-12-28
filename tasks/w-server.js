@@ -202,7 +202,10 @@ wServer.start = async function (ctx, iEnv, options) {
   });
 
   app.use(serveStatic(serverConfig.root, {
-    'setHeaders': function(res) {
+    'setHeaders': function(res, iPath) {
+      if (path.extname(iPath) === '.tpl') {
+        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
+      }
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Expires', 0);
