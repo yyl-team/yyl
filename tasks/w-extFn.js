@@ -103,12 +103,14 @@ const extFn = {
     }
 
     // alias format to absolute
-    Object.keys(config.alias).forEach((key) => {
-      config.alias[key] = util.path.resolve(
-        dirname,
-        config.alias[key]
-      );
-    });
+    if (config.alias) {
+      Object.keys(config.alias).forEach((key) => {
+        config.alias[key] = util.path.resolve(
+          dirname,
+          config.alias[key]
+        );
+      });
+    }
 
     // config.resource to absolute
     if (config.resource) {

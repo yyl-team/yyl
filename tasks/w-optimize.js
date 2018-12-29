@@ -98,16 +98,23 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     }
 
     // proxy server
-    const canUse = await extFn.checkPort(8887);
-    if (canUse) {
-      let cmd = `yyl proxy start --silent ${util.envStringify(iEnv)}`;
-      await extFn.makeAwait((next) => {
-        util.runCMD(cmd, () => {
-          next();
-        }, util.vars.PROJECT_PATH, true, true);
-      });
-    } else {
-      log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
+    if (iEnv.proxy) {
+      let porxyPort = 8887;
+      if (config.proxy && config.proxy.port) {
+        porxyPort = config.proxy.port;
+      }
+
+      const canUse = await extFn.checkPort(porxyPort);
+      if (canUse) {
+        let cmd = `yyl proxy start --silent ${util.envStringify(iEnv)}`;
+        await extFn.makeAwait((next) => {
+          util.runCMD(cmd, () => {
+            next();
+          }, util.vars.PROJECT_PATH, true, true);
+        });
+      } else {
+        log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
+      }
     }
   }
 
@@ -137,7 +144,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         await wOpzer.afterTask(config, iEnv, isUpdate);
 
         // 更新 映射表
-        await wProxy.updateMapping(config, iEnv);
+        if (iEnv.proxy) {
+          await wProxy.updateMapping(config, iEnv);
+        }
 
         // 第一次构建 打开 对应页面
         if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {

@@ -462,7 +462,7 @@ if (TEST_CTRL.INIT) {
 
     async function dirCheck (pjPath, iEnv) {
       // 检查 config 各项属性是否正确
-      const configPath = path.join(pjPath, 'config.js');
+      const configPath = path.join(pjPath, 'yyl.config.js');
       expect(fs.existsSync(configPath)).to.equal(true);
 
       const config = util.requireJs(configPath);
@@ -501,7 +501,7 @@ if (TEST_CTRL.INIT) {
       // 需要检查 替换是否正确的 列表
       let replaceList = [
         'README.md',
-        'config.js'
+        'yyl.config.js'
       ];
 
       // 拷贝的完整性校验
@@ -515,13 +515,13 @@ if (TEST_CTRL.INIT) {
 
       if (iEnv.platform === 'both') {
         existsList = existsList.concat([
-          'config.pc.js',
-          'config.mobile.js'
+          'yyl.config.pc.js',
+          'yyl.config.mobile.js'
         ]);
 
         replaceList = replaceList.concat([
-          'config.pc.js',
-          'config.mobile.js'
+          'yyl.config.pc.js',
+          'yyl.config.mobile.js'
         ]);
 
         checkingPaths.push(

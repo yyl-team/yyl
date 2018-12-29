@@ -1,6 +1,6 @@
 'use strict';
-const fs = require('fs');
 const chalk = require('chalk');
+const extFn = require('./w-extFn.js');
 
 const util = require('./w-util');
 
@@ -64,43 +64,18 @@ const info = {
     }
     return r;
   },
-  init: function(silent) {
-    var configPath = util.path.join(util.vars.PROJECT_PATH, 'config.js');
-    var configMinePath = util.path.join(util.vars.PROJECT_PATH, 'config.mine.js');
-    var config;
-    var configMine;
-
-    if (!fs.existsSync(configPath)) {
-      util.msg.warn('read workflow info error, config.js is not exists');
-      return Promise.resolve(null);
-    }
-
-    config = util.requireJs(configPath);
-
-    if (!configPath) {
-      util.msg.warn('read workflow info error, config.js parse error');
-      return Promise.resolve(null);
-    }
-
-    if (fs.existsSync(configMinePath)) {
-      configMine = util.requireJs(configMinePath);
-      if (!configMine) {
-        util.msg.warn('config.mine.js parse error');
-      } else {
-        config = util.extend(true, config, configMine);
-      }
-    }
-
-    var isWork = false;
-    let r;
+  async init(iEnv, configPath) {
+    const config = await extFn.parseConfig(configPath, iEnv);
+    let r = null;
+    let isWork = false;
 
     if ('workflow' in config) {
-      r = info.printInformation(config, silent);
+      r = info.printInformation(config, iEnv.silent);
       isWork = true;
     } else {
       Object.keys(config).forEach((key) => {
         if ('workflow' in config[key]) {
-          r = info.printInformation(config[key], silent);
+          r = info.printInformation(config[key], iEnv.silent);
           isWork = true;
         }
       });
@@ -108,13 +83,13 @@ const info = {
 
     if (!isWork) {
       util.msg.warn('read workflow info error, config seetting wrong');
-      return Promise.resolve(null);
+      return null;
     } else {
-      return Promise.resolve(r);
+      return r;
     }
   },
-  run: function(iEnv) {
-    return info.init(iEnv.silent);
+  async run(iEnv, configPath) {
+    return await info.init(iEnv, configPath);
   }
 };
 
