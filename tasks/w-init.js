@@ -100,7 +100,13 @@ const fn = {
     const initSeed = (param) => {
       return new Promise((next) => {
         SEED.find(param.workflow).init(param.init, pjPath)
-          .on('finished', () => {
+          .on('finished', async () => {
+            const rConfigPath = path.join(pjPath, 'config.js');
+            const yylConfigPath = path.join(pjPath, 'yyl.config.js');
+            if (fs.existsSync(rConfigPath)) {
+              await extFs.copyFiles(rConfigPath, yylConfigPath);
+              await extFs.removeFiles(rConfigPath);
+            }
             next();
           });
       });
@@ -109,7 +115,7 @@ const fn = {
     // 调整 文件结构 (用于 多个项目)
     const resetFilePaths = async (platform, sameWorkflow) => {
       const srcPath = path.join(pjPath, 'src');
-      const configPath = path.join(pjPath, 'config.js');
+      const configPath = path.join(pjPath, 'yyl.config.js');
       const otherFiles = await extFs.readFilePaths(pjPath, (iPath) => {
         const rPath = path.relative(pjPath, iPath);
         if (
@@ -127,7 +133,7 @@ const fn = {
       await extFs.copyFiles(srcPath, path.join(fragPath, `src/${platform}`));
 
       // copy config.js => __frag/config.${platform}.js
-      await extFs.copyFiles(configPath, path.join(fragPath, `config.${platform}.js`));
+      await extFs.copyFiles(configPath, path.join(fragPath, `yyl.config.${platform}.js`));
 
       // copy eslintrc, editorconfig => __frag/xx or __frag/src/${platform}/xx
       const otherParam = (() => {
@@ -194,11 +200,11 @@ const fn = {
       await extFs.removeFiles(fragPath, true);
 
       // 初始化 config.pc.js
-      const pcConfigPath = path.join(pjPath, 'config.pc.js');
+      const pcConfigPath = path.join(pjPath, 'yyl.config.pc.js');
       await fn.rewriteConfig(pcConfigPath, pcDataMap);
 
       // 初始化 config.mobile.js
-      const mbConfigPath = path.join(pjPath, 'config.mobile.js');
+      const mbConfigPath = path.join(pjPath, 'yyl.config.mobile.js');
       await fn.rewriteConfig(mbConfigPath, mbDataMap);
     } else {
       const param = data[data.platform];
@@ -206,7 +212,7 @@ const fn = {
       await initSeed(param);
 
       // 初始化 config.js
-      const configPath = path.join(util.vars.PROJECT_PATH, 'config.js');
+      const configPath = path.join(util.vars.PROJECT_PATH, 'yyl.config.js');
       await fn.rewriteConfig(configPath, dataMap);
     }
 

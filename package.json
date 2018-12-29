@@ -48,7 +48,7 @@
     "yyl-color": "^1.0.0",
     "yyl-file-replacer": "^0.3.0",
     "yyl-fs": "^0.1.1",
-    "yyl-seed-gulp-requirejs": "~2.5.7",
+    "yyl-seed-gulp-requirejs": "~2.5.8",
     "yyl-seed-webpack-vue2": "~0.4.1",
     "yyl-util": "^1.14.2"
   },

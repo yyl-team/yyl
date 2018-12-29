@@ -1,7 +1,10 @@
 # 版本信息
 ## 3.3.6 (2018-12-29)
+* [ADD] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.8` 将 初始化 入口 从 `demo.html` 改为 `index.html`
 * [EDIT] yyl 默认配置文件为 `yyl.config.js`, 找不到才去获取 `config.js` 作为配置文件
+* [EDIT] `yyl init` 初始化 生成的配置文件名字改为 `yyl.config.js`
 * [FIX] 修复配置文件 只配置 `config.localserver`, `config.proxy` 时， `yyl server` 启动不了问题
+* [FIX] 修复 `yyl watch` 没加 `--proxy` 仍然会启动 `proxy server` 的问题
 
 ## 3.3.5 (2018-12-26)
 * [ADD] tpl 类型 文件 经过 any-proxy 默认允许跨域访问
