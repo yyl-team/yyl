@@ -1,4 +1,8 @@
 # 版本信息
+## 3.3.6 (2018-12-29)
+* [EDIT] yyl 默认配置文件为 `yyl.config.js`, 找不到才去获取 `config.js` 作为配置文件
+* [FIX] 修复配置文件 只配置 `config.localserver`, `config.proxy` 时， `yyl server` 启动不了问题
+
 ## 3.3.5 (2018-12-26)
 * [ADD] tpl 类型 文件 经过 any-proxy 默认允许跨域访问
 

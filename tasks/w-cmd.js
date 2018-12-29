@@ -1,6 +1,6 @@
 'use strict';
 const chalk = require('chalk');
-const path = require('path');
+const fs = require('fs');
 const util = require('./w-util.js');
 const SEED = require('./w-seed.js');
 const log = require('./w-log');
@@ -48,20 +48,23 @@ module.exports = async function(ctx) {
   const iEnv = util.envPrase(arguments);
   let type = '';
 
-  const PROJECT_CONFIG_PATH = path.join(util.vars.PROJECT_PATH, 'config.js');
+  let configPath;
+  if (iEnv.config) {
+    configPath = util.path.resolve(util.vars.PROJECT_PATH, iEnv.config);
+  } else {
+    configPath = util.path.resolve(util.vars.PROJECT_PATH, 'yyl.config.js');
+    if (!fs.existsSync(configPath)) {
+      configPath = util.path.resolve(util.vars.PROJECT_PATH, 'config.js');
+    }
+  }
 
-  const opzerHandles = SEED.getHandles(PROJECT_CONFIG_PATH) || [];
+  const opzerHandles = SEED.getHandles(configPath) || [];
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
   }
 
-  let configPath;
-  if (iEnv.config) {
-    configPath = util.path.resolve(util.vars.PROJECT_PATH, iEnv.config);
-  } else {
-    configPath = util.path.resolve(util.vars.PROJECT_PATH, 'config.js');
-  }
+
 
   // optimize
   let handle = null;
@@ -178,7 +181,7 @@ module.exports = async function(ctx) {
 
       case 'info':
         handle = require('./w-info.js').run;
-        argv = [iEnv];
+        argv = [iEnv, configPath];
         type = 'info';
         break;
 
