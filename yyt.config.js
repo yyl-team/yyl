@@ -1,4 +1,8 @@
 module.exports = {
-  src_folders: ['nightwatch/test'],
-  output_folder: false
+  nightwatch: {
+    src_folders: ['nightwatch/test'],
+    custom_commands_path: ['nightwatch/commands'],
+    output_folder: false,
+    headless: false
+  }
 };
