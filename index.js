@@ -12,17 +12,19 @@ const r = {
     if (iArgv[0] == 'yyl') {
       iArgv = iArgv.slice(1);
     }
-    iArgv.push('--nocatch');
 
+    await r.chdir(cwd);
+
+    return await cmd(...iArgv);
+  },
+  chdir(cwd) {
     const CWD = cwd || process.cwd();
 
     // 变量更新
     util.vars.PROJECT_PATH = CWD;
     util.vars.USER_CONFIG_FILE = util.joinFormat(CWD, 'config.js');
     util.vars.USER_PKG_FILE = util.joinFormat(CWD, 'package.json');
-
-
-    return await cmd(...iArgv);
+    return Promise.resolve(null);
   },
   server,
   init

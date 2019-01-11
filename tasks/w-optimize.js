@@ -119,7 +119,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // optimize
-  await extFn.makeAwait((next) => {
+  return await extFn.makeAwait((next) => {
     let isUpdate = 0;
     let isError = false;
     opzer[ctx](iEnv)

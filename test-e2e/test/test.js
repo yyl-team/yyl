@@ -2,18 +2,42 @@ const extFs = require('yyl-fs');
 const path = require('path');
 const fs = require('fs');
 const util = require('yyl-util');
+const request = require('request');
+const chalk = require('chalk');
 
 
 const seed = require('../../tasks/w-seed.js');
-const extFn = require('../../tasks/w-extFn.js');
+// const extFn = require('../../tasks/w-extFn.js');
 const yyl = require('../../index.js');
 const SEED = require('../../tasks/w-seed.js');
 
 
 const FRAG_PATH = path.join(__dirname, '../__frag');
 
-const cmds = [];
+const fn = {
+  waitFor (ms) {
+    return new Promise ((next) => {
+      setTimeout(() => {
+        next();
+      }, ms);
+    });
+  },
+  get(url) {
+    return new Promise((next, reject) => {
+      request({
+        method: 'GET',
+        url
+      }, (error, res, body) => {
+        if (error) {
+          return reject(error);
+        }
+        next([res, body]);
+      });
+    });
+  }
+};
 
+const cmds = [];
 const buildCmd = (op) => {
   if (op.platform === 'both') {
     return [
@@ -54,40 +78,51 @@ seed.workflows.forEach((workflow) => {
   });
 });
 
-cmds.forEach((cmd) => {
+// cmds.length = 1;
+cmds.forEach((cmd, index) => {
   module.exports[cmd] = function (client) {
-    let testUrl = '';
     client
       // 环境启动
       .perform(async (done) => {
         const seedPath = path.join(FRAG_PATH, cmd.split(' ').join('-'));
         const distPath = path.join(seedPath, 'dist');
 
-        if (fs.existsSync(FRAG_PATH)) {
-          await extFs.removeFiles(FRAG_PATH);
-        } else {
-          await extFs.mkdirSync(FRAG_PATH);
+        if (index === 0) {
+          if (!fs.existsSync(FRAG_PATH)) {
+            await extFs.removeFiles(FRAG_PATH);
+          } else {
+            await extFs.mkdirSync(FRAG_PATH);
+          }
         }
 
         extFs.mkdirSync(seedPath);
 
         await yyl.run(cmd, seedPath);
 
-        await extFn.waitFor(1000);
-
-        await yyl.run('yyl watch --silent', seedPath);
+        const runConfig = await yyl.run('watch --silent', seedPath);
         const htmls = await extFs.readFilePaths(distPath, (iPath) => /\.html$/.test(iPath));
-        client.assert.equal(htmls.length !== 0, true);
 
-        testUrl = util.path.join('http://127.0.0.1:5000', path.relative(distPath, htmls[0]));
+        client.verify.ok(htmls.length !== 0, `build ${chalk.yellow.bold(htmls.length)} html files`);
+        const testUrl = util.path.join(
+          runConfig.localserver.serverAddress,
+          path.relative(runConfig.alias.destRoot, htmls[0])
+        );
+
+        const [ res ] = await fn.get(testUrl);
+        client.verify.ok(res.statusCode === 200, `${chalk.yellow('GET')} ${testUrl} ${chalk.green('200')}`);
+        client.checkPageError(testUrl);
         done();
       })
-      .checkPageError(testUrl)
       // 环境关闭
       .perform(async (done) => {
         await yyl.server.abort();
+        if (index === cmds.length - 1) {
+          await extFs.removeFiles(FRAG_PATH);
+        }
         done();
       })
       .end();
   };
 });
+
+

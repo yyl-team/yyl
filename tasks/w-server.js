@@ -13,6 +13,7 @@ const util = require('./w-util.js');
 const connect = require('connect');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
+const serveFavicon = require('serve-favicon');
 const livereload = require('connect-livereload');
 const wProxy = require('./w-proxy.js');
 const wMock = require('./w-mock.js');
@@ -137,6 +138,8 @@ wServer.start = async function (ctx, iEnv, options) {
 
   if (iEnv.path) {
     serverConfig.root = path.resolve(util.vars.PROJECT_PATH, iEnv.path);
+  } else {
+    serverConfig.root = path.resolve(util.vars.PROJECT_PATH, serverConfig.root);
   }
   if (iEnv.port) {
     serverConfig.port = iEnv.port;
@@ -200,6 +203,9 @@ wServer.start = async function (ctx, iEnv, options) {
       next();
     }
   });
+
+  // favicon
+  app.use(serveFavicon(path.join(__dirname, '../assets/favicon.ico')));
 
   app.use(serveStatic(serverConfig.root, {
     'setHeaders': function(res, iPath) {
