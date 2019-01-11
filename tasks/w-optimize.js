@@ -6,6 +6,7 @@ const extFs = require('yyl-fs');
 const Concat = require('concat-with-sourcemaps');
 const revHash = require('rev-hash');
 const frp = require('yyl-file-replacer');
+const request = require('request');
 
 const wServer = require('./w-server.js');
 const wProxy = require('./w-proxy.js');
@@ -13,6 +14,7 @@ const util = require('./w-util.js');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
 const extFn = require('./w-extFn.js');
+const PKG = require('../package.json');
 
 const wOpzer = async function (ctx, iEnv, configPath) {
   // env format
@@ -36,9 +38,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   wOpzer.saveConfigToServer(config);
 
   // 版本检查
-  const yylPkg = util.requireJs(path.join(__dirname, '../package.json'));
-
-  if (util.compareVersion(config.version, yylPkg.version) > 0) {
+  if (util.compareVersion(config.version, PKG.version) > 0) {
     throw `optimize fail, project required yyl at least ${config.version}`;
   }
 
@@ -545,7 +545,7 @@ wOpzer.rev = {
       disableHash = true;
     }
 
-    if (!config.commit.revAddr) {
+    if (!config.commit || !config.commit.revAddr) {
       disableHash = true;
     }
 
@@ -553,15 +553,28 @@ wOpzer.rev = {
       if (!disableHash) {
         log('msg', 'info', `get remote rev start: ${config.commit.revAddr}`);
         var requestUrl = config.commit.revAddr;
-        requestUrl += `${~config.commit.revAddr.indexOf('?')? '&': '?'  }_=${  +new Date()}`;
-        util.get(requestUrl, (content) => {
-          var iCnt;
-          try {
-            iCnt = JSON.parse(content.toString());
-            log('msg', 'success', 'get remote finished');
-          } catch (er) {
-            log('msg', 'warn', ['get remote rev fail', er]);
+        requestUrl += `${~config.commit.revAddr.indexOf('?')?'&': '?'}_=${  +new Date()}`;
+        request({
+          url: requestUrl,
+          headers: {
+            'User-Agent': `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36 YYL/${PKG.version}`
           }
+        }, (error, res, content) => {
+          let iCnt = undefined;
+
+          if (error) {
+            log('msg', 'warn', [`get remote rev fail, ${error.message}`]);
+          } else if (res.statusCode !== 200) {
+            log('msg', 'warn', [`get remote rev fail, status ${res.statusCode}`]);
+          } else {
+            try {
+              iCnt = JSON.parse(content.toString());
+              log('msg', 'success', 'get remote finished');
+            } catch (er) {
+              log('msg', 'warn', ['get remote rev fail', er]);
+            }
+          }
+
           next(iCnt);
         });
       } else {
