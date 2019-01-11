@@ -2,6 +2,9 @@
 ## 3.4.0 (2019-01-02)
 * [ADD] 接入 `yyt` 测试
 
+## 3.3.7 (2019-01-03)
+* [ADD] 更新 `yyl-seed-webpack-vue2` 到 `0.4.2` 修复 multi entry 时 html 内 js 包含所以 entry chunk 的问题
+
 ## 3.3.6 (2018-12-29)
 * [ADD] 更新 `yyl-seed-gulp-requirejs` 到 `2.5.8` 将 初始化 入口 从 `demo.html` 改为 `index.html`
 * [EDIT] yyl 默认配置文件为 `yyl.config.js`, 找不到才去获取 `config.js` 作为配置文件
