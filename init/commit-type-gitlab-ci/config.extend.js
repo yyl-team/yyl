@@ -30,6 +30,7 @@ const setting = {
   }
 };
 setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`;
+setting.proxy.localRemote['http://www.yy.com/api/mock'] = 'http://127.0.0.1:5000/api/mock';
 // - setting
 
 Object.assign(config.localserver, setting.localserver);
