@@ -104,6 +104,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         porxyPort = config.proxy.port;
       }
 
+      if (config.proxy && config.proxy.https) {
+        iEnv.https = true;
+      }
+
       const canUse = await extFn.checkPort(porxyPort);
       if (canUse) {
         let cmd = `yyl proxy start --silent ${util.envStringify(iEnv)}`;

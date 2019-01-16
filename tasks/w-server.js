@@ -176,7 +176,7 @@ wServer.start = async function (ctx, iEnv, options) {
     lrServer = tinylr();
     app.use(livereload({
       port: serverConfig.lrPort,
-      src: `http://${util.vars.LOCAL_SERVER}:${serverConfig.lrPort}/livereload.js?snipver=1`
+      src: `//${util.vars.LOCAL_SERVER}:${serverConfig.lrPort}/livereload.js?snipver=1`
     }));
   }
 

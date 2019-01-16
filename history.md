@@ -1,4 +1,8 @@
 # 版本信息
+## 3.3.8 (2019-01-16)
+* [FIX] 修复 `config.proxy.https` 配置无效问题
+* [FIX] https 代理情况下 `livereload` 请求异常问题
+
 ## 3.3.7 (2019-01-03)
 * [ADD] 更新 `yyl-seed-webpack-vue2` 到 `0.4.2` 修复 multi entry 时 html 内 js 包含所以 entry chunk 的问题
 
