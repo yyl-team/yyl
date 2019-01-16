@@ -98,6 +98,7 @@ wProxy.start = async function (ctx, iEnv) {
   }
 
   if (iEnv.https) {
+    log('msg', 'success', [`use ${chalk.yellow.bold('https')}`]);
     if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
       await extFn.makeAwait((next) => {
         log('end');
@@ -293,8 +294,9 @@ wProxy.updateMapping = async function (config) {
   const formatLocalServer = (str) => {
     if (typeof str === 'string') {
       return str
-        .replace('127.0.0.1:5000', `${util.vars.LOCAL_SERVER}:${config.localserver.port}`)
-        .replace('localhost:5000', `${util.vars.LOCAL_SERVER}:${config.localserver.port}`);
+        .replace(`127.0.0.1:${config.localserver.port}`, `${util.vars.LOCAL_SERVER}:${config.localserver.port}`)
+        .replace(`127.0.0.1:${config.localserver.port}1`, `${util.vars.LOCAL_SERVER}:${config.localserver.port}1`)
+        .replace(`localhost:${config.localserver.port}`, `${util.vars.LOCAL_SERVER}:${config.localserver.port}`);
     } else {
       return str;
     }
@@ -304,6 +306,11 @@ wProxy.updateMapping = async function (config) {
   Object.keys(pxyConfig.localRemote).forEach((key) => {
     pxyConfig.localRemote[key] = formatLocalServer(pxyConfig.localRemote[key]);
   });
+
+  // 新增一个 localhost 的 https 代理
+  pxyConfig.localRemote[`https://${util.vars.LOCAL_SERVER}:${config.localserver.port}`] = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}`;
+  pxyConfig.localRemote[`https://${util.vars.LOCAL_SERVER}:${config.localserver.port}1`] = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}1`;
+
 
 
   // hostname mapping
