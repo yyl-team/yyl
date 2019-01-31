@@ -1,8 +1,8 @@
 'use strict';
 const chalk = require('chalk');
-const extFn = require('./w-extFn.js');
 
-const util = require('./w-util');
+const log = require('./w-log.js');
+const extFn = require('./w-extFn.js');
 
 const info = {
   printInformation: function(config, silent) {
@@ -82,7 +82,7 @@ const info = {
     }
 
     if (!isWork) {
-      util.msg.warn('read workflow info error, config seetting wrong');
+      log('msg', 'warn', 'read workflow info error, config seetting wrong');
       return null;
     } else {
       return r;

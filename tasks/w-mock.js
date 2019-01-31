@@ -1,6 +1,6 @@
 const fs = require('fs');
 const url = require('url');
-const util = require('./w-util.js');
+const util = require('yyl-util');
 const wMock = function (op) {
   const DB_PATH = op.dbPath;
   const ROUTES_PATH = op.routesPath;

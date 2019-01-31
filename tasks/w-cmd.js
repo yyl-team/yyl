@@ -1,8 +1,12 @@
 'use strict';
 const chalk = require('chalk');
 const fs = require('fs');
-const util = require('./w-util.js');
+const print = require('yyl-print');
+const util = require('yyl-util');
+const extOs = require('yyl-os');
+
 const SEED = require('./w-seed.js');
+const vars = require('../lib/vars.js');
 const log = require('./w-log');
 const pkg = require('../package.json');
 
@@ -30,16 +34,16 @@ const events = {
       h.commands[key] = 'optimize';
     });
     if (!iEnv || !iEnv.silent) {
-      util.help(h);
+      print.help(h);
     }
     return Promise.resolve(h);
   },
   path(iEnv) {
     if (!iEnv.silent) {
-      log('msg', 'success', `path: ${chalk.yellow.bold(util.vars.BASE_PATH)}`);
-      util.openPath(util.vars.BASE_PATH);
+      log('msg', 'success', `path: ${chalk.yellow.bold(vars.BASE_PATH)}`);
+      extOs.openPath(vars.BASE_PATH);
     }
-    return Promise.resolve(util.vars.BASE_PATH);
+    return Promise.resolve(vars.BASE_PATH);
   }
 };
 
@@ -50,11 +54,11 @@ module.exports = async function(ctx) {
 
   let configPath;
   if (iEnv.config) {
-    configPath = util.path.resolve(util.vars.PROJECT_PATH, iEnv.config);
+    configPath = util.path.resolve(vars.PROJECT_PATH, iEnv.config);
   } else {
-    configPath = util.path.resolve(util.vars.PROJECT_PATH, 'yyl.config.js');
+    configPath = util.path.resolve(vars.PROJECT_PATH, 'yyl.config.js');
     if (!fs.existsSync(configPath)) {
-      configPath = util.path.resolve(util.vars.PROJECT_PATH, 'config.js');
+      configPath = util.path.resolve(vars.PROJECT_PATH, 'config.js');
     }
   }
 

@@ -37,6 +37,7 @@
     "connect": "^3.6.6",
     "connect-livereload": "^0.6.0",
     "http-proxy": "^1.17.0",
+    "http-shutdown": "^1.2.0",
     "inquirer": "^6.2.0",
     "keypress": "*",
     "node-easy-cert": "^1.2.0",
@@ -49,10 +50,13 @@
     "webpack-hot-middleware": "^2.24.3",
     "yyl-color": "^1.0.0",
     "yyl-file-replacer": "^0.3.0",
-    "yyl-fs": "^0.1.1",
+    "yyl-fs": "^0.2.0",
+    "yyl-os": "^0.2.0",
+    "yyl-print": "^0.5.2",
+    "yyl-request": "^0.1.0",
     "yyl-seed-gulp-requirejs": "~2.5.8",
-    "yyl-seed-webpack-vue2": "~0.4.2",
-    "yyl-util": "^1.14.2"
+    "yyl-seed-webpack-vue2": "~0.5.0",
+    "yyl-util": "^2.1.0"
   },
   "devDependencies": {
     "chai": "~4.1.2",

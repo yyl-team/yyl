@@ -2,11 +2,11 @@
 const path = require('path');
 const fs = require('fs');
 const inquirer = require('inquirer');
-
-const SEED = require('./w-seed.js');
-
+const util = require('yyl-util');
 const extFs = require('yyl-fs');
-const util = require('./w-util.js');
+
+const vars = require('../lib/vars.js');
+const SEED = require('./w-seed.js');
 const wServer = require('./w-server');
 const log = require('./w-log.js');
 
@@ -84,18 +84,18 @@ const fn = {
 
   // 初始化 最后一步, 公用部分拷贝
   async initProject(data) {
-    const pjPath = util.vars.PROJECT_PATH;
+    const pjPath = vars.PROJECT_PATH;
     const fragPath = path.join(pjPath, '__frag');
 
-    const INIT_COMMON_PATH = path.join(util.vars.INIT_PATH, 'commons');
+    const INIT_COMMON_PATH = path.join(vars.INIT_PATH, 'commons');
     const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
     const INIT_COMMON_README_PATH = path.join(INIT_COMMON_PATH, 'README.md');
 
-    const INIT_CUSTOM_PATH = path.join(util.vars.INIT_PATH, `commit-type-${data.commitType}`);
+    const INIT_CUSTOM_PATH = path.join(vars.INIT_PATH, `commit-type-${data.commitType}`);
     const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
     const INIT_CUSTOM_README_PATH = path.join(INIT_CUSTOM_PATH, 'README.extend.md');
 
-    const INIT_BOTH_PATH = path.join(util.vars.INIT_PATH, 'platform-both');
+    const INIT_BOTH_PATH = path.join(vars.INIT_PATH, 'platform-both');
 
     const initSeed = (param) => {
       return new Promise((next) => {
@@ -212,7 +212,7 @@ const fn = {
       await initSeed(param);
 
       // 初始化 config.js
-      const configPath = path.join(util.vars.PROJECT_PATH, 'yyl.config.js');
+      const configPath = path.join(vars.PROJECT_PATH, 'yyl.config.js');
       await fn.rewriteConfig(configPath, dataMap);
     }
 
@@ -400,7 +400,7 @@ const events = {
           name: 'name',
           message: 'name',
           type: 'input',
-          default: util.vars.PROJECT_PATH.split('/').pop()
+          default: vars.PROJECT_PATH.split('/').pop()
         });
       }
 
@@ -429,7 +429,7 @@ const events = {
 
     // init commonPath, version
     data.commonPath = '../commons';
-    data.version = util.requireJs(path.join(util.vars.BASE_PATH, 'package.json')).version;
+    data.version = util.requireJs(path.join(vars.BASE_PATH, 'package.json')).version;
 
     // init pc.init, pc.workflow, mobile.init, mobile.workflow
     let arr = [];
@@ -538,7 +538,7 @@ const events = {
     log('finish', 'init finished');
 
     if (!iEnv.silent) {
-      util.openPath(util.vars.PROJECT_PATH);
+      util.openPath(vars.PROJECT_PATH);
     }
   }
 };

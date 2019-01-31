@@ -6,10 +6,14 @@ const url = require('url');
 const http = require('http');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
+const extOs = require('yyl-os');
+const util = require('yyl-util');
+const print = require('yyl-print');
+
+const extFn = require('../lib/extFn.js');
+const vars = require('../lib/vars.js');
 
 const wProfile = require('./w-profile.js');
-const extFn = require('./w-extFn.js');
-const util = require('./w-util.js');
 const connect = require('connect');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
@@ -18,6 +22,8 @@ const livereload = require('connect-livereload');
 const wProxy = require('./w-proxy.js');
 const wMock = require('./w-mock.js');
 const log = require('./w-log');
+
+require('http-shutdown').extend();
 
 const cache = {
   lrServer: null,
@@ -53,7 +59,7 @@ const wServer = (ctx, iEnv, configPath) => {
             serverPath = config.localserver.serverAddress;
           }
           if (serverPath) {
-            util.openBrowser(serverPath);
+            extOs.openBrowser(serverPath);
             log('msg', 'success', `go to page     : ${chalk.yellow.bold(serverPath)}`);
           }
         }
@@ -91,7 +97,7 @@ wServer.help = (iEnv) => {
     }
   };
   if (!iEnv.silent) {
-    util.help(h);
+    print.help(h);
   }
   return Promise.resolve(h);
 };
@@ -99,17 +105,17 @@ wServer.help = (iEnv) => {
 // 路径
 wServer.path = (iEnv) => {
   if (!iEnv.silent) {
-    log('msg', 'success', `path: ${chalk.yellow.bold(util.vars.SERVER_PATH)}`);
-    util.openPath(util.vars.SERVER_PATH);
+    log('msg', 'success', `path: ${chalk.yellow.bold(vars.SERVER_PATH)}`);
+    extOs.openPath(vars.SERVER_PATH);
   }
-  return Promise.resolve(util.vars.SERVER_PATH);
+  return Promise.resolve(vars.SERVER_PATH);
 };
 
 // 启动服务器
 wServer.start = async function (ctx, iEnv, options) {
   const DEFAULT_CONFIG = {
     port: 5000,
-    root: util.vars.PROJECT_PATH,
+    root: vars.PROJECT_PATH,
     lrPort: 50001
   };
 
@@ -137,15 +143,15 @@ wServer.start = async function (ctx, iEnv, options) {
   }
 
   if (iEnv.path) {
-    serverConfig.root = path.resolve(util.vars.PROJECT_PATH, iEnv.path);
+    serverConfig.root = path.resolve(vars.PROJECT_PATH, iEnv.path);
   } else {
-    serverConfig.root = path.resolve(util.vars.PROJECT_PATH, serverConfig.root);
+    serverConfig.root = path.resolve(vars.PROJECT_PATH, serverConfig.root);
   }
   if (iEnv.port) {
     serverConfig.port = iEnv.port;
   }
 
-  serverConfig.serverAddress = `http://${util.vars.LOCAL_SERVER}:${serverConfig.port}`;
+  serverConfig.serverAddress = `http://${vars.LOCAL_SERVER}:${serverConfig.port}`;
 
   // check port usage
   const portCanUse = await extFn.checkPort(serverConfig.port);
@@ -179,14 +185,14 @@ wServer.start = async function (ctx, iEnv, options) {
     lrServer = tinylr();
     app.use(livereload({
       port: serverConfig.lrPort,
-      src: `//${util.vars.LOCAL_SERVER}:${serverConfig.lrPort}/livereload.js?snipver=1`
+      src: `//${vars.LOCAL_SERVER}:${serverConfig.lrPort}/livereload.js?snipver=1`
     }));
   }
 
   // mock
   app.use(wMock({
-    dbPath: path.join(util.vars.PROJECT_PATH, 'mock/db.json'),
-    routesPath: path.join(util.vars.PROJECT_PATH, 'mock/routes.json')
+    dbPath: path.join(vars.PROJECT_PATH, 'mock/db.json'),
+    routesPath: path.join(vars.PROJECT_PATH, 'mock/routes.json')
   }));
 
   // 执行 post 请求本地服务器时处理
@@ -226,7 +232,7 @@ wServer.start = async function (ctx, iEnv, options) {
     await op.onInitMiddleWare(app, serverConfig.port);
   }
 
-  const server = http.createServer(app);
+  const server = http.createServer(app).withShutdown();
 
   server.on('error', (err) => {
     log('msg', 'error', err);
@@ -251,46 +257,32 @@ wServer.start = async function (ctx, iEnv, options) {
   return config;
 };
 
-wServer.abort = () => {
-  const runner = (done) => {
-    new util.Promise((next) => {
-      if (cache.server) {
-        cache.server.close(() => {
-          cache.server = null;
-          next();
-        });
-      } else {
+wServer.abort = async function() {
+  if (cache.server) {
+    await util.makeAwait((next) => {
+      cache.server.shutdown(() => {
+        cache.server = null;
         next();
-      }
-    }).then((next) => {
-      if (cache.lrServer) {
-        cache.lrServer.close();
-        cache.lrServer = null;
-        next();
-      } else {
-        next();
-      }
-    }).then(() => {
-      wProxy.abort().then(() => {
-        done();
       });
-    }).start();
-  };
-  return new Promise(runner);
+    });
+  }
+
+  if (cache.lrServer) {
+    cache.lrServer.close();
+    cache.lrServer = null;
+  }
+
+  await wProxy.abort();
 };
 
-wServer.clear = function() {
-  return new Promise(() => {
-    log('clear');
-    log('start', 'server', 'clear server start...');
-
-    extFs.removeFiles(util.vars.SERVER_PATH).then((list) => {
-      list.forEach((iPath) => {
-        log('msg', 'del', iPath);
-      });
-      log('finish', 'clear finished');
-    });
+wServer.clear = async function() {
+  log('clear');
+  log('start', 'server', 'clear server start...');
+  const list = await extFs.removeFiles(vars.SERVER_PATH);
+  list.forEach((iPath) => {
+    log('msg', 'del', iPath);
   });
+  log('finish', 'clear finished');
 };
 
 wServer.setLogLevel = function(level, notSave, silent) {

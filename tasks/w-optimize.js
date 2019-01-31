@@ -6,14 +6,18 @@ const extFs = require('yyl-fs');
 const Concat = require('concat-with-sourcemaps');
 const revHash = require('rev-hash');
 const frp = require('yyl-file-replacer');
-const request = require('request');
+const request = require('yyl-request');
+const util = require('yyl-util');
+const extOs = require('yyl-os');
+const print = require('yyl-print');
+
+const extFn = require('./w-extFn.js');
+const vars = require('../lib/vars.js');
 
 const wServer = require('./w-server.js');
 const wProxy = require('./w-proxy.js');
-const util = require('./w-util.js');
 const log = require('./w-log');
 const SEED = require('./w-seed.js');
-const extFn = require('./w-extFn.js');
 const PKG = require('../package.json');
 
 const wOpzer = async function (ctx, iEnv, configPath) {
@@ -111,11 +115,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       const canUse = await extFn.checkPort(porxyPort);
       if (canUse) {
         let cmd = `yyl proxy start --silent ${util.envStringify(iEnv)}`;
-        await extFn.makeAwait((next) => {
-          util.runCMD(cmd, () => {
-            next();
-          }, util.vars.PROJECT_PATH, true, true);
-        });
+        await extOs.runCMD(cmd, vars.PROJECT_PATH, true);
       } else {
         log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
       }
@@ -157,7 +157,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           await wOpzer.openHomePage(config, iEnv);
         }
 
-        log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow(util.getTime())}`]);
+        log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow.bold(print.fn.timeFormat())}`]);
         if (isUpdate) {
           // 刷新页面
           if (!opzer.ignoreLiveReload || iEnv.livereload) {
@@ -174,39 +174,21 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   });
 };
 
-wOpzer.afterTask = (config, iEnv, isUpdate) => {
-  // return Promise.resolve();
-  return new Promise((done) => {
-    new util.Promise((next) => { // resoucce
-      wOpzer.resource(config, iEnv).then(() => {
-        next();
-      });
-    }).then((next) => { // concat
-      wOpzer.concat(config, iEnv).then(() => {
-        next();
-      });
-    }).then((next) => { // var sugar
-      wOpzer.varSugar(config, iEnv).then(() => {
-        next();
-      });
-    }).then(() => { // rev
-      // return done();
-      if (isUpdate) {
-        wOpzer.rev.update(config, iEnv).then(() => {
-          done();
-        });
-      } else {
-        iEnv.revIgnore = /async_component/;
-        wOpzer.rev.build(config, iEnv).then(() => {
-          done();
-        });
-      }
-    }).start();
-  });
+wOpzer.afterTask = async function (config, iEnv, isUpdate) {
+  await wOpzer.resource(config, iEnv);
+  await wOpzer.concat(config, iEnv);
+  await wOpzer.varSugar(config, iEnv);
+
+  if (isUpdate) {
+    await wOpzer.rev.update(config, iEnv);
+  } else {
+    iEnv.revIgnore = /async_component/;
+    await wOpzer.rev.build(config, iEnv);
+  }
 };
 
 // var sugar
-wOpzer.varSugar = (config, iEnv) => {
+wOpzer.varSugar = async function (config, iEnv) {
   const varObj = util.extend({}, config.alias);
   let mainPrefix = '/';
   let staticPrefix = '/';
@@ -230,26 +212,25 @@ wOpzer.varSugar = (config, iEnv) => {
     );
   });
 
+  const htmls = await extFs.readFilePaths(config.destRoot, /\.html$/, true);
 
-  return new Promise((next) => {
-    extFs.readFilePaths(config.destRoot, /\.html$/, true).then((htmls) => {
-      htmls.forEach((iPath) => {
-        let iCnt = fs.readFileSync(iPath).toString();
-        iCnt = frp.htmlPathMatch(iCnt, (rPath) => {
-          return extFn.sugarReplace(rPath, varObj);
-        });
-        fs.writeFileSync(iPath, iCnt);
-      });
-      next();
+  htmls.forEach((iPath) => {
+    let iCnt = fs.readFileSync(iPath).toString();
+    iCnt = frp.htmlPathMatch(iCnt, (rPath) => {
+      return extFn.sugarReplace(rPath, varObj);
     });
+    fs.writeFileSync(iPath, iCnt);
   });
 };
 
 // concat 操作
-wOpzer.concat = (config) => {
-  return new Promise((next) => {
-    const concatIt = function(dest, srcs) {
+wOpzer.concat = async function (config) {
+  if (config.concat) {
+    log('msg', 'info', 'concat start');
+    await util.forEach(Object.keys(config.concat), async (dest) => {
+      const srcs = config.concat[dest];
       const concat = new Concat(false, dest, '\n');
+
       srcs.forEach((item) => {
         if (!fs.existsSync(item)) {
           log('msg', 'warn', `${item} is not exists, break`);
@@ -264,43 +245,29 @@ wOpzer.concat = (config) => {
         concat.add(item, fs.readFileSync(item));
       });
 
-      util.mkdirSync(path.dirname(dest));
+      await extFs.mkdirSync(path.dirname(dest));
       fs.writeFileSync(dest, concat.content);
       log('msg', 'concat', [dest].concat(srcs));
-    };
-    log('msg', 'info', 'concat start');
-    for (var dist in config.concat) {
-      if (config.concat.hasOwnProperty(dist)) {
-        concatIt(dist, config.concat[dist]);
-      }
-    }
-    log('msg', 'success', 'concat finished');
-    next();
-  });
+    });
+  } else {
+    log('msg', 'info', 'config.concat is not defined, break');
+  }
 };
 
 // resouce 操作
-wOpzer.resource = (config) => {
-  return new Promise((next) => {
-    if (config.resource) {
-      extFs.copyFiles(config.resource).then((data) => {
-        data.add.forEach((iPath) => {
-          log('msg', 'create', iPath);
-        });
+wOpzer.resource = async function (config) {
+  if (config.resource) {
+    const data = await extFs.copyFiles(config.resource);
+    data.add.forEach((iPath) => {
+      log('msg', 'create', iPath);
+    });
 
-        data.update.forEach((iPath) => {
-          log('msg', 'update', iPath);
-        });
-        next();
-      }).catch((er) => {
-        log('msg', 'warn', ['resource error', er]);
-        next();
-      });
-    } else {
-      log('msg', 'info', 'config.resource is not defined, break');
-      next();
-    }
-  });
+    data.update.forEach((iPath) => {
+      log('msg', 'update', iPath);
+    });
+  } else {
+    log('msg', 'info', 'config.resource is not defined, break');
+  }
 };
 
 wOpzer.rev = {
@@ -314,7 +281,6 @@ wOpzer.rev = {
     config: null
   },
   fn: {
-
     mark: {
       source: {
         create: [],
@@ -322,17 +288,17 @@ wOpzer.rev = {
         other: []
       },
       add: function(type, iPath) {
-        var self = this;
+        const self = this;
         self.source[type in self.source? type: 'other'].push(iPath);
       },
       reset: function() {
-        var self = this;
+        const self = this;
         Object.keys(self.source).forEach((key) => {
           self.source[key] = [];
         });
       },
       print: function() {
-        var source = this.source;
+        const source = this.source;
         log('msg', 'rev', [
           chalk.green('create: ') + chalk.yellow(source.create.length),
           chalk.cyan('update: ') + chalk.yellow(source.update.length),
@@ -343,10 +309,10 @@ wOpzer.rev = {
 
     // 路径纠正
     resolveUrl: function(cnt, filePath, revMap, op) {
-      var iExt = path.extname(filePath).replace(/^\./g, '');
-      var iDir = path.dirname(filePath);
-      var config = wOpzer.rev.getConfigSync();
-      var iHostname = (function() {
+      const iExt = path.extname(filePath).replace(/^\./g, '');
+      const iDir = path.dirname(filePath);
+      const config = wOpzer.rev.getConfigSync();
+      const iHostname = (function() {
         if (op.isCommit || op.ver  == 'remote' || op.proxy) {
           return config.commit.hostname;
         } else {
@@ -380,7 +346,7 @@ wOpzer.rev = {
           if (rPath.match(frp.REG.HTML_IGNORE_REG)) {
             return r(iPath);
           } else if (rPath.match(frp.REG.HTML_ALIAS_REG)) { // 构建语法糖 {$key}
-            var isMatch = false;
+            let isMatch = false;
 
             rPath = rPath.replace(
               frp.REG.HTML_ALIAS_REG,
@@ -496,18 +462,18 @@ wOpzer.rev = {
     },
     // hash map 生成
     buildHashMap: function(iPath, revMap) {
-      var config = wOpzer.rev.getConfigSync();
-      var revSrc = util.joinFormat(path.relative(config.alias.revRoot, iPath));
-      var hash = `-${revHash(fs.readFileSync(iPath))}`;
-      var revDest = revSrc.replace(/(\.[^.]+$)/g, `${hash}$1`);
+      const config = wOpzer.rev.getConfigSync();
+      const revSrc = util.path.join(path.relative(config.alias.revRoot, iPath));
+      const hash = `-${revHash(fs.readFileSync(iPath))}`;
+      const revDest = revSrc.replace(/(\.[^.]+$)/g, `${hash}$1`);
 
       revMap[revSrc] = revDest;
     },
     // 文件 hash 替换
     fileHashPathUpdate: function(iPath, revMap, op) {
-      var iCnt = fs.readFileSync(iPath).toString();
-      var rCnt = iCnt;
-      var selfFn = this;
+      const iCnt = fs.readFileSync(iPath).toString();
+      let rCnt = iCnt;
+      const selfFn = this;
 
       // url format
       rCnt = selfFn.resolveUrl(rCnt, iPath, revMap, op);
@@ -520,14 +486,14 @@ wOpzer.rev = {
       }
     },
     buildRevMapDestFiles: function(revMap) {
-      var config = wOpzer.rev.getConfigSync();
-      var selfFn = this;
+      const config = wOpzer.rev.getConfigSync();
+      const selfFn = this;
       if (!config) {
         return;
       }
       Object.keys(revMap).forEach((iPath) => {
-        var revSrc = util.joinFormat(config.alias.revRoot, iPath);
-        var revDest = util.joinFormat(config.alias.revRoot, revMap[iPath]);
+        const revSrc = util.path.join(config.alias.revRoot, iPath);
+        const revDest = util.path.join(config.alias.revRoot, revMap[iPath]);
 
         if (!fs.existsSync(revSrc)) {
           return;
@@ -541,7 +507,7 @@ wOpzer.rev = {
   // 文件名称
   filename: 'rev-manifest.json',
 
-  getRemoteManifest: function(op) {
+  async getRemoteManifest(op) {
     const config = wOpzer.rev.getConfigSync(op);
     let disableHash = false;
 
@@ -553,366 +519,328 @@ wOpzer.rev = {
       disableHash = true;
     }
 
-    return new Promise((next) => {
-      if (!disableHash) {
-        log('msg', 'info', `get remote rev start: ${config.commit.revAddr}`);
-        var requestUrl = config.commit.revAddr;
-        requestUrl += `${~config.commit.revAddr.indexOf('?')?'&': '?'}_=${  +new Date()}`;
-        request({
-          url: requestUrl,
-          headers: {
-            'User-Agent': `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36 YYL/${PKG.version}`
-          }
-        }, (error, res, content) => {
-          let iCnt = undefined;
-
-          if (error) {
-            log('msg', 'warn', [`get remote rev fail, ${error.message}`]);
-          } else if (res.statusCode !== 200) {
-            log('msg', 'warn', [`get remote rev fail, status ${res.statusCode}`]);
-          } else {
-            try {
-              iCnt = JSON.parse(content.toString());
-              log('msg', 'success', 'get remote finished');
-            } catch (er) {
-              log('msg', 'warn', ['get remote rev fail', er]);
-            }
-          }
-
-          next(iCnt);
-        });
-      } else {
-        if (!config.commit.revAddr) {
-          log('msg', 'warn', 'get remote rev fail, config.commit.revAddr is null');
+    if (!disableHash) {
+      log('msg', 'info', `get remote rev start: ${config.commit.revAddr}`);
+      let requestUrl = config.commit.revAddr;
+      requestUrl += `${~config.commit.revAddr.indexOf('?')?'&': '?'}_=${+new Date()}`;
+      const [error, res, content] = await request({
+        url: requestUrl,
+        headers: {
+          'User-Agent': `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.67 Safari/537.36 YYL/${PKG.version}`
         }
-        next(null);
+      });
+
+      let iCnt = undefined;
+
+      if (error) {
+        log('msg', 'warn', [`get remote rev fail, ${error.message}`]);
+      } else if (res.statusCode !== 200) {
+        log('msg', 'warn', [`get remote rev fail, status ${res.statusCode}`]);
+      } else {
+        try {
+          iCnt = JSON.parse(content.toString());
+          log('msg', 'success', 'get remote finished');
+        } catch (er) {
+          log('msg', 'warn', ['get remote rev fail', er]);
+        }
       }
-    });
+      return iCnt;
+    } else {
+      if (!config.commit.revAddr) {
+        log('msg', 'warn', 'get remote rev fail, config.commit.revAddr is null');
+      }
+    }
+    return null;
   },
   // rev-build 入口
-  build: function(config, op) {
-    return new Promise((NEXT, err) => {
-      const self = this;
-      const selfFn = self.fn;
-      if (!config) {
-        return err('rev-build run fail', 'config not exist');
+  async build(config, op) {
+    const self = this;
+    const selfFn = self.fn;
+    if (!config) {
+      throw 'rev-build run fail', 'config not exist';
+    }
+
+    self.use(config);
+
+    let disableHash = false;
+
+    if (config.disableHash) {
+      disableHash = true;
+      log('msg', 'success', 'config.disableHash, rev task ignore');
+    }
+
+    if (!config.commit.revAddr) {
+      disableHash = true;
+      log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
+    }
+
+    if (op.ver) {
+      const data = await wOpzer.rev.getRemoteManifest(op);
+      if (data) {
+        log('msg', 'info', 'ver is not blank, remote url exist, run rev-update');
+        await wOpzer.rev.update(config, op, data);
+        return;
+      }
+    }
+
+    // 清除 dest 目录下所有带 hash 文件
+    await wOpzer.rev.clean(config, op);
+
+    const htmlFiles = [];
+    const jsFiles = [];
+    const cssFiles = [];
+    const resourceFiles = [];
+    const tplFiles = [];
+
+    extFs.readFilesSync(config.alias.root, (iPath) => {
+      let r;
+      const iExt = path.extname(iPath);
+
+      if (/\.(html|json)/.test(iExt)) {
+        r = false;
+      } else {
+        r = true;
       }
 
-      self.use(config);
-
-      let disableHash = false;
-
-      if (config.disableHash) {
-        disableHash = true;
-        log('msg', 'success', 'config.disableHash, rev task ignore');
-      }
-
-      if (!config.commit.revAddr) {
-        disableHash = true;
-        log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
-      }
-
-      new util.Promise((next) => {
-        // 如果是 remote 直接执行 rev-update
-        if (op.ver) {
-          wOpzer.rev.getRemoteManifest(op).then((data) => {
-            if (data) {
-              log('msg', 'info', 'ver is not blank, remote url exist, run rev-update');
-              return wOpzer.rev.update(config, op, data).then(() => {
-                NEXT();
-              });
-            } else {
-              next();
-            }
-          }).catch(() => {
-            next();
-          });
-        } else {
-          next();
+      if (op.revIgnore) {
+        if (iPath.match(op.revIgnore)) {
+          return r;
         }
-      }).then(() => {
-        // 清除 dest 目录下所有带 hash 文件
-        wOpzer.rev.clean(config, op).then(() => {
-          const htmlFiles = [];
-          const jsFiles = [];
-          const cssFiles = [];
-          const resourceFiles = [];
-          const tplFiles = [];
+      }
 
-          util.readFilesSync(config.alias.root, (iPath) => {
-            let r;
-            const iExt = path.extname(iPath);
+      switch (iExt) {
+        case '.css':
+          cssFiles.push(iPath);
+          break;
 
-            if (/\.(html|json)/.test(iExt)) {
-              r = false;
-            } else {
-              r = true;
-            }
+        case '.js':
+          jsFiles.push(iPath);
+          break;
 
-            if (op.revIgnore) {
-              if (iPath.match(op.revIgnore)) {
-                return r;
-              }
-            }
+        case '.html':
+          htmlFiles.push(iPath);
+          break;
 
-            switch (iExt) {
-              case '.css':
-                cssFiles.push(iPath);
-                break;
+        case '.tpl':
+          tplFiles.push(iPath);
+          break;
 
-              case '.js':
-                jsFiles.push(iPath);
-                break;
-
-              case '.html':
-                htmlFiles.push(iPath);
-                break;
-
-              case '.tpl':
-                tplFiles.push(iPath);
-                break;
-
-              default:
-                if (r) {
-                  resourceFiles.push(iPath);
-                }
-                break;
-            }
-            return r;
-          });
-
-          // 生成 hash 列表
-          let revMap = {};
-          // 重置 mark
-          selfFn.mark.reset();
-
-          // 生成 资源 hash 表
-          if (!disableHash) {
-            resourceFiles.forEach((iPath) => {
-              selfFn.buildHashMap(iPath, revMap);
-            });
+        default:
+          if (r) {
+            resourceFiles.push(iPath);
           }
-
-          // 生成 js hash 表
-          jsFiles.forEach((iPath) => {
-            // hash路径替换
-            selfFn.fileHashPathUpdate(iPath, revMap, op);
-
-            if (!disableHash) {
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
-            }
-          });
-
-          // css 文件内路径替换 并且生成 hash 表
-          cssFiles.forEach((iPath) => {
-            // hash路径替换
-            selfFn.fileHashPathUpdate(iPath, revMap, op);
-
-            if (!disableHash) {
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
-            }
-          });
-
-          // tpl 文件内路径替换 并且生成 hash 表
-          tplFiles.forEach((iPath) => {
-            // hash路径替换
-            selfFn.fileHashPathUpdate(iPath, revMap, op);
-
-            if (!disableHash) {
-              // 生成hash 表
-              selfFn.buildHashMap(iPath, revMap);
-            }
-          });
-
-          // html 路径替换
-          htmlFiles.forEach((iPath) => {
-            selfFn.fileHashPathUpdate(iPath, revMap, op);
-          });
-
-
-          if (!disableHash) {
-            // 根据hash 表生成对应的文件
-            selfFn.buildRevMapDestFiles(revMap);
-
-            // 版本生成
-            revMap.version = util.makeCssJsDate();
-
-            // rev-manifest.json 生成
-            util.mkdirSync(config.alias.revDest);
-            const revPath = util.joinFormat(config.alias.revDest, wOpzer.rev.filename);
-            const revVerPath = util.joinFormat(
-              config.alias.revDest,
-              wOpzer.rev.filename.replace(/(\.\w+$)/g, `-${revMap.version}$1`)
-            );
-
-            // 存在 则合并
-            if (fs.existsSync(revPath)) {
-              let oRevMap = null;
-              try {
-                oRevMap = JSON.parse(fs.readFileSync(revPath));
-              } catch (er) {
-                log('msg', 'warn', 'oRegMap parse error');
-              }
-              if (oRevMap) {
-                revMap = util.extend(true, oRevMap, revMap);
-                log('msg', 'success', 'original regMap concat finished');
-              }
-            }
-
-            fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
-            selfFn.mark.add('create', revPath);
-
-            // rev-manifest-{cssjsdate}.json 生成
-            fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
-            selfFn.mark.add('create', revVerPath);
-          }
-
-          selfFn.mark.print();
-          log('msg', 'success', 'rev-build finished');
-          NEXT();
-        });
-      }).start();
+          break;
+      }
+      return r;
     });
+
+    // 生成 hash 列表
+    let revMap = {};
+    // 重置 mark
+    selfFn.mark.reset();
+
+    // 生成 资源 hash 表
+    if (!disableHash) {
+      resourceFiles.forEach((iPath) => {
+        selfFn.buildHashMap(iPath, revMap);
+      });
+    }
+
+    // 生成 js hash 表
+    jsFiles.forEach((iPath) => {
+      // hash路径替换
+      selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+      if (!disableHash) {
+        // 生成hash 表
+        selfFn.buildHashMap(iPath, revMap);
+      }
+    });
+
+    // css 文件内路径替换 并且生成 hash 表
+    cssFiles.forEach((iPath) => {
+      // hash路径替换
+      selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+      if (!disableHash) {
+        // 生成hash 表
+        selfFn.buildHashMap(iPath, revMap);
+      }
+    });
+
+    // tpl 文件内路径替换 并且生成 hash 表
+    tplFiles.forEach((iPath) => {
+      // hash路径替换
+      selfFn.fileHashPathUpdate(iPath, revMap, op);
+
+      if (!disableHash) {
+        // 生成hash 表
+        selfFn.buildHashMap(iPath, revMap);
+      }
+    });
+
+    // html 路径替换
+    htmlFiles.forEach((iPath) => {
+      selfFn.fileHashPathUpdate(iPath, revMap, op);
+    });
+
+
+    if (!disableHash) {
+      // 根据hash 表生成对应的文件
+      selfFn.buildRevMapDestFiles(revMap);
+
+      // 版本生成
+      revMap.version = util.makeCssJsDate();
+
+      // rev-manifest.json 生成
+      await extFs.mkdirSync(config.alias.revDest);
+      const revPath = util.path.join(config.alias.revDest, wOpzer.rev.filename);
+      const revVerPath = util.path.join(
+        config.alias.revDest,
+        wOpzer.rev.filename.replace(/(\.\w+$)/g, `-${revMap.version}$1`)
+      );
+
+      // 存在 则合并
+      if (fs.existsSync(revPath)) {
+        let oRevMap = null;
+        try {
+          oRevMap = JSON.parse(fs.readFileSync(revPath));
+        } catch (er) {
+          log('msg', 'warn', 'oRegMap parse error');
+        }
+        if (oRevMap) {
+          revMap = util.extend(true, oRevMap, revMap);
+          log('msg', 'success', 'original regMap concat finished');
+        }
+      }
+
+      fs.writeFileSync(revPath, JSON.stringify(revMap, null, 4));
+      selfFn.mark.add('create', revPath);
+
+      // rev-manifest-{cssjsdate}.json 生成
+      fs.writeFileSync(revVerPath, JSON.stringify(revMap, null, 4));
+      selfFn.mark.add('create', revVerPath);
+    }
+
+    selfFn.mark.print();
+    log('msg', 'success', 'rev-build finished');
   },
   // rev-update 入口
-  update: function(config, op, remoteManifestData) {
-    return new Promise((NEXT, err) => {
-      const self = this;
-      const selfFn = self.fn;
-      const config = self.getConfigSync(op);
-      if (!config) {
-        return err('rev-update run fail', 'config not exist');
+  async update(config, op, remoteManifestData) {
+    const self = this;
+    const selfFn = self.fn;
+    if (!config) {
+      throw 'rev-update run fail', 'config not exist';
+    }
+
+    self.use(config);
+
+    let disableHash = false;
+
+    if (config.disableHash) {
+      disableHash = true;
+      log('msg', 'success', 'config.disableHash, rev task ignore');
+    }
+
+    if (!config.commit.revAddr) {
+      disableHash = true;
+      log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
+    }
+
+    // 重置 mark
+    selfFn.mark.reset();
+
+    let revMap = remoteManifestData;
+
+    const localRevPath = util.path.join(
+      config.alias.revDest,
+      wOpzer.rev.filename
+    );
+
+    if (disableHash) {
+      revMap = {};
+    } else {
+      if (!revMap) {
+        revMap = await wOpzer.rev.getRemoteManifest(op);
       }
-
-      self.use(config);
-
-      let disableHash = false;
-
-      if (config.disableHash) {
-        disableHash = true;
-        log('msg', 'success', 'config.disableHash, rev task ignore');
+    }
+    if (!revMap) {
+      if (fs.existsSync(localRevPath)) {
+        try {
+          revMap = JSON.parse(fs.readFileSync(localRevPath).toString());
+        } catch (er) {
+          log('msg', 'warn', ['local rev file parse fail', er]);
+          throw er;
+        }
+      } else {
+        throw `local rev file not exist: ${chalk.yellow(localRevPath)}`;
       }
+    }
 
-      if (!config.commit.revAddr) {
-        disableHash = true;
-        log('msg', 'success', 'config.commit.revAddr not set, rev task ignore');
-      }
+    // hash 表内html, css 文件 hash 替换
 
-      // 重置 mark
-      selfFn.mark.reset();
-
-      new util.Promise(((next) => { // 获取 rev-manifest
-        if (remoteManifestData) {
-          next(remoteManifestData);
-        } else {
-          if (op.ver == 'remote') { // 远程获取 rev-manifest
-            wOpzer.rev.getRemoteManifest(op).then((data) => {
-              next(data);
-            }).catch(() => {
-              next(null);
-            });
-          } else {
-            next(null);
-          }
-        }
-      })).then((revMap, next) => { // 获取本地 rev-manifest
-        if (revMap) {
-          return next(revMap);
-        }
-
-        if (disableHash) {
-          return next({});
-        }
-
-        var localRevPath = util.joinFormat(
-          config.alias.revDest,
-          wOpzer.rev.filename
-        );
-
-        if (fs.existsSync(localRevPath)) {
-          try {
-            revMap = JSON.parse(fs.readFileSync(localRevPath).toString());
-          } catch (er) {
-            log('msg', 'warn', ['local rev file parse fail', er]);
-            return err(er);
-          }
-
-          next(revMap);
-        } else {
-          return err(`local rev file not exist: ${chalk.yellow(localRevPath)}`);
-        }
-      }).then((revMap, next) => { // hash 表内html, css 文件 hash 替换
-        // html, tpl 替换
-        const htmlFiles = util.readFilesSync(config.alias.root, /\.(html|tpl)$/);
-
-        htmlFiles.forEach((iPath) => {
-          selfFn.fileHashPathUpdate(iPath, revMap, op);
-        });
-
-        // css or js 替换
-        if (disableHash) {
-          const jsFiles = util.readFilesSync(config.alias.root, /\.js$/);
-          const cssFiles = util.readFilesSync(config.alias.root, /\.css$/);
-
-          jsFiles.forEach((filePath) => {
-            self.fn.fileHashPathUpdate(filePath, revMap, op);
-          });
-
-          cssFiles.forEach((filePath) => {
-            self.fn.fileHashPathUpdate(filePath, revMap, op);
-          });
-        } else {
-          Object.keys(revMap).forEach((iPath) => {
-            var filePath = util.joinFormat(config.alias.revRoot, iPath);
-
-            if (fs.existsSync(filePath)) {
-              switch (path.extname(filePath)) {
-                case '.css':
-                  self.fn.fileHashPathUpdate(filePath, revMap, op);
-                  break;
-
-                case '.js':
-                  self.fn.fileHashPathUpdate(filePath, revMap, op);
-                  break;
-
-                default:
-                  break;
-              }
-            }
-          });
-        }
-        next(revMap);
-      }).then((revMap, next) => { // hash对应文件生成
-        selfFn.buildRevMapDestFiles(revMap);
-        next(revMap);
-      }).then((revMap) => { // 本地 rev-manifest 更新
-        var localRevPath = util.joinFormat(
-          config.alias.revDest,
-          wOpzer.rev.filename
-        );
-        var localRevData;
-        var revContent = JSON.stringify(revMap, null, 4);
-
-        if (fs.existsSync(localRevPath)) {
-          localRevData = fs.readFileSync(localRevPath).toString();
-
-          if (localRevData != revContent) {
-            fs.writeFileSync(localRevPath, revContent);
-            selfFn.mark.add('update', localRevPath);
-          }
-        } else {
-          util.mkdirSync(config.alias.revDest);
-          fs.writeFileSync(localRevPath, revContent);
-          selfFn.mark.add('create', localRevPath);
-        }
-
-        selfFn.mark.print();
-        log('msg', 'success', 'rev-update finished');
-        NEXT();
-      }).start();
+    // html, tpl 替换
+    const htmlFiles = extFs.readFilesSync(config.alias.root, /\.(html|tpl)$/);
+    htmlFiles.forEach((iPath) => {
+      selfFn.fileHashPathUpdate(iPath, revMap, op);
     });
+
+    // css or js 替换
+    if (disableHash) {
+      const jsFiles = extFs.readFilesSync(config.alias.root, /\.js$/);
+      const cssFiles = extFs.readFilesSync(config.alias.root, /\.css$/);
+
+      jsFiles.forEach((filePath) => {
+        self.fn.fileHashPathUpdate(filePath, revMap, op);
+      });
+
+      cssFiles.forEach((filePath) => {
+        self.fn.fileHashPathUpdate(filePath, revMap, op);
+      });
+    } else {
+      Object.keys(revMap).forEach((iPath) => {
+        const filePath = util.path.join(config.alias.revRoot, iPath);
+
+        if (fs.existsSync(filePath)) {
+          switch (path.extname(filePath)) {
+            case '.css':
+              self.fn.fileHashPathUpdate(filePath, revMap, op);
+              break;
+
+            case '.js':
+              self.fn.fileHashPathUpdate(filePath, revMap, op);
+              break;
+
+            default:
+              break;
+          }
+        }
+      });
+    }
+
+    // hash对应文件生成
+    selfFn.buildRevMapDestFiles(revMap);
+
+    // 本地 rev-manifest 更新
+
+    let localRevData;
+    const revContent = JSON.stringify(revMap, null, 4);
+
+    if (fs.existsSync(localRevPath)) {
+      localRevData = fs.readFileSync(localRevPath).toString();
+
+      if (localRevData != revContent) {
+        fs.writeFileSync(localRevPath, revContent);
+        selfFn.mark.add('update', localRevPath);
+      }
+    } else {
+      await extFs.mkdirSync(config.alias.revDest);
+      fs.writeFileSync(localRevPath, revContent);
+      selfFn.mark.add('create', localRevPath);
+    }
+
+    selfFn.mark.print();
+    log('msg', 'success', 'rev-update finished');
   },
   // rev-clean 入口
   clean: function(config) {
@@ -924,7 +852,7 @@ wOpzer.rev = {
 
       self.use(config);
 
-      var files = util.readFilesSync(config.alias.root);
+      const files = extFs.readFilesSync(config.alias.root);
       files.forEach((iPath) => {
         if (
           /-[a-zA-Z0-9]{10}\.?\w*\.\w+$/.test(iPath) &&
@@ -945,26 +873,23 @@ wOpzer.rev = {
 };
 
 // livereload
-wOpzer.livereload = (config, iEnv) => {
+wOpzer.livereload = async function(config, iEnv)  {
   if (!iEnv.silent && iEnv.proxy) {
-    const reloadPath = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}1/changed?files=1`;
-    util.get(reloadPath);
+    const reloadPath = `http://${vars.LOCAL_SERVER}:${config.localserver.port}1/changed?files=1`;
+    await request(reloadPath);
   }
-  return Promise.resolve();
 };
 
 
 // 更新 packages
-wOpzer.initPlugins = (config) => {
+wOpzer.initPlugins = async function (config) {
   if (!config.plugins || !config.plugins.length) {
-    return Promise.resolve();
+    return;
   }
   const iNodeModulePath = config.resolveModule;
 
   if (!iNodeModulePath) {
-    return new Promise((next, reject) => {
-      reject('init plugins fail, config.resolveModule is not set');
-    });
+    throw 'init plugins fail, config.resolveModule is not set';
   }
 
   if (!fs.existsSync(iNodeModulePath)) {
@@ -993,7 +918,7 @@ wOpzer.initPlugins = (config) => {
     }
     let iPath = path.join(iNodeModulePath, pluginPath, iDir);
     let iPkgPath = path.join(iPath, 'package.json');
-    var iPkg;
+    let iPkg;
     if (fs.existsSync(iPath) && fs.existsSync(iPkgPath)) {
       if (iVer) {
         iPkg = require(iPkgPath);
@@ -1007,101 +932,85 @@ wOpzer.initPlugins = (config) => {
   });
 
   if (installLists.length) {
-    var cmd = `npm install ${installLists.join(' ')} --loglevel http`;
+    const cmd = `npm install ${installLists.join(' ')} --loglevel http`;
     log('msg', 'info', `run cmd ${cmd}`);
-    process.chdir(util.vars.BASE_PATH);
+    process.chdir(vars.BASE_PATH);
 
     log('end');
-    return new Promise((next, reject) => {
-      util.runCMD(cmd, (err) => {
-        if (err) {
-          return reject(err);
-        }
-
-        next();
-      }, iNodeModulePath);
-    });
+    await extOs.runCMD(cmd, iNodeModulePath);
   } else {
-    return Promise.resolve();
+    return;
   }
 };
 
 
 // open page
-wOpzer.openHomePage = (config, iEnv) => {
-  const runner = (next, reject) => {
-    extFs.readFilePaths(config.alias.destRoot, /\.html$/, true).then((htmls) => {
-      let addr;
-      const localServerAddr = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}`;
-      const localServerAddr2 = `http://127.0.0.1:${config.localserver.port}`;
-      const iHost = config.commit.hostname.replace(/\/$/, '');
+wOpzer.openHomePage = async function(config, iEnv) {
+  const htmls = await extFs.readFilePaths(config.alias.destRoot, /\.html$/, true);
+  let addr;
+  const localServerAddr = `http://${vars.LOCAL_SERVER}:${config.localserver.port}`;
+  const localServerAddr2 = `http://127.0.0.1:${config.localserver.port}`;
+  const iHost = config.commit.hostname.replace(/\/$/, '');
 
-      htmls.sort((a, b) => {
-        var aName = path.basename(a);
-        var bName = path.basename(b);
-        var reg = /^index|default$/;
-        var aReg = reg.exec(aName);
-        var bReg = reg.exec(bName);
+  htmls.sort((a, b) => {
+    const aName = path.basename(a);
+    const bName = path.basename(b);
+    const reg = /^index|default$/;
+    const aReg = reg.exec(aName);
+    const bReg = reg.exec(bName);
 
-        if (aReg && !bReg) {
-          return -1;
-        } else if (!aReg && bReg) {
-          return 1;
-        } else {
-          return a.localeCompare(b);
-        }
-      });
+    if (aReg && !bReg) {
+      return -1;
+    } else if (!aReg && bReg) {
+      return 1;
+    } else {
+      return a.localeCompare(b);
+    }
+  });
 
-      if (config.proxy && config.proxy.homePage) {
-        addr = config.proxy.homePage;
-      } else {
-        if (iEnv.proxy) {
-          let iAddr = '';
-          if (config.proxy && config.proxy.localRemote) {
-            for (let key in config.proxy.localRemote) {
-              iAddr = config.proxy.localRemote[key].replace(/\/$/, '');
-              if ((iAddr === localServerAddr || iAddr === localServerAddr2) && key.replace(/\/$/, '') !== iHost) {
-                addr = key;
-                break;
-              }
-            }
+  if (config.proxy && config.proxy.homePage) {
+    addr = config.proxy.homePage;
+  } else {
+    if (iEnv.proxy) {
+      let iAddr = '';
+      if (config.proxy && config.proxy.localRemote) {
+        for (let key in config.proxy.localRemote) {
+          iAddr = config.proxy.localRemote[key].replace(/\/$/, '');
+          if ((iAddr === localServerAddr || iAddr === localServerAddr2) && key.replace(/\/$/, '') !== iHost) {
+            addr = key;
+            break;
           }
-          if (!addr) {
-            addr = config.commit.hostname;
-          }
-        } else {
-          addr = localServerAddr;
-        }
-
-        if (htmls.length) {
-          addr = util.joinFormat(addr, path.relative(config.alias.destRoot, htmls[0]));
         }
       }
+      if (!addr) {
+        addr = config.commit.hostname;
+      }
+    } else {
+      addr = localServerAddr;
+    }
 
-      log('msg', 'success', 'open addr:');
-      log('msg', 'success', chalk.cyan(addr));
-      util.openBrowser(addr);
-      next(addr);
-    }).catch((er) => {
-      reject(er);
-    });
-  };
+    if (htmls.length) {
+      addr = util.path.join(addr, path.relative(config.alias.destRoot, htmls[0]));
+    }
+  }
 
-  return new Promise(runner);
+  log('msg', 'success', 'open addr:');
+  log('msg', 'success', chalk.cyan(addr));
+  await extOs.openBrowser(addr);
+  return addr;
 };
 
 
-wOpzer.saveConfigToServer = (config) => {
+wOpzer.saveConfigToServer = async function (config) {
   if (!config || !config.workflow || !config.name) {
-    return Promise.resolve();
+    return;
   }
-  extFs.mkdirSync(util.vars.SERVER_CONFIG_LOG_PATH);
+  await extFs.mkdirSync(vars.SERVER_CONFIG_LOG_PATH);
   const filename = `${config.workflow}-${config.name}.js`;
-  const serverConfigPath = path.join(util.vars.SERVER_CONFIG_LOG_PATH, filename);
-  const printPath = `~/.yyl/${path.relative(util.vars.SERVER_PATH, serverConfigPath)}`;
+  const serverConfigPath = path.join(vars.SERVER_CONFIG_LOG_PATH, filename);
+  const printPath = `~/.yyl/${path.relative(vars.SERVER_PATH, serverConfigPath)}`;
   fs.writeFileSync(serverConfigPath, JSON.stringify(config, null, 2));
   log('msg', 'success', `config saved ${chalk.yellow(printPath)}`);
-  return Promise.resolve();
 };
 
 module.exports = wOpzer;
