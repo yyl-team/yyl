@@ -11,7 +11,7 @@ const util = require('yyl-util');
 const extOs = require('yyl-os');
 const print = require('yyl-print');
 
-const extFn = require('./w-extFn.js');
+const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
 
 const wServer = require('./w-server.js');

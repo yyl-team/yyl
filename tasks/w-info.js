@@ -2,7 +2,7 @@
 const chalk = require('chalk');
 
 const log = require('./w-log.js');
-const extFn = require('./w-extFn.js');
+const extFn = require('../lib/extFn.js');
 
 const info = {
   printInformation: function(config, silent) {

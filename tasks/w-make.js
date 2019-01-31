@@ -1,6 +1,6 @@
 const util = require('yyl-util');
 const SEED = require('./w-seed.js');
-const extFn = require('./w-extFn.js');
+const extFn = require('../lib/extFn.js');
 const log = require('./w-log');
 
 const fn = {
