@@ -7,7 +7,7 @@ const extOs = require('yyl-os');
 const extFs = require('yyl-fs');
 
 const vars = require('../lib/vars.js');
-const log = require('./w-log.js');
+const log = require('../lib/log.js');
 
 const remove = async function(iPath) {
   log('start', 'remove');

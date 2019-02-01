@@ -1,7 +1,7 @@
 const fs = require('fs');
 const wProfile = require('./w-profile.js');
 const pkg = require('../package.json');
-const log = require('./w-log.js');
+const log = require('../lib/log.js');
 
 // + seed
 const seeds = [

@@ -10,18 +10,19 @@ const extOs = require('yyl-os');
 const util = require('yyl-util');
 const print = require('yyl-print');
 
-const extFn = require('../lib/extFn.js');
-const vars = require('../lib/vars.js');
-
-const wProfile = require('./w-profile.js');
 const connect = require('connect');
 const serveIndex = require('serve-index');
 const serveStatic = require('serve-static');
 const serveFavicon = require('serve-favicon');
 const livereload = require('connect-livereload');
+
+const extFn = require('../lib/extFn.js');
+const vars = require('../lib/vars.js');
+const log = require('../lib/log.js');
+
+const wProfile = require('./w-profile.js');
 const wProxy = require('./w-proxy.js');
 const wMock = require('./w-mock.js');
-const log = require('./w-log');
 
 require('http-shutdown').extend();
 
@@ -211,7 +212,7 @@ wServer.start = async function (ctx, iEnv, options) {
   });
 
   // favicon
-  app.use(serveFavicon(path.join(__dirname, '../assets/favicon.ico')));
+  app.use(serveFavicon(path.join(__dirname, '../resource/favicon.ico')));
 
   app.use(serveStatic(serverConfig.root, {
     'setHeaders': function(res, iPath) {

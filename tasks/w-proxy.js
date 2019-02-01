@@ -12,7 +12,7 @@ const http = require('http');
 
 const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
-const log = require('./w-log.js');
+const log = require('../lib/log.js');
 
 const AnyProxy = require('anyproxy');
 

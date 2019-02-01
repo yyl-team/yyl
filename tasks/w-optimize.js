@@ -13,10 +13,10 @@ const print = require('yyl-print');
 
 const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
+const log = require('../lib/log.js');
 
 const wServer = require('./w-server.js');
 const wProxy = require('./w-proxy.js');
-const log = require('./w-log');
 const SEED = require('./w-seed.js');
 const PKG = require('../package.json');
 

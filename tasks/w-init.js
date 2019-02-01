@@ -8,7 +8,7 @@ const extFs = require('yyl-fs');
 const vars = require('../lib/vars.js');
 const SEED = require('./w-seed.js');
 const wServer = require('./w-server');
-const log = require('./w-log.js');
+const log = require('../lib/log.js');
 
 
 // 选择倾向
@@ -532,10 +532,7 @@ const events = {
     }
 
 
-    log('clear');
-    log('start', 'init');
     await fn.initProject(data);
-    log('finish', 'init finished');
 
     if (!iEnv.silent) {
       util.openPath(vars.PROJECT_PATH);

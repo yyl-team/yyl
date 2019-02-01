@@ -1,7 +1,7 @@
 'use strict';
 const chalk = require('chalk');
 
-const log = require('./w-log.js');
+const log = require('../lib/log.js');
 const extFn = require('../lib/extFn.js');
 
 const info = {

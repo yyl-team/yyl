@@ -10,7 +10,7 @@ const extFs = require('yyl-fs');
 
 const vars = require('../lib/vars.js');
 const extFn = require('../lib/extFn.js');
-const log = require('./w-log.js');
+const log = require('../lib/log.js');
 const wOpzer = require('./w-optimize.js');
 
 const wCommit = {

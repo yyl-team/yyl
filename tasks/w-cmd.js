@@ -7,7 +7,7 @@ const extOs = require('yyl-os');
 
 const SEED = require('./w-seed.js');
 const vars = require('../lib/vars.js');
-const log = require('./w-log');
+const log = require('../lib/log.js');
 const pkg = require('../package.json');
 
 const events = {
@@ -49,8 +49,9 @@ const events = {
 
 module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
-  const iEnv = util.envPrase(arguments);
+  const iEnv = util.envParse(arguments);
   let type = '';
+
 
   let configPath;
   if (iEnv.config) {
@@ -121,7 +122,7 @@ module.exports = async function(ctx) {
           handle = handle.help;
         }
 
-        type = '';
+        type = 'init';
         argv = [iEnv];
         break;
 
@@ -198,9 +199,9 @@ module.exports = async function(ctx) {
   }
   if (type) {
     log('clear');
-    log('yyl', `${chalk.yellow(pkg.version)}`);
-    log('cmd', `yyl ${iArgv.join(' ')}`);
-    log('start', type, 'starting...');
+    log('msg', 'yyl', `${chalk.yellow.bold(pkg.version)}`);
+    log('msg', 'cmd', `yyl ${iArgv.join(' ')}`);
+    log('msg', type, `${type} task starting...`);
   }
 
   let r;
@@ -208,11 +209,12 @@ module.exports = async function(ctx) {
   try {
     r = await handle(...argv);
   } catch (er) {
+    console.log('???', er)
     log('msg', 'error', er);
   }
 
   if (type) {
-    log('finished', 'finished');
+    log('msg', 'done', `${type} task finished`);
   }
 
   return r;
