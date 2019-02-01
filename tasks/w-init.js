@@ -4,6 +4,7 @@ const fs = require('fs');
 const inquirer = require('inquirer');
 const util = require('yyl-util');
 const extFs = require('yyl-fs');
+const extOs = require('yyl-os');
 
 const vars = require('../lib/vars.js');
 const SEED = require('./w-seed.js');
@@ -535,7 +536,7 @@ const events = {
     await fn.initProject(data);
 
     if (!iEnv.silent) {
-      util.openPath(vars.PROJECT_PATH);
+      extOs.openPath(vars.PROJECT_PATH);
     }
   }
 };

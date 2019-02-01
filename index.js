@@ -1,8 +1,8 @@
 const cmd = require('./tasks/w-cmd.js');
-const util = require('./tasks/w-util.js');
 const server = require('./tasks/w-server.js');
 
 const init = require('./tasks/w-init.js');
+const vars = require('./lib/vars.js');
 
 
 const r = {
@@ -13,18 +13,9 @@ const r = {
       iArgv = iArgv.slice(1);
     }
 
-    await r.chdir(cwd);
+    vars.init(cwd);
 
     return await cmd(...iArgv);
-  },
-  chdir(cwd) {
-    const CWD = cwd || process.cwd();
-
-    // 变量更新
-    util.vars.PROJECT_PATH = CWD;
-    util.vars.USER_CONFIG_FILE = util.joinFormat(CWD, 'config.js');
-    util.vars.USER_PKG_FILE = util.joinFormat(CWD, 'package.json');
-    return Promise.resolve(null);
   },
   server,
   init

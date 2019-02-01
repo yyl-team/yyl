@@ -155,7 +155,7 @@ wServer.start = async function (ctx, iEnv, options) {
   serverConfig.serverAddress = `http://${vars.LOCAL_SERVER}:${serverConfig.port}`;
 
   // check port usage
-  const portCanUse = await extFn.checkPort(serverConfig.port);
+  const portCanUse = await extOs.checkPort(serverConfig.port);
   if (portCanUse) {
     if (!fs.existsSync(serverConfig.root)) {
       extFs.mkdirSync(serverConfig.root);
@@ -177,7 +177,7 @@ wServer.start = async function (ctx, iEnv, options) {
     } else {
       serverConfig.lrPort = `${serverConfig.port}1`;
     }
-    const lrPortCanUse = await extFn.checkPort(serverConfig.lrPort);
+    const lrPortCanUse = await extOs.checkPort(serverConfig.lrPort);
     if (!lrPortCanUse) {
       throw `port ${chalk.yellow(serverConfig.lrPort)} was occupied, please check`;
     }
@@ -240,7 +240,7 @@ wServer.start = async function (ctx, iEnv, options) {
     throw err;
   });
 
-  config.localserver = await extFn.makeAwait((next, reject) => {
+  config.localserver = await util.makeAwait((next, reject) => {
     server.listen(serverConfig.port, (err) => {
       if (err) {
         return reject(err);

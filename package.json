@@ -31,6 +31,7 @@
     "node": ">= 8.0.0"
   },
   "dependencies": {
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "anyproxy": "^4.0.12",
     "chalk": "^2.4.1",
     "concat-with-sourcemaps": "^1.0.4",
@@ -47,20 +48,20 @@
     "serve-index": "^1.9.1",
     "serve-static": "^1.13.2",
     "tiny-lr": "^1.0.3",
-    "webpack-hot-middleware": "^2.24.3",
     "yyl-color": "^1.0.0",
     "yyl-file-replacer": "^0.3.0",
     "yyl-fs": "^0.2.0",
     "yyl-os": "^0.2.0",
-    "yyl-print": "^0.5.2",
+    "yyl-print": "^0.6.2",
     "yyl-request": "^0.1.0",
     "yyl-seed-gulp-requirejs": "~2.5.8",
-    "yyl-seed-webpack-vue2": "~0.5.0",
+    "yyl-seed-webpack-vue2": "~0.5.1",
     "yyl-util": "^2.1.0"
   },
   "devDependencies": {
     "chai": "~4.1.2",
     "jest": "^23.5.0",
-    "webdriverio": "~4.10.1"
+    "webdriverio": "~4.10.1",
+    "yyl-seed-test-util": "^0.3.1"
   }
 }

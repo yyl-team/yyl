@@ -69,7 +69,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   await extFs.removeFiles(config.localserver.root);
 
   // find usage localserver port
-  await extFn.makeAwait((next) => {
+  await util.makeAwait((next) => {
     let iPort = config.localserver.port;
     const checkPort = function (canUse) {
       if (canUse) {
@@ -77,11 +77,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         next(config, opzer);
       } else {
         iPort = config.localserver.port + Math.round(Math.random() * 1000);
-        extFn.checkPort(iPort).then(checkPort);
+        extOs.checkPort(iPort).then(checkPort);
       }
     };
 
-    extFn.checkPort(iPort).then(checkPort);
+    extOs.checkPort(iPort).then(checkPort);
   });
 
   if (ctx === 'watch') {
@@ -112,10 +112,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         iEnv.https = true;
       }
 
-      const canUse = await extFn.checkPort(porxyPort);
+      const canUse = await extOs.checkPort(porxyPort);
       if (canUse) {
         let cmd = `yyl proxy start --silent ${util.envStringify(iEnv)}`;
-        await extOs.runCMD(cmd, vars.PROJECT_PATH, true);
+        await extOs.runCMD(cmd, vars.PROJECT_PATH, true, true);
       } else {
         log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
       }
@@ -123,7 +123,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // optimize
-  return await extFn.makeAwait((next) => {
+  return await util.makeAwait((next) => {
     let isUpdate = 0;
     let isError = false;
     opzer[ctx](iEnv)

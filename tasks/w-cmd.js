@@ -208,14 +208,14 @@ module.exports = async function(ctx) {
 
   try {
     r = await handle(...argv);
+    if (type) {
+      log('msg', 'done', `${type} task finished`);
+    }
   } catch (er) {
-    console.log('???', er)
     log('msg', 'error', er);
   }
 
-  if (type) {
-    log('msg', 'done', `${type} task finished`);
-  }
+
 
   return r;
 };

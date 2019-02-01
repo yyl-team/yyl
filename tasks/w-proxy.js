@@ -95,14 +95,14 @@ wProxy.start = async function (ctx, iEnv) {
     proxyConfig.port = iEnv.proxy;
   }
 
-  if (!await extFn.checkPort(proxyConfig.port)) {
+  if (!await extOs.checkPort(proxyConfig.port)) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
 
   if (iEnv.https) {
     log('msg', 'success', [`use ${chalk.yellow.bold('https')}`]);
     if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
-      await extFn.makeAwait((next) => {
+      await util.makeAwait((next) => {
         log('end');
         AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
           log('start', 'server');
@@ -159,7 +159,7 @@ wProxy.start = async function (ctx, iEnv) {
         });
 
         if (proxyUrl) {
-          return await extFn.makeAwait((next) => {
+          return await util.makeAwait((next) => {
             const vOpts = url.parse(proxyUrl);
             vOpts.method = req.requestOptions.method;
             vOpts.headers = req.requestOptions.headers;
@@ -238,11 +238,11 @@ wProxy.start = async function (ctx, iEnv) {
     silent: true
   };
 
-  if (!await extFn.checkPort(proxyOpts.webInterface.webPort)) {
+  if (!await extOs.checkPort(proxyOpts.webInterface.webPort)) {
     throw `port ${chalk.yellow(proxyOpts.webInterface.webPort)} is occupied, please check`;
   }
 
-  return await extFn.makeAwait((next) => {
+  return await util.makeAwait((next) => {
     cache.server = new AnyProxy.ProxyServer(proxyOpts);
 
     cache.uiAddress = `http://${vars.LOCAL_SERVER}:${proxyOpts.webInterface.webPort}/`;
