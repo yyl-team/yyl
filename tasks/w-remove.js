@@ -53,10 +53,16 @@ const remove = async function(iPath) {
       }
     });
 
-    await extFs.removeFiles(tPath);
-    log('finish');
+    const files = await extFs.removeFiles(tPath, true);
+    files.forEach((iPath) => {
+      log('msg', 'del', iPath);
+    });
+    log('finished');
   } else {
-    await extFs.removeFiles(tPath);
+    const files = await extFs.removeFiles(tPath, true);
+    files.forEach((iPath) => {
+      log('msg', 'del', iPath);
+    });
     log('finished');
   }
 };
