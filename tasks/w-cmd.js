@@ -209,11 +209,11 @@ module.exports = async function(ctx) {
   try {
     r = await handle(...argv);
     if (type) {
-      log('msg', 'finished');
+      log('finished');
     }
   } catch (er) {
     log('msg', 'error', er);
-    log('msg', 'finished');
+    log('finished');
   }
 
 
