@@ -201,7 +201,7 @@ module.exports = async function(ctx) {
     log('clear');
     log('msg', 'yyl', `${chalk.yellow.bold(pkg.version)}`);
     log('msg', 'cmd', `yyl ${iArgv.join(' ')}`);
-    log('msg', type, `${type} task starting...`);
+    log('start', type, `${type} task starting...`);
   }
 
   let r;
@@ -209,10 +209,11 @@ module.exports = async function(ctx) {
   try {
     r = await handle(...argv);
     if (type) {
-      log('msg', 'done', `${type} task finished`);
+      log('msg', 'finished');
     }
   } catch (er) {
     log('msg', 'error', er);
+    log('msg', 'finished');
   }
 
 
