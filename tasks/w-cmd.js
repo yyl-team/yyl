@@ -99,7 +99,7 @@ module.exports = async function(ctx) {
           handle = require('./w-server.js').getLogLevel;
           argv = [];
         }
-        type = 'info';
+        type = 'Info';
         break;
 
       case '-h':
@@ -113,7 +113,7 @@ module.exports = async function(ctx) {
       case '-p':
         handle = events.path;
         argv = [iEnv];
-        type = 'info';
+        type = 'Info';
         break;
 
       case 'init':
@@ -154,7 +154,7 @@ module.exports = async function(ctx) {
           type = '';
         } else {
           handle = require('./w-commit.js').run;
-          type = 'info';
+          type = 'Info';
         }
         argv = [iEnv, configPath];
 
@@ -169,13 +169,13 @@ module.exports = async function(ctx) {
       case 'test':
         handle = require('./w-test.js');
         argv = [];
-        type = 'info';
+        type = 'Info';
         break;
 
       case 'profile':
         handle = require('./w-profile.js').print;
         argv = [];
-        type = 'info';
+        type = 'Info';
         break;
 
       case 'make':
@@ -187,7 +187,7 @@ module.exports = async function(ctx) {
       case 'info':
         handle = require('./w-info.js').run;
         argv = [iEnv, configPath];
-        type = 'info';
+        type = 'Info';
         break;
 
       default:

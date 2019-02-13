@@ -9,7 +9,6 @@ const frp = require('yyl-file-replacer');
 const request = require('yyl-request');
 const util = require('yyl-util');
 const extOs = require('yyl-os');
-const print = require('yyl-print');
 
 const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
@@ -157,7 +156,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           await wOpzer.openHomePage(config, iEnv);
         }
 
-        log('msg', 'success', [`task - ${ctx} finished ${chalk.yellow.bold(print.fn.timeFormat())}`]);
         if (isUpdate) {
           // 刷新页面
           if (!opzer.ignoreLiveReload || iEnv.livereload) {
@@ -227,28 +225,33 @@ wOpzer.varSugar = async function (config, iEnv) {
 wOpzer.concat = async function (config) {
   if (config.concat) {
     log('msg', 'info', 'concat start');
-    await util.forEach(Object.keys(config.concat), async (dest) => {
-      const srcs = config.concat[dest];
-      const concat = new Concat(false, dest, '\n');
+    const keys = Object.keys(config.concat);
+    if (keys.length) {
+      await util.forEach(keys, async (dest) => {
+        const srcs = config.concat[dest];
+        const concat = new Concat(false, dest, '\n');
 
-      srcs.forEach((item) => {
-        if (!fs.existsSync(item)) {
-          log('msg', 'warn', `${item} is not exists, break`);
-          return;
-        }
+        srcs.forEach((item) => {
+          if (!fs.existsSync(item)) {
+            log('msg', 'warn', `${item} is not exists, break`);
+            return;
+          }
 
-        if (path.extname(item) == '.js') {
-          concat.add(null, `;/* ${path.basename(item)} */`);
-        } else {
-          concat.add(null, `/* ${path.basename(item)} */`);
-        }
-        concat.add(item, fs.readFileSync(item));
+          if (path.extname(item) == '.js') {
+            concat.add(null, `;/* ${path.basename(item)} */`);
+          } else {
+            concat.add(null, `/* ${path.basename(item)} */`);
+          }
+          concat.add(item, fs.readFileSync(item));
+        });
+
+        await extFs.mkdirSync(path.dirname(dest));
+        fs.writeFileSync(dest, concat.content);
+        log('msg', 'concat', [dest].concat(srcs));
       });
-
-      await extFs.mkdirSync(path.dirname(dest));
-      fs.writeFileSync(dest, concat.content);
-      log('msg', 'concat', [dest].concat(srcs));
-    });
+    } else {
+      log('msg', 'success', 'concat finished, no concat setting');
+    }
   } else {
     log('msg', 'info', 'config.concat is not defined, break');
   }
@@ -726,7 +729,7 @@ wOpzer.rev = {
     log('msg', 'success', 'rev-build finished');
   },
   // rev-update 入口
-  async update(config, op, remoteManifestData) {
+  async update(config, iEnv, remoteManifestData) {
     const self = this;
     const selfFn = self.fn;
     if (!config) {
@@ -757,11 +760,11 @@ wOpzer.rev = {
       wOpzer.rev.filename
     );
 
-    if (disableHash) {
+    if (disableHash || !iEnv.remote) {
       revMap = {};
     } else {
       if (!revMap) {
-        revMap = await wOpzer.rev.getRemoteManifest(op);
+        revMap = await wOpzer.rev.getRemoteManifest(iEnv);
       }
     }
     if (!revMap) {
@@ -782,7 +785,7 @@ wOpzer.rev = {
     // html, tpl 替换
     const htmlFiles = extFs.readFilesSync(config.alias.root, /\.(html|tpl)$/);
     htmlFiles.forEach((iPath) => {
-      selfFn.fileHashPathUpdate(iPath, revMap, op);
+      selfFn.fileHashPathUpdate(iPath, revMap, iEnv);
     });
 
     // css or js 替换
@@ -791,11 +794,11 @@ wOpzer.rev = {
       const cssFiles = extFs.readFilesSync(config.alias.root, /\.css$/);
 
       jsFiles.forEach((filePath) => {
-        self.fn.fileHashPathUpdate(filePath, revMap, op);
+        self.fn.fileHashPathUpdate(filePath, revMap, iEnv);
       });
 
       cssFiles.forEach((filePath) => {
-        self.fn.fileHashPathUpdate(filePath, revMap, op);
+        self.fn.fileHashPathUpdate(filePath, revMap, iEnv);
       });
     } else {
       Object.keys(revMap).forEach((iPath) => {
@@ -804,11 +807,11 @@ wOpzer.rev = {
         if (fs.existsSync(filePath)) {
           switch (path.extname(filePath)) {
             case '.css':
-              self.fn.fileHashPathUpdate(filePath, revMap, op);
+              self.fn.fileHashPathUpdate(filePath, revMap, iEnv);
               break;
 
             case '.js':
-              self.fn.fileHashPathUpdate(filePath, revMap, op);
+              self.fn.fileHashPathUpdate(filePath, revMap, iEnv);
               break;
 
             default:
