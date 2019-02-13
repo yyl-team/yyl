@@ -1,6 +1,10 @@
 # 版本信息
 ## 3.4.0 (2019-01-02)
 * [ADD] 接入 `yyt` 测试
+* [ADD] 新增 `yarn` 配置
+* [EDIT] log 部分 ui 改造
+* [EDIT] 升级 `yyl-util` 到 `2.0` 版本
+* [EDIT] 改造 `extFn` `log` `vars` 部分代码
 
 ## 3.3.8 (2019-01-16)
 * [FIX] 修复 `config.proxy.https` 配置无效问题
