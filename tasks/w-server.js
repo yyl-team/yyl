@@ -42,16 +42,9 @@ const wServer = (ctx, iEnv, configPath) => {
     case 'start':
       return (async () => {
         let config;
-        try {
-          config = await she.start(configPath, iEnv);
-        } catch (er) {
-          log('msg', 'error', er);
-        }
-        try {
-          config = await wProxy.start(config, iEnv);
-        } catch (er) {
-          log('msg', 'error', er);
-        }
+        config = await she.start(configPath, iEnv);
+        config = await wProxy.start(config, iEnv);
+
         if (!iEnv.silent && config) {
           let serverPath = '';
           if (config.proxy && config.proxy.homePage) {

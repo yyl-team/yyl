@@ -40,7 +40,7 @@ const info = {
     if (!silent) {
       log('msg', 'success', rArgv);
     }
-    return rArgv;
+    return r;
   },
   async init(iEnv, configPath) {
     const config = await extFn.parseConfig(configPath, iEnv);

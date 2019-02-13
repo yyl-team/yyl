@@ -876,11 +876,11 @@ wOpzer.rev = {
 };
 
 // livereload
-wOpzer.livereload = async function(config, iEnv)  {
-  if (!iEnv.silent && iEnv.proxy) {
-    const reloadPath = `http://${vars.LOCAL_SERVER}:${config.localserver.port}1/changed?files=1`;
+wOpzer.livereload = async function(config)  {
+  const reloadPath = `http://${vars.LOCAL_SERVER}:${config.localserver.port}1/changed?files=1`;
+  try {
     await request(reloadPath);
-  }
+  } catch (er) {}
 };
 
 

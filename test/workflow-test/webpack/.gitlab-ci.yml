@@ -1,0 +1,25 @@
+image: harbor.yy.com/front_end/yyl:latest
+
+stages:
+    - build
+
+build:
+    stage: build
+    tags:
+        - webfe
+    artifacts:
+        expire_in: 1 week
+        paths:
+            - output/
+            - gitlog
+    script:
+        - yyl all --isCommit --logLevel 2
+        - projectName=$(ls ./dist/project/)
+        - mkdir output
+        - cp --verbose -rf ./dist/project/$projectName/* ./output/
+        - rm --verbose -rf ./dist
+
+    after_script:
+        - git log -1 --pretty=medium >> gitlog
+    only:
+        - /^(master|dev)$/

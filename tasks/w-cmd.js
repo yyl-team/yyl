@@ -69,6 +69,10 @@ module.exports = async function(ctx) {
     require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
   }
 
+  if (iEnv.silent) {
+    require('./w-server.js').setLogLevel(0, true, true);
+  }
+
 
 
   // optimize
@@ -213,10 +217,8 @@ module.exports = async function(ctx) {
     }
   } catch (er) {
     log('msg', 'error', er);
-    log('finished');
+    process.exit(1);
   }
-
-
 
   return r;
 };

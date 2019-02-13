@@ -1,41 +1,20 @@
 const extFs = require('yyl-fs');
 const path = require('path');
-const fs = require('fs');
 const util = require('yyl-util');
-const request = require('request');
+const tUtil = require('yyl-seed-test-util');
+const request = require('yyl-request');
 const chalk = require('chalk');
 
-
-const seed = require('../../tasks/w-seed.js');
-// const extFn = require('../../tasks/w-extFn.js');
 const yyl = require('../../index.js');
 const SEED = require('../../tasks/w-seed.js');
+const TEST_CTRL = require('../test.config.js');
 
 
 const FRAG_PATH = path.join(__dirname, '../__frag');
 
-const fn = {
-  waitFor (ms) {
-    return new Promise ((next) => {
-      setTimeout(() => {
-        next();
-      }, ms);
-    });
-  },
-  get(url) {
-    return new Promise((next, reject) => {
-      request({
-        method: 'GET',
-        url
-      }, (error, res, body) => {
-        if (error) {
-          return reject(error);
-        }
-        next([res, body]);
-      });
-    });
-  }
-};
+tUtil.frag.init(FRAG_PATH);
+
+module.exports['@disabled'] = !TEST_CTRL.INIT;
 
 const cmds = [];
 const buildCmd = (op) => {
@@ -61,7 +40,11 @@ const buildCmd = (op) => {
     ].join(' ');
   }
 };
-seed.workflows.forEach((workflow) => {
+
+SEED.workflows.forEach((workflow) => {
+  // if (workflow === 'gulp-requirejs') {
+  //   return;
+  // }
   const seed = SEED.find(workflow);
   ['pc', 'mobile'].forEach((platform) => {
     seed.examples.forEach((example) => {
@@ -88,11 +71,7 @@ cmds.forEach((cmd, index) => {
         const distPath = path.join(seedPath, 'dist');
 
         if (index === 0) {
-          if (!fs.existsSync(FRAG_PATH)) {
-            await extFs.removeFiles(FRAG_PATH);
-          } else {
-            await extFs.mkdirSync(FRAG_PATH);
-          }
+          await tUtil.frag.build();
         }
 
         extFs.mkdirSync(seedPath);
@@ -108,20 +87,18 @@ cmds.forEach((cmd, index) => {
           path.relative(runConfig.alias.destRoot, htmls[0])
         );
 
-        const [ res ] = await fn.get(testUrl);
+        const [, res ] = await request(testUrl);
         client.verify.ok(res.statusCode === 200, `${chalk.yellow('GET')} ${testUrl} ${chalk.green('200')}`);
         client.checkPageError(testUrl);
         done();
       })
       // 环境关闭
-      .perform(async (done) => {
+      .end(async () => {
         await yyl.server.abort();
-        if (index === cmds.length - 1) {
-          await extFs.removeFiles(FRAG_PATH);
-        }
-        done();
-      })
-      .end();
+        // if (index === cmds.length - 1) {
+        //   await tUtil.frag.destroy();
+        // }
+      });
   };
 });
 
