@@ -1,12 +1,14 @@
 'use strict';
+const util = require('yyl-util');
 const chalk = require('chalk');
-const extFn = require('./w-extFn.js');
+const print = require('yyl-print');
 
-const util = require('./w-util');
+const log = require('../lib/log.js');
+const extFn = require('../lib/extFn.js');
 
 const info = {
   printInformation: function(config, silent) {
-    var r = {
+    const r = {
       'name': config.name,
       'workflow': config.workflow,
       'build-version': config.version,
@@ -15,52 +17,28 @@ const info = {
         if (config.proxy) {
           var keys = Object.keys(config.proxy.localRemote);
           if (keys.length) {
-            return keys.join(',');
+            return keys;
           } else {
-            return '';
+            return [];
           }
         } else {
-          return '';
+          return [];
         }
       })()
-
     };
 
-    var maxLen = 0;
-    var maxLine = 0;
-
+    const rArgv = [];
     Object.keys(r).forEach((key) => {
-      if (key.length > maxLen) {
-        maxLen = key.length;
+      let str = `${chalk.yellow(key)}${print.fn.makeSpace(15 - key.length)}`;
+      if (util.type(r[key]) === 'array') {
+        str = `${str}${r[key].map((t) => chalk.cyan(t)).join(chalk.gray(', '))}`;
+      } else {
+        str = `${str}${chalk.cyan(r[key])}`;
       }
+      rArgv.push(str);
     });
-
-    var printStr = (function() {
-      var str = [];
-      Object.keys(r).forEach((key) => {
-        var blanks = new Array(maxLen - key.length + 1).join(' ');
-        var s = ` ${chalk.green(key)}${blanks} ${r[key]}`;
-        if (s.length > maxLine) {
-          maxLine = s.length;
-        }
-
-        str.push(s);
-      });
-
-      return str.join('\n');
-    })();
-
-    var lineStr = ` ${  new Array(maxLine - 10).join('-')}`;
-
     if (!silent) {
-      console.log([
-        '',
-        chalk.yellow(' # workflow info'),
-        lineStr,
-        printStr,
-        lineStr,
-        ''
-      ].join('\n'));
+      log('msg', 'success', rArgv);
     }
     return r;
   },
@@ -82,7 +60,7 @@ const info = {
     }
 
     if (!isWork) {
-      util.msg.warn('read workflow info error, config seetting wrong');
+      log('msg', 'warn', 'read workflow info error, config seetting wrong');
       return null;
     } else {
       return r;

@@ -1,7 +1,8 @@
+const util = require('yyl-util');
+
 const SEED = require('./w-seed.js');
-const extFn = require('./w-extFn.js');
-const util = require('./w-util.js');
-const log = require('./w-log');
+const extFn = require('../lib/extFn.js');
+const log = require('../lib/log.js');
 
 const fn = {
   exit(errMsg) {

@@ -3,14 +3,16 @@ const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
-// const request = require('request');
+const print = require('yyl-print');
+const util = require('yyl-util');
+const extOs = require('yyl-os');
 
 const url = require('url');
 const http = require('http');
 
-const log = require('./w-log.js');
-const util = require('./w-util.js');
-const extFn = require('./w-extFn.js');
+const extFn = require('../lib/extFn.js');
+const vars = require('../lib/vars.js');
+const log = require('../lib/log.js');
 
 const AnyProxy = require('anyproxy');
 
@@ -60,7 +62,7 @@ wProxy.help = (iEnv) => {
     }
   };
   if (!iEnv.silent) {
-    util.help(h);
+    print.help(h);
   }
   return Promise.resolve(h);
 };
@@ -93,14 +95,14 @@ wProxy.start = async function (ctx, iEnv) {
     proxyConfig.port = iEnv.proxy;
   }
 
-  if (!await extFn.checkPort(proxyConfig.port)) {
+  if (!await extOs.checkPort(proxyConfig.port)) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
 
   if (iEnv.https) {
     log('msg', 'success', [`use ${chalk.yellow.bold('https')}`]);
     if (!AnyProxy.utils.certMgr.ifRootCAFileExists()) {
-      await extFn.makeAwait((next) => {
+      await util.makeAwait((next) => {
         log('end');
         AnyProxy.utils.certMgr.generateRootCA((error, keyPath) => {
           log('start', 'server');
@@ -108,7 +110,7 @@ wProxy.start = async function (ctx, iEnv) {
           if (!error) {
             const certDir = path.dirname(keyPath);
             log('msg', 'success', ['The cert is generated at', chalk.yellow.bold(certDir)]);
-            util.openPath(certDir);
+            extOs.openPath(certDir);
           } else {
             log('msg', 'error', ['error when generating rootCA', error]);
           }
@@ -157,7 +159,7 @@ wProxy.start = async function (ctx, iEnv) {
         });
 
         if (proxyUrl) {
-          return await extFn.makeAwait((next) => {
+          return await util.makeAwait((next) => {
             const vOpts = url.parse(proxyUrl);
             vOpts.method = req.requestOptions.method;
             vOpts.headers = req.requestOptions.headers;
@@ -236,14 +238,14 @@ wProxy.start = async function (ctx, iEnv) {
     silent: true
   };
 
-  if (!await extFn.checkPort(proxyOpts.webInterface.webPort)) {
+  if (!await extOs.checkPort(proxyOpts.webInterface.webPort)) {
     throw `port ${chalk.yellow(proxyOpts.webInterface.webPort)} is occupied, please check`;
   }
 
-  return await extFn.makeAwait((next) => {
+  return await util.makeAwait((next) => {
     cache.server = new AnyProxy.ProxyServer(proxyOpts);
 
-    cache.uiAddress = `http://${util.vars.LOCAL_SERVER}:${proxyOpts.webInterface.webPort}/`;
+    cache.uiAddress = `http://${vars.LOCAL_SERVER}:${proxyOpts.webInterface.webPort}/`;
     cache.port = proxyConfig.port;
 
     cache.server.on('ready', async () => {
@@ -255,7 +257,7 @@ wProxy.start = async function (ctx, iEnv) {
     cache.server.on('error', (e) => {
       throw e;
     });
-    fs.watchFile(util.vars.SERVER_PROXY_MAPPING_FILE, async (curr, prev) => {
+    fs.watchFile(vars.SERVER_PROXY_MAPPING_FILE, async (curr, prev) => {
       log('clear');
       log('start', 'server', 'proxy config changing');
       if (curr.ctime !== prev.ctime) {
@@ -281,7 +283,7 @@ wProxy.abort = function () {
 
 // 更新映射表
 wProxy.updateMapping = async function (config) {
-  await extFs.mkdirSync(util.vars.SERVER_DATA_PATH);
+  await extFs.mkdirSync(vars.SERVER_DATA_PATH);
   const pxyConfig = config.proxy;
   if (!pxyConfig) {
     return config;
@@ -294,9 +296,9 @@ wProxy.updateMapping = async function (config) {
   const formatLocalServer = (str) => {
     if (typeof str === 'string') {
       return str
-        .replace(`127.0.0.1:${config.localserver.port}`, `${util.vars.LOCAL_SERVER}:${config.localserver.port}`)
-        .replace(`127.0.0.1:${config.localserver.port}1`, `${util.vars.LOCAL_SERVER}:${config.localserver.port}1`)
-        .replace(`localhost:${config.localserver.port}`, `${util.vars.LOCAL_SERVER}:${config.localserver.port}`);
+        .replace(`127.0.0.1:${config.localserver.port}`, `${vars.LOCAL_SERVER}:${config.localserver.port}`)
+        .replace(`127.0.0.1:${config.localserver.port}1`, `${vars.LOCAL_SERVER}:${config.localserver.port}1`)
+        .replace(`localhost:${config.localserver.port}`, `${vars.LOCAL_SERVER}:${config.localserver.port}`);
     } else {
       return str;
     }
@@ -308,8 +310,8 @@ wProxy.updateMapping = async function (config) {
   });
 
   // 新增一个 localhost 的 https 代理
-  pxyConfig.localRemote[`https://${util.vars.LOCAL_SERVER}:${config.localserver.port}`] = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}`;
-  pxyConfig.localRemote[`https://${util.vars.LOCAL_SERVER}:${config.localserver.port}1`] = `http://${util.vars.LOCAL_SERVER}:${config.localserver.port}1`;
+  pxyConfig.localRemote[`https://${vars.LOCAL_SERVER}:${config.localserver.port}`] = `http://${vars.LOCAL_SERVER}:${config.localserver.port}`;
+  pxyConfig.localRemote[`https://${vars.LOCAL_SERVER}:${config.localserver.port}1`] = `http://${vars.LOCAL_SERVER}:${config.localserver.port}1`;
 
 
 
@@ -318,10 +320,10 @@ wProxy.updateMapping = async function (config) {
     const localHostname = config.commit.hostname.replace(/[\\/]$/, '');
     const port = config.localserver && config.localserver.port;
     if (!pxyConfig.localRemote[localHostname] && port) {
-      pxyConfig.localRemote[`${localHostname}/`] = `http://${util.vars.LOCAL_SERVER}:${port}/`;
+      pxyConfig.localRemote[`${localHostname}/`] = `http://${vars.LOCAL_SERVER}:${port}/`;
     }
   }
-  fs.writeFileSync(util.vars.SERVER_PROXY_MAPPING_FILE, `module.exports = ${JSON.stringify(pxyConfig, null, 2)}`);
+  fs.writeFileSync(vars.SERVER_PROXY_MAPPING_FILE, `module.exports = ${JSON.stringify(pxyConfig, null, 2)}`);
   log('msg', 'success', `proxy mapping ${chalk.green('updated')}`);
   return config;
 };
@@ -331,8 +333,8 @@ wProxy.getMapping = function () {
   let r = {
     localRemote: []
   };
-  if (fs.existsSync(util.vars.SERVER_PROXY_MAPPING_FILE)) {
-    const data = util.requireJs(util.vars.SERVER_PROXY_MAPPING_FILE);
+  if (fs.existsSync(vars.SERVER_PROXY_MAPPING_FILE)) {
+    const data = util.requireJs(vars.SERVER_PROXY_MAPPING_FILE);
     try {
       r = util.extend(true, r, data);
     } catch (er) {

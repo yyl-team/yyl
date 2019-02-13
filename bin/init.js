@@ -11,14 +11,20 @@ process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:\n', err.stack);
 });
 
-d.run(() => {
+d.run(async () => {
   const wCmd = require('../tasks/w-cmd.js');
   if (iArgv[0] === 'all') {
-    wCmd(...iArgv).catch(() => {
+    try {
+      await wCmd(...iArgv);
+    } catch (er) {
       process.exit(1);
-    });
+    }
   } else {
-    wCmd(...iArgv).catch(() => {});
+    try {
+      await wCmd(...iArgv);
+    } catch (er) {
+      throw er;
+    }
   }
 });
 

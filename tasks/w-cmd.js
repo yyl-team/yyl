@@ -1,9 +1,13 @@
 'use strict';
 const chalk = require('chalk');
 const fs = require('fs');
-const util = require('./w-util.js');
+const print = require('yyl-print');
+const util = require('yyl-util');
+const extOs = require('yyl-os');
+
 const SEED = require('./w-seed.js');
-const log = require('./w-log');
+const vars = require('../lib/vars.js');
+const log = require('../lib/log.js');
 const pkg = require('../package.json');
 
 const events = {
@@ -30,31 +34,32 @@ const events = {
       h.commands[key] = 'optimize';
     });
     if (!iEnv || !iEnv.silent) {
-      util.help(h);
+      print.help(h);
     }
     return Promise.resolve(h);
   },
   path(iEnv) {
     if (!iEnv.silent) {
-      log('msg', 'success', `path: ${chalk.yellow.bold(util.vars.BASE_PATH)}`);
-      util.openPath(util.vars.BASE_PATH);
+      log('msg', 'success', `path: ${chalk.yellow.bold(vars.BASE_PATH)}`);
+      extOs.openPath(vars.BASE_PATH);
     }
-    return Promise.resolve(util.vars.BASE_PATH);
+    return Promise.resolve(vars.BASE_PATH);
   }
 };
 
 module.exports = async function(ctx) {
   const iArgv = util.makeArray(arguments);
-  const iEnv = util.envPrase(arguments);
+  const iEnv = util.envParse(arguments);
   let type = '';
+
 
   let configPath;
   if (iEnv.config) {
-    configPath = util.path.resolve(util.vars.PROJECT_PATH, iEnv.config);
+    configPath = util.path.resolve(vars.PROJECT_PATH, iEnv.config);
   } else {
-    configPath = util.path.resolve(util.vars.PROJECT_PATH, 'yyl.config.js');
+    configPath = util.path.resolve(vars.PROJECT_PATH, 'yyl.config.js');
     if (!fs.existsSync(configPath)) {
-      configPath = util.path.resolve(util.vars.PROJECT_PATH, 'config.js');
+      configPath = util.path.resolve(vars.PROJECT_PATH, 'config.js');
     }
   }
 
@@ -62,6 +67,10 @@ module.exports = async function(ctx) {
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
+  }
+
+  if (iEnv.silent) {
+    require('./w-server.js').setLogLevel(0, true, true);
   }
 
 
@@ -94,7 +103,7 @@ module.exports = async function(ctx) {
           handle = require('./w-server.js').getLogLevel;
           argv = [];
         }
-        type = 'info';
+        type = 'Info';
         break;
 
       case '-h':
@@ -108,7 +117,7 @@ module.exports = async function(ctx) {
       case '-p':
         handle = events.path;
         argv = [iEnv];
-        type = 'info';
+        type = 'Info';
         break;
 
       case 'init':
@@ -117,7 +126,7 @@ module.exports = async function(ctx) {
           handle = handle.help;
         }
 
-        type = '';
+        type = 'init';
         argv = [iEnv];
         break;
 
@@ -149,7 +158,7 @@ module.exports = async function(ctx) {
           type = '';
         } else {
           handle = require('./w-commit.js').run;
-          type = 'info';
+          type = 'Info';
         }
         argv = [iEnv, configPath];
 
@@ -164,13 +173,13 @@ module.exports = async function(ctx) {
       case 'test':
         handle = require('./w-test.js');
         argv = [];
-        type = 'info';
+        type = 'Info';
         break;
 
       case 'profile':
         handle = require('./w-profile.js').print;
         argv = [];
-        type = 'info';
+        type = 'Info';
         break;
 
       case 'make':
@@ -182,7 +191,7 @@ module.exports = async function(ctx) {
       case 'info':
         handle = require('./w-info.js').run;
         argv = [iEnv, configPath];
-        type = 'info';
+        type = 'Info';
         break;
 
       default:
@@ -194,21 +203,21 @@ module.exports = async function(ctx) {
   }
   if (type) {
     log('clear');
-    log('yyl', `${chalk.yellow(pkg.version)}`);
-    log('cmd', `yyl ${iArgv.join(' ')}`);
-    log('start', type, 'starting...');
+    log('msg', 'yyl', `${chalk.yellow.bold(pkg.version)}`);
+    log('msg', 'cmd', `yyl ${iArgv.join(' ')}`);
+    log('start', type, `${type} task starting...`);
   }
 
   let r;
 
   try {
     r = await handle(...argv);
+    if (type) {
+      log('finished');
+    }
   } catch (er) {
     log('msg', 'error', er);
-  }
-
-  if (type) {
-    log('finished', 'finished');
+    process.exit(1);
   }
 
   return r;

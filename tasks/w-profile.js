@@ -1,10 +1,11 @@
-const util = require('./w-util.js');
 const extFs = require('yyl-fs');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-const PROFILE_PATH = path.join(util.vars.SERVER_DATA_PATH, 'profile.js');
+const vars = require('../lib/vars.js');
+
+const PROFILE_PATH = path.join(vars.SERVER_DATA_PATH, 'profile.js');
 
 const wProfile = function (key, val) {
   const she = wProfile;
