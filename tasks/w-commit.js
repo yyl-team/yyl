@@ -101,10 +101,12 @@ const wCommit = {
       log('msg', 'warn', 'svnConfig.copy is blank');
       return;
     }
+    log('msg', 'info', ['copy start', svnConfig.copy]);
 
     const iStats = await extFs.copyFiles(svnConfig.copy, (iPath) => {
       const rPath = util.path.relative(vars.PROJECT_PATH, iPath);
-      return /\.sass-cache|\.DS_Store|node_modules/.test(rPath);
+      const r = /\.sass-cache|\.DS_Store|node_modules/.test(rPath);
+      return !r;
     });
 
     iStats.add.forEach((iPath) => {
@@ -259,7 +261,7 @@ const wCommit = {
     });
   },
   async run (iEnv, configPath) {
-    print.fn.cost.start();
+    const now = new Date();
 
     // get config
     const config = await extFn.parseConfig(configPath, iEnv);
@@ -292,7 +294,7 @@ const wCommit = {
 
 
     log('finished');
-    log('start', 'commit-copy');
+    log('start', 'commit-copy', 'running copy task');
     await wCommit.copy(iEnv, config);
 
     log('finished');
@@ -306,10 +308,10 @@ const wCommit = {
     }
 
     log('msg', 'success', 'all is finished');
-    print.fn.cost.end();
-    log('msg', 'success', `total ${chalk.green.bold(print.fn.cost.format())} ${chalk.yellow.bold(print.timeFormat())}`);
-
+    const cost = new Date() - now;
     log('finished', 'all finished');
+    log('msg', 'success', `total ${chalk.green.bold(print.fn.cost.format(cost))} ${chalk.yellow.bold(print.fn.timeFormat())}`);
+
     return config;
   }
 };
