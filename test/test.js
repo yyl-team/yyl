@@ -21,14 +21,14 @@ const FRAG_PATH = path.join(__dirname, '__frag');
 tUtil.frag.init(FRAG_PATH);
 
 const TEST_CTRL = {
-  // SERVER: true,
-  // VERSION: true,
-  // HELP: true,
-  // PATH: true,
-  // INFO: true,
-  // MOCK: true,
-  // INIT: true,
-  // ALL: true,
+  SERVER: true,
+  VERSION: true,
+  HELP: true,
+  PATH: true,
+  INFO: true,
+  MOCK: true,
+  INIT: true,
+  ALL: true,
   COMMIT: true
 };
 
@@ -769,7 +769,7 @@ if (TEST_CTRL.COMMIT) {
 
         await extOs.runCMD(`svn checkout ${svnPath}`, svnDir);
 
-        await yyl.run('commit --sub dev --silent --logLevel 2', FRAG_WORKFLOW_PATH);
+        await yyl.run('commit --sub dev --silent --logLevel 0', FRAG_WORKFLOW_PATH);
         expect(true).equal(true);
         tUtil.frag.destroy();
       }, true));

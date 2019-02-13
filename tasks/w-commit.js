@@ -13,6 +13,12 @@ const extFn = require('../lib/extFn.js');
 const log = require('../lib/log.js');
 const wOpzer = require('./w-optimize.js');
 
+const fn = {
+  newline() {
+    console.log('\n');
+  }
+};
+
 const wCommit = {
   help: function() {
     return print.help({
@@ -59,6 +65,7 @@ const wCommit = {
         log('msg', 'info', `svn update path: ${iPath}`);
         log('end');
         await extOs.runSpawn('svn update', iPath);
+        fn.newline();
         log('msg', 'success', `svn update finished: ${chalk.yellow(iPath)}`);
       }
     });
@@ -73,6 +80,7 @@ const wCommit = {
         } else {
           log('msg', 'info', `git pull path: ${mPath}`);
           await extOs.runSpawn('git pull', mPath);
+          fn.newline();
           log('msg', 'success', `git pull path finished: ${mPath}`);
         }
       });
@@ -217,6 +225,7 @@ const wCommit = {
         if (fs.existsSync(src)) {
           if (!iEnv.nosvn) {
             await extOs.runSpawn(`svn del ${path.basename(src)} -q`, path.dirname(src));
+            fn.newline();
           }
           await extFs.removeFiles(src, true);
           log('msg', 'del', src);
@@ -239,6 +248,7 @@ const wCommit = {
       log('msg', 'info', `start cleanup: ${chalk.yellow(iPath)}`);
       log('end');
       await extOs.runSpawn('svn cleanup', iPath);
+      fn.newline();
       log('msg', 'success', `cleanup finished: ${chalk.yellow(iPath)} `);
 
 
@@ -250,6 +260,7 @@ const wCommit = {
       log('msg', 'info', `run cmd: ${cmd}`);
       log('end');
       await extOs.runSpawn(cmd, dirname);
+      fn.newline();
       log('msg', 'success', `svn path added finished: ${chalk.yellow(dirname)}`);
 
       log('msg', 'success', 'svn add path all finished');
@@ -257,6 +268,7 @@ const wCommit = {
       log('msg', 'info', `svn commit start: ${chalk.yellow(iPath)}`);
 
       await extOs.runSpawn('svn commit -m gulpAutoCommit', iPath);
+      fn.newline();
       log('msg', 'success', `svn commmit finished: ${chalk.yellow(iPath)}`);
     });
   },
