@@ -1,5 +1,5 @@
 import 'yyl-flexlayout';
-import 'babel-polyfill';
+import '@babel/polyfill';
 import Vue from 'vue';
 import { mapActions } from 'vuex';
 import VueRouter from 'vue-router';
