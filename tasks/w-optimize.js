@@ -898,6 +898,11 @@ wOpzer.initPlugins = async function (config) {
   if (!fs.existsSync(iNodeModulePath)) {
     extFs.mkdirSync(iNodeModulePath);
   }
+  const iPkgPath = path.join(iNodeModulePath, '../package.json');
+  if (!fs.existsSync(iPkgPath)) {
+    fs.writeFileSync(iPkgPath, '{}');
+  }
+
   const installLists = [];
 
   config.plugins.forEach((str) => {
