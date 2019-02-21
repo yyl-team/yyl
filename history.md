@@ -1,4 +1,7 @@
 # 版本信息
+## 3.4.5 (2019-02-21)
+* [FIX] 更新 `yyl-seed-webpack-vue2` 到 `0.5.6` 修复 webpack-vue 老项目引入 `babel-polyfill` 会报错问题
+
 ## 3.4.4 (2019-02-19)
 * [FIX] 更新 `yyl-seed-webpack-vue2` 到 `0.5.5` 修复 webpack-vue `import` 和 `module.exports` 混用报错问题
 

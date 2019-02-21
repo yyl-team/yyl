@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.4.4",
+  "version": "3.4.5",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -31,7 +31,6 @@
     "node": ">= 8.0.0"
   },
   "dependencies": {
-    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "anyproxy": "^4.0.12",
     "chalk": "^2.4.1",
     "concat-with-sourcemaps": "^1.0.4",
