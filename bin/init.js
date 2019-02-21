@@ -14,16 +14,12 @@ process.on('uncaughtException', (err) => {
 d.run(async () => {
   const wCmd = require('../tasks/w-cmd.js');
   if (iArgv[0] === 'all') {
-    try {
-      await wCmd(...iArgv);
-    } catch (er) {
-      process.exit(1);
-    }
+    await wCmd(...iArgv);
   } else {
     try {
       await wCmd(...iArgv);
     } catch (er) {
-      throw er;
+      process.exit(1);
     }
   }
 });
