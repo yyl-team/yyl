@@ -122,7 +122,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // optimize
-  await util.makeAwait((next) => {
+  return await util.makeAwait((next) => {
     let isUpdate = 0;
     let isError = false;
     opzer[ctx](iEnv)
@@ -171,7 +171,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         }
       });
   });
-  return;
 };
 
 wOpzer.afterTask = async function (config, iEnv, isUpdate) {
