@@ -51,7 +51,7 @@
     "yyl-file-replacer": "^0.3.0",
     "yyl-fs": "^0.2.0",
     "yyl-os": "^0.2.0",
-    "yyl-print": "^0.6.4",
+    "yyl-print": "^0.7.1",
     "yyl-request": "^0.1.0",
     "yyl-seed-gulp-requirejs": "~2.5.8",
     "yyl-seed-webpack-vue2": "~0.5.7",

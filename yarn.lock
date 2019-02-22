@@ -11400,10 +11400,12 @@ yyl-os@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-os/-/yyl-os-0.2.0.tgz#390478e3b32597bac434dc4ea9a07a5c6466d2a6"
   integrity sha512-5hA2UxzmI7yachIcj2tol1VDd7s+M7u3dwXTznWtbhctZLpYrZCLJYLumcGFRpj73FrhQ1BqLPwIerx74yErDg==
 
-yyl-print@^0.6.4:
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/yyl-print/-/yyl-print-0.6.4.tgz#66a27c1dabbbd5a9ddf8dd925cd2cc3db593bfda"
-  integrity sha512-nHROxycYigX6rhbyMINqwpD5rfpGcTEVMmgvoEFpjcWKei8npLEYxQYC+2FRykX2LaPP/sfnX1xhDSz0JNk6tw==
+yyl-print@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/yyl-print/-/yyl-print-0.7.1.tgz#a8656c58a3c2dd54618df6051b66e4d11352428a"
+  integrity sha512-deyJEQ+CBW7KJsUuOwAbpyy2G/kOCDPXhQOdZVXAY1Ko6AOO07Jy5gXrQ/KjAeCwGEeqtZUPdyNu/bh3M55d8Q==
+  dependencies:
+    chalk "^2.4.2"
 
 yyl-request@^0.1.0:
   version "0.1.0"
