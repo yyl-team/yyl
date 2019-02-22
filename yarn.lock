@@ -335,7 +335,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/plugin-syntax-dynamic-import@^7.0.0", "@babel/plugin-syntax-dynamic-import@^7.2.0":
+"@babel/plugin-syntax-dynamic-import@^7.0.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-dynamic-import/-/plugin-syntax-dynamic-import-7.2.0.tgz#69c159ffaf4998122161ad8ebc5e6d1f55df8612"
   integrity sha512-mVxuJ0YroI/h/tbFTPGZR8cv6ai+STMKNBq0f8hFxsxWjl94qqhsb+wXbpNMDPU3cfR1TIsVFzU3nXyZMqyK4w==
@@ -1647,6 +1647,15 @@ babel-plugin-syntax-object-rest-spread@^6.13.0:
   version "6.13.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-syntax-object-rest-spread/-/babel-plugin-syntax-object-rest-spread-6.13.0.tgz#fd6536f2bce13836ffa3a5458c4903a597bb3bf5"
   integrity sha1-/WU28rzhODb/o6VFjEkDpZe7O/U=
+
+babel-polyfill@^6.26.0:
+  version "6.26.0"
+  resolved "https://registry.yarnpkg.com/babel-polyfill/-/babel-polyfill-6.26.0.tgz#379937abc67d7895970adc621f284cd966cf2153"
+  integrity sha1-N5k3q8Z9eJWXCtxiHyhM2WbPIVM=
+  dependencies:
+    babel-runtime "^6.26.0"
+    core-js "^2.5.0"
+    regenerator-runtime "^0.10.5"
 
 babel-preset-jest@^23.2.0:
   version "23.2.0"
@@ -8774,6 +8783,11 @@ regenerate@^1.2.1, regenerate@^1.4.0:
   resolved "https://registry.yarnpkg.com/regenerate/-/regenerate-1.4.0.tgz#4a856ec4b56e4077c557589cae85e7a4c8869a11"
   integrity sha512-1G6jJVDWrt0rK99kBjvEtziZNCICAuvIPkSiUFIQxVP06RCVpq3dmDo2oi6ABpYaDYaTRr67BEhL8r1wgEZZKg==
 
+regenerator-runtime@^0.10.5:
+  version "0.10.5"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.10.5.tgz#336c3efc1220adcedda2c9fab67b5a7955a33658"
+  integrity sha1-M2w+/BIgrc7dosn6tntaeVWjNlg=
+
 regenerator-runtime@^0.11.0:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
@@ -10881,10 +10895,10 @@ vue-style-loader@^4.1.0, vue-style-loader@^4.1.2:
     hash-sum "^1.0.2"
     loader-utils "^1.0.2"
 
-vue-template-compiler@^2.6.6:
-  version "2.6.6"
-  resolved "https://registry.yarnpkg.com/vue-template-compiler/-/vue-template-compiler-2.6.6.tgz#a807acbf3d51971d3721d75ecb1b927b517c1a02"
-  integrity sha512-OakxDGyrmMQViCjkakQFbDZlG0NibiOzpLauOfyCUVRQc9yPmTqpiz9nF0VeA+dFkXegetw0E5x65BFhhLXO0A==
+vue-template-compiler@2.5.22:
+  version "2.5.22"
+  resolved "https://registry.yarnpkg.com/vue-template-compiler/-/vue-template-compiler-2.5.22.tgz#c3d3c02c65f1908205c4fbd3b0ef579e51239955"
+  integrity sha512-1VTw/NPTUeHNiwhkq6NkFzO7gYLjFCueBN0FX8NEiQIemd5EUMQ5hxrF7O0zCPo5tae+U9S/scETPea+hIz8Eg==
   dependencies:
     de-indent "^1.0.2"
     he "^1.1.0"
@@ -10894,10 +10908,10 @@ vue-template-es2015-compiler@^1.8.2:
   resolved "https://registry.yarnpkg.com/vue-template-es2015-compiler/-/vue-template-es2015-compiler-1.8.2.tgz#dd73e80ba58bb65dd7a8aa2aeef6089cf6116f2a"
   integrity sha512-cliV19VHLJqFUYbz/XeWXe5CO6guzwd0yrrqqp0bmjlMP3ZZULY7fu8RTC4+3lmHwo6ESVDHFDsvjB15hcR5IA==
 
-vue@^2.6.6:
-  version "2.6.6"
-  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.6.tgz#dde41e483c11c46a7bf523909f4f2f816ab60d25"
-  integrity sha512-Y2DdOZD8sxApS+iUlwv1v8U1qN41kq6Kw45lM6nVZKhygeWA49q7VCCXkjXqeDBXgurrKWkYQ9cJeEJwAq0b9Q==
+vue@2.5.22:
+  version "2.5.22"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.5.22.tgz#3bf88041af08b8539c37b268b70ca79245e9cc30"
+  integrity sha512-pxY3ZHlXNJMFQbkjEgGVMaMMkSV1ONpz+4qB55kZuJzyJOhn6MSy/YZdzhdnumegNzVTL/Dn3Pp4UrVBYt1j/g==
 
 vuex@^3.1.0:
   version "3.1.0"
@@ -11446,10 +11460,10 @@ yyl-seed-test-util@^0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack-vue2@~0.5.5:
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack-vue2/-/yyl-seed-webpack-vue2-0.5.5.tgz#cfb5ea0f29879f7181fcae67127e21903e9d5bd3"
-  integrity sha512-aViXJ9ubh3hYqOf8GEH25+infTN1U5smsUegMt0/Ib20ndr+AbE14JaBej2M/lgKCzkOieT9fD+TDF7cwvh6BA==
+yyl-seed-webpack-vue2@~0.5.7:
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack-vue2/-/yyl-seed-webpack-vue2-0.5.7.tgz#37c88efe4eafecc734c5a5144a4a81dedc1a7745"
+  integrity sha512-f3jokfsmVqSmoLKVPXt0OAr7z94VFY8TSfJealEceQnziYOGWcI526hWOQDkqGCIqoAv6P5z/9yJJQ0Rb7t39w==
   dependencies:
     "@babel/core" "^7.2.2"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
@@ -11470,6 +11484,7 @@ yyl-seed-webpack-vue2@~0.5.5:
     axios "^0.18.0"
     babel-eslint "^9.0.0"
     babel-loader "8.0.5"
+    babel-polyfill "^6.26.0"
     css-loader "^1.0.0"
     extract-text-webpack-plugin "^4.0.0-beta.0"
     file-loader "^2.0.0"
@@ -11492,11 +11507,11 @@ yyl-seed-webpack-vue2@~0.5.5:
     through2 "^2.0.3"
     uglifyjs-webpack-plugin "^1.3.0"
     url-loader "^1.1.1"
-    vue "^2.6.6"
+    vue "2.5.22"
     vue-loader "^15.6.2"
     vue-router "^3.0.2"
     vue-style-loader "^4.1.2"
-    vue-template-compiler "^2.6.6"
+    vue-template-compiler "2.5.22"
     vuex "^3.1.0"
     watch "^1.0.2"
     webpack "4.28.4"
@@ -11523,6 +11538,11 @@ yyl-util@^2.0.0, yyl-util@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.1.0.tgz#37d20543342a9104a018323bd95d032968342114"
   integrity sha512-NbNSvd7x3eG2rdc4itvhjTXGBPkcx/NZwkNrENeuxfyDqLZaVSsAerJCaZjkwWCWdStuf3w/TtiUmsEp7ORDHw==
+
+yyl-util@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.1.1.tgz#462d9806e54c2c1eda7bef747b97cea731643da5"
+  integrity sha512-2+BjZDht0BrkzWULTcAPYW4vX46/88ZwmyUOn8QycQAibeRmGkR02rh+Rwm0Ki/rxBVZBNZby00nmYZ5MyMwiA==
 
 yyl-util@~1.13.0:
   version "1.13.1"

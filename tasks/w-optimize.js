@@ -122,7 +122,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // optimize
-  return await util.makeAwait((next) => {
+  await util.makeAwait((next) => {
     let isUpdate = 0;
     let isError = false;
     opzer[ctx](iEnv)
@@ -138,9 +138,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           isError = true;
         }
       })
-      .on('finished', async () => {
+      .on('finished', async() => {
         if (ctx === 'all' && isError) {
-          throw `${ctx} task run error`;
+          log('msg', 'error', `${ctx} task run error`);
+          process.exit(1);
         }
         log('msg', 'success', [`opzer.${ctx}() finished`]);
 
@@ -170,6 +171,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         }
       });
   });
+  return;
 };
 
 wOpzer.afterTask = async function (config, iEnv, isUpdate) {

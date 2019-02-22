@@ -4,7 +4,13 @@ const iArgv = process.argv.splice(2);
 const d = domain.create();
 
 d.on('error', (err) => {
-  console.error('domain error catch\n', err.stack);
+  let r;
+  if (typeof err === 'string') {
+    r = err;
+  } else {
+    r = err.error;
+  }
+  console.error('domain error catch\n', r);
 });
 
 process.on('uncaughtException', (err) => {
@@ -14,7 +20,11 @@ process.on('uncaughtException', (err) => {
 d.run(async () => {
   const wCmd = require('../tasks/w-cmd.js');
   if (iArgv[0] === 'all') {
-    await wCmd(...iArgv);
+    try {
+      await wCmd(...iArgv);
+    } catch (er) {
+      process.exit(1);
+    }
   } else {
     try {
       await wCmd(...iArgv);
