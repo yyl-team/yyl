@@ -138,9 +138,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           isError = true;
         }
       })
-      .on('finished', async () => {
+      .on('finished', async() => {
         if (ctx === 'all' && isError) {
-          throw `${ctx} task run error`;
+          log('msg', 'error', `${ctx} task run error`);
+          process.exit(1);
         }
         log('msg', 'success', [`opzer.${ctx}() finished`]);
 

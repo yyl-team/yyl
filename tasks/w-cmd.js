@@ -210,15 +210,12 @@ module.exports = async function(ctx) {
 
   let r;
 
-  try {
-    r = await handle(...argv);
-    if (type) {
-      log('finished');
-    }
-  } catch (er) {
-    log('msg', 'error', er);
-    process.exit(1);
+  r = await handle(...argv);
+
+  if (type) {
+    log('finished');
   }
+
 
   return r;
 };

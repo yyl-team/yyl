@@ -276,6 +276,7 @@ wServer.clear = async function() {
   list.forEach((iPath) => {
     log('msg', 'del', iPath);
   });
+  await wProxy.clean();
   log('finish', 'clear finished');
 };
 

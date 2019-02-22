@@ -4,7 +4,13 @@ const iArgv = process.argv.splice(2);
 const d = domain.create();
 
 d.on('error', (err) => {
-  console.error('domain error catch\n', err.stack);
+  let r;
+  if (typeof err === 'string') {
+    r = err;
+  } else {
+    r = err.error;
+  }
+  console.error('domain error catch\n', r);
 });
 
 process.on('uncaughtException', (err) => {
@@ -23,7 +29,7 @@ d.run(async () => {
     try {
       await wCmd(...iArgv);
     } catch (er) {
-      throw er;
+      process.exit(1);
     }
   }
 });

@@ -67,6 +67,16 @@ wProxy.help = (iEnv) => {
   return Promise.resolve(h);
 };
 
+wProxy.clean = async function () {
+  if (fs.existsSync(vars.PROXY_CACHE_PATH)) {
+    log('msg', 'info', `clean proxy cache start, path: ${chalk.yellow(vars.PROXY_CACHE_PATH)}`);
+    const files = await extFs.removeFiles(vars.PROXY_CACHE_PATH);
+    log('msg', 'success', `clean proxy cache finished, total ${chalk.yellow(files.length)} files`);
+  } else {
+    log('msg', 'success', 'clean proxy cache finished, proxy cache path not exists');
+  }
+};
+
 wProxy.start = async function (ctx, iEnv) {
   const DEFAULT_CONFIG = {
     port: 8887
@@ -98,6 +108,9 @@ wProxy.start = async function (ctx, iEnv) {
   if (!await extOs.checkPort(proxyConfig.port)) {
     throw `port ${chalk.yellow(proxyConfig.port)} is occupied, please check`;
   }
+
+  // 清除 anyproxy 的 缓存
+  await wProxy.clean();
 
   if (iEnv.https) {
     log('msg', 'success', [`use ${chalk.yellow.bold('https')}`]);
