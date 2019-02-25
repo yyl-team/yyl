@@ -11462,10 +11462,10 @@ yyl-seed-test-util@^0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack-vue2@~0.5.7:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack-vue2/-/yyl-seed-webpack-vue2-0.5.7.tgz#37c88efe4eafecc734c5a5144a4a81dedc1a7745"
-  integrity sha512-f3jokfsmVqSmoLKVPXt0OAr7z94VFY8TSfJealEceQnziYOGWcI526hWOQDkqGCIqoAv6P5z/9yJJQ0Rb7t39w==
+yyl-seed-webpack-vue2@~0.5.9:
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack-vue2/-/yyl-seed-webpack-vue2-0.5.9.tgz#ee6a7828fbc5da1fc00087e3f3bcba563bf0a7b7"
+  integrity sha512-hjUoAkRT+rtpWttCjuTWo+8BE+fSyliemv8wetO9q5JmnZTMVd6f32Sdp0IGs437AvQkEhXRiL+Y/jvlBNvmvg==
   dependencies:
     "@babel/core" "^7.2.2"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
