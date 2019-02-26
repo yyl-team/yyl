@@ -453,7 +453,8 @@ if (TEST_CTRL.INIT) {
       // 需要 忽略的 地址列表
       let ignoreList = [
         'config.extend.js',
-        'README.extend.md'
+        'README.extend.md',
+        'webpack.config.extend.js'
       ];
 
       // 需要检查 替换是否正确的 列表
