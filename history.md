@@ -1,4 +1,8 @@
 # 版本信息
+## 3.4.7 (2019-03-13)
+* [FIX] 修复 log.warn 不会展开的问题
+* [UPD] 更新 `yyl-seed-webpack-vue2` 到 `0.5.14` 去掉 `webpack-vue2` 自带的 `yyl-flexlayout`
+
 ## 3.4.7-beta2 (2019-02-26)
 * [EDIT] 解决遗留问题
 
