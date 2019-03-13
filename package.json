@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.4.6",
+  "version": "3.4.7",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -51,16 +51,14 @@
     "yyl-file-replacer": "^0.3.0",
     "yyl-fs": "^0.2.0",
     "yyl-os": "^0.2.0",
-    "yyl-print": "^0.7.1",
+    "yyl-print": "^0.7.2",
     "yyl-request": "^0.1.0",
     "yyl-seed-gulp-requirejs": "~2.5.8",
-    "yyl-seed-webpack-vue2": "~0.5.7",
+    "yyl-seed-webpack-vue2": "~0.5.14",
     "yyl-util": "^2.1.1"
   },
   "devDependencies": {
     "chai": "~4.1.2",
-    "jest": "^23.5.0",
-    "webdriverio": "~4.10.1",
     "yyl-seed-test-util": "^0.3.1"
   }
 }

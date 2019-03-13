@@ -10,6 +10,7 @@ const PLATFORM = __data('platform');
 const VERSION = __data('version');
 const SRC_ROOT = __data('srcRoot');
 const COMMON_PATH = __data('commonPath');
+const WEBPACK_CONFIG_PATH = __data('webpackConfigPath');
 // - vars
 
 const setting = {};
@@ -33,7 +34,9 @@ Object.assign(config, {
   },
   plugins: [ // 额外的 npm 组件
     // 'yyl-flexlayout'
-  ]
+  ],
+  // 自定义 webpack.config 路径
+  webpackConfigPath: WEBPACK_CONFIG_PATH
 });
 // - base
 

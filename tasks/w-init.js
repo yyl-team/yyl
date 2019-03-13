@@ -98,6 +98,8 @@ const fn = {
 
     const INIT_BOTH_PATH = path.join(vars.INIT_PATH, 'platform-both');
 
+    const INIT_WEBPACK_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'webpack.config.extend.js');
+
     const initSeed = (param) => {
       return new Promise((next) => {
         SEED.find(param.workflow).init(param.init, pjPath)
@@ -117,11 +119,22 @@ const fn = {
     const resetFilePaths = async (platform, sameWorkflow) => {
       const srcPath = path.join(pjPath, 'src');
       const configPath = path.join(pjPath, 'yyl.config.js');
+      const webpackConfigPath = path.join(pjPath, 'webpack.config.js');
+
+      const lockFiles = [
+        'package.json',
+        'package-lock.json',
+        '.gitignore',
+        'tsconfig.json'
+      ].map((iPath) => path.resolve(pjPath, iPath));
+
       const otherFiles = await extFs.readFilePaths(pjPath, (iPath) => {
         const rPath = path.relative(pjPath, iPath);
         if (
           /^\./.test(path.relative(srcPath, iPath)) &&
           configPath !== iPath &&
+          webpackConfigPath !== iPath &&
+          lockFiles.indexOf(iPath) === -1 &&
           !/__frag/.test(rPath)
         ) {
           return true;
@@ -133,8 +146,41 @@ const fn = {
       // copy src => __frag/src/${platform}
       await extFs.copyFiles(srcPath, path.join(fragPath, `src/${platform}`));
 
+      // remove src
+      await extFs.removeFiles(srcPath, true);
+
       // copy config.js => __frag/config.${platform}.js
       await extFs.copyFiles(configPath, path.join(fragPath, `yyl.config.${platform}.js`));
+
+      // remove config
+      await extFs.removeFiles(configPath, true);
+
+      // copy lockfiles => __frag/*
+      await util.forEach(lockFiles, async (rPath) => {
+        if (fs.existsSync(rPath)) {
+          const toPath = path.join(fragPath, path.relative(pjPath, rPath));
+          await extFs.copyFiles(rPath, toPath);
+        }
+      });
+
+      // copy webpack.config.js => __frag/webpack.config.${platform}.js
+      if (fs.existsSync(webpackConfigPath)) {
+        // rewrite content yyl.config.js path
+        let cnt = fs.readFileSync(webpackConfigPath).toString();
+        cnt = cnt.split(/yyl\.config\.js/).join(`yyl.config.${platform}.js`);
+        fs.writeFileSync(webpackConfigPath, cnt);
+
+        // 变量赋值
+        const dataMap = buildWebpackConfigMap(platform, {
+          srcRoot: `./src/${platform}`,
+          configPath: `./yyl.config.${platform}.js`
+        });
+
+        await fn.rewriteConfig(webpackConfigPath, dataMap);
+
+        await extFs.copyFiles(webpackConfigPath, path.join(fragPath, `webpack.config.${platform}.js`));
+        await extFs.removeFiles(webpackConfigPath, true);
+      }
 
       // copy eslintrc, editorconfig => __frag/xx or __frag/src/${platform}/xx
       const otherParam = (() => {
@@ -150,12 +196,6 @@ const fn = {
       })();
 
       await extFs.copyFiles(otherParam);
-
-      // remove src
-      await extFs.removeFiles(srcPath, true);
-
-      // remove config
-      await extFs.removeFiles(configPath, true);
 
       // remove eslint, editorconfig
       await extFs.removeFiles(otherFiles, true);
@@ -177,11 +217,30 @@ const fn = {
       );
     };
 
+    const buildWebpackConfigMap = (platform, dataExtend) => {
+      let d = util.extend(true, {}, data);
+      delete d.mobile;
+      delete d.pc;
+      d = Object.assign(d, data[platform]);
+
+      if (dataExtend) {
+        d = Object.assign(d, dataExtend);
+      }
+
+      return fn.pickUpConfig(INIT_WEBPACK_CONFIG_PATH, d);
+    };
+
     if (data.platform === 'both') {
       const pcParam = data.pc;
-      const pcDataMap = buildDataMap('pc', { srcRoot: './src/pc' });
+      const pcDataMap = buildDataMap('pc', {
+        srcRoot: './src/pc',
+        webpackConfigPath: './webpack.config.pc.js'
+      });
       const mbParam = data.mobile;
-      const mbDataMap = buildDataMap('mobile', { srcRoot: './src/mobile' });
+      const mbDataMap = buildDataMap('mobile', {
+        srcRoot: './src/mobile',
+        webpackConfigPath: './webpack.config.mobile.js'
+      });
       const sameWorkflow = pcParam.workflow === mbParam.workflow;
 
       // pc 项目初始化
@@ -209,12 +268,25 @@ const fn = {
       await fn.rewriteConfig(mbConfigPath, mbDataMap);
     } else {
       const param = data[data.platform];
-      const dataMap = buildDataMap(data.platform, { srcRoot: './src' });
+      const configDataMap = buildDataMap(data.platform, {
+        srcRoot: './src',
+        webpackConfigPath: './webpack.config.js'
+      });
       await initSeed(param);
 
       // 初始化 config.js
       const configPath = path.join(vars.PROJECT_PATH, 'yyl.config.js');
-      await fn.rewriteConfig(configPath, dataMap);
+      await fn.rewriteConfig(configPath, configDataMap);
+
+      // 初始化 webpack.config.js
+      const webpackConfigPath = path.join(vars.PROJECT_PATH, 'webpack.config.js');
+      if (fs.existsSync(webpackConfigPath)) {
+        const webpackDataMap = buildWebpackConfigMap(data.platform, {
+          srcRoot: './src',
+          configPath: './yyl.config.js'
+        });
+        await fn.rewriteConfig(webpackConfigPath, webpackDataMap);
+      }
     }
 
     // svn or ci files init
@@ -228,7 +300,8 @@ const fn = {
     await extFs.copyFiles(INIT_COMMON_PATH, pjPath, (iPath) => {
       const f = (p) => util.path.join(p);
       // 不拷贝 config.extend.js
-      return f(iPath) != f(INIT_COMMON_CONFIG_PATH);
+      return f(iPath) != f(INIT_COMMON_CONFIG_PATH) &&
+        f(iPath) != f(INIT_WEBPACK_CONFIG_PATH);
     });
 
 

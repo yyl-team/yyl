@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 const domain = require('domain');
+const log = require('../lib/log.js');
 const iArgv = process.argv.splice(2);
 const d = domain.create();
 
@@ -23,12 +24,14 @@ d.run(async () => {
     try {
       await wCmd(...iArgv);
     } catch (er) {
+      log('msg', 'error', er);
       process.exit(1);
     }
   } else {
     try {
       await wCmd(...iArgv);
     } catch (er) {
+      log('msg', 'error', er);
       process.exit(1);
     }
   }

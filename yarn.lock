@@ -11370,11 +11370,6 @@ yyl-file-replacer@^0.4.1:
   resolved "https://registry.yarnpkg.com/yyl-file-replacer/-/yyl-file-replacer-0.4.1.tgz#ccad5e50243197461892f3b05e129bf74105a80b"
   integrity sha512-3KyJ0Gcme13sWFJPKPyfe5iECHbHo7Wre42vlgiRrl+8QaKcSRscpVqsxdQ4nkZrFuVaEqtypm7ikFvkq0LVZw==
 
-yyl-flexlayout@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/yyl-flexlayout/-/yyl-flexlayout-1.5.0.tgz#0d7bda4c4bb90e4c687a00297195ab69d7f5eaf0"
-  integrity sha512-FiMfMSklzlRbDpmE4A82jt3Nym7CaAdwyGCmjYNzK9SDtk9vghB7awBBuc2w4Uixk2zUul4YiWbsfxWAwJL2Fg==
-
 yyl-fs@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/yyl-fs/-/yyl-fs-0.1.1.tgz#fa3c8317e9435a5e13fa0ca5744cd1a582736a5d"
@@ -11400,10 +11395,10 @@ yyl-os@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-os/-/yyl-os-0.2.0.tgz#390478e3b32597bac434dc4ea9a07a5c6466d2a6"
   integrity sha512-5hA2UxzmI7yachIcj2tol1VDd7s+M7u3dwXTznWtbhctZLpYrZCLJYLumcGFRpj73FrhQ1BqLPwIerx74yErDg==
 
-yyl-print@^0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/yyl-print/-/yyl-print-0.7.1.tgz#a8656c58a3c2dd54618df6051b66e4d11352428a"
-  integrity sha512-deyJEQ+CBW7KJsUuOwAbpyy2G/kOCDPXhQOdZVXAY1Ko6AOO07Jy5gXrQ/KjAeCwGEeqtZUPdyNu/bh3M55d8Q==
+yyl-print@^0.7.2:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/yyl-print/-/yyl-print-0.7.2.tgz#a44d29f6185d41a7cbd4e86d651ac5f9f63257a0"
+  integrity sha512-I3kZRbzFFARU0DcDW0aVpZca/Se7a7DopqNPFLQa/63vq5hyn9lFB96kErYJtW13u/2SfULtJOzCxatemdzMuA==
   dependencies:
     chalk "^2.4.2"
 
@@ -11462,10 +11457,10 @@ yyl-seed-test-util@^0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack-vue2@~0.5.7:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack-vue2/-/yyl-seed-webpack-vue2-0.5.7.tgz#37c88efe4eafecc734c5a5144a4a81dedc1a7745"
-  integrity sha512-f3jokfsmVqSmoLKVPXt0OAr7z94VFY8TSfJealEceQnziYOGWcI526hWOQDkqGCIqoAv6P5z/9yJJQ0Rb7t39w==
+yyl-seed-webpack-vue2@~0.5.14:
+  version "0.5.14"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack-vue2/-/yyl-seed-webpack-vue2-0.5.14.tgz#e2ff601e46c25041aeda50d659dd87015ee9620e"
+  integrity sha512-guo2o3T6J5MtSQW2BmZCKnfM2ctTZNI8KDYMIj3pHGshH37TO1D211i+sddGY+m+zp3mkEaZKQ9mpBZQgNJF5A==
   dependencies:
     "@babel/core" "^7.2.2"
     "@babel/plugin-proposal-class-properties" "^7.0.0"
@@ -11522,11 +11517,10 @@ yyl-seed-webpack-vue2@~0.5.7:
     webpack-hot-middleware "^2.24.3"
     webpack-merge "^4.2.1"
     yyl-file-replacer "^0.3.1"
-    yyl-flexlayout "^1.5.0"
     yyl-fs "^0.2.0"
     yyl-os "^0.2.0"
     yyl-seed-response "^0.1.0"
-    yyl-util "^2.0.0"
+    yyl-util "^2.2.0"
 
 yyl-util@^1.14.2:
   version "1.15.1"
@@ -11536,7 +11530,7 @@ yyl-util@^1.14.2:
     chalk "^2.3.0"
     node-notifier "^5.1.2"
 
-yyl-util@^2.0.0, yyl-util@^2.1.0:
+yyl-util@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.1.0.tgz#37d20543342a9104a018323bd95d032968342114"
   integrity sha512-NbNSvd7x3eG2rdc4itvhjTXGBPkcx/NZwkNrENeuxfyDqLZaVSsAerJCaZjkwWCWdStuf3w/TtiUmsEp7ORDHw==
@@ -11545,6 +11539,11 @@ yyl-util@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.1.1.tgz#462d9806e54c2c1eda7bef747b97cea731643da5"
   integrity sha512-2+BjZDht0BrkzWULTcAPYW4vX46/88ZwmyUOn8QycQAibeRmGkR02rh+Rwm0Ki/rxBVZBNZby00nmYZ5MyMwiA==
+
+yyl-util@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.2.0.tgz#3501e71b2d50b7ae014b922dde174e2c8136d60c"
+  integrity sha512-BZciX/7NW2sDK2sXoTYh5vEBGOYARJG9NlOqYvbRv5Vo+9CmsUP11IHuSsr3ESLRPC23GkOjCCLixZ7itgQpOg==
 
 yyl-util@~1.13.0:
   version "1.13.1"

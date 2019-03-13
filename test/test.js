@@ -453,7 +453,8 @@ if (TEST_CTRL.INIT) {
       // 需要 忽略的 地址列表
       let ignoreList = [
         'config.extend.js',
-        'README.extend.md'
+        'README.extend.md',
+        'webpack.config.extend.js'
       ];
 
       // 需要检查 替换是否正确的 列表
@@ -517,28 +518,28 @@ if (TEST_CTRL.INIT) {
       });
 
       // TODO 跑一下看是否有东西生成
-      const dest = {
-        async clear() {
-          await extFs.removeFiles(path.join(pjPath, 'dist'));
-        },
-        async check() {
-          const destFiles = await extFs.readFilePaths(path.join(pjPath, 'dist'));
-          expect(destFiles.length).not.equal(0);
-        }
-      };
-      if (iEnv.platform === 'both') {
-        await dest.clear();
-        await yyl.run('all --name pc --silent', pjPath);
-        await dest.check();
+      // const dest = {
+      //   async clear() {
+      //     await extFs.removeFiles(path.join(pjPath, 'dist'));
+      //   },
+      //   async check() {
+      //     const destFiles = await extFs.readFilePaths(path.join(pjPath, 'dist'));
+      //     expect(destFiles.length).not.equal(0);
+      //   }
+      // };
+      // if (iEnv.platform === 'both') {
+      //   await dest.clear();
+      //   await yyl.run('all --name pc --silent', pjPath);
+      //   await dest.check();
 
-        await dest.clear();
-        await yyl.run('all --name mobile --silent', pjPath);
-        await dest.check();
-      } else {
-        await dest.clear();
-        await yyl.run('all --silent', pjPath);
-        await dest.check();
-      }
+      //   await dest.clear();
+      //   await yyl.run('all --name mobile --silent', pjPath);
+      //   await dest.check();
+      // } else {
+      //   await dest.clear();
+      //   await yyl.run('all --silent', pjPath);
+      //   await dest.check();
+      // }
     }
 
 
