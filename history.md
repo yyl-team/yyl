@@ -1,4 +1,7 @@
 # 版本信息
+## 3.4.9 (2019-04-25)
+* [FIX] 修复 `yyl watch --proxy` 后，触发 `watch` 时 rev 触发不了问题
+
 ## 3.4.8 (2019-03-17)
 * [EDIT] 更新 `yyl-seed-webpack-vue2` 到 `0.5.15` 添加 icon 支持
 

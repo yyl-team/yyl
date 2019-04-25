@@ -220,6 +220,7 @@ wOpzer.varSugar = async function (config, iEnv) {
     });
     fs.writeFileSync(iPath, iCnt);
   });
+  log('msg', 'success', 'varSugar run finished');
 };
 
 // concat 操作
@@ -269,6 +270,7 @@ wOpzer.resource = async function (config) {
     data.update.forEach((iPath) => {
       log('msg', 'update', iPath);
     });
+    log('msg', 'success', 'resource copy finished');
   } else {
     log('msg', 'info', 'config.resource is not defined, break');
   }
@@ -762,7 +764,7 @@ wOpzer.rev = {
     );
 
     if (disableHash || !iEnv.remote) {
-      revMap = {};
+      revMap = null;
     } else {
       if (!revMap) {
         revMap = await wOpzer.rev.getRemoteManifest(iEnv);
