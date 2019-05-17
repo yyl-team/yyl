@@ -68,7 +68,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   // package check
   try {
-    console.log('===', config.workflow, config.resolveModule);
     await yh.optimize.initPlugins();
   } catch (er) {
     throw `optimize fail, plugins install error: ${er.message}`;
