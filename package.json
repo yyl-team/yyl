@@ -54,7 +54,7 @@
     "yyl-print": "^0.7.2",
     "yyl-request": "^0.1.0",
     "yyl-seed-gulp-requirejs": "~2.5.8",
-    "yyl-seed-webpack-vue2": "~0.5.15",
+    "yyl-seed-webpack": "^0.1.0",
     "yyl-util": "^2.1.1"
   },
   "devDependencies": {

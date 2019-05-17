@@ -14,8 +14,8 @@ const log = require('../lib/log.js');
 
 // 选择倾向
 const PREFER = {
-  PC: 'gulp-requirejs',
-  MOBILE: 'webpack-vue2'
+  PC: 'webpack',
+  MOBILE: 'webpack'
 };
 
 // 平台选择
@@ -523,30 +523,32 @@ const events = {
     }
 
     // init commitType
-    data = await(async () => {
-      const prompt = inquirer.createPromptModule();
-      const questions = [];
-      const iQuestion = {
-        name: 'commitType',
-        type: 'list',
-        message: 'commmit type',
-        choices: COMMIT_TYPES,
-        default: COMMIT_TYPES[0]
-      };
+    // data = await(async () => {
+    //   const prompt = inquirer.createPromptModule();
+    //   const questions = [];
+    //   const iQuestion = {
+    //     name: 'commitType',
+    //     type: 'list',
+    //     message: 'commmit type',
+    //     choices: COMMIT_TYPES,
+    //     default: COMMIT_TYPES[0]
+    //   };
 
-      if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
-        data.commitType = iEnv.commitType;
-      } else {
-        questions.push(iQuestion);
-      }
+    //   if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
+    //     data.commitType = iEnv.commitType;
+    //   } else {
+    //     questions.push(iQuestion);
+    //   }
 
-      if (questions.length) {
-        data.confirm = true;
-        const d = await prompt(questions);
-        util.extend(data, d);
-      }
-      return data;
-    })();
+    //   if (questions.length) {
+    //     data.confirm = true;
+    //     const d = await prompt(questions);
+    //     util.extend(data, d);
+    //   }
+    //   return data;
+    // })();
+
+    data.commitType = 'gitlab-ci';
 
     if (!iEnv.silent && confirm) {
       let msgArr = [];
