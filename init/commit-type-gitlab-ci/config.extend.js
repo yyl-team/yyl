@@ -1,5 +1,4 @@
 'use strict';
-const config = {};
 
 const PROJECT_NAME = __data('name');
 const PLATFORM = __data('platform');
@@ -33,10 +32,11 @@ setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127
 setting.proxy.localRemote['http://www.yy.com/api/mock'] = 'http://127.0.0.1:5000/api/mock';
 // - setting
 
-Object.assign(config.localserver, setting.localserver);
-
-// + commit
-Object.assign(config, {
+const config = {
+  localServer: setting.localserver,
+  dest: setting.dest,
+  proxy: setting.proxy,
+  // + configCommit
   commit: {
     type: 'gitlab-ci',
     // 上线配置
@@ -45,8 +45,8 @@ Object.assign(config, {
     staticHost: '//web.yystatic.com',
     mainHost: '//www.yy.com/web'
   }
-});
-// - commit
+  // - configCommit
+};
 
 module.exports = config;
 

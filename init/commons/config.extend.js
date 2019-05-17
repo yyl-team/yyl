@@ -1,7 +1,6 @@
 /* elint indent: [ "warn", 2 , {"SwitchCase": 1}] */
-/* eslint no-unused-vars: "none" */
+/* eslint no-unused-vars: 0 */
 const path = require('path');
-const config = {};
 
 // + vars
 const PROJECT_NAME = __data('name');
@@ -15,12 +14,13 @@ const WEBPACK_CONFIG_PATH = __data('webpackConfigPath');
 
 const setting = {};
 
-// + base
-Object.assign(config, {
+const config = {
+  // + configBase
   workflow: WORKFLOW,
   name: PROJECT_NAME,
   version: VERSION,
   platform: PLATFORM,
+  // - configBase
   proxy: setting.proxy,
   localserver: setting.localserver,
   dest: setting.dest,
@@ -34,12 +34,9 @@ Object.assign(config, {
   },
   plugins: [ // 额外的 npm 组件
     // 'yyl-flexlayout'
-  ],
+  ]
   // 自定义 webpack.config 路径
-  webpackConfigPath: WEBPACK_CONFIG_PATH
-});
-// - base
-
+};
 
 
 module.exports = config;

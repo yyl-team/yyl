@@ -6,7 +6,7 @@ const log = require('../lib/log.js');
 // + seed
 const seeds = [
   'yyl-seed-gulp-requirejs',
-  'yyl-seed-webpack-vue2'
+  'yyl-seed-webpack'
 ];
 
 const seedCache = {

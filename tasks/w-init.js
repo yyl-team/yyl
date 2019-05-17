@@ -274,6 +274,8 @@ const fn = {
       });
       await initSeed(param);
 
+      console.log('111', Object.keys(configDataMap))
+
       // 初始化 config.js
       const configPath = path.join(vars.PROJECT_PATH, 'yyl.config.js');
       await fn.rewriteConfig(configPath, configDataMap);
@@ -316,7 +318,15 @@ const fn = {
     }
 
     // logs
-    const builds = await extFs.readFilePaths(pjPath);
+    const builds = await extFs.readFilePaths(pjPath, (iPath) => {
+      const rPath = path.relative(vars.PROJECT_PATH, iPath);
+      if (/\.svn|\.git|\.node_modules/.test(rPath)) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+
     builds.forEach((iPath) => {
       log('msg', 'create', iPath);
     });
@@ -397,7 +407,7 @@ const fn = {
     }
 
     const dataMap = {};
-    const keys = ['base', 'setting', 'vars', 'commit', 'extends'];
+    const keys = ['configBase', 'setting', 'vars', 'configCommit'];
     const content = fs.readFileSync(iPath).toString();
 
     keys.forEach((key) => {
