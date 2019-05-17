@@ -38,6 +38,14 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     throw `yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`;
   }
 
+  // + 兼容 旧版
+  if (config.workflow === 'webpack-vue2') {
+    config.workflow = 'webpack';
+    config.seed = 'vue2';
+    config.resolveModule = util.path.join(vars.SERVER_PLUGIN_PATH, config.workflow, 'node_modules');
+  }
+  // - 兼容 旧版
+
   yh.optimize.init({config, iEnv});
   yh.optimize.saveConfigToServer();
 
