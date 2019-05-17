@@ -50,12 +50,12 @@
     "yyl-color": "^1.0.0",
     "yyl-file-replacer": "^0.3.0",
     "yyl-fs": "^0.2.0",
-    "yyl-hander": "^0.1.2",
+    "yyl-hander": "^0.1.3-beta2",
     "yyl-os": "^0.2.0",
     "yyl-print": "^0.7.2",
     "yyl-request": "^0.1.0",
     "yyl-seed-gulp-requirejs": "^2.6.1-beta1",
-    "yyl-seed-webpack": "0.1.1-beta1",
+    "yyl-seed-webpack": "0.1.2-beta2",
     "yyl-util": "^2.1.1"
   },
   "devDependencies": {
