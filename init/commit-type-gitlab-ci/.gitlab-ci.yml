@@ -1,9 +1,9 @@
-image: harbor.yy.com/front_end/yyl:latest
-
 stages:
     - build
+    - ani_deploy
 
 build:
+    image: harbor.yy.com/front_end/yyl:latest
     stage: build
     tags:
         - webfe
@@ -13,7 +13,7 @@ build:
             - output/
             - gitlog
     script:
-        - yyl all --isCommit --logLevel 2
+        - yyl all --isCommit --logLevel 2 --mode $CI_COMMIT_REF_NAME
         - projectName=$(ls ./dist/project/)
         - mkdir output
         - cp --verbose -rf ./dist/project/$projectName/* ./output/
@@ -21,5 +21,24 @@ build:
 
     after_script:
         - git log -1 --pretty=medium >> gitlog
+    except:
+        - schedules
     only:
         - /^(master|dev)$/
+
+ani_deploy:
+    image: harbor.yy.com/front_end/yyt:latest
+    stage: ani_deploy
+    retry: 2
+    tags:
+        - webfe
+    artifacts:
+        expire_in: 1 week
+        paths:
+            - output/
+            - gitlog
+    script:
+        - yyt
+
+    only:
+        - schedules
