@@ -5,6 +5,7 @@
 * [EDIT] `yyl init` 调整 `platform=both` 的 模块分割
 * [TODO] `yyl init` both 情况下 ci 文件需调整
 * [TODO] yyl init both 对应的 jest， e2e test 需要更新
+* [TODO] `extFn.parseConfig` 发现在  w-proxy, w-server 中有调用， 待替换 
 
 ## 3.5.0 (2015-05-17)
 * [ADD] 新增 `webpack` seed, 内置 `webpack`, `typescript`, `vue2`, `vue2-typescript` 4 种类型
