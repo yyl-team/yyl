@@ -30,7 +30,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   log('msg', 'info', 'parse config start');
 
   // init config
-  
   let config;
   try {
     config = await yh.parseConfig(configPath, iEnv);

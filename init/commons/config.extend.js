@@ -20,8 +20,8 @@ const config = {
   name: PROJECT_NAME,
   version: VERSION,
   platform: PLATFORM,
-  // - configBase
   proxy: setting.proxy,
+  // - configBase
   localserver: setting.localserver,
   dest: setting.dest,
   commit: {},
