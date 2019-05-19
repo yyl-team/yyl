@@ -1,0 +1,12 @@
+{
+  "scripts": {
+    "pc:watch": "yyl watch --config pc/yyl.config.js --proxy",
+    "pc:remote": "yyl watch --config pc/yyl.config.js --proxy --remote",
+    "pc:all": "yyl all --config pc/yyl.config.js --proxy",
+    "pc:commit": "yyl all --config pc/yyl.config.js --isCommit",
+    "mobile:watch": "yyl watch --config mobile/yyl.config.js --proxy",
+    "mobile:remote": "yyl watch --config mobile/yyl.config.js --proxy --remote",
+    "mobile:all": "yyl all --config mobile/yyl.config.js --proxy",
+    "mobile:commit": "yyl all --config mobile/yyl.config.js --isCommit"
+  }
+}

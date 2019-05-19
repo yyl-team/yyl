@@ -1,4 +1,11 @@
 # 版本信息
+## 3.5.1-beta1(2015-05-19)
+* [EDIT] `yyl init` 后 若发现存在 package.json 文件，则会自动执行安装处理
+* [EDIT] `yyl init` 后 若发现存在 package.json 文件，添加 npm 命令
+* [EDIT] `yyl init` 调整 `platform=both` 的 模块分割
+* [TODO] `yyl init` both 情况下 ci 文件需调整
+* [TODO] yyl init both 对应的 jest， e2e test 需要更新
+
 ## 3.5.0 (2015-05-17)
 * [ADD] 新增 `webpack` seed, 内置 `webpack`, `typescript`, `vue2`, `vue2-typescript` 4 种类型
 * [DEL] 去掉 `webpack-vue2` seed, 但会做向下兼容处理

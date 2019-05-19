@@ -82,12 +82,7 @@ const fn = {
         .replace(/^\n/, '')
     );
   },
-
-  // 初始化 最后一步, 公用部分拷贝
-  async initProject(data) {
-    const pjPath = vars.PROJECT_PATH;
-    const fragPath = path.join(pjPath, '__frag');
-
+  async initSingleProject(data, pjPath, isBoth) {
     const INIT_COMMON_PATH = path.join(vars.INIT_PATH, 'commons');
     const INIT_COMMON_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'config.extend.js');
     const INIT_COMMON_README_PATH = path.join(INIT_COMMON_PATH, 'README.md');
@@ -96,7 +91,6 @@ const fn = {
     const INIT_CUSTOM_CONFIG_PATH = path.join(INIT_CUSTOM_PATH, 'config.extend.js');
     const INIT_CUSTOM_README_PATH = path.join(INIT_CUSTOM_PATH, 'README.extend.md');
 
-    const INIT_BOTH_PATH = path.join(vars.INIT_PATH, 'platform-both');
 
     const INIT_WEBPACK_CONFIG_PATH = path.join(INIT_COMMON_PATH, 'webpack.config.extend.js');
 
@@ -113,92 +107,6 @@ const fn = {
             next();
           });
       });
-    };
-
-    // 调整 文件结构 (用于 多个项目)
-    const resetFilePaths = async (platform, sameWorkflow) => {
-      const srcPath = path.join(pjPath, 'src');
-      const configPath = path.join(pjPath, 'yyl.config.js');
-      const webpackConfigPath = path.join(pjPath, 'webpack.config.js');
-
-      const lockFiles = [
-        'package.json',
-        'package-lock.json',
-        '.gitignore',
-        'tsconfig.json'
-      ].map((iPath) => path.resolve(pjPath, iPath));
-
-      const otherFiles = await extFs.readFilePaths(pjPath, (iPath) => {
-        const rPath = path.relative(pjPath, iPath);
-        if (
-          /^\./.test(path.relative(srcPath, iPath)) &&
-          configPath !== iPath &&
-          webpackConfigPath !== iPath &&
-          lockFiles.indexOf(iPath) === -1 &&
-          !/__frag/.test(rPath)
-        ) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-
-      // copy src => __frag/src/${platform}
-      await extFs.copyFiles(srcPath, path.join(fragPath, `src/${platform}`));
-
-      // remove src
-      await extFs.removeFiles(srcPath, true);
-
-      // copy config.js => __frag/config.${platform}.js
-      await extFs.copyFiles(configPath, path.join(fragPath, `yyl.config.${platform}.js`));
-
-      // remove config
-      await extFs.removeFiles(configPath, true);
-
-      // copy lockfiles => __frag/*
-      await util.forEach(lockFiles, async (rPath) => {
-        if (fs.existsSync(rPath)) {
-          const toPath = path.join(fragPath, path.relative(pjPath, rPath));
-          await extFs.copyFiles(rPath, toPath);
-        }
-      });
-
-      // copy webpack.config.js => __frag/webpack.config.${platform}.js
-      if (fs.existsSync(webpackConfigPath)) {
-        // rewrite content yyl.config.js path
-        let cnt = fs.readFileSync(webpackConfigPath).toString();
-        cnt = cnt.split(/yyl\.config\.js/).join(`yyl.config.${platform}.js`);
-        fs.writeFileSync(webpackConfigPath, cnt);
-
-        // 变量赋值
-        const dataMap = buildWebpackConfigMap(platform, {
-          srcRoot: `./src/${platform}`,
-          configPath: `./yyl.config.${platform}.js`
-        });
-
-        await fn.rewriteConfig(webpackConfigPath, dataMap);
-
-        await extFs.copyFiles(webpackConfigPath, path.join(fragPath, `webpack.config.${platform}.js`));
-        await extFs.removeFiles(webpackConfigPath, true);
-      }
-
-      // copy eslintrc, editorconfig => __frag/xx or __frag/src/${platform}/xx
-      const otherParam = (() => {
-        const r = {};
-        otherFiles.forEach((iPath) => {
-          if (sameWorkflow) {
-            r[iPath] = path.join(fragPath, path.relative(pjPath, iPath));
-          } else {
-            r[iPath] = path.join(fragPath, `src/${platform}`, path.relative(pjPath, iPath));
-          }
-        });
-        return r;
-      })();
-
-      await extFs.copyFiles(otherParam);
-
-      // remove eslint, editorconfig
-      await extFs.removeFiles(otherFiles, true);
     };
 
     const buildDataMap = (platform, dataExtend) => {
@@ -230,73 +138,27 @@ const fn = {
       return fn.pickUpConfig(INIT_WEBPACK_CONFIG_PATH, d);
     };
 
-    if (data.platform === 'both') {
-      const pcParam = data.pc;
-      const pcDataMap = buildDataMap('pc', {
-        srcRoot: './src/pc',
-        webpackConfigPath: './webpack.config.pc.js'
-      });
-      const mbParam = data.mobile;
-      const mbDataMap = buildDataMap('mobile', {
-        srcRoot: './src/mobile',
-        webpackConfigPath: './webpack.config.mobile.js'
-      });
-      const sameWorkflow = pcParam.workflow === mbParam.workflow;
-
-      // pc 项目初始化
-      await initSeed(pcParam);
-
-      // 将生成出来的 src 文件夹里面的内容放到 src/pc 里面
-      await resetFilePaths('pc', sameWorkflow);
-
-      // mobile 项目初始化
-      await initSeed(mbParam);
-      // 将生成出来的 src 文件夹里面的内容放到 src/mobile 里面
-      await resetFilePaths('mobile', sameWorkflow);
-
-      // 将 __frag 移动到 根目录
-      await extFs.copyFiles(fragPath, pjPath);
-      // 删除 __frag 文件
-      await extFs.removeFiles(fragPath, true);
-
-      // 初始化 config.pc.js
-      const pcConfigPath = path.join(pjPath, 'yyl.config.pc.js');
-      await fn.rewriteConfig(pcConfigPath, pcDataMap);
-
-      // 初始化 config.mobile.js
-      const mbConfigPath = path.join(pjPath, 'yyl.config.mobile.js');
-      await fn.rewriteConfig(mbConfigPath, mbDataMap);
-    } else {
-      const param = data[data.platform];
-      const configDataMap = buildDataMap(data.platform, {
-        srcRoot: './src',
-        webpackConfigPath: './webpack.config.js'
-      });
-      await initSeed(param);
-
-      console.log('111', Object.keys(configDataMap))
-
-      // 初始化 config.js
-      const configPath = path.join(vars.PROJECT_PATH, 'yyl.config.js');
-      await fn.rewriteConfig(configPath, configDataMap);
-
-      // 初始化 webpack.config.js
-      const webpackConfigPath = path.join(vars.PROJECT_PATH, 'webpack.config.js');
-      if (fs.existsSync(webpackConfigPath)) {
-        const webpackDataMap = buildWebpackConfigMap(data.platform, {
-          srcRoot: './src',
-          configPath: './yyl.config.js'
-        });
-        await fn.rewriteConfig(webpackConfigPath, webpackDataMap);
-      }
-    }
-
-    // svn or ci files init
-    await extFs.copyFiles(INIT_CUSTOM_PATH, pjPath, (iPath) => {
-      const f = (p) => util.path.join(p);
-      // 不拷贝 README.extend.md, config.extend.js
-      return f(iPath) != f(INIT_CUSTOM_CONFIG_PATH) && f(iPath) != f(INIT_CUSTOM_README_PATH);
+    const param = data[data.platform];
+    const configDataMap = buildDataMap(data.platform, {
+      srcRoot: './src',
+      webpackConfigPath: './webpack.config.js'
     });
+    await initSeed(param);
+
+
+    // 初始化 yyl.config.js
+    const configPath = path.join(pjPath, 'yyl.config.js');
+    await fn.rewriteConfig(configPath, configDataMap);
+
+    // 初始化 webpack.config.js
+    const webpackConfigPath = path.join(pjPath, 'webpack.config.js');
+    if (fs.existsSync(webpackConfigPath)) {
+      const webpackDataMap = buildWebpackConfigMap(data.platform, {
+        srcRoot: './src',
+        configPath: './yyl.config.js'
+      });
+      await fn.rewriteConfig(webpackConfigPath, webpackDataMap);
+    }
 
     // common files init
     await extFs.copyFiles(INIT_COMMON_PATH, pjPath, (iPath) => {
@@ -306,15 +168,86 @@ const fn = {
         f(iPath) != f(INIT_WEBPACK_CONFIG_PATH);
     });
 
+    // TODO: package.json npm script, name rewrite
+    const pkgPath = path.join(pjPath, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      const iPkg = require(pkgPath);
+      iPkg.name = data.name;
+      if (!iPkg.scripts) {
+        iPkg.scripts = {};
+      }
+      iPkg.scripts.watch = 'yyl watch --proxy';
+      iPkg.scripts.all = 'yyl all';
+      iPkg.scripts.commit = 'yyl all --isCommit';
+      iPkg.scripts.remote = 'yyl watch --proxy --remote';
+      fs.writeFileSync(pkgPath, JSON.stringify(iPkg, null, 2));
+      if (
+        iPkg.dependencies &&
+          Object.keys(iPkg.dependencies).length
+      ) {
+        await extOs.runCMD('npm install', pjPath);
+      }
+    }
 
-    const readmeCnt = await fn.formatREADME(INIT_COMMON_README_PATH, INIT_CUSTOM_README_PATH, data);
-    const readmePath = path.join(pjPath, 'README.md');
-    fs.writeFileSync(readmePath, readmeCnt);
+    if (!isBoth) { // 若是单个项目则会 直接把 ci, readme 部分进行初始化
+      // svn or ci files init
+      await extFs.copyFiles(INIT_CUSTOM_PATH, pjPath, (iPath) => {
+        const f = (p) => util.path.join(p);
+        // 不拷贝 README.extend.md, config.extend.js
+        return f(iPath) != f(INIT_CUSTOM_CONFIG_PATH) && f(iPath) != f(INIT_CUSTOM_README_PATH);
+      });
 
+      // readme
+      const readmeCnt = await fn.formatREADME(
+        INIT_COMMON_README_PATH,
+        INIT_CUSTOM_README_PATH,
+        data
+      );
+      const readmePath = path.join(pjPath, 'README.md');
+      fs.writeFileSync(readmePath, readmeCnt);
+    }
+  },
 
-    // both files init
+  // 初始化 最后一步, 公用部分拷贝
+  async initProject(data) {
+    const pjPath = vars.PROJECT_PATH;
+    const self = this;
+
+    const INIT_COMMON_PATH = path.join(vars.INIT_PATH, 'commons');
+    const INIT_COMMON_README_PATH = path.join(INIT_COMMON_PATH, 'README.md');
+    const INIT_BOTH_PATH = path.join(vars.INIT_PATH, 'platform-both');
+    const INIT_BOTH_README_PATH = path.join(INIT_BOTH_PATH, 'README.extend.md');
+
     if (data.platform === 'both') {
-      await extFs.copyFiles(INIT_BOTH_PATH, pjPath);
+      const pcPath = path.join(pjPath, 'pc');
+      await extFs.mkdirSync(pcPath);
+      await self.initSingleProject(Object.assign({}, data, {platform: 'pc'}), pcPath, true);
+
+      const mobilePath = path.join(pjPath, 'mobile');
+      await extFs.mkdirSync(mobilePath);
+      await self.initSingleProject(Object.assign({}, data, {platform: 'mobile'}), mobilePath, true);
+
+      // package.json, ci copy
+      await extFs.copyFiles(INIT_BOTH_PATH, pjPath, (iPath) => {
+        const f = (p) => util.path.join(p);
+        // 不拷贝 readme
+        return f(iPath) != f(INIT_BOTH_README_PATH);
+      });
+
+      // rewrite package.json
+      const pkgPath = path.join(pjPath, 'package.json');
+      if (fs.existsSync(pkgPath)) {
+        const iPkg = require(pkgPath);
+        iPkg.name = data.name;
+        fs.writeFileSync(pkgPath, JSON.stringify(iPkg, null, 2));
+      }
+
+      // readme
+      const readmeCnt = await fn.formatREADME(INIT_COMMON_README_PATH, INIT_BOTH_README_PATH, data);
+      const readmePath = path.join(pjPath, 'README.md');
+      fs.writeFileSync(readmePath, readmeCnt);
+    } else {
+      await self.initSingleProject(data, pjPath);
     }
 
     // logs
@@ -330,6 +263,8 @@ const fn = {
     builds.forEach((iPath) => {
       log('msg', 'create', iPath);
     });
+
+    // TODO: package.json 初始化
   },
   async initPlatform(platform, iEnv) {
     let data = { platform };
