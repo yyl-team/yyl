@@ -6,12 +6,18 @@ const log = require('../lib/log.js');
 // + seed
 const seeds = [
   'yyl-seed-gulp-requirejs',
-  'yyl-seed-webpack-vue2'
+  'yyl-seed-webpack'
 ];
 
 const seedCache = {
   profileName: 'seedCache',
   get(workflow, key) {
+    // + 兼容 旧版
+    if (workflow === 'webpack-vue2') {
+      workflow = 'webpack';
+    }
+    // - 兼容 旧版
+
     let ver = pkg.dependencies[`yyl-seed-${workflow}`];
     if (!ver) {
       return [];
@@ -71,7 +77,7 @@ const SEED = {
   },
   find(ctx) {
     const she = this;
-    const workflow = she.ctx2workflow(ctx);
+    let workflow = she.ctx2workflow(ctx);
     if (workflow) {
       return require(`yyl-seed-${workflow}`);
     } else {

@@ -1,4 +1,10 @@
 # 版本信息
+## 3.5.0 (2015-05-17)
+* [ADD] 新增 `webpack` seed, 内置 `webpack`, `typescript`, `vue2`, `vue2-typescript` 4 种类型
+* [DEL] 去掉 `webpack-vue2` seed, 但会做向下兼容处理
+* [EDIT] 优化 `yyl init` 逻辑
+* [DEL] 去掉 `yyl init` 中的 svn 选项 以及相关逻辑
+
 ## 3.4.10 (2019-04-29)
 * [EDIT] 调整 yml 文件， 让发布支持 通过 `process.env.mode` 区分发布分支
 * [DEL] 去掉多余的文件

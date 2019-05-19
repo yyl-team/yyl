@@ -14,8 +14,8 @@ const log = require('../lib/log.js');
 
 // 选择倾向
 const PREFER = {
-  PC: 'gulp-requirejs',
-  MOBILE: 'webpack-vue2'
+  PC: 'webpack',
+  MOBILE: 'webpack'
 };
 
 // 平台选择
@@ -274,6 +274,8 @@ const fn = {
       });
       await initSeed(param);
 
+      console.log('111', Object.keys(configDataMap))
+
       // 初始化 config.js
       const configPath = path.join(vars.PROJECT_PATH, 'yyl.config.js');
       await fn.rewriteConfig(configPath, configDataMap);
@@ -316,7 +318,15 @@ const fn = {
     }
 
     // logs
-    const builds = await extFs.readFilePaths(pjPath);
+    const builds = await extFs.readFilePaths(pjPath, (iPath) => {
+      const rPath = path.relative(vars.PROJECT_PATH, iPath);
+      if (/\.svn|\.git|\.node_modules/.test(rPath)) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+
     builds.forEach((iPath) => {
       log('msg', 'create', iPath);
     });
@@ -397,7 +407,7 @@ const fn = {
     }
 
     const dataMap = {};
-    const keys = ['base', 'setting', 'vars', 'commit', 'extends'];
+    const keys = ['configBase', 'setting', 'vars', 'configCommit'];
     const content = fs.readFileSync(iPath).toString();
 
     keys.forEach((key) => {
@@ -523,30 +533,32 @@ const events = {
     }
 
     // init commitType
-    data = await(async () => {
-      const prompt = inquirer.createPromptModule();
-      const questions = [];
-      const iQuestion = {
-        name: 'commitType',
-        type: 'list',
-        message: 'commmit type',
-        choices: COMMIT_TYPES,
-        default: COMMIT_TYPES[0]
-      };
+    // data = await(async () => {
+    //   const prompt = inquirer.createPromptModule();
+    //   const questions = [];
+    //   const iQuestion = {
+    //     name: 'commitType',
+    //     type: 'list',
+    //     message: 'commmit type',
+    //     choices: COMMIT_TYPES,
+    //     default: COMMIT_TYPES[0]
+    //   };
 
-      if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
-        data.commitType = iEnv.commitType;
-      } else {
-        questions.push(iQuestion);
-      }
+    //   if (iEnv.commitType && ~COMMIT_TYPES.indexOf(iEnv.commitType)) {
+    //     data.commitType = iEnv.commitType;
+    //   } else {
+    //     questions.push(iQuestion);
+    //   }
 
-      if (questions.length) {
-        data.confirm = true;
-        const d = await prompt(questions);
-        util.extend(data, d);
-      }
-      return data;
-    })();
+    //   if (questions.length) {
+    //     data.confirm = true;
+    //     const d = await prompt(questions);
+    //     util.extend(data, d);
+    //   }
+    //   return data;
+    // })();
+
+    data.commitType = 'gitlab-ci';
 
     if (!iEnv.silent && confirm) {
       let msgArr = [];
