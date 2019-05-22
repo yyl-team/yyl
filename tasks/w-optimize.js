@@ -121,8 +121,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
       const canUse = await extOs.checkPort(porxyPort);
       if (canUse) {
-        let cmd = `yyl proxy start ${util.envStringify(iEnv)}`;
-        await extOs.runCMD(cmd, vars.PROJECT_PATH, true, true);
+        await wProxy.start(config, iEnv);
+        // let cmd = `yyl proxy start ${util.envStringify(iEnv)}`;
+        // await extOs.runCMD(cmd, vars.PROJECT_PATH, true, true);
       } else {
         log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
       }
