@@ -1,4 +1,8 @@
 # 版本信息
+## 3.5.1-beta2(2015-05-21)
+* [EDIT] webpack babel 调整
+* [EDIT] `yyl watch --proxy` proxy server 不再单独新开窗口
+
 ## 3.5.1-beta1(2015-05-19)
 * [EDIT] `yyl init` 后 若发现存在 package.json 文件，则会自动执行安装处理
 * [EDIT] `yyl init` 后 若发现存在 package.json 文件，添加 npm 命令
