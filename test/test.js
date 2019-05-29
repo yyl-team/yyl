@@ -6,7 +6,6 @@ const chai = require('chai');
 const expect = chai.expect;
 const http = require('http');
 const util = require('yyl-util');
-const extOs = require('yyl-os');
 const tUtil = require('yyl-seed-test-util');
 const request = require('yyl-request');
 
@@ -28,8 +27,7 @@ const TEST_CTRL = {
   INFO: true,
   MOCK: true,
   INIT: true,
-  ALL: true,
-  COMMIT: true
+  ALL: true
 };
 
 if (TEST_CTRL.SERVER) {
@@ -419,49 +417,64 @@ if (TEST_CTRL.INIT) {
     const pkgConfig = require(YYL_PKG_PATH);
 
     async function dirCheck (pjPath, iEnv) {
-      // 检查 config 各项属性是否正确
-      const configPath = path.join(pjPath, 'yyl.config.js');
-      expect(fs.existsSync(configPath)).to.equal(true);
-
-      const config = util.requireJs(configPath);
-
-      expect(typeof config).to.equal('object');
-      if (iEnv.platform === 'both') {
-        expect(typeof config.pc).to.equal('object');
-        expect(config.pc.version).to.equal(pkgConfig.version);
-        expect(config.pc.workflow).to.equal(iEnv.pcWorkflow);
-        expect(config.pc.name).to.equal(`${iEnv.name}`);
-        expect(config.pc.platform).to.equal('pc');
-
-        expect(typeof config.mobile).to.equal('object');
-        expect(config.mobile.version).to.equal(pkgConfig.version);
-        expect(config.mobile.workflow).to.equal(iEnv.mobileWorkflow);
-        expect(config.mobile.name).to.equal(`${iEnv.name}`);
-        expect(config.mobile.platform).to.equal('mobile');
-      } else {
+      const configCheck = (configPath, platform) => {
+        expect(fs.existsSync(configPath)).to.equal(true);
+        const config = util.requireJs(configPath);
+        expect(typeof config).to.equal('object');
         expect(config.version).to.equal(pkgConfig.version);
-        expect(config.workflow).to.equal(iEnv.workflow);
+        expect(config.workflow).to.equal(iEnv.workflow || iEnv[`${platform}Workflow`]);
         expect(`${config.name}`).to.equal(`${iEnv.name}`);
-        expect(config.platform).to.equal(iEnv.platform);
+        expect(config.platform).to.equal(platform);
+      };
+      if (iEnv.platform === 'both') {
+        const pcConfigPath = path.join(pjPath, 'pc/yyl.config.js');
+        const mobileConfigPath = path.join(pjPath, 'mobile/yyl.config.js');
+
+        configCheck(pcConfigPath, 'pc');
+        configCheck(mobileConfigPath, 'mobile');
+      } else {
+        const configPath = path.join(pjPath, 'yyl.config.js');
+        configCheck(configPath, iEnv.platform);
       }
 
       // 需要 存在的 地址列表
-      let existsList = [
-        'README.md'
-      ];
+      let existsList = [];
 
       // 需要 忽略的 地址列表
-      let ignoreList = [
-        'config.extend.js',
-        'README.extend.md',
-        'webpack.config.extend.js'
-      ];
+      let ignoreList = [];
 
       // 需要检查 替换是否正确的 列表
-      let replaceList = [
-        'README.md',
-        'yyl.config.js'
-      ];
+      let replaceList = [];
+      if (iEnv.platform === 'both') {
+        existsList = existsList.concat([
+          'README.md'
+        ]);
+        ignoreList = ignoreList.concat([
+          'config.extend.js',
+          'README.extend.md',
+          'webpack.config.extend.js',
+          'pc/config.extend.js',
+          'mobile/config.extend.js'
+        ]);
+        replaceList = replaceList.concat([
+          'README.md',
+          'pc/yyl.config.js',
+          'mobile/yyl.config.js'
+        ]);
+      } else {
+        existsList = existsList.concat([
+          'README.md'
+        ]);
+        ignoreList = ignoreList.concat([
+          'config.extend.js',
+          'README.extend.md',
+          'webpack.config.extend.js'
+        ]);
+        replaceList = replaceList.concat([
+          'README.md',
+          'yyl.config.js'
+        ]);
+      }
 
       // 拷贝的完整性校验
       const readFilter = /\.DS_Store$/;
@@ -473,16 +486,6 @@ if (TEST_CTRL.INIT) {
       ];
 
       if (iEnv.platform === 'both') {
-        existsList = existsList.concat([
-          'yyl.config.pc.js',
-          'yyl.config.mobile.js'
-        ]);
-
-        replaceList = replaceList.concat([
-          'yyl.config.pc.js',
-          'yyl.config.mobile.js'
-        ]);
-
         checkingPaths.push(
           path.join(vars.BASE_PATH, 'init', 'platform-both')
         );
@@ -494,7 +497,16 @@ if (TEST_CTRL.INIT) {
         rPaths.forEach((rPath) => {
           const relativePath = util.path.relative(checkingPath, rPath);
           if (ignoreList.indexOf(relativePath) === -1 && existsList.indexOf(existsList) === -1) {
-            existsList.push(relativePath);
+            if (
+              iEnv.platform === 'both' &&
+              checkingPath !== path.join(vars.BASE_PATH, 'init', 'platform-both') &&
+              relativePath !== '.gitlab-ci.yml'
+            ) {
+              existsList.push(util.path.join('pc', relativePath));
+              existsList.push(util.path.join('mobile', relativePath));
+            } else {
+              existsList.push(relativePath);
+            }
           }
         });
       }
@@ -742,38 +754,5 @@ if (TEST_CTRL.ALL) {
 
       await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH);
     }, true));
-  });
-}
-
-if (TEST_CTRL.COMMIT) {
-  describe('yyl commit test', () => {
-    const workflows = ['gulp-requirejs'];
-    workflows.forEach((workflow) => {
-      it(`yyl commit for ${workflow}`, util.makeAsync(async () => {
-        const WORKFLOW_PATH = path.join(__dirname, 'workflow-test', workflow);
-        const COMMON_PATH = path.join(__dirname, 'workflow-test/commons');
-        const FRAG_WORKFLOW_PATH = util.path.join(FRAG_PATH, `commit-workflow-${workflow}`);
-        const FRAG_COMMONS_PATH = util.path.join(FRAG_PATH, 'commons');
-
-        await tUtil.frag.build();
-        extFs.mkdirSync(FRAG_WORKFLOW_PATH);
-        extFs.mkdirSync(FRAG_COMMONS_PATH);
-        const obj = {};
-        obj[WORKFLOW_PATH] = FRAG_WORKFLOW_PATH;
-        obj[COMMON_PATH] = FRAG_COMMONS_PATH;
-
-        await extFs.copyFiles(obj);
-
-        const svnPath = 'https://svn.yy.com/yy-music/static/project/workflow_demo';
-        const svnDir = util.path.join(FRAG_WORKFLOW_PATH, '../__committest');
-        extFs.mkdirSync(svnDir);
-
-        await extOs.runCMD(`svn checkout ${svnPath}`, svnDir);
-
-        await yyl.run('commit --sub dev --silent --logLevel 0', FRAG_WORKFLOW_PATH);
-        expect(true).equal(true);
-        tUtil.frag.destroy();
-      }, true));
-    });
   });
 }
