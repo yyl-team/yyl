@@ -1,4 +1,8 @@
 # 版本信息
+## 3.5.1-beta5(2015-05-29)
+* [FIX] 修复 `yyl server start` 路径不正问题
+
+
 ## 3.5.1-beta4(2015-05-29)
 * [FIX] 修复 `webpack` 类 项目执行 `--isCommit` 操作时 样式中会包含 js 的问题
 * [FIX] 修复 `yyl server start` 会报错问题

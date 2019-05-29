@@ -138,7 +138,7 @@ wServer.start = async function (ctx, iEnv, options) {
 
   if (iEnv.path) {
     serverConfig.root = path.resolve(vars.PROJECT_PATH, iEnv.path);
-  } else if (config && config.alias && config.dirname) {
+  } else if (config && config.alias && config.alias.dirname) {
     serverConfig.root = path.resolve(config.alias.dirname, serverConfig.root);
   } else {
     serverConfig.root = path.resolve(vars.PROJECT_PATH);
