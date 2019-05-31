@@ -1,4 +1,7 @@
 # 版本信息
+## 3.5.1-beta7(2015-05-31)
+* [FIX] 修复 `yyl all --isCommit` 在 `vue2-ts` 下抽离css 部分会报错问题
+
 ## 3.5.1-beta6(2015-05-30)
 * [FIX] 修复 `yyl all --isCommit` 在 `vue2` 下抽离css 部分会报错问题
 
