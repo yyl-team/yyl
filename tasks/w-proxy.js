@@ -13,6 +13,8 @@ const http = require('http');
 const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
+const Hander = require('yyl-hander');
+const yh = new Hander({ vars, log });
 
 const AnyProxy = require('anyproxy');
 
@@ -90,7 +92,7 @@ wProxy.start = async function (ctx, iEnv) {
     log('msg', 'warn', 'use default proxy config');
   } else {
     try {
-      config = await extFn.parseConfig(ctx, iEnv, ['proxy', 'commit', 'localserver']);
+      config = await yh.parseConfig(ctx, iEnv, ['proxy', 'commit', 'localserver']);
     } catch (er) {
       config = {};
       log('msg', 'warn', `${er}, use default proxy config`);

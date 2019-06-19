@@ -16,9 +16,10 @@ const serveStatic = require('serve-static');
 const serveFavicon = require('serve-favicon');
 const livereload = require('connect-livereload');
 
-const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
+const Hander = require('yyl-hander');
+const yh = new Hander({ vars, log });
 
 const wProfile = require('./w-profile.js');
 const wProxy = require('./w-proxy.js');
@@ -124,7 +125,7 @@ wServer.start = async function (ctx, iEnv, options) {
     serverConfig = config.localserver;
   } else {
     try {
-      config = await extFn.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
+      config = await yh.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
       if (config && config.localserver) {
         serverConfig = util.extend(DEFAULT_CONFIG, config.localserver);
       }
