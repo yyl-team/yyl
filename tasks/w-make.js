@@ -1,8 +1,10 @@
 const util = require('yyl-util');
 
 const SEED = require('./w-seed.js');
-const extFn = require('../lib/extFn.js');
 const log = require('../lib/log.js');
+const vars = require('../lib/vars.js');
+const Hander = require('yyl-hander');
+const yh = new Hander({ vars, log });
 
 const fn = {
   exit(errMsg) {
@@ -19,7 +21,7 @@ async function wMake (name, iEnv, configPath) {
   let config = null;
 
   try {
-    config = await extFn.parseConfig(configPath, iEnv);
+    config = await yh.parseConfig(configPath, iEnv);
   } catch (er) {
     fn.exit(`yyl make fail, ${er}`);
   }

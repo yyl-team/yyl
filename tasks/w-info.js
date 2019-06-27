@@ -4,7 +4,9 @@ const chalk = require('chalk');
 const print = require('yyl-print');
 
 const log = require('../lib/log.js');
-const extFn = require('../lib/extFn.js');
+const vars = require('../lib/vars.js');
+const Hander = require('yyl-hander');
+const yh = new Hander({ vars, log });
 
 const info = {
   printInformation: function(config, silent) {
@@ -43,7 +45,7 @@ const info = {
     return r;
   },
   async init(iEnv, configPath) {
-    const config = await extFn.parseConfig(configPath, iEnv);
+    const config = await yh.parseConfig(configPath, iEnv);
     let r = null;
     let isWork = false;
 

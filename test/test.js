@@ -12,8 +12,10 @@ const request = require('yyl-request');
 const yyl = require('../index');
 const SEED = require('../tasks/w-seed');
 const wInit = require('../tasks/w-init');
-const extFn = require('../lib/extFn.js');
 const vars = require('../lib/vars.js');
+const log = require('../lib/log.js');
+const Hander = require('yyl-hander');
+const yh = new Hander({ vars, log });
 
 
 const FRAG_PATH = path.join(__dirname, '__frag');
@@ -596,7 +598,7 @@ if (TEST_CTRL.ALL) {
       }
 
       // check
-      const config = await extFn.parseConfig(configPath, {});
+      const config = await yh.parseConfig(configPath, {});
       const { destRoot } = config.alias;
       const htmlList = await extFs.readFilePaths(destRoot, /\.html$/, true);
       const cssList = await extFs.readFilePaths(destRoot, /\.css$/, true);

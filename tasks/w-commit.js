@@ -9,9 +9,10 @@ const extFs = require('yyl-fs');
 
 
 const vars = require('../lib/vars.js');
-const extFn = require('../lib/extFn.js');
 const log = require('../lib/log.js');
 const wOpzer = require('./w-optimize.js');
+const Hander = require('yyl-hander');
+const yh = new Hander({ vars, log });
 
 const fn = {
   newline() {
@@ -276,7 +277,7 @@ const wCommit = {
     const now = new Date();
 
     // get config
-    const config = await extFn.parseConfig(configPath, iEnv);
+    const config = await yh.parseConfig(configPath, iEnv);
 
     if (!config.commit) {
       throw 'commit task run fail, config.commit is not exists';
