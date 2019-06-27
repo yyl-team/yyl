@@ -1,27 +1,27 @@
 # 版本信息
-## 3.5.1-beta8(未发布)
+## 3.5.1(2019-06-27)
 * [FIX] 修复 `yyl init` 在 `webpack` `typescript` 里没有自动生成 `package.json` 问题`
 * [FIX] 修复 `yyl watch` 在 `webpack` 会提示 autoprefixer wanning 问题
 * [EDIT] 内部统一使用 `yh.parseConfig()` 函数初始化 config
 
-## 3.5.1-beta7(2015-05-31)
+## 3.5.1-beta7(2019-05-31)
 * [FIX] 修复 `yyl all --isCommit` 在 `vue2-ts` 下抽离css 部分会报错问题
 
-## 3.5.1-beta6(2015-05-30)
+## 3.5.1-beta6(2019-05-30)
 * [FIX] 修复 `yyl all --isCommit` 在 `vue2` 下抽离css 部分会报错问题
 
-## 3.5.1-beta5(2015-05-29)
+## 3.5.1-beta5(2019-05-29)
 * [FIX] 修复 `yyl server start` 路径不正问题
 
-## 3.5.1-beta4(2015-05-29)
+## 3.5.1-beta4(2019-05-29)
 * [FIX] 修复 `webpack` 类 项目执行 `--isCommit` 操作时 样式中会包含 js 的问题
 * [FIX] 修复 `yyl server start` 会报错问题
 
-## 3.5.1-beta2(2015-05-21)
+## 3.5.1-beta2(2019-05-21)
 * [EDIT] webpack babel 调整
 * [EDIT] `yyl watch --proxy` proxy server 不再单独新开窗口
 
-## 3.5.1-beta1(2015-05-19)
+## 3.5.1-beta1(2019-05-19)
 * [EDIT] `yyl init` 后 若发现存在 package.json 文件，则会自动执行安装处理
 * [EDIT] `yyl init` 后 若发现存在 package.json 文件，添加 npm 命令
 * [EDIT] `yyl init` 调整 `platform=both` 的 模块分割
@@ -29,7 +29,7 @@
 * [TODO] yyl init both 对应的 jest， e2e test 需要更新
 * [TODO] `extFn.parseConfig` 发现在  w-proxy, w-server 中有调用， 待替换 
 
-## 3.5.0 (2015-05-17)
+## 3.5.0 (2019-05-17)
 * [ADD] 新增 `webpack` seed, 内置 `webpack`, `typescript`, `vue2`, `vue2-typescript` 4 种类型
 * [DEL] 去掉 `webpack-vue2` seed, 但会做向下兼容处理
 * [EDIT] 优化 `yyl init` 逻辑
