@@ -1,5 +1,4 @@
 'use strict';
-const chalk = require('chalk');
 const path = require('path');
 const extFs = require('yyl-fs');
 const util = require('yyl-util');
@@ -10,7 +9,6 @@ const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 
 const wServer = require('./w-server.js');
-const wProxy = require('./w-proxy.js');
 const SEED = require('./w-seed.js');
 const PKG = require('../package.json');
 
@@ -107,27 +105,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     if (afterConfig) {
       config = afterConfig;
     }
-
-    // proxy server
-    if (iEnv.proxy) {
-      let porxyPort = 8887;
-      if (config.proxy && config.proxy.port) {
-        porxyPort = config.proxy.port;
-      }
-
-      if (config.proxy && config.proxy.https) {
-        iEnv.https = true;
-      }
-
-      const canUse = await extOs.checkPort(porxyPort);
-      if (canUse) {
-        await wProxy.start(config, iEnv);
-        // let cmd = `yyl proxy start ${util.envStringify(iEnv)}`;
-        // await extOs.runCMD(cmd, vars.PROJECT_PATH, true, true);
-      } else {
-        log('msg', 'warn', `proxy server start fail, ${chalk.yellow.bold('8887')} was occupied`);
-      }
-    }
   }
 
   // optimize
@@ -154,11 +131,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         }
         log('msg', 'success', [`opzer.${ctx}() finished`]);
         await yh.optimize.afterTask(isUpdate);
-
-        // 更新 映射表
-        if (iEnv.proxy) {
-          await wProxy.updateMapping(config, iEnv);
-        }
 
         // 第一次构建 打开 对应页面
         if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {

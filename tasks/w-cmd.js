@@ -18,8 +18,6 @@ const events = {
         'init': 'init commands',
         'info': 'information',
         'server': 'local server commands',
-        'proxy': 'proxy server commands',
-        'commit': 'commit code to svn/git server(need config)',
         'make': 'make new component'
       },
       options: {
@@ -137,17 +135,6 @@ module.exports = async function(ctx) {
         if (iEnv.help) {
           handle = handle.help;
           argv = [iEnv];
-          type = '';
-        }
-        break;
-
-      case 'proxy':
-        handle = require('./w-proxy.js');
-        argv = [iArgv[1], iEnv, configPath];
-        type = 'proxy';
-        if (iEnv.help) {
-          handle = handle.help;
-          argv = [ iEnv ];
           type = '';
         }
         break;
