@@ -6,10 +6,10 @@ const util = require('yyl-util');
 const extFs = require('yyl-fs');
 const extOs = require('yyl-os');
 
-const vars = require('../lib/vars.js');
-const SEED = require('./w-seed.js');
+const vars = require('../lib/vars');
+const SEED = require('./w-seed');
 const wServer = require('./w-server');
-const log = require('../lib/log.js');
+const log = require('../lib/log');
 
 
 // 选择倾向

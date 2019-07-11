@@ -2,6 +2,7 @@ const fs = require('fs');
 const wProfile = require('./w-profile.js');
 const pkg = require('../package.json');
 const log = require('../lib/log.js');
+const chalk = require('chalk');
 
 // + seed
 const seeds = [
@@ -30,6 +31,7 @@ const seedCache = {
       iCache[workflow] &&
       iCache[workflow][ver] &&
       iCache[workflow][ver][key]
+
     ) {
       return iCache[workflow][ver][key];
     } else {
@@ -37,6 +39,7 @@ const seedCache = {
     }
   },
   save(workflow, key) {
+    console.log(`${chalk.green('!')} ${chalk.green.bold('loading seed: ')} ${chalk.yellow(workflow)}, please wait`);
     const seed = SEED.find(workflow);
     const iCache = wProfile(seedCache.profileName) || {};
     if (!seed) {

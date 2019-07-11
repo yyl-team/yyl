@@ -1,6 +1,7 @@
 # 版本信息
 ## 3.6.0(*)
 * [ADD] `webpack` seed 新增 `react-ts`, `react-ts-ie8` 2 种类型
+* [ADD] `yyl init` 添加 seed 包加载 提示
 * [DEL] 去掉 `yyl proxy` 命令
 * [EDIT] server 部分 改用 `yyl-server` 实现
 

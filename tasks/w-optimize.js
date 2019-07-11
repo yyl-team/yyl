@@ -8,7 +8,6 @@ const Hander = require('yyl-hander');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 
-const wServer = require('./w-server.js');
 const SEED = require('./w-seed.js');
 const PKG = require('../package.json');
 
@@ -90,6 +89,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   });
 
   if (ctx === 'watch') {
+    const wServer = require('./w-server.js');
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false: true
     };
