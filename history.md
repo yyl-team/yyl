@@ -2,8 +2,9 @@
 ## 3.6.0(*)
 * [ADD] `webpack` seed 新增 `react-ts`, `react-ts-ie8` 2 种类型
 * [ADD] `yyl init` 添加 seed 包加载 提示
-* [DEL] 去掉 `yyl proxy` 命令
 * [EDIT] server 部分 改用 `yyl-server` 实现
+* [FIX] 修复 `yyl watch` 安装 `config.plugins` 会出现 warning 问题
+* [DEL] 去掉 `yyl proxy` 命令
 
 ## 3.5.1(2019-06-27)
 * [FIX] 修复 `yyl init` 在 `webpack` `typescript` 里没有自动生成 `package.json` 问题`
