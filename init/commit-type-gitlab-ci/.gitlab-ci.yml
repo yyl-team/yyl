@@ -32,11 +32,6 @@ ani_deploy:
     retry: 2
     tags:
         - webfe
-    artifacts:
-        expire_in: 1 week
-        paths:
-            - output/
-            - gitlog
     script:
         - yyt
 
