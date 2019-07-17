@@ -1,7 +1,8 @@
 # 版本信息
-## 3.6.0(*)
+## 3.6.0-beta1(*)
 * [ADD] `webpack` seed 新增 `react-ts`, `react-ts-ie8` 2 种类型
 * [ADD] `yyl init` 添加 seed 包加载 提示
+* [ADD] 新增 js 文件支持 `__url({$jsDest})` 模式
 * [EDIT] server 部分 改用 `yyl-server` 实现
 * [FIX] 修复 `yyl watch` 安装 `config.plugins` 会出现 warning 问题
 * [FIX] 调整 yml 文件， 修复自动测试 会额外生成 空文件的问题
