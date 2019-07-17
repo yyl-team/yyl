@@ -1,0 +1,44 @@
+@import '../../sass/base/layout';
+
+.just-img {
+  position: absolute;
+  left: 10px; /*no*/
+  top: 10px; /*no*/
+  width: 50px;
+  height: auto;
+}
+
+.w-demo-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    width: 150px;
+    height: 116px;
+    margin: -58px 0 0 -75px;
+    background: url('./images/logo.png') no-repeat;
+    background-size: 150px 116px;
+    transition: .4s;
+}
+.w-demo-tl {
+    position: absolute;
+    top: 50%;
+    margin-top: 100px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 18px; /*px*/
+}
+.w-demo-logo-0 {
+    transform: rotate(0deg);
+}
+.w-demo-logo-1 {
+    transform: rotate(90deg);
+}
+.w-demo-logo-2 {
+    transform: rotate(180deg);
+}
+.w-demo-logo-3 {
+    transform: rotate(270deg);
+}
+
