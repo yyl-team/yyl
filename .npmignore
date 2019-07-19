@@ -1,6 +1,7 @@
 node_modules/
 .git/
 __frag/
+**/__frag/
 *.log
 **/node_modules/
 .vscode 
