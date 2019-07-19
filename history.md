@@ -1,7 +1,11 @@
 # 版本信息
-## 3.6.0-beta1(*)
+## 3.6.0-beta1(2019-07-19)
 * [ADD] `webpack` seed 新增 `react-ts`, `react-ts-ie8` 2 种类型
+* [ADD] `webpack` seed 新增 `config.babelrc: boolean` 属性，用于自定义 babelrc 
+* [ADD] `webpack` seed 新增 `config.eslint: boolean` 属性，用于自定义 是否执行 eslint
+* [ADD] `webpack` seed 新增 `husky` 提供 提交信息校验功能
 * [ADD] `yyl init` 添加 seed 包加载 提示
+* [ADD] `yyl init` 新增 `--ignoreInstall` 用于跳过 init 结束后 自动执行 `npm install` 操作
 * [ADD] 新增 js 文件支持 `__url({$jsDest})` 模式
 * [EDIT] server 部分 改用 `yyl-server` 实现
 * [FIX] 修复 `yyl watch` 安装 `config.plugins` 会出现 warning 问题

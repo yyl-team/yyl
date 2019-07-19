@@ -183,7 +183,8 @@ const fn = {
       fs.writeFileSync(pkgPath, JSON.stringify(iPkg, null, 2));
       if (
         iPkg.dependencies &&
-          Object.keys(iPkg.dependencies).length
+        Object.keys(iPkg.dependencies).length &&
+        !data.ingnoreInstall
       ) {
         await extOs.runCMD('npm install', pjPath);
       }
@@ -407,6 +408,10 @@ const events = {
 
     let data = {};
 
+    if (iEnv.ingnoreInstall) {
+      data.ingnoreInstall = true;
+    }
+
     // init name, platform
     data = await (async () => {
       const prompt = inquirer.createPromptModule();
@@ -461,6 +466,7 @@ const events = {
     }
     for (var i = 0, len = arr.length; i < len; i++) {
       let platform = arr[i];
+      // eslint-disable-next-line require-atomic-updates
       data[platform] = await fn.initPlatform(platform, iEnv);
       if (data[platform].confirm) {
         confirm = true;
@@ -530,6 +536,7 @@ const events = {
       console.log(msgArr.join('\n'));
     }
 
+    // eslint-disable-next-line require-atomic-updates
     data = await (async (iData) => {
       const prompt = inquirer.createPromptModule();
       if (data.confirm) {
