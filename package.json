@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.5.1",
+  "version": "3.6.0-beta1",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -31,35 +31,22 @@
     "node": ">= 8.0.0"
   },
   "dependencies": {
-    "anyproxy": "^4.0.12",
     "chalk": "^2.4.1",
-    "concat-with-sourcemaps": "^1.0.4",
-    "connect": "^3.6.6",
-    "connect-livereload": "^0.6.0",
-    "http-proxy": "^1.17.0",
-    "http-shutdown": "^1.2.0",
     "inquirer": "^6.2.0",
     "keypress": "*",
-    "node-easy-cert": "^1.2.0",
-    "request": "^2.87.0",
-    "rev-hash": "^2.0.0",
-    "serve-favicon": "^2.5.0",
-    "serve-index": "^1.9.1",
-    "serve-static": "^1.13.2",
-    "tiny-lr": "^1.0.3",
-    "yyl-color": "^1.0.0",
-    "yyl-file-replacer": "^0.3.0",
-    "yyl-fs": "^0.2.0",
-    "yyl-hander": "^0.1.3-beta3",
-    "yyl-os": "^0.7.3",
-    "yyl-print": "^0.7.2",
-    "yyl-request": "^0.1.0",
-    "yyl-seed-gulp-requirejs": "^2.6.1-beta1",
-    "yyl-seed-webpack": "0.2.0-beta15",
-    "yyl-util": "^2.2.0"
+    "yyl-fs": "^0.3.2",
+    "yyl-hander": "^0.2.2",
+    "yyl-os": "^0.8.3",
+    "yyl-print": "^0.7.3",
+    "yyl-request": "^0.1.1",
+    "yyl-seed-gulp-requirejs": "^2.6.1-beta2",
+    "yyl-seed-webpack": "^0.3.0-beta11",
+    "yyl-server": "^0.1.5",
+    "yyl-util": "^2.3.3"
   },
   "devDependencies": {
     "chai": "~4.1.2",
+    "yyl-file-replacer": "^0.4.1",
     "yyl-seed-test-util": "^0.3.1"
   }
 }

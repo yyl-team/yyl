@@ -357,7 +357,8 @@ if (TEST_CTRL.INIT) {
           `--pcInit ${op.pc.example}`,
           `--mobileWorkflow ${op.mobile.workflow}`,
           `--mobileInit ${op.mobile.example}`,
-          `--commitType ${op.commitType}`
+          `--commitType ${op.commitType}`,
+          '--ingnoreInstall true'
         ].join(' ');
       } else {
         return [
@@ -366,7 +367,8 @@ if (TEST_CTRL.INIT) {
           `--workflow ${op.workflow}`,
           `--platform ${op.platform}`,
           `--init ${op.example}`,
-          `--commitType ${op.commitType}`
+          `--commitType ${op.commitType}`,
+          '--ingnoreInstall true'
         ].join(' ');
       }
     };

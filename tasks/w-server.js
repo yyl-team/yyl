@@ -1,36 +1,21 @@
 'use strict';
-const tinylr = require('tiny-lr');
-const fs = require('fs');
 const path = require('path');
-const url = require('url');
-const http = require('http');
 const chalk = require('chalk');
 const extFs = require('yyl-fs');
 const extOs = require('yyl-os');
 const util = require('yyl-util');
 const print = require('yyl-print');
 
-const connect = require('connect');
-const serveIndex = require('serve-index');
-const serveStatic = require('serve-static');
-const serveFavicon = require('serve-favicon');
-const livereload = require('connect-livereload');
-
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 const Hander = require('yyl-hander');
+const { Runner } = require('yyl-server');
 const yh = new Hander({ vars, log });
 
 const wProfile = require('./w-profile.js');
-const wProxy = require('./w-proxy.js');
-const wMock = require('./w-mock.js');
-
-require('http-shutdown').extend();
 
 const cache = {
-  lrServer: null,
-  server: null,
-  reject: null
+  runner: null
 };
 
 const wServer = (ctx, iEnv, configPath) => {
@@ -44,20 +29,6 @@ const wServer = (ctx, iEnv, configPath) => {
       return (async () => {
         let config;
         config = await she.start(configPath, iEnv);
-        config = await wProxy.start(config, iEnv);
-
-        if (!iEnv.silent && config) {
-          let serverPath = '';
-          if (config.proxy && config.proxy.homePage) {
-            serverPath = config.proxy.homePage;
-          } else if (config.localserver && config.localserver.serverAddress) {
-            serverPath = config.localserver.serverAddress;
-          }
-          if (serverPath) {
-            extOs.openBrowser(serverPath);
-            log('msg', 'success', `go to page     : ${chalk.yellow.bold(serverPath)}`);
-          }
-        }
         return config;
       })();
 
@@ -118,158 +89,47 @@ wServer.start = async function (ctx, iEnv, options) {
 
   // init config
   let config;
-  let serverConfig;
   if (typeof ctx === 'object') {
     config = ctx;
     config.localserver = util.extend(DEFAULT_CONFIG, config.localserver);
-    serverConfig = config.localserver;
   } else {
     try {
       config = await yh.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
-      if (config && config.localserver) {
-        serverConfig = util.extend(DEFAULT_CONFIG, config.localserver);
-      }
     } catch (er) {
-      config = {};
-      serverConfig = DEFAULT_CONFIG;
+      config = {
+        localserver: DEFAULT_CONFIG
+      };
       log('msg', 'warn', er);
       log('msg', 'warn', 'use default server config');
     }
   }
 
-  if (iEnv.path) {
-    serverConfig.root = path.resolve(vars.PROJECT_PATH, iEnv.path);
-  } else if (config && config.alias && config.alias.dirname) {
-    serverConfig.root = path.resolve(config.alias.dirname, serverConfig.root);
-  } else {
-    serverConfig.root = path.resolve(vars.PROJECT_PATH);
-  }
-  if (iEnv.port) {
-    serverConfig.port = iEnv.port;
-  }
-
-  serverConfig.serverAddress = `http://${vars.LOCAL_SERVER}:${serverConfig.port}`;
-
-  // check port usage
-  const portCanUse = await extOs.checkPort(serverConfig.port);
-  if (portCanUse) {
-    if (!fs.existsSync(serverConfig.root)) {
-      extFs.mkdirSync(serverConfig.root);
-    }
-  } else {
-    throw `port ${chalk.yellow(serverConfig.port)} was occupied, please check`;
-  }
-
-  log('msg', 'success', `server path    : ${chalk.yellow.bold(serverConfig.root)}`);
-  log('msg', 'success', `server address : ${chalk.yellow.bold(serverConfig.serverAddress)}`);
-
-  // livereload
-  let lrServer;
-  const app = connect();
-
-  if (op.livereload) {
-    if (iEnv.lrPort) {
-      serverConfig.lrPort = iEnv.lrPort;
-    } else {
-      serverConfig.lrPort = `${serverConfig.port}1`;
-    }
-    const lrPortCanUse = await extOs.checkPort(serverConfig.lrPort);
-    if (!lrPortCanUse) {
-      throw `port ${chalk.yellow(serverConfig.lrPort)} was occupied, please check`;
-    }
-    log('msg', 'success', `server lr port : ${chalk.yellow.bold(serverConfig.lrPort)}`);
-
-    lrServer = tinylr();
-    app.use(livereload({
-      port: serverConfig.lrPort,
-      src: `//${vars.LOCAL_SERVER}:${serverConfig.lrPort}/livereload.js?snipver=1`
-    }));
-  }
-
-  // mock
-  app.use(wMock({
-    dbPath: path.join(vars.PROJECT_PATH, 'mock/db.json'),
-    routesPath: path.join(vars.PROJECT_PATH, 'mock/routes.json')
-  }));
-
-  // 执行 post 请求本地服务器时处理
-  app.use((req, res, next) => {
-    if (req.method == 'POST') {
-      var filePath = path.join(serverConfig.root, url.parse(req.url).pathname);
-      if (fs.existsSync(filePath)) {
-        res.write(fs.readFileSync(filePath));
-      } else {
-        res.statusCode = 404;
-      }
-      res.end();
-    } else {
-      next();
-    }
+  cache.runner = new Runner({
+    config,
+    env: iEnv,
+    log(type, argu) {
+      log('msg', type, ...argu);
+    },
+    cwd: iEnv.path ? path.dirname(iEnv.path): vars.PROJECT_PATH
   });
 
-  // favicon
-  app.use(serveFavicon(path.join(__dirname, '../resource/favicon.ico')));
+  await cache.runner.start();
 
-  app.use(serveStatic(serverConfig.root, {
-    'setHeaders': function(res, iPath) {
-      if (path.extname(iPath) === '.tpl') {
-        res.setHeader('Content-Type', 'text/html; charset=UTF-8');
-      }
-      res.setHeader('Cache-Control', 'no-cache');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      res.setHeader('Expires', 0);
-      res.setHeader('Pragma', 'no-cache');
-    }
-  }));
+  config = cache.runner.config;
 
-  app.use(serveIndex(serverConfig.root));
-
+  const { app } = cache.runner;
 
   if (typeof op.onInitMiddleWare === 'function') {
-    await op.onInitMiddleWare(app, serverConfig.port);
+    await op.onInitMiddleWare(app, config.localserver.port);
   }
-
-  const server = http.createServer(app).withShutdown();
-
-  server.on('error', (err) => {
-    log('msg', 'error', err);
-    throw err;
-  });
-
-  config.localserver = await util.makeAwait((next, reject) => {
-    server.listen(serverConfig.port, (err) => {
-      if (err) {
-        return reject(err);
-      }
-      if (lrServer) {
-        lrServer.listen(serverConfig.lrPort);
-      }
-      next(serverConfig);
-    });
-  });
-
-  cache.server = server;
-  cache.lrServer = lrServer;
 
   return config;
 };
 
 wServer.abort = async function() {
-  if (cache.server) {
-    await util.makeAwait((next) => {
-      cache.server.shutdown(() => {
-        cache.server = null;
-        next();
-      });
-    });
+  if (cache.runner) {
+    await cache.runner.abort();
   }
-
-  if (cache.lrServer) {
-    cache.lrServer.close();
-    cache.lrServer = null;
-  }
-
-  await wProxy.abort();
 };
 
 wServer.clear = async function() {
@@ -279,7 +139,7 @@ wServer.clear = async function() {
   list.forEach((iPath) => {
     log('msg', 'del', iPath);
   });
-  await wProxy.clean();
+  await Runner.clean();
   log('finish', 'clear finished');
 };
 
