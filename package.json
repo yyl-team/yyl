@@ -40,7 +40,7 @@
     "yyl-print": "^0.7.3",
     "yyl-request": "^0.1.1",
     "yyl-seed-gulp-requirejs": "^2.6.1-beta2",
-    "yyl-seed-webpack": "^0.3.0-beta11",
+    "yyl-seed-webpack": "^0.3.0-beta13",
     "yyl-server": "^0.1.5",
     "yyl-util": "^2.3.3"
   },

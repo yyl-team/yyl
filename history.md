@@ -1,4 +1,7 @@
 # 版本信息
+## 3.6.0-beta2(*)
+* [ADD] `webpack` seed 新增 `config.base64Limit: number` 属性，用于自定义 `url-loader` limit 属性, 默认值为 3000
+
 ## 3.6.0-beta1(2019-07-19)
 * [ADD] `webpack` seed 新增 `react-ts`, `react-ts-ie8` 2 种类型
 * [ADD] `webpack` seed 新增 `config.babelrc: boolean` 属性，用于自定义 babelrc 
