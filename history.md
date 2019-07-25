@@ -1,4 +1,11 @@
 # 版本信息
+## 3.6.0-beta2(2019-07-25)
+* [ADD] `webpack` seed 新增 `config.base64Limit: number` 属性，用于自定义 `url-loader` limit 属性, 默认值为 3000
+* [FIX] `webpack` seed 修复 当 package.json 中存在 `tj/react-click-outside` 构建会报错问题
+* [FIX] 修复 `webpack vue2` 压缩 没生成 `async_component` 问题
+* [FIX] 修复 `yyl init` 统计文件数量会扫描 `node_modules` 内文件的 bug
+* [FIX] 修复 `webpack vue2` seed 初始化完 运行不了的问题
+
 ## 3.6.0-beta1(2019-07-19)
 * [ADD] `webpack` seed 新增 `react-ts`, `react-ts-ie8` 2 种类型
 * [ADD] `webpack` seed 新增 `config.babelrc: boolean` 属性，用于自定义 babelrc 

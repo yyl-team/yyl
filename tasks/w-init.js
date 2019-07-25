@@ -254,7 +254,7 @@ const fn = {
     // logs
     const builds = await extFs.readFilePaths(pjPath, (iPath) => {
       const rPath = path.relative(vars.PROJECT_PATH, iPath);
-      if (/\.svn|\.git|\.node_modules/.test(rPath)) {
+      if (/\.svn|\.git|node_modules/.test(rPath)) {
         return false;
       } else {
         return true;
