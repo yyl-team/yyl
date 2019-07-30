@@ -1,4 +1,7 @@
 # 版本信息
+## 3.6.0-beta3(*)
+* [ADD] 补充 `commit-lint`
+
 ## 3.6.0-beta2(2019-07-25)
 * [ADD] `webpack` seed 新增 `config.base64Limit: number` 属性，用于自定义 `url-loader` limit 属性, 默认值为 3000
 * [FIX] `webpack` seed 修复 当 package.json 中存在 `tj/react-click-outside` 构建会报错问题

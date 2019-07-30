@@ -110,7 +110,7 @@ wServer.start = async function (ctx, iEnv, options) {
     log(type, argu) {
       log('msg', type, ...argu);
     },
-    cwd: iEnv.path ? path.dirname(iEnv.path): vars.PROJECT_PATH
+    cwd: iEnv.config ? path.dirname(iEnv.config): vars.PROJECT_PATH
   });
 
   await cache.runner.start();
