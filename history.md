@@ -1,7 +1,10 @@
 # 版本信息
-## 3.6.0-beta3(*)
+## 3.6.0-beta3(2019-07-31)
 * [ADD] `yyl init` 优化，如项目存在 `pkg.devDependencies` 会 自动运行 `npm install`
 * [ADD] 补充 `commit-lint`
+* [EDIT] `webpack` seed 中如发现 `config.plugins` 为空 则不会额外引入 yyl server 本地的模块
+* [EDIT] `webpack` seed 模块地址 `~/.yyl/plugins/webpack` 改为 `~/.yyl/plugins/webpack/${config.name}`
+* [DEL] `webpack` seed 去掉 `lodash` 模块
 
 ## 3.6.0-beta2(2019-07-25)
 * [ADD] `webpack` seed 新增 `config.base64Limit: number` 属性，用于自定义 `url-loader` limit 属性, 默认值为 3000

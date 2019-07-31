@@ -124,6 +124,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           isError = true;
         }
       })
+      .on('loading', (name) => {
+        log('loading', name);
+      })
       .on('finished', async() => {
         if (ctx === 'all' && isError) {
           log('msg', 'error', `${ctx} task run error`);
