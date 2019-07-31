@@ -1,5 +1,6 @@
 # 版本信息
 ## 3.6.0-beta3(*)
+* [ADD] `yyl init` 优化，如项目存在 `pkg.devDependencies` 会 自动运行 `npm install`
 * [ADD] 补充 `commit-lint`
 
 ## 3.6.0-beta2(2019-07-25)
