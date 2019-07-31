@@ -18,7 +18,7 @@ const Hander = require('yyl-hander');
 const yh = new Hander({ vars, log });
 
 
-const FRAG_PATH = path.join(__dirname, '__frag');
+const FRAG_PATH = path.join(__dirname, '../../__frag');
 tUtil.frag.init(FRAG_PATH);
 
 const TEST_CTRL = {
@@ -390,13 +390,13 @@ if (TEST_CTRL.INIT) {
       });
     });
 
-    // multi cmd
+    // multi cmd (每个 workflow 只拿第一个)
     SEED.workflows.forEach((pcWorkflow) => {
       const pcSeed = SEED.find(pcWorkflow);
-      pcSeed.examples.forEach((pcExample) => {
+      pcSeed.examples.slice(0, 1).forEach((pcExample) => {
         SEED.workflows.forEach((mobileWorkflow) => {
           const mobileSeed = SEED.find(mobileWorkflow);
-          mobileSeed.examples.forEach((mobileExample) => {
+          mobileSeed.examples.slice(0, 1).forEach((mobileExample) => {
             wInit.ENV.COMMIT_TYPES.forEach((commitType) => {
               cmds.push(buildCmd({
                 name: cmds.length,
@@ -534,28 +534,26 @@ if (TEST_CTRL.INIT) {
       });
 
       // TODO 跑一下看是否有东西生成
-      // const dest = {
-      //   async clear() {
-      //     await extFs.removeFiles(path.join(pjPath, 'dist'));
-      //   },
-      //   async check() {
-      //     const destFiles = await extFs.readFilePaths(path.join(pjPath, 'dist'));
-      //     expect(destFiles.length).not.equal(0);
-      //   }
-      // };
-      // if (iEnv.platform === 'both') {
-      //   await dest.clear();
-      //   await yyl.run('all --name pc --silent', pjPath);
-      //   await dest.check();
+      const dest = {
+        async clear() {
+          await extFs.removeFiles(path.join(pjPath, 'dist'));
+        },
+        async check(iPath) {
+          const destFiles = await extFs.readFilePaths(path.join(iPath || pjPath, 'dist'));
+          expect(destFiles.length).not.equal(0);
+        }
+      };
+      if (iEnv.platform === 'both') {
+        await yyl.run('all --silent', path.join(pjPath, 'pc'));
+        await dest.check(path.join(pjPath, 'pc'));
 
-      //   await dest.clear();
-      //   await yyl.run('all --name mobile --silent', pjPath);
-      //   await dest.check();
-      // } else {
-      //   await dest.clear();
-      //   await yyl.run('all --silent', pjPath);
-      //   await dest.check();
-      // }
+        await yyl.run('all --silent', path.join(pjPath, 'mobile'));
+        await dest.check(path.join(pjPath, 'mobile'));
+      } else {
+        await dest.clear();
+        await yyl.run('all --silent', pjPath);
+        await dest.check();
+      }
     }
 
 
