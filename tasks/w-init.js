@@ -182,8 +182,10 @@ const fn = {
       iPkg.scripts.remote = 'yyl watch --proxy --remote';
       fs.writeFileSync(pkgPath, JSON.stringify(iPkg, null, 2));
       if (
-        iPkg.dependencies &&
-        Object.keys(iPkg.dependencies).length &&
+        (
+          (iPkg.dependencies && Object.keys(iPkg.dependencies).length) ||
+          (iPkg.devDependencies && Object.keys(iPkg.devDependencies).length)
+        ) &&
         !data.ingnoreInstall
       ) {
         await extOs.runCMD('npm install', pjPath);
