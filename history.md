@@ -1,4 +1,7 @@
 # 版本信息
+## 3.6.0-beta5(*)
+* [EDIT] `proxy` `webPort` 从固定 `5001` 改为 跟随 `config.port` => `${config.port}1`
+
 ## 3.6.0-beta4(2019-07-31)
 * [ADD] `mocha test` init 相关用例
 * [FIX] 修复 `webpack base` `webpack react-ts` 2 个seed 包 初始化完后不能运行问题
