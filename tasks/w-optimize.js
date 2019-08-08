@@ -11,6 +11,8 @@ const log = require('../lib/log.js');
 const SEED = require('./w-seed.js');
 const PKG = require('../package.json');
 
+const watch = require('node-watch');
+
 const yh = new Hander({ vars, log });
 
 const wOpzer = async function (ctx, iEnv, configPath) {
@@ -105,6 +107,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     if (afterConfig) {
       config = afterConfig;
     }
+
   }
 
   // optimize
@@ -150,6 +153,21 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         } else {
           isUpdate = 1;
           log('finished');
+
+          // 添加 config.resource 配置路径的 watch
+          if (config.resource) {
+            Object.keys(config.resource).forEach((key) => {
+              watch(key, {recursive: true}, async () => {
+                log('start', 'optimize', 'resource update');
+                await yh.optimize.afterTask(isUpdate);
+                if (!opzer.ignoreLiveReload || iEnv.livereload) {
+                  log('msg', 'success', 'page reloaded');
+                  await yh.optimize.livereload();
+                }
+                log('finished');
+              })
+            })
+          }
           next(config, opzer);
         }
       });

@@ -34,6 +34,7 @@
     "chalk": "^2.4.1",
     "inquirer": "^6.2.0",
     "keypress": "*",
+    "node-watch": "^0.6.2",
     "yyl-fs": "^0.3.2",
     "yyl-hander": "^0.3.1",
     "yyl-os": "^0.8.3",
@@ -41,7 +42,7 @@
     "yyl-request": "^0.1.1",
     "yyl-seed-gulp-requirejs": "^2.6.1-beta2",
     "yyl-seed-webpack": "^0.3.0-beta19",
-    "yyl-server": "^0.1.6",
+    "yyl-server": "^0.1.8",
     "yyl-util": "^2.3.3"
   },
   "devDependencies": {
