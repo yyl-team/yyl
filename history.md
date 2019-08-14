@@ -2,6 +2,7 @@
 ## 3.6.0-beta5(*)
 * [EDIT] `proxy` `webPort` 从固定 `5001` 改为 跟随 `config.port` => `${config.port}1`
 * [ADD] 给 `config.resource` 添加 watch 操作
+* [ADD] 修改 通用 `yml` 文件 新增 `pre` 的发布环境
 
 ## 3.6.0-beta4(2019-07-31)
 * [ADD] `mocha test` init 相关用例
