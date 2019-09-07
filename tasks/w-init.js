@@ -5,11 +5,13 @@ const inquirer = require('inquirer');
 const util = require('yyl-util');
 const extFs = require('yyl-fs');
 const extOs = require('yyl-os');
+const chalk = require('chalk');
 
 const vars = require('../lib/vars');
 const SEED = require('./w-seed');
 const wServer = require('./w-server');
 const log = require('../lib/log');
+const LANG = require('../lang/index');
 
 
 // 选择倾向
@@ -41,6 +43,20 @@ const COMMIT_TYPES = fs.readdirSync(path.join(__dirname, '../init'))
 const CONFIG_SUGAR_DATA_REG = /__data\(['"](\w+)["']\)/g;
 
 const fn = {
+  logCopy(rs) {
+    const { add, update } = rs;
+    if (add && add.length) {
+      add.forEach((iPath) => {
+        log('msg', 'create', iPath);
+      });
+    }
+
+    if (update && update.length) {
+      update.forEach((iPath) => {
+        log('msg', 'update', iPath);
+      });
+    }
+  },
   // readme 格式化
   formatREADME(readmePath, extendPath, data) {
     const buildReg = (key) => {
@@ -97,12 +113,16 @@ const fn = {
     const initSeed = (param) => {
       return new Promise((next) => {
         SEED.find(param.workflow).init(param.init, pjPath)
+          .on('msg', (type, ctx) => {
+            log('msg', type, ctx);
+          })
           .on('finished', async () => {
             const rConfigPath = path.join(pjPath, 'config.js');
             const yylConfigPath = path.join(pjPath, 'yyl.config.js');
             if (fs.existsSync(rConfigPath)) {
-              await extFs.copyFiles(rConfigPath, yylConfigPath);
+              fn.logCopy(await extFs.copyFiles(rConfigPath, yylConfigPath));
               await extFs.removeFiles(rConfigPath);
+              log('msg', 'del', rConfigPath);
             }
             next();
           });
@@ -143,12 +163,16 @@ const fn = {
       srcRoot: './src',
       webpackConfigPath: './webpack.config.js'
     });
+
+    log('msg', 'info', LANG.INIT.SEED_INIT_START);
     await initSeed(param);
+    log('msg', 'success', LANG.INIT.SEED_INIT_FINISHED);
 
 
     // 初始化 yyl.config.js
     const configPath = path.join(pjPath, 'yyl.config.js');
     await fn.rewriteConfig(configPath, configDataMap);
+    log('msg', 'update', configPath);
 
     // 初始化 webpack.config.js
     const webpackConfigPath = path.join(pjPath, 'webpack.config.js');
@@ -158,17 +182,18 @@ const fn = {
         configPath: './yyl.config.js'
       });
       await fn.rewriteConfig(webpackConfigPath, webpackDataMap);
+      log('msg', 'update', webpackConfigPath);
     }
 
     // common files init
-    await extFs.copyFiles(INIT_COMMON_PATH, pjPath, (iPath) => {
+    fn.logCopy(await extFs.copyFiles(INIT_COMMON_PATH, pjPath, (iPath) => {
       const f = (p) => util.path.join(p);
       // 不拷贝 config.extend.js
       return f(iPath) != f(INIT_COMMON_CONFIG_PATH) &&
         f(iPath) != f(INIT_WEBPACK_CONFIG_PATH);
-    });
+    }));
 
-    // TODO: package.json npm script, name rewrite
+    // package.json npm script, name rewrite
     const pkgPath = path.join(pjPath, 'package.json');
     if (fs.existsSync(pkgPath)) {
       const iPkg = require(pkgPath);
@@ -181,6 +206,7 @@ const fn = {
       iPkg.scripts.commit = 'yyl all --isCommit';
       iPkg.scripts.remote = 'yyl watch --proxy --remote';
       fs.writeFileSync(pkgPath, JSON.stringify(iPkg, null, 2));
+      log('msg', 'update', pkgPath);
       if (
         (
           (iPkg.dependencies && Object.keys(iPkg.dependencies).length) ||
@@ -188,17 +214,19 @@ const fn = {
         ) &&
         !data.ingnoreInstall
       ) {
+        log('msg', 'info', LANG.INIT.NPM_INSTALL_START);
         await extOs.runCMD('npm install', pjPath);
+        log('msg', 'success', LANG.INIT.NPM_INSTALL_FINISHED);
       }
     }
 
     if (!isBoth) { // 若是单个项目则会 直接把 ci, readme 部分进行初始化
       // svn or ci files init
-      await extFs.copyFiles(INIT_CUSTOM_PATH, pjPath, (iPath) => {
+      fn.logCopy(await extFs.copyFiles(INIT_CUSTOM_PATH, pjPath, (iPath) => {
         const f = (p) => util.path.join(p);
         // 不拷贝 README.extend.md, config.extend.js
         return f(iPath) != f(INIT_CUSTOM_CONFIG_PATH) && f(iPath) != f(INIT_CUSTOM_README_PATH);
-      });
+      }));
 
       // readme
       const readmeCnt = await fn.formatREADME(
@@ -208,6 +236,7 @@ const fn = {
       );
       const readmePath = path.join(pjPath, 'README.md');
       fs.writeFileSync(readmePath, readmeCnt);
+      log('msg', 'update', readmePath);
     }
   },
 
@@ -216,26 +245,32 @@ const fn = {
     const pjPath = vars.PROJECT_PATH;
     const self = this;
 
+    log('msg', 'info', LANG.INIT.START);
+
     const INIT_COMMON_PATH = path.join(vars.INIT_PATH, 'commons');
     const INIT_COMMON_README_PATH = path.join(INIT_COMMON_PATH, 'README.md');
     const INIT_BOTH_PATH = path.join(vars.INIT_PATH, 'platform-both');
     const INIT_BOTH_README_PATH = path.join(INIT_BOTH_PATH, 'README.extend.md');
 
     if (data.platform === 'both') {
+      log('msg', 'info', LANG.INIT.PLATFORM_PC_START);
       const pcPath = path.join(pjPath, 'pc');
       await extFs.mkdirSync(pcPath);
       await self.initSingleProject(Object.assign({}, data, {platform: 'pc'}), pcPath, true);
+      log('msg', 'success', LANG.INIT.PLATFORM_PC_FINISHED);
 
+      log('msg', 'info', LANG.INIT.PLATFORM_MOBILE_START);
       const mobilePath = path.join(pjPath, 'mobile');
       await extFs.mkdirSync(mobilePath);
       await self.initSingleProject(Object.assign({}, data, {platform: 'mobile'}), mobilePath, true);
+      log('msg', 'success', LANG.INIT.PLATFORM_MOBILE_FINISHED);
 
-      // package.json, ci copy
-      await extFs.copyFiles(INIT_BOTH_PATH, pjPath, (iPath) => {
+      log('msg', 'info', LANG.INIT.FILE_FORMAT_START);
+      fn.logCopy(await extFs.copyFiles(INIT_BOTH_PATH, pjPath, (iPath) => {
         const f = (p) => util.path.join(p);
         // 不拷贝 readme
         return f(iPath) != f(INIT_BOTH_README_PATH);
-      });
+      }));
 
       // rewrite package.json
       const pkgPath = path.join(pjPath, 'package.json');
@@ -243,31 +278,32 @@ const fn = {
         const iPkg = require(pkgPath);
         iPkg.name = data.name;
         fs.writeFileSync(pkgPath, JSON.stringify(iPkg, null, 2));
+        log('msg', 'update', pkgPath);
       }
 
       // readme
       const readmeCnt = await fn.formatREADME(INIT_COMMON_README_PATH, INIT_BOTH_README_PATH, data);
       const readmePath = path.join(pjPath, 'README.md');
       fs.writeFileSync(readmePath, readmeCnt);
+      log('msg', 'update', readmePath);
     } else {
       await self.initSingleProject(data, pjPath);
     }
 
-    // logs
-    const builds = await extFs.readFilePaths(pjPath, (iPath) => {
-      const rPath = path.relative(vars.PROJECT_PATH, iPath);
-      if (/\.svn|\.git|node_modules/.test(rPath)) {
-        return false;
-      } else {
-        return true;
-      }
-    });
+    // // logs
+    // const builds = await extFs.readFilePaths(pjPath, (iPath) => {
+    //   const rPath = path.relative(vars.PROJECT_PATH, iPath);
+    //   if (/\.svn|\.git|node_modules/.test(rPath)) {
+    //     return false;
+    //   } else {
+    //     return true;
+    //   }
+    // });
 
-    builds.forEach((iPath) => {
-      log('msg', 'create', iPath);
-    });
-
-    // TODO: package.json 初始化
+    // builds.forEach((iPath) => {
+    //   log('msg', 'create', iPath);
+    // });
+    log('msg', 'success', LANG.INIT.FINISHED);
   },
   async initPlatform(platform, iEnv) {
     let data = { platform };
@@ -279,7 +315,7 @@ const fn = {
       const iQuestion = {
         name: 'workflow',
         type: 'list',
-        message: `${data.platform} workflow`,
+        message: `${data.platform} ${LANG.INIT.QUESTION.WORKFLOW}`,
         choices: workflows
       };
 
@@ -318,7 +354,7 @@ const fn = {
         } else {
           questions.push({
             name: 'init',
-            message: `${data.platform} workflow init type`,
+            message: `${data.platform} ${LANG.INIT.QUESTION.WORKFLOW_SEED}`,
             type: 'list',
             choices: expType,
             default: 'single-project'
@@ -363,7 +399,7 @@ const fn = {
   rewriteConfig(configPath, dataMap) {
     const runner = (next, reject) => {
       if (!fs.existsSync(configPath)) {
-        return reject(`config path not exists ${configPath}`);
+        return reject(`${LANG.INIT.CONFIG_NOT_EXISTS}: ${configPath}`);
       }
       let content = fs.readFileSync(configPath).toString();
       Object.keys(dataMap).forEach((key) => {
@@ -391,13 +427,13 @@ const events = {
     const h = {
       usage: 'yyl init',
       options: {
-        '--help': 'print usage information',
-        '--name': 'project name',
-        '--platform': `platform: ${PLATFORMS.join(' or ')}`,
-        '--workflow': 'workflow type',
-        '--init': 'workflow init type',
-        '--cwd': 'runtime path',
-        '--nonpm': 'init without npm install'
+        '--help': LANG.INIT.HELP.HELP,
+        '--name': LANG.INIT.HELP.NAME,
+        '--platform': `${LANG.INIT.HELP.PLATFORM}: ${PLATFORMS.join(' or ')}`,
+        '--workflow': LANG.INIT.HELP.WORKFLOW,
+        '--init': LANG.INIT.HELP.INIT,
+        '--cwd': LANG.INIT.HELP.CWD,
+        '--nonpm': LANG.INIT.HELP.NO_NPM
       }
     };
     util.help(h);
@@ -424,7 +460,7 @@ const events = {
       } else {
         questions.push({
           name: 'name',
-          message: 'name',
+          message: LANG.INIT.QUESTION.NAME,
           type: 'input',
           default: vars.PROJECT_PATH.split('/').pop()
         });
@@ -436,7 +472,7 @@ const events = {
       } else {
         questions.push({
           name: 'platform',
-          message: 'platform',
+          message: LANG.INIT.QUESTION.PLATFORM,
           type: 'list',
           choices: PLATFORMS,
           default: PLATFORMS[0]
@@ -503,41 +539,6 @@ const events = {
 
     data.commitType = 'gitlab-ci';
 
-    if (!iEnv.silent && confirm) {
-      let msgArr = [];
-      if (data.platform === 'both') {
-        msgArr = [
-          '',
-          ' project info',
-          ' ----------------------------------------',
-          ` name             : ${data.name}`,
-          ` pc workflow      : ${data.pc.workflow}`,
-          ` pc init          : ${data.pc.init}`,
-          ` mobile workflow  : ${data.mobile.workflow}`,
-          ` mobile init      : ${data.mobile.init}`,
-          ` commit type      : ${data.commitType}`,
-          ` yyl version      : ${data.version}`,
-          ' ----------------------------------------',
-          ''
-        ];
-      } else {
-        msgArr = [
-          '',
-          ' project info',
-          ' ----------------------------------------',
-          ` name             : ${data.name}`,
-          ` platform         : ${data.platform}`,
-          ` workflow         : ${data[data.platform].workflow}`,
-          ` init             : ${data[data.platform].init}`,
-          ` commit type      : ${data.commitType}`,
-          ` yyl version      : ${data.version}`,
-          ' ----------------------------------------',
-          ''
-        ];
-      }
-      console.log(msgArr.join('\n'));
-    }
-
     // eslint-disable-next-line require-atomic-updates
     data = await (async (iData) => {
       const prompt = inquirer.createPromptModule();
@@ -566,6 +567,7 @@ const events = {
 
     if (!iEnv.silent) {
       extOs.openPath(vars.PROJECT_PATH);
+      log('msg', 'success', `${LANG.INIT.OPEN_PATH}: ${vars.PROJECT_PATH}`);
     }
   }
 };
