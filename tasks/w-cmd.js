@@ -9,23 +9,24 @@ const SEED = require('./w-seed.js');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 const pkg = require('../package.json');
+const LANG = require('../lang/index');
 
 const events = {
   help(iEnv, opzerHandles) {
     const h = {
       usage: 'yyl',
       commands: {
-        'init': 'init commands',
-        'info': 'information',
-        'server': 'local server commands',
-        'make': 'make new component'
+        'init': LANG.CMD.HELP.COMMANDS.INIT,
+        'info': LANG.CMD.HELP.COMMANDS.INFO,
+        'server': LANG.CMD.HELP.COMMANDS.SERVER,
+        'make': LANG.CMD.HELP.COMMANDS.MAKE
       },
       options: {
-        '--help': 'print usage information',
-        '-v, --version': 'print yyl version',
-        '-p, --path': 'show the yyl command local path',
-        '--logLevel': 'log level',
-        '--config': 'change the config file to the setting'
+        '--help': LANG.CMD.HELP.OPTIONS.HELP,
+        '-v, --version': LANG.CMD.HELP.OPTIONS.VERSION,
+        '-p, --path': LANG.CMD.HELP.OPTIONS.PATH,
+        '--logLevel': LANG.CMD.HELP.OPTIONS.LOG_LEVEL,
+        '--config': LANG.CMD.HELP.OPTIONS.CONFIG
       }
     };
     opzerHandles.forEach((key) => {
@@ -139,18 +140,6 @@ module.exports = async function(ctx) {
         }
         break;
 
-      case 'commit':
-        if (iEnv.help) {
-          handle = require('./w-commit.js').help;
-          type = '';
-        } else {
-          handle = require('./w-commit.js').run;
-          type = 'Info';
-        }
-        argv = [iEnv, configPath];
-
-        break;
-
       case 'rm':
         handle = require('./w-remove.js');
         argv = [iArgv[1]];
@@ -192,7 +181,7 @@ module.exports = async function(ctx) {
     log('clear');
     log('msg', 'yyl', `${chalk.yellow.bold(pkg.version)}`);
     log('msg', 'cmd', `yyl ${iArgv.join(' ')}`);
-    log('start', type, `${type} task starting...`);
+    log('start', type, `${type} ${LANG.CMD.TASK_START}`);
   }
 
   let r;
@@ -200,7 +189,7 @@ module.exports = async function(ctx) {
   r = await handle(...argv);
 
   if (type) {
-    log('finished');
+    log('finished', `${LANG.CMD.TASK_FINSHED}`);
   }
 
 

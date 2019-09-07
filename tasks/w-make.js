@@ -5,6 +5,7 @@ const log = require('../lib/log.js');
 const vars = require('../lib/vars.js');
 const Hander = require('yyl-hander');
 const yh = new Hander({ vars, log });
+const LANG = require('../lang/index');
 
 const fn = {
   exit(errMsg) {
@@ -25,16 +26,16 @@ async function wMake (name, iEnv, configPath) {
   } catch (er) {
     fn.exit(`yyl make fail, ${er}`);
   }
-  log('msg', 'success', 'parse config finished');
+  log('msg', 'success', LANG.MAKE.PARSE_CONFIG_FINISHED);
 
   if (!config.workflow || SEED.workflows.indexOf(config.workflow) === -1) {
-    fn.exit(`yyl make fail, cannot find seed name [${config.workflow}]`);
+    fn.exit(`${LANG.MAKE.WORKFLOW_NOT_FOUND} [${config.workflow}]`);
   }
 
   const seed = SEED.find(config.workflow);
 
   if (!seed.make) {
-    fn.exit(`yyl make fail, seed[${config.workflow}].make is not set`);
+    fn.exit(`${LANG.MAKE.WORKFLOW_MAKE_NOT_SET}: ${config.workflow}`);
   }
 
   const runner = function () {

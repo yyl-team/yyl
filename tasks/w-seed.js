@@ -3,6 +3,7 @@ const wProfile = require('./w-profile.js');
 const pkg = require('../package.json');
 const log = require('../lib/log.js');
 const chalk = require('chalk');
+const LANG = require('../lang/index');
 
 // + seed
 const seeds = [
@@ -39,7 +40,7 @@ const seedCache = {
     }
   },
   save(workflow, key) {
-    console.log(`${chalk.green('!')} ${chalk.green.bold('loading seed: ')} ${chalk.yellow(workflow)}, please wait`);
+    console.log(`${chalk.green('!')} ${chalk.green.bold(`${LANG.SEED.LOADING}: `)} ${chalk.yellow(workflow)}, ${LANG.SEED.PLEASE_WAIT}`);
     const seed = SEED.find(workflow);
     const iCache = wProfile(seedCache.profileName) || {};
     if (!seed) {
@@ -115,7 +116,7 @@ const SEED = {
       try {
         config = require(ctx);
       } catch (er) {
-        log('msg', 'warn', [`parse config error: ${ctx}`, er]);
+        log('msg', 'warn', [`${LANG.SEED.PARSE_CONFIG_ERROR}: ${ctx}`, er]);
       }
 
       // 适配 multi config 情况

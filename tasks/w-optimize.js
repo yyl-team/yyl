@@ -15,6 +15,8 @@ const watch = require('node-watch');
 
 const yh = new Hander({ vars, log });
 
+const LANG = require('../lang/index');
+
 const wOpzer = async function (ctx, iEnv, configPath) {
   yh.setVars(vars);
 
@@ -26,14 +28,14 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     iEnv.ver = 'remote';
   }
 
-  log('msg', 'info', 'parse config start');
+  log('msg', 'info', LANG.OPTIMIZE.PARSE_CONFIG_START);
 
   // init config
   let config;
   try {
     config = await yh.parseConfig(configPath, iEnv);
   } catch (er) {
-    throw `yyl ${ctx} ${util.envStringify(iEnv)} error, ${er}`;
+    throw `${LANG.OPTIMIZE.PARSE_CONFIG_ERROR}: ${er}`;
   }
 
   // + 兼容 旧版
@@ -49,26 +51,26 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   // 版本检查
   if (util.compareVersion(config.version, PKG.version) > 0) {
-    throw `optimize fail, project required yyl at least ${config.version}`;
+    throw `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`;
   }
 
   const seed = SEED.find(config);
   if (!seed) {
-    throw `optimize fail, config.workflow (${config.workflow}) is not in yyl seed, usage: ${Object.keys[SEED]}`;
+    throw `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${Object.keys[SEED]}`;
   }
 
   const opzer = seed.optimize(config, path.dirname(configPath));
 
   // handle exists check
   if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
-    throw `optimize fail handle [${ctx}] is not exists`;
+    throw `${LANG.OPTIMIZE.WORKFLOW_OPTI_HANDLE_NOT_EXISTS}: ${ctx}`;
   }
 
   // package check
   try {
     await yh.optimize.initPlugins();
   } catch (er) {
-    throw `optimize fail, plugins install error: ${er.message}`;
+    throw `${LANG.OPTIMIZE.PLUGINS_INSTALL_FAIL}: ${er.message}`;
   }
 
   // clean dist
@@ -107,7 +109,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     if (afterConfig) {
       config = afterConfig;
     }
-
   }
 
   // optimize
@@ -132,10 +133,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       })
       .on('finished', async() => {
         if (ctx === 'all' && isError) {
-          log('msg', 'error', `${ctx} task run error`);
+          log('msg', 'error', `${ctx} ${LANG.OPTIMIZE.TASK_RUN_FAIL}`);
           process.exit(1);
         }
-        log('msg', 'success', [`opzer.${ctx}() finished`]);
+        log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`]);
         await yh.optimize.afterTask(isUpdate);
 
         // 第一次构建 打开 对应页面
@@ -146,7 +147,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         if (isUpdate) {
           // 刷新页面
           if (!opzer.ignoreLiveReload || iEnv.livereload) {
-            log('msg', 'success', 'page reloaded');
+            log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD);
             await yh.optimize.livereload();
           }
           log('finished');
@@ -158,15 +159,15 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           if (config.resource) {
             Object.keys(config.resource).forEach((key) => {
               watch(key, {recursive: true}, async () => {
-                log('start', 'optimize', 'resource update');
+                log('start', 'optimize', LANG.OPTIMIZE.RESOURCE_UPDATE);
                 await yh.optimize.afterTask(isUpdate);
                 if (!opzer.ignoreLiveReload || iEnv.livereload) {
-                  log('msg', 'success', 'page reloaded');
+                  log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD);
                   await yh.optimize.livereload();
                 }
                 log('finished');
-              })
-            })
+              });
+            });
           }
           next(config, opzer);
         }

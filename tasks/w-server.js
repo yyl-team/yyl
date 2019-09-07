@@ -13,6 +13,7 @@ const { Runner } = require('yyl-server');
 const yh = new Hander({ vars, log });
 
 const wProfile = require('./w-profile.js');
+const LANG = require('../lang/index');
 
 const cache = {
   runner: null
@@ -52,14 +53,14 @@ wServer.help = (iEnv) => {
   let h = {
     usage: 'yyl server',
     commands: {
-      'start': 'start local server',
-      'abort': 'abort local server',
-      'clear': 'clear local yyl file'
+      'start': LANG.SERVER.HELP.COMMANDS.START,
+      'abort': LANG.SERVER.HELP.COMMANDS.ABORT,
+      'clear': LANG.SERVER.HELP.COMMANDS.CLEAR
     },
     options: {
-      '--proxy': 'start with proxy server',
-      '--help': 'print usage information',
-      '-p, --path': 'show the yyl server local path'
+      '--proxy': LANG.SERVER.HELP.OPTIONS.PROXY,
+      '--help': LANG.SERVER.HELP.OPTIONS.HELP,
+      '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH
     }
   };
   if (!iEnv.silent) {
@@ -100,7 +101,7 @@ wServer.start = async function (ctx, iEnv, options) {
         localserver: DEFAULT_CONFIG
       };
       log('msg', 'warn', er);
-      log('msg', 'warn', 'use default server config');
+      log('msg', 'warn', LANG.SERVER.USE_DEFAULT_CONFIG);
     }
   }
 
@@ -134,13 +135,13 @@ wServer.abort = async function() {
 
 wServer.clear = async function() {
   log('clear');
-  log('start', 'server', 'clear server start...');
+  log('start', 'server', LANG.SERVER.CLEAN_START);
   const list = await extFs.removeFiles(vars.SERVER_PATH);
   list.forEach((iPath) => {
     log('msg', 'del', iPath);
   });
   await Runner.clean();
-  log('finish', 'clear finished');
+  log('finish', LANG.SERVER.CLEAN_FINISHED);
 };
 
 wServer.setLogLevel = function(level, notSave, silent) {
@@ -149,7 +150,7 @@ wServer.setLogLevel = function(level, notSave, silent) {
   }
   log.update(level);
   if (!silent) {
-    log('msg', 'success', `change logLevel: ${chalk.yellow.bold(level)}`);
+    log('msg', 'success', `${LANG.SERVER.CHANGE_LOG_LEVEL}: ${chalk.yellow.bold(level)}`);
   }
   return Promise.resolve(level);
 };
