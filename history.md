@@ -5,6 +5,7 @@
 * [EDIT] yyl 项目 中文化
 * [ADD] 给 `config.resource` 添加 watch 操作
 * [ADD] 修改 通用 `yml` 文件 新增 `pre` 的发布环境
+* [DEL] 去掉 `w-commit` 文件(已过时)
 
 ## 3.6.0-beta4(2019-07-31)
 * [ADD] `mocha test` init 相关用例
