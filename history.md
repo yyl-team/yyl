@@ -3,6 +3,8 @@
 * [EDIT] `proxy` `webPort` 从固定 `5001` 改为 跟随 `config.port` => `${config.port}1`
 * [EDIT] 优化 `yyl init` log 信息
 * [EDIT] yyl 项目 中文化
+* [EDIT] 优化 `yyl-seed-webpack` 配置
+* [EDIT] 项目依赖锁定
 * [ADD] 给 `config.resource` 添加 watch 操作
 * [ADD] 修改 通用 `yml` 文件 新增 `pre` 的发布环境
 * [DEL] 去掉 `w-commit` 文件(已过时)
