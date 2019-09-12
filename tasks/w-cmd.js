@@ -189,7 +189,8 @@ module.exports = async function(ctx) {
   r = await handle(...argv);
 
   if (type) {
-    log('finished', `${LANG.CMD.TASK_FINSHED}`);
+    log('msg', 'info', `${type} ${LANG.CMD.TASK_FINSHED}`);
+    log('finished', `${type} ${LANG.CMD.TASK_FINSHED}`);
   }
 
 
