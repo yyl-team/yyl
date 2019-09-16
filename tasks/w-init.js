@@ -5,7 +5,6 @@ const inquirer = require('inquirer');
 const util = require('yyl-util');
 const extFs = require('yyl-fs');
 const extOs = require('yyl-os');
-const chalk = require('chalk');
 
 const vars = require('../lib/vars');
 const SEED = require('./w-seed');

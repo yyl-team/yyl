@@ -7,7 +7,10 @@
 * [EDIT] 项目依赖锁定
 * [ADD] 给 `config.resource` 添加 watch 操作
 * [ADD] 修改 通用 `yml` 文件 新增 `pre` 的发布环境
+* [ADD] 新增 `config.localserver.entry 参数`
+* [ADD] webpack seed 现允许配置 本地服务器 而非默认 服务器了
 * [DEL] 去掉 `w-commit` 文件(已过时)
+
 
 ## 3.6.0-beta4(2019-07-31)
 * [ADD] `mocha test` init 相关用例

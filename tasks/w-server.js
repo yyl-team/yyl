@@ -83,7 +83,8 @@ wServer.start = async function (ctx, iEnv, options) {
   const DEFAULT_CONFIG = {
     port: 5000,
     root: vars.PROJECT_PATH,
-    lrPort: 50001
+    lrPort: 50001,
+    entry: undefined
   };
 
   const op = options || {};
