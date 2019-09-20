@@ -30,7 +30,8 @@ const TEST_CTRL = {
   INFO: true,
   MOCK: true,
   INIT: true,
-  ALL: true
+  ALL: true,
+  TEST_CASE: true
 };
 
 if (TEST_CTRL.SERVER) {
@@ -757,5 +758,38 @@ if (TEST_CTRL.ALL) {
 
       await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH);
     }, true));
+  });
+}
+if (TEST_CTRL.TEST_CASE) {
+  describe('yyl all test', () => {
+    const testDirs = [
+      'case-config-function'
+    ];
+    testDirs.forEach((dirname) => {
+      it(`test case check ${dirname}`, util.makeAsync(async () => {
+        const pjPath = path.join(__dirname, './workflow-test', dirname);
+        if (!fs.existsSync(pjPath)) {
+          return;
+        }
+        const tgPath = path.join(FRAG_PATH, dirname);
+        await extFs.mkdirSync(tgPath);
+        await extFs.removeFiles(tgPath);
+        await extFs.copyFiles(pjPath, tgPath, (iPath) => {
+          const rPath = path.relative(pjPath, iPath);
+          if (/node_module/.test(rPath)) {
+            return false;
+          }
+          return true;
+        });
+
+        // run all
+        const tgDistPath = path.join(tgPath, 'dist');
+        await yyl.run('all --logLevel 0', tgPath);
+
+        const htmls = await extFs.readFilePaths(tgDistPath, /\.html$/);
+        expect(htmls.length > 0).equal(true);
+        await extFs.removeFiles(tgPath, true);
+      }, true));
+    });
   });
 }

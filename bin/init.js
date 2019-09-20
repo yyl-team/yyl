@@ -5,12 +5,12 @@ const iArgv = process.argv.splice(2);
 const d = domain.create();
 
 d.on('error', (err) => {
-  let r;
-  if (typeof err === 'string') {
-    r = err;
-  } else {
-    r = err.error;
-  }
+  let r = err;
+  // if (typeof err === 'string') {
+  //   r = err;
+  // } else {
+  //   r = err;
+  // }
   console.error('domain error catch\n', r);
 });
 

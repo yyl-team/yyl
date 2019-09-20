@@ -56,7 +56,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   const seed = SEED.find(config);
   if (!seed) {
-    throw `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${Object.keys[SEED]}`;
+    throw `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${SEED.workflows}`;
   }
 
   const opzer = seed.optimize(config, path.dirname(configPath));

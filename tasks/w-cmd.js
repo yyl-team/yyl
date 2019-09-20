@@ -62,7 +62,7 @@ module.exports = async function(ctx) {
     }
   }
 
-  const opzerHandles = SEED.getHandles(configPath) || [];
+  const opzerHandles = SEED.getHandles(configPath, iEnv) || [];
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
