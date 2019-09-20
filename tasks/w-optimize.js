@@ -157,7 +157,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           log('finished');
 
           // 添加 config.resource 配置路径的 watch
-          if (config.resource) {
+          if (config.resource && ctx === 'watch') {
             Object.keys(config.resource).forEach((key) => {
               if (fs.existsSync(key)) {
                 watch(key, {recursive: true}, async () => {

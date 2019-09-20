@@ -1,5 +1,8 @@
 # 版本信息
-## 3.7.0-beta1(*)
+## 3.7.0-beta2(2019-09-20)
+* fix: 修复 yyl 执行 all 命令后 不能顺利终止问题 
+
+## 3.7.0-beta1(2019-09-20)
 * feat: `proxy` `webPort` 从固定 `5001` 改为 跟随 `config.port` => `${config.port}1`
 * feat: 优化 `yyl init` log 信息
 * feat: yyl 项目 中文化
