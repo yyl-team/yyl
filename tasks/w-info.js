@@ -7,31 +7,31 @@ const log = require('../lib/log.js');
 const vars = require('../lib/vars.js');
 const Hander = require('yyl-hander');
 const yh = new Hander({ vars, log });
+const LANG = require('../lang/index');
 
 const info = {
   printInformation: function(config, silent) {
-    const r = {
-      'name': config.name,
-      'workflow': config.workflow,
-      'build-version': config.version,
-      'platform': config.platform,
-      'proxy': (function() {
-        if (config.proxy) {
-          var keys = Object.keys(config.proxy.localRemote);
-          if (keys.length) {
-            return keys;
-          } else {
-            return [];
-          }
+    const r = {};
+    r[LANG.INFO.DETAIL.NAME] = config.name;
+    r[LANG.INFO.DETAIL.WORKFLOW] = config.workflow;
+    r[LANG.INFO.DETAIL.BUILD_VERSION] = config.version;
+    r[LANG.INFO.DETAIL.PLATFORM] = config.platform;
+    r[LANG.INFO.DETAIL.PROXY] = (function() {
+      if (config.proxy) {
+        var keys = Object.keys(config.proxy.localRemote);
+        if (keys.length) {
+          return keys;
         } else {
           return [];
         }
-      })()
-    };
+      } else {
+        return [];
+      }
+    })();
 
     const rArgv = [];
     Object.keys(r).forEach((key) => {
-      let str = `${chalk.yellow(key)}${print.fn.makeSpace(15 - key.length)}`;
+      let str = `${chalk.yellow(key)}: `;
       if (util.type(r[key]) === 'array') {
         str = `${str}${r[key].map((t) => chalk.cyan(t)).join(chalk.gray(', '))}`;
       } else {
@@ -62,7 +62,7 @@ const info = {
     }
 
     if (!isWork) {
-      log('msg', 'warn', 'read workflow info error, config seetting wrong');
+      log('msg', 'warn', LANG.INFO.READ_ERROR);
       return null;
     } else {
       return r;

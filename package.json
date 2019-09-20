@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.6.0-beta4",
+  "version": "3.7.0-beta2",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -31,18 +31,19 @@
     "node": ">= 8.0.0"
   },
   "dependencies": {
-    "chalk": "^2.4.1",
-    "inquirer": "^6.2.0",
+    "chalk": "2.4.1",
+    "inquirer": "6.2.0",
     "keypress": "*",
-    "yyl-fs": "^0.3.2",
-    "yyl-hander": "^0.3.1",
-    "yyl-os": "^0.8.3",
-    "yyl-print": "^0.7.3",
-    "yyl-request": "^0.1.1",
-    "yyl-seed-gulp-requirejs": "^2.6.1-beta2",
-    "yyl-seed-webpack": "^0.3.0-beta19",
-    "yyl-server": "^0.1.6",
-    "yyl-util": "^2.3.3"
+    "node-watch": "0.6.2",
+    "yyl-fs": "0.3.2",
+    "yyl-hander": "0.4.0",
+    "yyl-os": "0.8.3",
+    "yyl-print": "0.7.3",
+    "yyl-request": "0.1.1",
+    "yyl-seed-gulp-requirejs": "2.6.1-beta2",
+    "yyl-seed-webpack": "0.3.1-beta8",
+    "yyl-server": "0.2.0",
+    "yyl-util": "2.3.3"
   },
   "devDependencies": {
     "chai": "~4.1.2",

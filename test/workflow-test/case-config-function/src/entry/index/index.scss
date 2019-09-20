@@ -1,0 +1,37 @@
+@charset 'utf-8';
+@import "../../sass/normalize";
+@import "../../sass/_mixin";
+body {
+  background: #f0f0f0;
+}
+
+.page-index {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+.page-index__tl {
+  position: absolute;
+  left: 50%;
+  width: 200px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 14px;
+  color: #333;
+  top: 50%;
+  margin-left: -100px;
+  margin-top: 80px;
+  text-align: center;
+}
+
+.page-index-circlebox {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  margin-left: -75px;
+  margin-top: -75px;
+}

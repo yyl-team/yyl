@@ -26,7 +26,7 @@ build:
     except:
         - schedules
     only:
-        - /^(master|dev)$/
+        - /^(master|dev|pre)$/
 
 ani_deploy:
     image: harbor.yy.com/front_end/yyt:latest

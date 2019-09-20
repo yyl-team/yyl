@@ -1,0 +1,15 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "@yy/tslint-config-yy-ts",
+        "@yy/tslint-config-yy-react"
+    ],
+    "jsRules": {},
+    "rules": {
+        "no-console": false,
+        "quotemark": [true, "single"],
+        "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+        "no-empty": [true, "allow-empty-catch"]
+    },
+    "rulesDirectory": []
+}

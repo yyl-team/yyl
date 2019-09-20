@@ -3,6 +3,7 @@ const wProfile = require('./w-profile.js');
 const pkg = require('../package.json');
 const log = require('../lib/log.js');
 const chalk = require('chalk');
+const LANG = require('../lang/index');
 
 // + seed
 const seeds = [
@@ -39,7 +40,7 @@ const seedCache = {
     }
   },
   save(workflow, key) {
-    console.log(`${chalk.green('!')} ${chalk.green.bold('loading seed: ')} ${chalk.yellow(workflow)}, please wait`);
+    console.log(`${chalk.green('!')} ${chalk.green.bold(`${LANG.SEED.LOADING}: `)} ${chalk.yellow(workflow)}, ${LANG.SEED.PLEASE_WAIT}`);
     const seed = SEED.find(workflow);
     const iCache = wProfile(seedCache.profileName) || {};
     if (!seed) {
@@ -66,16 +67,15 @@ const seedCache = {
 const SEED = {
   // config, configPath, workflowName in, useful workflow out
   ctx2workflow(ctx) {
-    const she = this;
     if (typeof ctx == 'string' && ~seeds.indexOf(`yyl-seed-${ctx}`)) {
       return ctx;
-    } else {
-      const config = she.initConfig(ctx);
-      if (config && config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
+    } else if (typeof ctx === 'object') {
+      const config = ctx;
+      if (config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
         return config.workflow;
-      } else {
-        return;
       }
+    } else {
+      return;
     }
   },
   find(ctx) {
@@ -87,7 +87,7 @@ const SEED = {
       return null;
     }
   },
-  initConfig(ctx) {
+  initConfig(ctx, iEnv) {
     let config = null;
     if (typeof ctx === 'object') {
       config = ctx;
@@ -102,10 +102,13 @@ const SEED = {
     } else {
       return null;
     }
+    if (typeof config === 'function') {
+      config = config({ env: iEnv });
+    }
     return config;
   },
   // 返回 config 中的 workflow 对应的可操作句柄
-  getHandles(ctx) {
+  getHandles(ctx, iEnv) {
     const she = this;
     let config = null;
     const configs = [];
@@ -115,7 +118,11 @@ const SEED = {
       try {
         config = require(ctx);
       } catch (er) {
-        log('msg', 'warn', [`parse config error: ${ctx}`, er]);
+        log('msg', 'warn', [`${LANG.SEED.PARSE_CONFIG_ERROR}: ${ctx}`, er]);
+      }
+
+      if (typeof config === 'function') {
+        config = config({env: iEnv});
       }
 
       // 适配 multi config 情况
@@ -126,13 +133,13 @@ const SEED = {
           }
         });
       } else {
-        config = she.initConfig(ctx);
+        config = she.initConfig(ctx, iEnv);
         if (config && config.workflow) {
           configs.push(config);
         }
       }
     } else {
-      config = she.initConfig(ctx);
+      config = she.initConfig(ctx, iEnv);
       if (config && config.workflow) {
         configs.push(config);
       }
