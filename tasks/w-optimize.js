@@ -4,6 +4,7 @@ const extFs = require('yyl-fs');
 const util = require('yyl-util');
 const extOs = require('yyl-os');
 const Hander = require('yyl-hander');
+const fs = require('fs');
 
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
@@ -158,15 +159,17 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           // 添加 config.resource 配置路径的 watch
           if (config.resource) {
             Object.keys(config.resource).forEach((key) => {
-              watch(key, {recursive: true}, async () => {
-                log('start', 'optimize', LANG.OPTIMIZE.RESOURCE_UPDATE);
-                await yh.optimize.afterTask(isUpdate);
-                if (!opzer.ignoreLiveReload || iEnv.livereload) {
-                  log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD);
-                  await yh.optimize.livereload();
-                }
-                log('finished');
-              });
+              if (fs.existsSync(key)) {
+                watch(key, {recursive: true}, async () => {
+                  log('start', 'optimize', LANG.OPTIMIZE.RESOURCE_UPDATE);
+                  await yh.optimize.afterTask(isUpdate);
+                  if (!opzer.ignoreLiveReload || iEnv.livereload) {
+                    log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD);
+                    await yh.optimize.livereload();
+                  }
+                  log('finished');
+                });
+              }
             });
           }
           next(config, opzer);
