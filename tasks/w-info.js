@@ -31,7 +31,7 @@ const info = {
 
     const rArgv = [];
     Object.keys(r).forEach((key) => {
-      let str = `${chalk.yellow(key)}${print.fn.makeSpace(15 - key.length)}`;
+      let str = `${chalk.yellow(key)}: `;
       if (util.type(r[key]) === 'array') {
         str = `${str}${r[key].map((t) => chalk.cyan(t)).join(chalk.gray(', '))}`;
       } else {

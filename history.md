@@ -1,5 +1,5 @@
 # 版本信息
-## 3.6.0-beta5(*)
+## 3.7.0-beta1(*)
 * feat: `proxy` `webPort` 从固定 `5001` 改为 跟随 `config.port` => `${config.port}1`
 * feat: 优化 `yyl init` log 信息
 * feat: yyl 项目 中文化
@@ -9,6 +9,7 @@
 * feat: 修改 通用 `yml` 文件 新增 `pre` 的发布环境
 * feat: 新增 `config.localserver.entry` 参数
 * feat: yyl 允许配置 本地服务器 而非默认 服务器了
+* feat: `yyl.config.js` 支持 返回 function 对象 根据 env 动态配置 
 * del: 去掉 `w-commit` 文件(已过时)
 
 

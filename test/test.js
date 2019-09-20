@@ -16,6 +16,7 @@ const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 const Hander = require('yyl-hander');
 const yh = new Hander({ vars, log });
+const LANG = require('../lang/index');
 
 
 const FRAG_PATH = path.join(__dirname, '../../__frag');
@@ -123,7 +124,7 @@ if (TEST_CTRL.INFO) {
     it('yyl info', util.makeAsync(async () => {
       const workflowPath = util.path.join(__dirname, './workflow-test/gulp-requirejs');
       const info = await yyl.run('yyl info --silent', workflowPath);
-      expect(info.workflow).to.equal('gulp-requirejs');
+      expect(info[LANG.INFO.DETAIL.NAME]).to.equal('gulp-requirejs');
     }, true));
   });
 }
