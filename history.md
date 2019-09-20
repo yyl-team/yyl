@@ -11,6 +11,7 @@
 * feat: yyl 允许配置 本地服务器 而非默认 服务器了
 * feat: `yyl.config.js` 支持 返回 function 对象 根据 env 动态配置 
 * del: 去掉 `w-commit` 文件(已过时)
+* del: 去掉 `domain` 模块
 
 
 ## 3.6.0-beta4(2019-07-31)
