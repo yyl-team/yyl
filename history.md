@@ -1,4 +1,8 @@
 # 版本信息
+## 3.7.0 (2019-11-06)
+* del: 去掉 `yyl make` 方法
+* feat: 补充 `yyl server start --help` 内容
+
 ## 3.7.0-beta2(2019-09-20)
 * fix: 修复 yyl 执行 all 命令后 不能顺利终止问题 
 
@@ -196,33 +200,33 @@
 ## 3.1.3 (2018-11-07)
 * fix: 修复 `yyl` 构建不能正确识别 `config.platform` 属性问题
 
-## 3.1.2
+## 3.1.2 (2018-11-06)
 * fix: 更新 `yyl-seed-gulp-requirejs` 到 `2.5.6` 来修复 `optimize.watch` 多次触发问题, 压缩出来的 js 不能在 ie8 下面运行问题
 * feat: 调整 `yyl commit` 界面
 * feat: 优化 `yyl server start` 功能
 
-## 3.1.1
+## 3.1.1 (2018-10-16)
 * fix: 更新 `yyl-seed-gulp-requirejs` 到 `2.5.2` 来修复 `optimize` 路径替换异常问题
 
-## 3.1.0
+## 3.1.0 (2018-10-16)
 * fix: 修复 `yyl init` 生成 没有 `.gitignore` 文件 问题
 
-## 3.0.3
+## 3.0.3 (2018-10-12)
 * feat:  新增 `config.proxy.homePage` 属性 用于定义 默认打开的页面
 * feat: 更新 `yyl-seed-webpack-vue2` 到 `0.1.7`
 
-## 3.0.2
+## 3.0.2 (2018-09-30)
 * fix: 修复 ci 执行 `yyl all` 报错后不会终止的问题
 * fix: 修复 `webpack-vue2` 执行带有 `@yy/tofu-ui` 会构建失败问题
 * fix: 修复 `yyl commit` 界面显示不正常问题
 
-## 3.0.1
+## 3.0.1 (2018-09-30)
 * feat: 将 `initPlugin` 存放目录挪到 `~/.yyl/plugin`
 * fix: 修复 `gulp-requirejs` 下 生成 `t-xx.tpl` uglify 时 某种情况会导致 js报错的问题
 * fix: 修复 `{$xx-xx}` 不被识别问题
 
 
-## 3.0.0
+## 3.0.0 (2018-09-29)
 * feat: 优化构建逻辑 构建项目不再需要二次安装
 * del: 去掉 `yyl examples`
 * del: 去掉 `yyl supercall`
