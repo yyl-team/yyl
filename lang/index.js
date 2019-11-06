@@ -79,10 +79,6 @@ const LANG = {
     PLATFORM_MOBILE_FINISHED: 'mobile 部分初始化 完成',
     FILE_FORMAT_START: '正在 格式化文件',
     FILE_FORMAT_FINISHED: '格式化文件 完成'
-  }, MAKE: {
-    PARSE_CONFIG_FINISHED: '解析配置 完成',
-    WORKFLOW_NOT_FOUND: '运行 失败, 配置中的技术栈<config.workflow> 不存在',
-    WORKFLOW_MAKE_NOT_SET: '运行 失败, 当前技术栈没有设置 make 方法'
   },
   OPTIMIZE: {
     PARSE_CONFIG_START: '解析配置 开始',
@@ -116,17 +112,26 @@ const LANG = {
         CLEAR: 'yyl server 配置项清空'
       },
       OPTIONS: {
-        PROXY: '激活反向代理服务',
         HELP: '显示帮助信息',
         PATH: '打开 yyl server 配置所在路径'
       }
-
     },
     USE_DEFAULT_CONFIG: '使用默认配置',
     CLEAN_START: '正在清除 yyl server 配置项...',
     CLEAN_FINISHED: '清除 配置项 完成',
     CHANGE_LOG_LEVEL: '切换 logLevel'
-
+  },
+  SERVER_START: {
+    HELP: {
+      OPTIONS: {
+        PORT: '设置本地服务端口',
+        HELP: '显示帮助信息',
+        PROXY: '激活反向代理服务',
+        PROXY_PORT: '设置反向代理端口',
+        HTTPS: '设置代理支持 https',
+        PATH: '在指定目录执行'
+      }
+    } 
   }
 };
 

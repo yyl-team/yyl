@@ -18,8 +18,7 @@ const events = {
       commands: {
         'init': LANG.CMD.HELP.COMMANDS.INIT,
         'info': LANG.CMD.HELP.COMMANDS.INFO,
-        'server': LANG.CMD.HELP.COMMANDS.SERVER,
-        'make': LANG.CMD.HELP.COMMANDS.MAKE
+        'server': LANG.CMD.HELP.COMMANDS.SERVER
       },
       options: {
         '--help': LANG.CMD.HELP.OPTIONS.HELP,
@@ -81,10 +80,6 @@ module.exports = async function(ctx) {
     handle = require('./w-optimize.js');
     argv = [ctx, iEnv, configPath];
     type = 'optimize';
-  } else if (ctx === 'make') {
-    handle = require('./w-make.js');
-    argv = [iArgv[1], iEnv, configPath];
-    type = '';
   } else {
     switch (ctx) {
       case '-v':
@@ -134,8 +129,6 @@ module.exports = async function(ctx) {
         argv = [iArgv[1], iEnv, configPath];
         type = 'server';
         if (iEnv.help) {
-          handle = handle.help;
-          argv = [iEnv];
           type = '';
         }
         break;
@@ -156,12 +149,6 @@ module.exports = async function(ctx) {
         handle = require('./w-profile.js').print;
         argv = [];
         type = 'Info';
-        break;
-
-      case 'make':
-        handle = require('./w-make.js').run;
-        argv = [iArgv.slice(1)];
-        type = 'make';
         break;
 
       case 'info':

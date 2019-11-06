@@ -58,7 +58,6 @@ wServer.help = (iEnv) => {
       'clear': LANG.SERVER.HELP.COMMANDS.CLEAR
     },
     options: {
-      '--proxy': LANG.SERVER.HELP.OPTIONS.PROXY,
       '--help': LANG.SERVER.HELP.OPTIONS.HELP,
       '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH
     }
@@ -80,6 +79,24 @@ wServer.path = (iEnv) => {
 
 // 启动服务器
 wServer.start = async function (ctx, iEnv, options) {
+  if (iEnv.help) {
+    let h = {
+      usage: 'yyl server start',
+      options: {
+        '--help': LANG.SERVER_START.HELP.OPTIONS.HELP,
+        '--path <dir>': LANG.SERVER_START.HELP.OPTIONS.PATH,
+        '--port <dir>': LANG.SERVER_START.HELP.OPTIONS.PORT,
+        '--proxy': LANG.SERVER_START.HELP.OPTIONS.PROXY,
+        '--https': LANG.SERVER_START.HELP.OPTIONS.HTTPS,
+        '--proxy <port>': LANG.SERVER_START.HELP.OPTIONS.PROXY_PORT
+      }
+    };
+    if (!iEnv.silent) {
+      print.help(h);
+    }
+    return;
+  }
+
   const DEFAULT_CONFIG = {
     port: 5000,
     root: vars.PROJECT_PATH,
