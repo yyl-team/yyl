@@ -1,4 +1,7 @@
 # 版本信息
+## 3.7.1 (2019-11-17)
+* fix: 修复 `webpack` seed 与 `@yy/tofu-ui-react` 打包后不兼容问题
+
 ## 3.7.0 (2019-11-06)
 * del: 去掉 `yyl make` 方法
 * feat: 补充 `yyl server start --help` 内容
