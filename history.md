@@ -1,4 +1,7 @@
 # 版本信息
+## 3.7.2 (2019-12-04)
+* feat: `webpack` `react+ts` 支持 执行项目自带 `typescript`
+
 ## 3.7.1 (2019-11-17)
 * fix: 修复 `webpack` seed 与 `@yy/tofu-ui-react` 打包后不兼容问题
 
