@@ -8,7 +8,7 @@ process.on('uncaughtException', (err) => {
 });
 
 (async () => {
-  const wCmd = require('../tasks/w-cmd.js');
+  const wCmd = require('../tasks/cmd.js');
   if (iArgv[0] === 'all') {
     try {
       await wCmd(...iArgv);

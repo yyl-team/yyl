@@ -1,7 +1,7 @@
-const cmd = require('./tasks/w-cmd.js');
-const server = require('./tasks/w-server.js');
+const cmd = require('./tasks/cmd.js');
+const server = require('./tasks/server.js');
 
-const init = require('./tasks/w-init.js');
+const init = require('./tasks/init.js');
 const vars = require('./lib/vars.js');
 
 

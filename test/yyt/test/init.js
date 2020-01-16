@@ -6,7 +6,7 @@ const request = require('yyl-request');
 const chalk = require('chalk');
 
 const yyl = require('../../index.js');
-const SEED = require('../../tasks/w-seed.js');
+const SEED = require('../../tasks/seed.js');
 const TEST_CTRL = require('../test.config.js');
 
 

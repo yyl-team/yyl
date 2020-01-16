@@ -1,5 +1,5 @@
 const fs = require('fs');
-const wProfile = require('./w-profile.js');
+const wProfile = require('./profile.js');
 const pkg = require('../package.json');
 const log = require('../lib/log.js');
 const chalk = require('chalk');
@@ -41,7 +41,7 @@ const seedCache = {
   },
   save(workflow, key) {
     console.log(`${chalk.green('!')} ${chalk.green.bold(`${LANG.SEED.LOADING}: `)} ${chalk.yellow(workflow)}, ${LANG.SEED.PLEASE_WAIT}`);
-    const seed = SEED.find(workflow);
+    const seed = wSeed.find(workflow);
     const iCache = wProfile(seedCache.profileName) || {};
     if (!seed) {
       return [];
@@ -64,52 +64,53 @@ const seedCache = {
   }
 };
 
-const SEED = {
-  // config, configPath, workflowName in, useful workflow out
-  ctx2workflow(ctx) {
-    if (typeof ctx == 'string' && ~seeds.indexOf(`yyl-seed-${ctx}`)) {
-      return ctx;
-    } else if (typeof ctx === 'object') {
-      const config = ctx;
-      if (config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
-        return config.workflow;
-      }
-    } else {
-      return;
+// config, configPath, workflowName in, useful workflow out
+function ctx2workflow(ctx) {
+  if (typeof ctx == 'string' && ~seeds.indexOf(`yyl-seed-${ctx}`)) {
+    return ctx;
+  } else if (typeof ctx === 'object') {
+    const config = ctx;
+    if (config.workflow && ~seeds.indexOf(`yyl-seed-${config.workflow}`)) {
+      return config.workflow;
     }
-  },
+  } else {
+    return;
+  }
+}
+
+function initConfig(ctx, iEnv) {
+  let config = null;
+  if (typeof ctx === 'object') {
+    config = ctx;
+  } else if (typeof ctx === 'string') {
+    if (!fs.existsSync(ctx)) {
+      return null;
+    } else {
+      try {
+        config = require(ctx);
+      } catch (er) {}
+    }
+  } else {
+    return null;
+  }
+
+  if (typeof config === 'function') {
+    config = config({ env: iEnv });
+  }
+  return config;
+}
+
+const wSeed = {
   find(ctx) {
-    const she = this;
-    let workflow = she.ctx2workflow(ctx);
+    const workflow = ctx2workflow(ctx);
     if (workflow) {
       return require(`yyl-seed-${workflow}`);
     } else {
       return null;
     }
   },
-  initConfig(ctx, iEnv) {
-    let config = null;
-    if (typeof ctx === 'object') {
-      config = ctx;
-    } else if (typeof ctx === 'string') {
-      if (!fs.existsSync(ctx)) {
-        return null;
-      } else {
-        try {
-          config = require(ctx);
-        } catch (er) {}
-      }
-    } else {
-      return null;
-    }
-    if (typeof config === 'function') {
-      config = config({ env: iEnv });
-    }
-    return config;
-  },
   // 返回 config 中的 workflow 对应的可操作句柄
   getHandles(ctx, iEnv) {
-    const she = this;
     let config = null;
     const configs = [];
 
@@ -133,13 +134,13 @@ const SEED = {
           }
         });
       } else {
-        config = she.initConfig(ctx, iEnv);
+        config = initConfig(ctx, iEnv);
         if (config && config.workflow) {
           configs.push(config);
         }
       }
     } else {
-      config = she.initConfig(ctx, iEnv);
+      config = initConfig(ctx, iEnv);
       if (config && config.workflow) {
         configs.push(config);
       }
@@ -160,10 +161,7 @@ const SEED = {
     });
     return r;
   },
-  getExamples(workflow) {
-    return seedCache.get(workflow, 'examples');
-  },
   workflows: seeds.map((str) => str.replace(/^yyl-seed-/, ''))
 };
 
-module.exports = SEED;
+module.exports = wSeed;

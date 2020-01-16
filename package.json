@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.7.2",
+  "version": "3.8.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -12,8 +12,8 @@
     "yyl": "bin/init.js"
   },
   "scripts": {
-    "test": "mocha ./test/test.js",
-    "ui-test": "yyt"
+    "test": "mocha ./test/mocha",
+    "ui-test": "yyt ./test/yyt"
   },
   "main": "index.js",
   "directories": {
@@ -32,6 +32,7 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
+    "init-me": "0.4.2",
     "inquirer": "6.2.0",
     "keypress": "*",
     "node-watch": "0.6.2",
@@ -39,14 +40,15 @@
     "yyl-hander": "0.4.0",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
-    "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "2.6.1-beta2",
-    "yyl-seed-webpack": "0.3.3",
+    "yyl-request": "^0.1.1",
+    "yyl-seed-gulp-requirejs": "3.0.1",
+    "yyl-seed-webpack": "1.0.0",
     "yyl-server": "0.2.0",
     "yyl-util": "2.3.3"
   },
   "devDependencies": {
     "chai": "~4.1.2",
+    "mocha": "^7.0.0",
     "yyl-file-replacer": "^0.4.1",
     "yyl-seed-test-util": "^0.3.1"
   }
