@@ -43,42 +43,19 @@ const LANG = {
   },
   INIT: {
     QUESTION: {
-      NAME: '项目名称',
-      PLATFORM: '开发场景',
-      WORKFLOW: '技术栈',
-      WORKFLOW_SEED: '技术栈初始 seed 包',
-      CONFIRM: '项目信息确认',
-      COMMIT_TYPE: '发布类型',
-      YYL_VERSION: 'yyl 版本'
+      ROOT_SEED: 'seed 包选择',
+      SUB_SEED: '选择用于初始化的 init-me seed 包'
     },
     HELP: {
       HELP: '显示帮助信息',
       NAME: '项目名称设置',
-      PLATFORM: '项目使用场景设置',
-      WORKFLOW: '项目技术栈设置',
-      INIT: '项目技术栈初始 seed 配置',
-      CWD: '初始化的目标路径配置',
       NO_NPM: '初始化结束后不执行 npm install 初始化'
     },
-    START: '项目初始化 开始',
-    FINISHED: '项目初始化 完成',
-
-    CONFIG_NOT_EXISTS: '配置文件路径 不存在',
-
-    OPEN_PATH: '打开 路径',
-
-    SEED_INIT_START: 'seed 初始化 开始',
-    SEED_INIT_FINISHED: 'seed 初始化 完成',
-
-    NPM_INSTALL_START: '正在 运行 npm install 安装项目依赖',
-    NPM_INSTALL_FINISHED: '安装依赖 完成',
-
-    PLATFORM_PC_START: 'pc 部分初始化 开始',
-    PLATFORM_PC_FINISHED: 'pc 部分初始化 完成',
-    PLATFORM_MOBILE_START: 'mobile 部分初始化 开始',
-    PLATFORM_MOBILE_FINISHED: 'mobile 部分初始化 完成',
-    FILE_FORMAT_START: '正在 格式化文件',
-    FILE_FORMAT_FINISHED: '格式化文件 完成'
+    INFO: {
+      LOADIND_SEED: '正在加载 seed 包',
+      IN_YY: '您正在处于 YY 网环境',
+      LOADING_INIT_ME: '正在解析 seed 包'
+    }
   },
   OPTIMIZE: {
     PARSE_CONFIG_START: '解析配置 开始',
@@ -131,7 +108,7 @@ const LANG = {
         HTTPS: '设置代理支持 https',
         PATH: '在指定目录执行'
       }
-    } 
+    }
   }
 };
 

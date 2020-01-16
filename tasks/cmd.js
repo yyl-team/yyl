@@ -5,7 +5,7 @@ const print = require('yyl-print');
 const util = require('yyl-util');
 const extOs = require('yyl-os');
 
-const SEED = require('./w-seed.js');
+const SEED = require('./seed.js');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 const pkg = require('../package.json');
@@ -64,11 +64,11 @@ module.exports = async function(ctx) {
   const opzerHandles = SEED.getHandles(configPath, iEnv) || [];
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
-    require('./w-server.js').setLogLevel(iEnv.logLevel, true, true);
+    require('./server.js').setLogLevel(iEnv.logLevel, true, true);
   }
 
   if (iEnv.silent) {
-    require('./w-server.js').setLogLevel(0, true, true);
+    require('./server.js').setLogLevel(0, true, true);
   }
 
 
@@ -77,24 +77,24 @@ module.exports = async function(ctx) {
   let handle = null;
   let argv = [];
   if (~opzerHandles.indexOf(ctx)) {
-    handle = require('./w-optimize.js');
+    handle = require('./optimize.js');
     argv = [ctx, iEnv, configPath];
     type = 'optimize';
   } else {
     switch (ctx) {
       case '-v':
       case '--version':
-        handle = require('./w-version.js');
+        handle = require('./version.js');
         argv = [iEnv];
         type = '';
         break;
 
       case '--logLevel':
         if (iArgv[1]) {
-          handle = require('./w-server.js').setLogLevel;
+          handle = require('./server.js').setLogLevel;
           argv = [iArgv[1]];
         } else {
-          handle = require('./w-server.js').getLogLevel;
+          handle = require('./server.js').getLogLevel;
           argv = [];
         }
         type = 'Info';
@@ -115,7 +115,7 @@ module.exports = async function(ctx) {
         break;
 
       case 'init':
-        handle = require('./w-init.js');
+        handle = require('./init.js');
         if (iEnv.help) {
           handle = handle.help;
         }
@@ -125,7 +125,7 @@ module.exports = async function(ctx) {
         break;
 
       case 'server':
-        handle = require('./w-server.js');
+        handle = require('./server.js');
         argv = [iArgv[1], iEnv, configPath];
         type = 'server';
         if (iEnv.help) {
@@ -134,25 +134,19 @@ module.exports = async function(ctx) {
         break;
 
       case 'rm':
-        handle = require('./w-remove.js');
+        handle = require('./remove.js');
         argv = [iArgv[1]];
         type = 'remove';
         break;
 
-      case 'test':
-        handle = require('./w-test.js');
-        argv = [];
-        type = 'Info';
-        break;
-
       case 'profile':
-        handle = require('./w-profile.js').print;
+        handle = require('./profile.js').print;
         argv = [];
         type = 'Info';
         break;
 
       case 'info':
-        handle = require('./w-info.js').run;
+        handle = require('./info.js').run;
         argv = [iEnv, configPath];
         type = 'Info';
         break;

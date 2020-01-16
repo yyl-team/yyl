@@ -9,7 +9,7 @@ const fs = require('fs');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 
-const SEED = require('./w-seed.js');
+const wSeed = require('./seed.js');
 const PKG = require('../package.json');
 
 const watch = require('node-watch');
@@ -55,9 +55,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     throw `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`;
   }
 
-  const seed = SEED.find(config);
+  const seed = wSeed.find(config);
   if (!seed) {
-    throw `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${SEED.workflows}`;
+    throw `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`;
   }
 
   const opzer = seed.optimize(config, path.dirname(configPath));
@@ -94,7 +94,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   });
 
   if (ctx === 'watch') {
-    const wServer = require('./w-server.js');
+    const wServer = require('./server.js');
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false: true
     };

@@ -12,7 +12,7 @@ const Hander = require('yyl-hander');
 const { Runner } = require('yyl-server');
 const yh = new Hander({ vars, log });
 
-const wProfile = require('./w-profile.js');
+const wProfile = require('./profile.js');
 const LANG = require('../lang/index');
 
 const cache = {

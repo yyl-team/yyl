@@ -1,7 +1,6 @@
 'use strict';
 const util = require('yyl-util');
 const chalk = require('chalk');
-const print = require('yyl-print');
 
 const log = require('../lib/log.js');
 const vars = require('../lib/vars.js');
