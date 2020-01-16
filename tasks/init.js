@@ -33,7 +33,7 @@ const events = {
       options: {
         '--help': LANG.INIT.HELP.HELP,
         '--cwd': LANG.INIT.HELP.CWD,
-        '--nonpm': LANG.INIT.HELP.NO_NPM
+        '--noinstall': LANG.INIT.HELP.NO_INSTALL
       }
     };
     util.help(h);

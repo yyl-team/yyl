@@ -49,7 +49,7 @@ const LANG = {
     HELP: {
       HELP: '显示帮助信息',
       NAME: '项目名称设置',
-      NO_NPM: '初始化结束后不执行 npm install 初始化'
+      NO_INSTALL: '初始化结束后不执行 npm install 初始化'
     },
     INFO: {
       LOADIND_SEED: '正在加载 seed 包',
