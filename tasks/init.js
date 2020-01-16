@@ -39,7 +39,6 @@ const events = {
     return Promise.resolve(h);
   },
   async init(env) {
-
     // + rootSeed
     const { workflows } = wSeed;
     let rootSeed = env.rootSeed;
@@ -91,7 +90,6 @@ const events = {
       inset: true
     });
     // - 执行 init-me
-    // TODO: 检查是否处于 yy 环境下
   }
 };
 

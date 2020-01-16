@@ -5,7 +5,7 @@ const print = require('yyl-print');
 const util = require('yyl-util');
 const extOs = require('yyl-os');
 
-const SEED = require('./seed.js');
+const wSeed = require('./seed.js');
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 const pkg = require('../package.json');
@@ -61,7 +61,7 @@ module.exports = async function(ctx) {
     }
   }
 
-  const opzerHandles = SEED.getHandles(configPath, iEnv) || [];
+  const opzerHandles = wSeed.getHandles(configPath, iEnv) || [];
 
   if (!isNaN(iEnv.logLevel) && iEnv.logLevel !== true) {
     require('./server.js').setLogLevel(iEnv.logLevel, true, true);

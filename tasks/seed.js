@@ -87,7 +87,7 @@ function initConfig(ctx, iEnv) {
       return null;
     } else {
       try {
-        config = require('ctx');
+        config = require(ctx);
       } catch (er) {}
     }
   } else {
