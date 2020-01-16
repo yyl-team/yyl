@@ -9,6 +9,7 @@ const chalk = require('chalk');
 const initMe = require('init-me');
 const { seedFull2Short, seedShort2Full } = require('init-me/lib/formatter');
 const { inYY } = require('init-me/lib/search');
+const pkg = require('../package.json');
 
 const LANG = require('../lang/index');
 const wSeed = require('./seed');
@@ -85,7 +86,8 @@ const events = {
     // + 执行 init-me
     await initMe.init(vars.PROJECT_PATH, {
       env: Object.assign(env, {
-        seed: seedShort2Full(subSeed)
+        seed: seedShort2Full(subSeed),
+        yylVersion: pkg.version
       }),
       inset: true
     });
