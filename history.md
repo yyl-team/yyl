@@ -1,6 +1,7 @@
 # 版本信息
 ## 3.8.0 (*)
 * feat: `yyl init` 重构，初始化包支持独立更新
+* feat: 独立拆分 单元测试， 调整目录结构
 
 ## 3.7.2 (2019-12-04)
 * feat: `webpack` `react+ts` 支持 执行项目自带 `typescript`

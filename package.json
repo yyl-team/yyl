@@ -12,8 +12,8 @@
     "yyl": "bin/init.js"
   },
   "scripts": {
-    "test": "mocha ./test/test.js",
-    "ui-test": "yyt"
+    "test": "mocha ./test/mocha",
+    "ui-test": "yyt ./test/yyt"
   },
   "main": "index.js",
   "directories": {
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
-    "init-me": "0.4.1",
+    "init-me": "0.4.2",
     "inquirer": "6.2.0",
     "keypress": "*",
     "node-watch": "0.6.2",
@@ -48,6 +48,7 @@
   },
   "devDependencies": {
     "chai": "~4.1.2",
+    "mocha": "^7.0.0",
     "yyl-file-replacer": "^0.4.1",
     "yyl-seed-test-util": "^0.3.1"
   }
