@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -37,7 +37,7 @@
     "keypress": "*",
     "node-watch": "0.6.2",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.4.0",
+    "yyl-hander": "0.5.0",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "^0.1.1",
