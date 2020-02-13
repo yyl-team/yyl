@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -13,6 +13,14 @@
   },
   "scripts": {
     "test": "mocha ./test/mocha",
+    "test:all": "mocha ./test/mocha/all.test.js",
+    "test:help": "mocha ./test/mocha/help.test.js",
+    "test:info": "mocha ./test/mocha/info.test.js",
+    "test:init": "mocha ./test/mocha/init.test.js",
+    "test:mock": "mocha ./test/mocha/mock.test.js",
+    "test:path": "mocha ./test/mocha/path.test.js",
+    "test:server": "mocha ./test/mocha/server.test.js",
+    "test:version": "mocha ./test/mocha/version.test.js",
     "ui-test": "yyt ./test/yyt"
   },
   "main": "index.js",
