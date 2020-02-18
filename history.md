@@ -1,10 +1,14 @@
 # 版本信息
+## 3.8.2 (2020-02-13)
+* feat: rev 构建支持把 process.env 自定义参数打入 rev-manifest 文件
+* feat: 补充 npm test 相关命令
+
+## 3.8.1 (2019-12-04)
+* feat: `webpack` `react+ts` 支持 执行项目自带 `typescript`
+
 ## 3.8.0 (2020-01-16)
 * feat: `yyl init` 重构，初始化包支持独立更新
 * feat: 独立拆分 单元测试， 调整目录结构
-
-## 3.7.2 (2019-12-04)
-* feat: `webpack` `react+ts` 支持 执行项目自带 `typescript`
 
 ## 3.7.1 (2019-11-17)
 * fix: 修复 `webpack` seed 与 `@yy/tofu-ui-react` 打包后不兼容问题

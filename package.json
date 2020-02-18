@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.8.0",
+  "version": "3.8.2",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -13,6 +13,14 @@
   },
   "scripts": {
     "test": "mocha ./test/mocha",
+    "test:all": "mocha ./test/mocha/all.test.js",
+    "test:help": "mocha ./test/mocha/help.test.js",
+    "test:info": "mocha ./test/mocha/info.test.js",
+    "test:init": "mocha ./test/mocha/init.test.js",
+    "test:mock": "mocha ./test/mocha/mock.test.js",
+    "test:path": "mocha ./test/mocha/path.test.js",
+    "test:server": "mocha ./test/mocha/server.test.js",
+    "test:version": "mocha ./test/mocha/version.test.js",
     "ui-test": "yyt ./test/yyt"
   },
   "main": "index.js",
@@ -37,7 +45,7 @@
     "keypress": "*",
     "node-watch": "0.6.2",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.4.0",
+    "yyl-hander": "0.5.0",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "^0.1.1",
