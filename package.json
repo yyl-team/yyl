@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
-    "init-me": "0.4.2",
+    "init-me": "0.4.4",
     "inquirer": "6.2.0",
     "keypress": "*",
     "node-watch": "0.6.2",
@@ -49,7 +49,7 @@
     "yyl-hander": "0.6.1",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
-    "yyl-request": "^0.1.1",
+    "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "3.0.1",
     "yyl-seed-webpack": "1.0.0",
     "yyl-server": "0.2.0",
