@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.8.2",
+  "version": "3.8.3",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -21,7 +21,8 @@
     "test:path": "mocha ./test/mocha/path.test.js",
     "test:server": "mocha ./test/mocha/server.test.js",
     "test:version": "mocha ./test/mocha/version.test.js",
-    "ui-test": "yyt ./test/yyt"
+    "ui-test": "yyt ./test/yyt",
+    "cga": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js"
   },
   "main": "index.js",
   "directories": {
@@ -45,7 +46,7 @@
     "keypress": "*",
     "node-watch": "0.6.2",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.5.0",
+    "yyl-hander": "0.6.0",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "^0.1.1",
