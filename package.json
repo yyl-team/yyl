@@ -46,7 +46,7 @@
     "keypress": "*",
     "node-watch": "0.6.2",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.6.0",
+    "yyl-hander": "0.6.1",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "^0.1.1",
