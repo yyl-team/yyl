@@ -1,7 +1,7 @@
 # 版本信息
-## 3.8.3 (*)
+## 3.8.3 (2020-02-21)
 * feat: 让 yyl 支持 `__html()` 语法糖，用于引入 tmpl 文件
-* feat: 优化 yyl init npm 环境有问题时的提示文案
+* feat: 优化 yyl init 在 使用者 npm 环境有问题时的提示文案
 
 ## 3.8.2 (2020-02-13)
 * feat: rev 构建支持把 process.env 自定义参数打入 rev-manifest 文件
