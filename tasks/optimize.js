@@ -4,15 +4,12 @@ const extFs = require('yyl-fs');
 const util = require('yyl-util');
 const extOs = require('yyl-os');
 const Hander = require('yyl-hander');
-const fs = require('fs');
 
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
 
 const wSeed = require('./seed.js');
 const PKG = require('../package.json');
-
-const watch = require('node-watch');
 
 const yh = new Hander({ vars, log });
 
@@ -154,22 +151,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         } else {
           isUpdate = 1;
           log('finished');
-
-          // 添加 config.resource 配置路径的 watch
-          if (config.resource && ctx === 'watch') {
-            Object.keys(config.resource).forEach((key) => {
-              if (fs.existsSync(key)) {
-                watch(key, {recursive: true}, async () => {
-                  log('start', 'optimize', LANG.OPTIMIZE.RESOURCE_UPDATE);
-                  if (!opzer.ignoreLiveReload || iEnv.livereload) {
-                    log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD);
-                    await yh.optimize.livereload();
-                  }
-                  log('finished');
-                });
-              }
-            });
-          }
           next(config, opzer);
         }
       });
