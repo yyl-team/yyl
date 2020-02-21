@@ -1,4 +1,9 @@
 # 版本信息
+## 3.9.0 (*)
+* feat: 重新划分 `webpack`, `requirejs` 构建策略
+* feat: 优化 `webpack` 类项目构建速度， webpack seed 包自身实现完整的构建流程，不需依赖 `yyl-hander` 提供的 `afterTask`
+* feat: 整合 `requirejs` 类项目, 将 `yyl-hander` 的 `afterTask` 整合到 seed 包里面
+
 ## 3.8.3 (2020-02-21)
 * feat: 让 yyl 支持 `__html()` 语法糖，用于引入 tmpl 文件
 * feat: 优化 yyl init 在 使用者 npm 环境有问题时的提示文案

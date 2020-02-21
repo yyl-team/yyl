@@ -138,7 +138,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           process.exit(1);
         }
         log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`]);
-        await yh.optimize.afterTask(isUpdate);
 
         // 第一次构建 打开 对应页面
         if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {
@@ -162,7 +161,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
               if (fs.existsSync(key)) {
                 watch(key, {recursive: true}, async () => {
                   log('start', 'optimize', LANG.OPTIMIZE.RESOURCE_UPDATE);
-                  await yh.optimize.afterTask(isUpdate);
                   if (!opzer.ignoreLiveReload || iEnv.livereload) {
                     log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD);
                     await yh.optimize.livereload();
