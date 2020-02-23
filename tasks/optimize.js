@@ -4,6 +4,7 @@ const extFs = require('yyl-fs');
 const util = require('yyl-util');
 const extOs = require('yyl-os');
 const Hander = require('yyl-hander');
+const chalk = require('chalk');
 
 const vars = require('../lib/vars.js');
 const log = require('../lib/log.js');
@@ -136,9 +137,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         }
         log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`]);
 
+        const homePage = await yh.optimize.getHomePage();
+        log('msg', 'success', [`${LANG.OPTIMIZE.PRINT_HOME_PAGE}: ${chalk.yellow.bold(homePage)}`]);
         // 第一次构建 打开 对应页面
         if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {
-          await yh.optimize.openHomePage();
+          extOs.openBrowser(homePage);
         }
 
         if (isUpdate) {

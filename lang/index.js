@@ -67,7 +67,8 @@ const LANG = {
     TASK_RUN_FAIL: '任务运行 失败',
     TASK_RUN_FINISHED: '任务运行 完成',
     PAGE_RELOAD: '页面 刷新',
-    RESOURCE_UPDATE: '资源<config.resource>同步'
+    RESOURCE_UPDATE: '资源<config.resource>同步',
+    PRINT_HOME_PAGE: '主页地址'
   },
   REMOVE: {
     PATH_NOT_FOUND: '目标路径 不存在',
