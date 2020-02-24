@@ -89,7 +89,7 @@ async function destCheck (projectPath, selfConfigPath) {
 
   // check hash map exist
   Object.keys(hashMap).forEach((key) => {
-    if (key == 'version') {
+    if (!path.extname(key)) {
       return;
     }
     const url1 = util.path.join(config.alias.revRoot, key);

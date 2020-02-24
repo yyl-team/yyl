@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.8.0",
+  "version": "3.8.3",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -13,7 +13,16 @@
   },
   "scripts": {
     "test": "mocha ./test/mocha",
-    "ui-test": "yyt ./test/yyt"
+    "test:all": "mocha ./test/mocha/all.test.js",
+    "test:help": "mocha ./test/mocha/help.test.js",
+    "test:info": "mocha ./test/mocha/info.test.js",
+    "test:init": "mocha ./test/mocha/init.test.js",
+    "test:mock": "mocha ./test/mocha/mock.test.js",
+    "test:path": "mocha ./test/mocha/path.test.js",
+    "test:server": "mocha ./test/mocha/server.test.js",
+    "test:version": "mocha ./test/mocha/version.test.js",
+    "ui-test": "yyt ./test/yyt",
+    "cga": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js"
   },
   "main": "index.js",
   "directories": {
@@ -32,15 +41,15 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
-    "init-me": "0.4.2",
+    "init-me": "0.4.4",
     "inquirer": "6.2.0",
     "keypress": "*",
     "node-watch": "0.6.2",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.4.0",
+    "yyl-hander": "0.6.1",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
-    "yyl-request": "^0.1.1",
+    "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "3.0.1",
     "yyl-seed-webpack": "1.0.0",
     "yyl-server": "0.2.0",

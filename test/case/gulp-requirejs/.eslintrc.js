@@ -3,8 +3,11 @@ module.exports = {
         "browser": true,
         "jquery": true,
         "amd":true,
-        "__url": true
     },
+    "global": {
+        "__url": true,
+        "__html": true
+    }
     "extends": "eslint:recommended",
     "parserOptions": {
         "ecmaFeatures": {
