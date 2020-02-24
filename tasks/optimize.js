@@ -50,12 +50,12 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   // 版本检查
   if (util.compareVersion(config.version, PKG.version) > 0) {
-    throw `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
+    throw new Error(`${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`)
   }
 
   const seed = wSeed.find(config)
   if (!seed) {
-    throw `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`
+    throw new Error(`${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`)
   }
 
   const opzer = seed.optimize(config, path.dirname(configPath))
@@ -69,7 +69,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   try {
     await yh.optimize.initPlugins()
   } catch (er) {
-    throw `${LANG.OPTIMIZE.PLUGINS_INSTALL_FAIL}: ${er.message}`
+    throw new Error(`${LANG.OPTIMIZE.PLUGINS_INSTALL_FAIL}: ${er.message}`)
   }
 
   // clean dist
@@ -111,7 +111,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // optimize
-  return await util.makeAwait((next) => {
+  return await new Promise((next) => {
     let isUpdate = 0
     let isError = false
     opzer[ctx](iEnv)

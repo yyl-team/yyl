@@ -167,6 +167,7 @@ module.exports = async function(ctx) {
 
   let r
 
+  // eslint-disable-next-line no-useless-catch
   r = await handle(...argv)
 
   if (type) {

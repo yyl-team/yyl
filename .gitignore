@@ -3,4 +3,5 @@ dist/
 *.log
 __committest/
 __frag/
+**/__gitcase
 .vscode
