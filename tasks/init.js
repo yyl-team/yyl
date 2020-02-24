@@ -1,28 +1,28 @@
-'use strict';
+'use strict'
 // const path = require('path');
 // const fs = require('fs');
-const util = require('yyl-util');
-const vars = require('../lib/vars.js');
-const inquirer = require('inquirer');
-const chalk = require('chalk');
+const util = require('yyl-util')
+const vars = require('../lib/vars.js')
+const inquirer = require('inquirer')
+const chalk = require('chalk')
 
-const initMe = require('init-me');
-const { seedFull2Short, seedShort2Full } = require('init-me/lib/formatter');
-const { inYY } = require('init-me/lib/search');
-const pkg = require('../package.json');
+const initMe = require('init-me')
+const { seedFull2Short, seedShort2Full } = require('init-me/lib/formatter')
+const { inYY } = require('init-me/lib/search')
+const pkg = require('../package.json')
 
-const LANG = require('../lang/index');
-const wSeed = require('./seed');
+const LANG = require('../lang/index')
+const wSeed = require('./seed')
 
 function printInfo ({ env, str }) {
   if (!env.silent) {
-    console.log(`${chalk.yellow('!')} ${str}`);
+    console.log(`${chalk.yellow('!')} ${str}`)
   }
 }
 
 function printSuccess ({ env, str }) {
   if (!env.silent) {
-    console.log(`${chalk.green('Y')} ${str}`);
+    console.log(`${chalk.green('Y')} ${str}`)
   }
 }
 
@@ -35,14 +35,14 @@ const events = {
         '--cwd': LANG.INIT.HELP.CWD,
         '--noinstall': LANG.INIT.HELP.NO_INSTALL
       }
-    };
-    util.help(h);
-    return Promise.resolve(h);
+    }
+    util.help(h)
+    return Promise.resolve(h)
   },
   async init(env) {
     // + rootSeed
-    const { workflows } = wSeed;
-    let rootSeed = env.rootSeed;
+    const { workflows } = wSeed
+    let rootSeed = env.rootSeed
     if (!rootSeed || workflows.indexOf(rootSeed) === -1) {
       rootSeed = (await inquirer.prompt([{
         type: 'list',
@@ -50,21 +50,21 @@ const events = {
         message: `${LANG.INIT.QUESTION.ROOT_SEED}:`,
         choices: wSeed.workflows,
         default: wSeed.workflows[0]
-      }])).rootSeed;
+      }])).rootSeed
     }
     // - rootSeed
 
-    printInfo({ env, str: LANG.INIT.INFO.LOADIND_SEED });
-    const seed = wSeed.find(rootSeed);
+    printInfo({ env, str: LANG.INIT.INFO.LOADIND_SEED })
+    const seed = wSeed.find(rootSeed)
 
-    const IN_YY = await inYY();
+    const IN_YY = await inYY()
     if (IN_YY) {
-      printSuccess({ env, str: LANG.INIT.INFO.IN_YY});
+      printSuccess({ env, str: LANG.INIT.INFO.IN_YY})
     }
 
     // + subSeed
-    let subSeeds = seed.initPackage[IN_YY ? 'yy' : 'default'].map((name) => seedFull2Short(name));
-    let subSeed = env.subSeed;
+    let subSeeds = seed.initPackage[IN_YY ? 'yy' : 'default'].map((name) => seedFull2Short(name))
+    let subSeed = env.subSeed
     if (!subSeed || subSeed.indexOf(subSeeds) === -1) {
       if (subSeeds.length > 1) {
         subSeed = (await inquirer.prompt([{
@@ -73,14 +73,14 @@ const events = {
           choices: subSeeds,
           default: subSeeds[0],
           message: `${LANG.INIT.QUESTION.SUB_SEED}`
-        }])).subSeed;
+        }])).subSeed
       } else {
-        subSeed = subSeeds[0];
+        subSeed = subSeeds[0]
       }
     }
     // - subSeed
 
-    printInfo({ env, str: LANG.INIT.INFO.LOADING_INIT_ME});
+    printInfo({ env, str: LANG.INIT.INFO.LOADING_INIT_ME})
 
 
     // + 执行 init-me
@@ -90,21 +90,21 @@ const events = {
         yylVersion: pkg.version
       }),
       inset: true
-    });
+    })
     // - 执行 init-me
   }
-};
+}
 
 const r = (env) => {
   if (env.h || env.help) {
-    return events.help();
+    return events.help()
   } else {
-    return events.init(env);
+    return events.init(env)
   }
-};
+}
 
 r.help = () => {
-  return events.help();
-};
+  return events.help()
+}
 
-module.exports = r;
+module.exports = r

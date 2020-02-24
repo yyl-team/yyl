@@ -111,6 +111,6 @@ const LANG = {
       }
     }
   }
-};
+}
 
-module.exports = LANG;
+module.exports = LANG

@@ -12,4 +12,4 @@ module.exports = {
   __extend: {
     headless: true
   }
-};
+}
