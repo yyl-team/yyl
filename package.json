@@ -123,8 +123,8 @@
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "4.0.0-beta5",
-    "yyl-seed-webpack": "2.0.0-beta7",
+    "yyl-seed-gulp-requirejs": "4.0.0",
+    "yyl-seed-webpack": "2.0.0",
     "yyl-server": "0.2.1",
     "yyl-util": "2.3.3"
   },
