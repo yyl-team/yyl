@@ -2,6 +2,7 @@
 ## 3.9.0-beta2 (2020-02-24)
 * feat: 通过 happypack 对 `.js` 构建进行优化
 * todo: 让 happypack 支持 `.ts` 类文件
+* todo: 拆分 `webpack`, `requirejs` localserver 部分， 让 webpack使用自带的 `devserver`
 
 ## 3.9.0-beta1 (2020-02-23)
 * feat: 重新划分 `webpack`, `requirejs` 构建策略
