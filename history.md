@@ -1,4 +1,7 @@
 # 版本信息
+## 3.9.0-beta3 (*)
+* fix: 修复 webpack 类项目 sugar 执行不符合预期的问题
+
 ## 3.9.0-beta2 (2020-02-24)
 * feat: 通过 happypack 对 `.js` 构建进行优化
 * todo: 让 happypack 支持 `.ts` 类文件
