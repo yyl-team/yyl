@@ -94,8 +94,11 @@
     "test:server": "mocha ./test/mocha/server.test.js --timeout 1000000",
     "test:version": "mocha ./test/mocha/version.test.js --timeout 1000000",
     "ui-test": "yyt ./test/yyt --timeout 1000000",
-    "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js --timeout 1000000",
-    "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js --timeout 1000000"
+    "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
+    "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
+    "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
+    "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
+    "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js"
   },
   "main": "index.js",
   "directories": {

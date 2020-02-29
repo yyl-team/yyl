@@ -16,12 +16,14 @@ const wSeed = require('./seed')
 
 function printInfo ({ env, str }) {
   if (!env.silent) {
+    // eslint-disable-next-line no-console
     console.log(`${chalk.yellow('!')} ${str}`)
   }
 }
 
 function printSuccess ({ env, str }) {
   if (!env.silent) {
+    // eslint-disable-next-line no-console
     console.log(`${chalk.green('Y')} ${str}`)
   }
 }

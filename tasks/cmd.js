@@ -168,7 +168,11 @@ module.exports = async function(ctx) {
   let r
 
   // eslint-disable-next-line no-useless-catch
-  r = await handle(...argv)
+  try {
+    r = await handle(...argv)
+  } catch (er) {
+    throw new Error(er)
+  }
 
   if (type) {
     log('msg', 'info', `${type} ${LANG.CMD.TASK_FINSHED}`)

@@ -117,7 +117,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // optimize
-  return await new Promise((next) => {
+  return new Promise((next, reject) => {
     let isUpdate = 0
     let isError = false
     opzer[ctx](iEnv)
@@ -130,7 +130,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       .on('msg', (type, argv) => {
         log('msg', type, argv)
         if (type === 'error') {
-          isError = true
+          isError = argv
         }
       })
       .on('loading', (name) => {
@@ -138,8 +138,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       })
       .on('finished', async() => {
         if (ctx === 'all' && isError) {
-          log('msg', 'error', `${ctx} ${LANG.OPTIMIZE.TASK_RUN_FAIL}`)
-          throw new Error(LANG.OPTIMIZE.TASK_RUN_FAIL)
+          return reject(isError)
         }
         log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`])
 
