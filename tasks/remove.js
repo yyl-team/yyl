@@ -24,7 +24,7 @@ const remove = async function(iPath) {
   if (!fs.existsSync(tPath)) {
     log('msg', 'error', `${LANG.REMOVE.PATH_NOT_FOUND}: ${tPath}`)
     log('finish')
-    throw `${LANG.REMOVE.PATH_NOT_FOUND}: ${tPath}`
+    throw new Error(`${LANG.REMOVE.PATH_NOT_FOUND}: ${tPath}`)
   }
   if (iBaseName == 'node_modules') {
     const dirList = fs.readdirSync(tPath)

@@ -34,7 +34,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   try {
     config = await yh.parseConfig(configPath, iEnv)
   } catch (er) {
-    throw `${LANG.OPTIMIZE.PARSE_CONFIG_ERROR}: ${er}`
+    throw new Error(`${LANG.OPTIMIZE.PARSE_CONFIG_ERROR}: ${er}`)
   }
 
   // + 兼容 旧版
@@ -58,11 +58,16 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     throw new Error(`${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`)
   }
 
-  const opzer = seed.optimize(config, path.dirname(configPath))
+  const opzer = seed.optimize({
+    config,
+    iEnv,
+    ctx,
+    root: path.dirname(configPath)
+  })
 
   // handle exists check
   if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
-    throw `${LANG.OPTIMIZE.WORKFLOW_OPTI_HANDLE_NOT_EXISTS}: ${ctx}`
+    throw new Error(`${LANG.OPTIMIZE.WORKFLOW_OPTI_HANDLE_NOT_EXISTS}: ${ctx}`)
   }
 
   // package check
@@ -94,7 +99,8 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   if (ctx === 'watch') {
     const wServer = require('./server.js')
     const op = {
-      livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true
+      livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
+      ingnoreServer: opzer.ignoreServer 
     }
 
     // 接入 seed 中间件

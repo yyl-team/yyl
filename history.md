@@ -1,5 +1,7 @@
 # 版本信息
 ## 3.9.0-beta3 (*)
+* feat: webpack 类型项目支持配置中设置  `devServer` 配置项
+* feat: 优化 error
 * fix: 修复 webpack 类项目 sugar 执行不符合预期的问题
 
 ## 3.9.0-beta2 (2020-02-24)

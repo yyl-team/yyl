@@ -129,6 +129,7 @@ wServer.start = async function (ctx, iEnv, options) {
     log(type, argu) {
       log('msg', type, ...argu)
     },
+    ignoreServer: op.ignoreServer,
     cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
   })
 
@@ -176,6 +177,7 @@ wServer.getLogLevel = function(silent) {
   const level = wProfile('logLevel') ||  1
   log.update(+level)
   if (!silent) {
+    // eslint-disable-next-line no-console
     console.log([
       '',
       ` ${chalk.yellow.bold('logLevel')}: ${chalk.yellow(level)}`,
