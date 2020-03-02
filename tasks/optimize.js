@@ -55,7 +55,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   const seed = wSeed.find(config)
   if (!seed) {
-    throw new Error(`${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`)
+    throw new Error(
+      `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`
+    )
   }
 
   const opzer = seed.optimize({
@@ -74,7 +76,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   try {
     await yh.optimize.initPlugins()
   } catch (er) {
-    throw new Error(`${LANG.OPTIMIZE.PLUGINS_INSTALL_FAIL}: ${er.message}`)
+    if (iEnv.logLevel === 2) {
+      throw new Error(er)
+    } else {
+      throw new Error(`${LANG.OPTIMIZE.PLUGINS_INSTALL_FAIL}: ${er.message}`)
+    }
   }
 
   // clean dist
@@ -100,7 +106,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     const wServer = require('./server.js')
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
-      ingnoreServer: opzer.ignoreServer 
+      ingnoreServer: opzer.ignoreServer
     }
 
     // 接入 seed 中间件
