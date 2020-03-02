@@ -60,7 +60,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     )
   }
 
-  const opzer = seed.optimize({
+  const opzer = await seed.optimize({
     config,
     iEnv,
     ctx,

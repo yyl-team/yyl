@@ -84,10 +84,10 @@
     "eslint": "eslint ./",
     "eslint:fix": "eslint ./ --fix",
     "test": "mocha ./test/mocha --timeout 10000000",
-    "test:all.git.yycom": "mocha ./test/mocha/all.yy.test.js --timeout 1000000",
-    "test:all.git.yycom_header": "mocha ./test/mocha/all.yy.test.js --timeout 1000000",
-    "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.yy.test.js --timeout 1000000",
-    "test:all.git.usercenter": "mocha ./test/mocha/all.yy.test.js --timeout 1000000",
+    "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
+    "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
+    "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.git.yycom_h5_live.test.js --timeout 1000000",
+    "test:all.git.usercenter": "mocha ./test/mocha/all.git.usercenter.test.js --timeout 1000000",
     "test:all": "mocha ./test/mocha/all.test.js --timeout 1000000",
     "test:help": "mocha ./test/mocha/help.test.js --timeout 1000000",
     "test:info": "mocha ./test/mocha/info.test.js --timeout 1000000",
@@ -101,7 +101,8 @@
     "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
     "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
-    "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js"
+    "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
+    "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2"
   },
   "main": "index.js",
   "directories": {
@@ -128,7 +129,7 @@
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "4.2.0",
+    "yyl-seed-gulp-requirejs": "4.3.0",
     "yyl-seed-webpack": "2.0.3",
     "yyl-server": "0.3.5",
     "yyl-util": "2.3.8"
