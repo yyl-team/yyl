@@ -1,5 +1,8 @@
 # 版本信息
-## 3.9.0-beta3 (*)
+## 3.9.0 (2020-03-03)
+* feat: 正式发布
+
+## 3.9.0-beta3 (2020-03-03)
 * feat: webpack 类型项目支持配置中设置  `devServer` 配置项
 * feat: 让 `devServer.historyApiCallback` 属性能在 proxy 模式下使用
 * feat: 优化 error log
