@@ -1,4 +1,6 @@
 # 版本信息
+## 3.9.2 (2020-03-03)
+* fix: webpack 类项目 vue2 seed, 会出现 inherits 模块没找到的问题
 ## 3.9.1 (2020-03-03)
 * fix: 修复 svg-inline 异常问题
 
