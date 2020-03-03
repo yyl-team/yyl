@@ -1,52 +1,52 @@
-'use strict';
-const path = require('path');
-const chalk = require('chalk');
-const extFs = require('yyl-fs');
-const extOs = require('yyl-os');
-const util = require('yyl-util');
-const print = require('yyl-print');
+'use strict'
+const path = require('path')
+const chalk = require('chalk')
+const extFs = require('yyl-fs')
+const extOs = require('yyl-os')
+const util = require('yyl-util')
+const print = require('yyl-print')
 
-const vars = require('../lib/vars.js');
-const log = require('../lib/log.js');
-const Hander = require('yyl-hander');
-const { Runner } = require('yyl-server');
-const yh = new Hander({ vars, log });
+const vars = require('../lib/vars.js')
+const log = require('../lib/log.js')
+const Hander = require('yyl-hander')
+const { Runner } = require('yyl-server')
+const yh = new Hander({ vars, log })
 
-const wProfile = require('./profile.js');
-const LANG = require('../lang/index');
+const wProfile = require('./profile.js')
+const LANG = require('../lang/index')
 
 const cache = {
   runner: null
-};
+}
 
 const wServer = (ctx, iEnv, configPath) => {
-  const she = wServer;
+  const she = wServer
   switch (ctx) {
-    case '--path':
-    case '-p':
-      return she.path(iEnv);
+  case '--path':
+  case '-p':
+    return she.path(iEnv)
 
-    case 'start':
-      return (async () => {
-        let config;
-        config = await she.start(configPath, iEnv);
-        return config;
-      })();
+  case 'start':
+    return (async () => {
+      let config
+      config = await she.start(configPath, iEnv)
+      return config
+    })()
 
-    case 'abort':
-      return she.abort(iEnv);
+  case 'abort':
+    return she.abort(iEnv)
 
-    case 'clear':
-    case 'clean':
-      return she.clear();
+  case 'clear':
+  case 'clean':
+    return she.clear()
 
-    case '--help':
-      return she.help(iEnv);
+  case '--help':
+    return she.help(iEnv)
 
-    default:
-      return she.help(iEnv);
+  default:
+    return she.help(iEnv)
   }
-};
+}
 
 // 帮助
 wServer.help = (iEnv) => {
@@ -61,21 +61,21 @@ wServer.help = (iEnv) => {
       '--help': LANG.SERVER.HELP.OPTIONS.HELP,
       '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH
     }
-  };
-  if (!iEnv.silent) {
-    print.help(h);
   }
-  return Promise.resolve(h);
-};
+  if (!iEnv.silent) {
+    print.help(h)
+  }
+  return Promise.resolve(h)
+}
 
 // 路径
 wServer.path = (iEnv) => {
   if (!iEnv.silent) {
-    log('msg', 'success', `path: ${chalk.yellow.bold(vars.SERVER_PATH)}`);
-    extOs.openPath(vars.SERVER_PATH);
+    log('msg', 'success', `path: ${chalk.yellow.bold(vars.SERVER_PATH)}`)
+    extOs.openPath(vars.SERVER_PATH)
   }
-  return Promise.resolve(vars.SERVER_PATH);
-};
+  return Promise.resolve(vars.SERVER_PATH)
+}
 
 // 启动服务器
 wServer.start = async function (ctx, iEnv, options) {
@@ -90,11 +90,11 @@ wServer.start = async function (ctx, iEnv, options) {
         '--https': LANG.SERVER_START.HELP.OPTIONS.HTTPS,
         '--proxy <port>': LANG.SERVER_START.HELP.OPTIONS.PROXY_PORT
       }
-    };
-    if (!iEnv.silent) {
-      print.help(h);
     }
-    return;
+    if (!iEnv.silent) {
+      print.help(h)
+    }
+    return
   }
 
   const DEFAULT_CONFIG = {
@@ -102,24 +102,24 @@ wServer.start = async function (ctx, iEnv, options) {
     root: vars.PROJECT_PATH,
     lrPort: 50001,
     entry: undefined
-  };
+  }
 
-  const op = options || {};
+  const op = options || {}
 
   // init config
-  let config;
+  let config
   if (typeof ctx === 'object') {
-    config = ctx;
-    config.localserver = util.extend(DEFAULT_CONFIG, config.localserver);
+    config = ctx
+    config.localserver = util.extend(DEFAULT_CONFIG, config.localserver)
   } else {
     try {
-      config = await yh.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit']);
+      config = await yh.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit'])
     } catch (er) {
       config = {
         localserver: DEFAULT_CONFIG
-      };
-      log('msg', 'warn', er);
-      log('msg', 'warn', LANG.SERVER.USE_DEFAULT_CONFIG);
+      }
+      log('msg', 'warn', er)
+      log('msg', 'warn', LANG.SERVER.USE_DEFAULT_CONFIG)
     }
   }
 
@@ -127,62 +127,64 @@ wServer.start = async function (ctx, iEnv, options) {
     config,
     env: iEnv,
     log(type, argu) {
-      log('msg', type, ...argu);
+      log('msg', type, ...argu)
     },
-    cwd: iEnv.config ? path.dirname(iEnv.config): vars.PROJECT_PATH
-  });
+    ignoreServer: op.ignoreServer,
+    cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
+  })
 
-  await cache.runner.start();
+  await cache.runner.start()
 
-  config = cache.runner.config;
+  config = cache.runner.config
 
-  const { app } = cache.runner;
+  const { app } = cache.runner
 
   if (typeof op.onInitMiddleWare === 'function') {
-    await op.onInitMiddleWare(app, config.localserver.port);
+    await op.onInitMiddleWare(app, config.localserver.port)
   }
 
-  return config;
-};
+  return config
+}
 
 wServer.abort = async function() {
   if (cache.runner) {
-    await cache.runner.abort();
+    await cache.runner.abort()
   }
-};
+}
 
 wServer.clear = async function() {
-  log('clear');
-  log('start', 'server', LANG.SERVER.CLEAN_START);
-  const list = await extFs.removeFiles(vars.SERVER_PATH);
+  log('clear')
+  log('start', 'server', LANG.SERVER.CLEAN_START)
+  const list = await extFs.removeFiles(vars.SERVER_PATH)
   list.forEach((iPath) => {
-    log('msg', 'del', iPath);
-  });
-  await Runner.clean();
-  log('finish', LANG.SERVER.CLEAN_FINISHED);
-};
+    log('msg', 'del', iPath)
+  })
+  await Runner.clean()
+  log('finish', LANG.SERVER.CLEAN_FINISHED)
+}
 
 wServer.setLogLevel = function(level, notSave, silent) {
   if (!notSave) {
-    wProfile('logLevel', level);
+    wProfile('logLevel', level)
   }
-  log.update(level);
+  log.update(level)
   if (!silent) {
-    log('msg', 'success', `${LANG.SERVER.CHANGE_LOG_LEVEL}: ${chalk.yellow.bold(level)}`);
+    log('msg', 'success', `${LANG.SERVER.CHANGE_LOG_LEVEL}: ${chalk.yellow.bold(level)}`)
   }
-  return Promise.resolve(level);
-};
+  return Promise.resolve(level)
+}
 wServer.getLogLevel = function(silent) {
-  const level = wProfile('logLevel') ||  1;
-  log.update(+level);
+  const level = wProfile('logLevel') ||  1
+  log.update(+level)
   if (!silent) {
+    // eslint-disable-next-line no-console
     console.log([
       '',
       ` ${chalk.yellow.bold('logLevel')}: ${chalk.yellow(level)}`,
       ''
-    ].join('\n'));
+    ].join('\n'))
   }
-  return Promise.resolve(level);
-};
+  return Promise.resolve(level)
+}
 
-module.exports = wServer;
+module.exports = wServer

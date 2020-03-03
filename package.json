@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.8.3",
+  "version": "3.9.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -11,18 +11,98 @@
   "bin": {
     "yyl": "bin/init.js"
   },
+  "eslintConfig": {
+    "env": {
+      "mocha": true,
+      "node": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:node/recommended"
+    ],
+    "rules": {
+      "semi": [
+        "error",
+        "never"
+      ],
+      "node/no-unpublished-require": [
+        0
+      ],
+      "node/exports-style": [
+        "error",
+        "module.exports"
+      ],
+      "node/file-extension-in-import": [
+        "error",
+        "always"
+      ],
+      "node/prefer-global/buffer": [
+        "error",
+        "always"
+      ],
+      "node/prefer-global/console": [
+        "error",
+        "always"
+      ],
+      "node/prefer-global/process": [
+        "error",
+        "always"
+      ],
+      "node/prefer-global/url-search-params": [
+        "error",
+        "always"
+      ],
+      "node/prefer-global/url": [
+        "error",
+        "always"
+      ],
+      "node/prefer-promises/dns": "error",
+      "node/prefer-promises/fs": 0,
+      "quote-props": [
+        "error",
+        "consistent"
+      ],
+      "no-empty": [
+        "error",
+        {
+          "allowEmptyCatch": true
+        }
+      ],
+      "indent": [
+        "warn",
+        2
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "node_modules",
+    "/test/case",
+    "yyt",
+    "__frag"
+  ],
   "scripts": {
-    "test": "mocha ./test/mocha",
-    "test:all": "mocha ./test/mocha/all.test.js",
-    "test:help": "mocha ./test/mocha/help.test.js",
-    "test:info": "mocha ./test/mocha/info.test.js",
-    "test:init": "mocha ./test/mocha/init.test.js",
-    "test:mock": "mocha ./test/mocha/mock.test.js",
-    "test:path": "mocha ./test/mocha/path.test.js",
-    "test:server": "mocha ./test/mocha/server.test.js",
-    "test:version": "mocha ./test/mocha/version.test.js",
-    "ui-test": "yyt ./test/yyt",
-    "cga": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js"
+    "eslint": "eslint ./",
+    "eslint:fix": "eslint ./ --fix",
+    "test": "mocha ./test/mocha --timeout 10000000",
+    "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
+    "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
+    "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.git.yycom_h5_live.test.js --timeout 1000000",
+    "test:all.git.usercenter": "mocha ./test/mocha/all.git.usercenter.test.js --timeout 1000000",
+    "test:all": "mocha ./test/mocha/all.test.js --timeout 1000000",
+    "test:help": "mocha ./test/mocha/help.test.js --timeout 1000000",
+    "test:info": "mocha ./test/mocha/info.test.js --timeout 1000000",
+    "test:init": "mocha ./test/mocha/init.test.js --timeout 1000000",
+    "test:mock": "mocha ./test/mocha/mock.test.js --timeout 1000000",
+    "test:path": "mocha ./test/mocha/path.test.js --timeout 1000000",
+    "test:server": "mocha ./test/mocha/server.test.js --timeout 1000000",
+    "test:version": "mocha ./test/mocha/version.test.js --timeout 1000000",
+    "ui-test": "yyt ./test/yyt --timeout 1000000",
+    "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
+    "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
+    "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
+    "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
+    "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
+    "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2"
   },
   "main": "index.js",
   "directories": {
@@ -44,21 +124,23 @@
     "init-me": "0.4.4",
     "inquirer": "6.2.0",
     "keypress": "*",
-    "node-watch": "0.6.2",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.6.1",
+    "yyl-hander": "0.8.2",
     "yyl-os": "0.8.3",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "3.0.1",
-    "yyl-seed-webpack": "1.0.0",
-    "yyl-server": "0.2.0",
-    "yyl-util": "2.3.3"
+    "yyl-seed-gulp-requirejs": "4.3.0",
+    "yyl-seed-webpack": "2.0.4",
+    "yyl-server": "0.3.5",
+    "yyl-util": "2.3.8"
   },
   "devDependencies": {
-    "chai": "~4.1.2",
-    "mocha": "^7.0.0",
-    "yyl-file-replacer": "^0.4.1",
-    "yyl-seed-test-util": "^0.3.1"
+    "chai": "4.1.2",
+    "eslint": "6.8.0",
+    "eslint-plugin-html": "6.0.0",
+    "eslint-plugin-node": "11.0.0",
+    "mocha": "7.0.0",
+    "yyl-file-replacer": "0.4.1",
+    "yyl-seed-test-util": "0.3.1"
   }
 }

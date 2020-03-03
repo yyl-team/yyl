@@ -1,0 +1,28 @@
+/* var
+ * -------------------------- */
+
+/* mixin
+ * -------------------------- */
+%avoid_spacing{
+    font-size: 0;
+    letter-spacing: -4px;
+}
+
+%resume_avoid_spacing{
+    display: inline-block;
+    letter-spacing: normal;
+    vertical-align: top;
+}
+
+%fixed_width_content{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+%fixed_width_multiLine_content{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    overflow : hidden;
+}

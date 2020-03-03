@@ -1,4 +1,24 @@
 # 版本信息
+## 3.9.0-beta3 (*)
+* feat: webpack 类型项目支持配置中设置  `devServer` 配置项
+* feat: 让 `devServer.historyApiCallback` 属性能在 proxy 模式下使用
+* feat: 优化 error log
+* feat: webpack 类项目 `entry/*.html`  `entry/*.pug` 支持 变量传入
+* fix: 修复 webpack 类项目 sugar 执行不符合预期的问题
+
+## 3.9.0-beta2 (2020-02-24)
+* feat: 通过 happypack 对 `.js` 构建进行优化
+* todo: 让 happypack 支持 `.ts` 类文件
+* todo: 拆分 `webpack`, `requirejs` localserver 部分， 让 webpack使用自带的 `devserver`
+
+## 3.9.0-beta1 (2020-02-23)
+* feat: 重新划分 `webpack`, `requirejs` 构建策略
+* feat: 优化 `webpack` 类项目构建速度， webpack seed 包自身实现完整的构建流程，不需依赖 `yyl-hander` 提供的 `afterTask`
+* feat: 整合 `requirejs` 类项目, 将 `yyl-hander` 的 `afterTask` 整合到 seed 包里面
+* feat: 每次构建成功后都能看到 homepage 地址
+* feat: `config.resource` 支持 sugar 写法
+* fix: fixed 19 of 21 vulnerabilities
+
 ## 3.8.3 (2020-02-21)
 * feat: 让 yyl 支持 `__html()` 语法糖，用于引入 tmpl 文件
 * feat: 优化 yyl init 在 使用者 npm 环境有问题时的提示文案

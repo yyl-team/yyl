@@ -1,7 +1,7 @@
-'use strict';
-const chalk = require('chalk');
+'use strict'
+const chalk = require('chalk')
 const wVersion = function(iEnv) {
-  const iVer = require('../package.json').version;
+  const iVer = require('../package.json').version
   if (!iEnv.silent) {
     console.log([
       '',
@@ -27,10 +27,10 @@ const wVersion = function(iEnv) {
       '         `sooossssoooo+:             ',
       '',
       `        ${chalk.yellow(`yyl version: ${iVer}`)}`
-    ].join('\n'));
+    ].join('\n'))
   }
 
-  return Promise.resolve(iVer);
-};
+  return Promise.resolve(iVer)
+}
 
-module.exports = wVersion;
+module.exports = wVersion
