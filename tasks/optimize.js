@@ -37,6 +37,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     throw new Error(`${LANG.OPTIMIZE.PARSE_CONFIG_ERROR}: ${er}`)
   }
 
+  if (config.workflow === 'webpack-vue2') {
+    config.workflow = 'webpack'
+    config.seed = 'vue2'
+  }
+
   yh.optimize.init({config, iEnv})
   yh.optimize.saveConfigToServer()
 
