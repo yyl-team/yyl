@@ -101,9 +101,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   if (ctx === 'watch') {
     const wServer = require('./server.js')
+    console.log('opzer.ignoreServer', opzer.ignoreServer)
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
-      ingnoreServer: opzer.ignoreServer
+      ignoreServer: opzer.ignoreServer
     }
 
     // 接入 seed 中间件
@@ -123,7 +124,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   return new Promise((next, reject) => {
     let isUpdate = 0
     let isError = false
-    opzer[ctx](iEnv)
+    opzer
       .on('start', () => {
         if (isUpdate) {
           log('clear')
@@ -165,6 +166,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           next(config, opzer)
         }
       })
+      [ctx](iEnv)
   })
 }
 

@@ -1,6 +1,9 @@
 # 版本信息
+## 3.9.3 (*)
+* fix: 修复 webpack类项目在使用 `historyApiCallback` 时若没安装前置 依赖时 错误信息没出来的问题
 ## 3.9.2 (2020-03-03)
 * fix: webpack 类项目 vue2 seed, 会出现 inherits 模块没找到的问题
+
 ## 3.9.1 (2020-03-03)
 * fix: 修复 svg-inline 异常问题
 
