@@ -99,11 +99,14 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     extOs.checkPort(iPort).then(checkPort)
   })
 
-  if (ctx === 'watch') {
+  const IS_WATCH = ctx === 'watch'
+
+  if (IS_WATCH) {
     const wServer = require('./server.js')
+    console.log('opzer.ignoreServer', opzer.ignoreServer)
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
-      ingnoreServer: opzer.ignoreServer
+      ignoreServer: opzer.ignoreServer
     }
 
     // 接入 seed 中间件
@@ -123,7 +126,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   return new Promise((next, reject) => {
     let isUpdate = 0
     let isError = false
-    opzer[ctx](iEnv)
+    opzer
       .on('start', () => {
         if (isUpdate) {
           log('clear')
@@ -140,7 +143,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         log('loading', name)
       })
       .on('finished', async() => {
-        if (ctx === 'all' && isError) {
+        if (!IS_WATCH && isError) {
           return reject(isError)
         }
         log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`])
@@ -148,7 +151,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         const homePage = await yh.optimize.getHomePage()
         log('msg', 'success', [`${LANG.OPTIMIZE.PRINT_HOME_PAGE}: ${chalk.yellow.bold(homePage)}`])
         // 第一次构建 打开 对应页面
-        if (ctx === 'watch' && !isUpdate && !iEnv.silent && iEnv.proxy) {
+        if (IS_WATCH && !isUpdate && !iEnv.silent && iEnv.proxy) {
           extOs.openBrowser(homePage)
         }
 
@@ -164,7 +167,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           log('finished')
           next(config, opzer)
         }
-      })
+      })[ctx](iEnv)
   })
 }
 

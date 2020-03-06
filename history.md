@@ -1,6 +1,18 @@
 # 版本信息
+## 3.9.3 (2020-03-06)
+* feat: webpack类项目 watch 改为默认不打开 hmr 模式
+* feat: webpack类项目 添加 `--livereload` 功能 若打开，则文件更新方式为自动刷新当前页
+* feat: webpack类项目 添加 `--hmr` 功能 若打开，则文件更新方式为热更新
+* feat: 新增 `yyl d`, 用于 本地开发
+* feat: 新增 `yyl o`, 用于 打包
+* feat: 新增 `yyl r`, 用于远程开发
+* feat: 新增 `yyl w`, watch 缩写
+* fix: 修复 webpack类项目 执行 `--remote` 时 `hot-update` 文件 会覆盖掉入口文件, 导致 js 执行不符合预期问题
+* fix: 修复 webpack类项目在使用 `historyApiCallback` 时若没安装前置 依赖时 错误信息没出来的问题
+
 ## 3.9.2 (2020-03-03)
 * fix: webpack 类项目 vue2 seed, 会出现 inherits 模块没找到的问题
+
 ## 3.9.1 (2020-03-03)
 * fix: 修复 svg-inline 异常问题
 
@@ -244,6 +256,7 @@
 * fix: 更新 `yyl-seed-webpack-vue2` 到 `0.2.3` 来修复 项目 不支持 `.webp` 格式 问题
 
 ## 3.1.3 (2018-11-07)
+
 * fix: 修复 `yyl` 构建不能正确识别 `config.platform` 属性问题
 
 ## 3.1.2 (2018-11-06)

@@ -11,6 +11,7 @@ module.exports.handleAllGit = function (gitPath) {
     beforeEach(async () => {
       if (fs.existsSync(pjPath)) {
         if (fs.existsSync(path.join(pjPath, '.git'))) {
+          await extOs.runSpawn('git reset --hard', pjPath)
           await extOs.runSpawn('git pull', pjPath)
         } else {
           await extFs.removeFiles(pjPath, true)
@@ -41,8 +42,6 @@ module.exports.handleAllGit = function (gitPath) {
       }
       await extOs.runSpawn(`yyl all ${prefix}`, pjPath)
       await extOs.runSpawn(`yyl all ${prefix} --isCommit`, pjPath)
-      // await yyl.run(`all ${prefix} --silent`, pjPath)
-      // await yyl.run(`all ${prefix} --isCommit --silent`, pjPath)
     })
   })
 }
