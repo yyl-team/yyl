@@ -1,5 +1,5 @@
 # 版本信息
-## 3.9.3 (*)
+## 3.9.3 (2020-03-06)
 * feat: webpack类项目 watch 改为默认不打开 hmr 模式
 * feat: webpack类项目 添加 `--livereload` 功能 若打开，则文件更新方式为自动刷新当前页
 * feat: webpack类项目 添加 `--hmr` 功能 若打开，则文件更新方式为热更新
