@@ -46,7 +46,7 @@ const events = {
 }
 
 module.exports = async function(ctx) {
-  const iArgv = util.makeArray(arguments)
+  let iArgv = util.makeArray(arguments)
   const iEnv = util.envParse(arguments)
   let type = ''
 
@@ -78,6 +78,27 @@ module.exports = async function(ctx) {
   let argv = []
   if (~opzerHandles.indexOf(ctx)) {
     handle = require('./optimize.js')
+    // 缩写句柄处理
+    if (ctx === 'o') {
+      ctx = 'all'
+      iEnv.isCommit = true
+      iArgv = ['all'].concat(util.envStringify(iEnv).split(' '))
+    } else if (ctx === 'd') {
+      ctx = 'watch'
+      iEnv.proxy = true
+      iEnv.hmr = true
+      iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
+    } else if (ctx === 'r') {
+      ctx = 'watch'
+      iEnv.proxy = true
+      iEnv.remote = true
+      iEnv.hmr = true
+      iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
+    } else if (ctx === 'w') {
+      ctx = 'watch'
+      iArgv[0] = 'watch'
+    }
+
     argv = [ctx, iEnv, configPath]
     type = 'optimize'
   } else {

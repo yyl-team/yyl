@@ -20,22 +20,12 @@ process.on('uncaughtException', (err) => {
     // eslint-disable-next-line no-process-exit
     process.exit(1)
   }
-  if (iArgv[0] === 'all') {
-    try {
-      await wCmd(...iArgv).catch((er) => {
-        handleErr(er)
-      })
-    } catch (er) {
+  try {
+    await wCmd(...iArgv).catch((er) => {
       handleErr(er)
-    }
-  } else {
-    try {
-      await wCmd(...iArgv).catch((er) => {
-        handleErr(er)
-      })
-    } catch (er) {
-      handleErr(er)
-    }
+    })
+  } catch (er) {
+    handleErr(er)
   }
 })()
 

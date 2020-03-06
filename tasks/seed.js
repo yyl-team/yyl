@@ -159,6 +159,10 @@ const wSeed = {
         }
       })
     })
+
+    if (r.length) { // 缩写用句柄
+      r = r.concat(['o', 'd', 'r', 'w'])
+    }
     return r
   },
   workflows: seeds.map((str) => str.replace(/^yyl-seed-/, ''))
