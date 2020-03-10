@@ -132,10 +132,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           log('start', 'optimize')
         }
       })
-      .on('msg', (type, argv) => {
-        if (type === 'warn') {
-          console.log('warn', argv)
-        }
+      .on('msg', (type, ...argv) => {
         log('msg', type, argv)
         if (type === 'error') {
           isError = argv

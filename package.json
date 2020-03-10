@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.9.4",
+  "version": "3.9.5",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -70,7 +70,8 @@
       ],
       "indent": [
         "warn",
-        2
+        2,
+        { "SwitchCase": 1 }
       ]
     }
   },
