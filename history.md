@@ -1,4 +1,9 @@
 # 版本信息
+## 3.9.4 (2020-03-10)
+* feat: 优化 log
+* fix: 修复 webpack 类项目 通过sugar 替换的文件 hash 不会改变问题
+* fix: 修复 webpack 类项目 通过sugar 替换的文件 `path/to/1.png?1234#adsf` 结果不符合预期的问题
+
 ## 3.9.3 (2020-03-06)
 * feat: webpack类项目 watch 改为默认不打开 hmr 模式
 * feat: webpack类项目 添加 `--livereload` 功能 若打开，则文件更新方式为自动刷新当前页
