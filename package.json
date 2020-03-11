@@ -103,6 +103,7 @@
     "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
+    "cra": "yyl all --config ./test/case/react-ts/yyl.config.js --isCommit",
     "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
     "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
     "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2"
@@ -133,7 +134,7 @@
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "4.6.0",
-    "yyl-seed-webpack": "2.0.17",
+    "yyl-seed-webpack": "2.0.18",
     "yyl-server": "0.3.5",
     "yyl-util": "2.3.8"
   },
