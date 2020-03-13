@@ -1,6 +1,7 @@
 # 版本信息
 ## 3.9.5 (2020-03-11)
 * feat: 调整log
+* fix: 修复在 webpack 类项目 配置本地 devServer后， devServer 会启动失败问题
 
 ## 3.9.4 (2020-03-10)
 * feat: 优化 log
