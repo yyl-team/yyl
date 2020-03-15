@@ -78,7 +78,7 @@ wServer.path = (iEnv) => {
 }
 
 // 启动服务器
-wServer.start = async function (ctx, iEnv, options) {
+wServer.start = async function (ctx, iEnv, options, serverOption) {
   if (iEnv.help) {
     let h = {
       usage: 'yyl server start',
@@ -130,6 +130,7 @@ wServer.start = async function (ctx, iEnv, options) {
       log('msg', type, ...argu)
     },
     ignoreServer: op.ignoreServer,
+    serverOption,
     cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
   })
 
