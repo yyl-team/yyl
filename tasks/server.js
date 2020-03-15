@@ -22,29 +22,29 @@ const cache = {
 const wServer = (ctx, iEnv, configPath) => {
   const she = wServer
   switch (ctx) {
-  case '--path':
-  case '-p':
-    return she.path(iEnv)
+    case '--path':
+    case '-p':
+      return she.path(iEnv)
 
-  case 'start':
-    return (async () => {
-      let config
-      config = await she.start(configPath, iEnv)
-      return config
-    })()
+    case 'start':
+      return (async () => {
+        let config
+        config = await she.start(configPath, iEnv)
+        return config
+      })()
 
-  case 'abort':
-    return she.abort(iEnv)
+    case 'abort':
+      return she.abort(iEnv)
 
-  case 'clear':
-  case 'clean':
-    return she.clear()
+    case 'clear':
+    case 'clean':
+      return she.clear()
 
-  case '--help':
-    return she.help(iEnv)
+    case '--help':
+      return she.help(iEnv)
 
-  default:
-    return she.help(iEnv)
+    default:
+      return she.help(iEnv)
   }
 }
 
