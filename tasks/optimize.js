@@ -103,7 +103,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
 
   if (IS_WATCH) {
     const wServer = require('./server.js')
-    console.log('opzer.ignoreServer', opzer.ignoreServer)
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
       ignoreServer: opzer.ignoreServer
@@ -133,7 +132,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           log('start', 'optimize')
         }
       })
-      .on('msg', (type, argv) => {
+      .on('msg', (type, ...argv) => {
         log('msg', type, argv)
         if (type === 'error') {
           isError = argv
