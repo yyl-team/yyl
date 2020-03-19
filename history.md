@@ -1,10 +1,11 @@
 # 版本信息
 ## 3.10.0 (*)
-* feat: 升级 `yyl-seed-webpack@2.1.0`
+* feat: 升级 `yyl-seed-webpack@2.2.0`
 * feat: 升级 `yyl-hander@0.9.0`
 * feat: 升级 `yyl-server@0.3.6`
 * feat: 新增 支持 `writeToDisk` 选项， 以加快构建速度
 * feat: webpack 类项目 运行 非 `--remote` `--isCommit` 模式下， 默认 writeToDisk 为 false
+* feat: webpack 类项目 新增 环境提示 pop 注入到 entry 文件
 
 ## 3.9.5 (2020-03-11)
 * feat: 调整log
