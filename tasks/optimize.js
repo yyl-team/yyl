@@ -108,14 +108,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       ignoreServer: opzer.ignoreServer
     }
 
-    // 接入 seed 中间件
-    if (opzer.initServerMiddleWare) {
-      op.onInitMiddleWare = function (app, port) {
-        opzer.initServerMiddleWare(app, iEnv, port)
-      }
-    }
-
-    let afterConfig = await wServer.start(config, iEnv, op)
+    let afterConfig = await wServer.start(config, iEnv, op, {
+      appWillMount: opzer.appWillMount
+    })
     if (afterConfig) {
       config = afterConfig
     }
@@ -125,6 +120,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   return new Promise((next, reject) => {
     let isUpdate = 0
     let isError = false
+    const htmlSet = new Set()
     opzer
       .on('start', () => {
         if (isUpdate) {
@@ -137,6 +133,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         if (type === 'error') {
           isError = argv
         }
+        if (['create', 'update'].indexOf(type) !== -1) {
+          if (/\.html$/.test(argv[0])) {
+            htmlSet.add(argv[0])
+          }
+        }
       })
       .on('loading', (name) => {
         log('loading', name)
@@ -147,7 +148,15 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         }
         log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`])
 
-        const homePage = await yh.optimize.getHomePage()
+        const homePage = await yh.optimize.getHomePage({
+          files: (() => {
+            const r = []
+            htmlSet.forEach((item) => {
+              r.push(item)
+            })
+            return r
+          })()
+        })
         log('msg', 'success', [`${LANG.OPTIMIZE.PRINT_HOME_PAGE}: ${chalk.yellow.bold(homePage)}`])
         // 第一次构建 打开 对应页面
         if (IS_WATCH && !isUpdate && !iEnv.silent && iEnv.proxy) {

@@ -22,29 +22,29 @@ const cache = {
 const wServer = (ctx, iEnv, configPath) => {
   const she = wServer
   switch (ctx) {
-  case '--path':
-  case '-p':
-    return she.path(iEnv)
+    case '--path':
+    case '-p':
+      return she.path(iEnv)
 
-  case 'start':
-    return (async () => {
-      let config
-      config = await she.start(configPath, iEnv)
-      return config
-    })()
+    case 'start':
+      return (async () => {
+        let config
+        config = await she.start(configPath, iEnv)
+        return config
+      })()
 
-  case 'abort':
-    return she.abort(iEnv)
+    case 'abort':
+      return she.abort(iEnv)
 
-  case 'clear':
-  case 'clean':
-    return she.clear()
+    case 'clear':
+    case 'clean':
+      return she.clear()
 
-  case '--help':
-    return she.help(iEnv)
+    case '--help':
+      return she.help(iEnv)
 
-  default:
-    return she.help(iEnv)
+    default:
+      return she.help(iEnv)
   }
 }
 
@@ -78,7 +78,7 @@ wServer.path = (iEnv) => {
 }
 
 // 启动服务器
-wServer.start = async function (ctx, iEnv, options) {
+wServer.start = async function (ctx, iEnv, options, serverOption) {
   if (iEnv.help) {
     let h = {
       usage: 'yyl server start',
@@ -130,6 +130,7 @@ wServer.start = async function (ctx, iEnv, options) {
       log('msg', type, ...argu)
     },
     ignoreServer: op.ignoreServer,
+    serverOption,
     cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
   })
 
