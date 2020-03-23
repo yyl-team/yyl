@@ -1,5 +1,5 @@
 # 版本信息
-## 3.10.0 (*)
+## 3.10.0 (2020-03-20)
 * feat: 升级 `yyl-seed-webpack@2.2.0`
 * feat: 升级 `yyl-hander@0.9.0`
 * feat: 升级 `yyl-server@0.3.6`
