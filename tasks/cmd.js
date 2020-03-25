@@ -87,12 +87,14 @@ module.exports = async function(ctx) {
       ctx = 'watch'
       iEnv.proxy = true
       iEnv.hmr = true
+      iEnv.tips = true
       iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'r') {
       ctx = 'watch'
       iEnv.proxy = true
       iEnv.remote = true
       iEnv.hmr = true
+      iEnv.tips = true
       iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'w') {
       ctx = 'watch'
@@ -103,80 +105,80 @@ module.exports = async function(ctx) {
     type = 'optimize'
   } else {
     switch (ctx) {
-    case '-v':
-    case '--version':
-      handle = require('./version.js')
-      argv = [iEnv]
-      type = ''
-      break
-
-    case '--logLevel':
-      if (iArgv[1]) {
-        handle = require('./server.js').setLogLevel
-        argv = [iArgv[1]]
-      } else {
-        handle = require('./server.js').getLogLevel
-        argv = []
-      }
-      type = 'Info'
-      break
-
-    case '-h':
-    case '--help':
-      handle = events.help
-      argv = [iEnv, opzerHandles]
-      type = ''
-      break
-
-    case '--path':
-    case '-p':
-      handle = events.path
-      argv = [iEnv]
-      type = 'Info'
-      break
-
-    case 'init':
-      handle = require('./init.js')
-      if (iEnv.help) {
-        handle = handle.help
-      }
-
-      type = 'init'
-      argv = [iEnv]
-      break
-
-    case 'server':
-      handle = require('./server.js')
-      argv = [iArgv[1], iEnv, configPath]
-      type = 'server'
-      if (iEnv.help) {
+      case '-v':
+      case '--version':
+        handle = require('./version.js')
+        argv = [iEnv]
         type = ''
-      }
-      break
+        break
 
-    case 'rm':
-      handle = require('./remove.js')
-      argv = [iArgv[1]]
-      type = 'remove'
-      break
+      case '--logLevel':
+        if (iArgv[1]) {
+          handle = require('./server.js').setLogLevel
+          argv = [iArgv[1]]
+        } else {
+          handle = require('./server.js').getLogLevel
+          argv = []
+        }
+        type = 'Info'
+        break
 
-    case 'profile':
-      handle = require('./profile.js').print
-      argv = []
-      type = 'Info'
-      break
+      case '-h':
+      case '--help':
+        handle = events.help
+        argv = [iEnv, opzerHandles]
+        type = ''
+        break
 
-    case 'info':
-      handle = require('./info.js').run
-      argv = [iEnv, configPath]
-      type = 'Info'
-      break
+      case '--path':
+      case '-p':
+        handle = events.path
+        argv = [iEnv]
+        type = 'Info'
+        break
 
-    default:
-      handle = events.help
-      argv = [iEnv, opzerHandles]
-      type = ''
-      break
+      case 'init':
+        handle = require('./init.js')
+        if (iEnv.help) {
+          handle = handle.help
+        }
+
+        type = 'init'
+        argv = [iEnv]
+        break
+
+      case 'server':
+        handle = require('./server.js')
+        argv = [iArgv[1], iEnv, configPath]
+        type = 'server'
+        if (iEnv.help) {
+          type = ''
+        }
+        break
+
+      case 'rm':
+        handle = require('./remove.js')
+        argv = [iArgv[1]]
+        type = 'remove'
+        break
+
+      case 'profile':
+        handle = require('./profile.js').print
+        argv = []
+        type = 'Info'
+        break
+
+      case 'info':
+        handle = require('./info.js').run
+        argv = [iEnv, configPath]
+        type = 'Info'
+        break
+
+      default:
+        handle = events.help
+        argv = [iEnv, opzerHandles]
+        type = ''
+        break
     }
   }
   if (type) {
