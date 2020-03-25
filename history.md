@@ -1,6 +1,6 @@
 # 版本信息
 ## 3.10.1 (*)
-* feat: 升级 `yyl-seed-webpack@2.2.1`
+* feat: 升级 `yyl-seed-webpack@2.2.2`
 * feat: pop 模块改为输入 `--tips` 后才出现
 * feat: 新增 `--writeToDisk` 参数, 用于控制 构建是否写入硬盘
 * fix: 修复插入 pop 模块后，主程序 export 不能问题
