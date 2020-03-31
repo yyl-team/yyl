@@ -1,4 +1,12 @@
 # 版本信息
+## 3.10.1 (2020-03-31)
+* feat: 升级 `yyl-seed-webpack@2.3.0`
+* feat: 升级 `init-me@0.4.7`
+* feat: `seed-webpack` - pop 模块改为输入 `--tips` 后才出现
+* feat: `seed-webpack` - 新增 `--writeToDisk` 参数, 用于控制 构建是否写入硬盘
+* feat: `seed-webpack` - `style-loader` 现会自动配置 `data-module` 为 `yConfig.name` || `inline-style`
+* fix:  `seed-webpack` - 修复插入 pop 模块后，主程序 export 不能问题
+
 ## 3.10.0 (2020-03-20)
 * feat: 升级 `yyl-seed-webpack@2.2.0`
 * feat: 升级 `yyl-hander@0.9.0`

@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.10.0",
+  "version": "3.10.1",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -125,7 +125,7 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
-    "init-me": "0.4.4",
+    "init-me": "0.4.7",
     "inquirer": "6.2.0",
     "keypress": "*",
     "yyl-fs": "0.3.2",
@@ -134,7 +134,7 @@
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "4.6.0",
-    "yyl-seed-webpack": "2.2.0",
+    "yyl-seed-webpack": "2.3.0",
     "yyl-server": "0.3.6",
     "yyl-util": "2.3.8"
   },
