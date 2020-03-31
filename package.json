@@ -125,7 +125,7 @@
   },
   "dependencies": {
     "chalk": "2.4.1",
-    "init-me": "0.4.4",
+    "init-me": "0.4.7",
     "inquirer": "6.2.0",
     "keypress": "*",
     "yyl-fs": "0.3.2",
