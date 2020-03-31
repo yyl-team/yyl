@@ -1,4 +1,8 @@
 # 版本信息
+## 3.10.2 (*)
+* feat: 升级 `yyl-seed-webpack@2.3.1`
+* fix: 修复 `webpack` 项目启动 webpack-dev-server 时会出现接口占用误判断问题
+
 ## 3.10.1 (2020-03-31)
 * feat: 升级 `yyl-seed-webpack@2.3.0`
 * feat: 升级 `init-me@0.4.7`

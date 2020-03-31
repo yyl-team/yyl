@@ -83,22 +83,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   // clean dist
   await extFs.removeFiles(config.localserver.root)
 
-  // find usage localserver port
-  await util.makeAwait((next) => {
-    let iPort = config.localserver.port
-    const checkPort = function (canUse) {
-      if (canUse) {
-        config.localserver.port = iPort
-        next(config, opzer)
-      } else {
-        iPort = config.localserver.port + Math.round(Math.random() * 1000)
-        extOs.checkPort(iPort).then(checkPort)
-      }
-    }
-
-    extOs.checkPort(iPort).then(checkPort)
-  })
-
   const IS_WATCH = ctx === 'watch'
 
   if (IS_WATCH) {
