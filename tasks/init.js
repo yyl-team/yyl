@@ -14,14 +14,14 @@ const pkg = require('../package.json')
 const LANG = require('../lang/index')
 const wSeed = require('./seed')
 
-function printInfo ({ env, str }) {
+function printInfo({ env, str }) {
   if (!env.silent) {
     // eslint-disable-next-line no-console
     console.log(`${chalk.yellow('!')} ${str}`)
   }
 }
 
-function printSuccess ({ env, str }) {
+function printSuccess({ env, str }) {
   if (!env.silent) {
     // eslint-disable-next-line no-console
     console.log(`${chalk.green('Y')} ${str}`)
@@ -35,8 +35,8 @@ const events = {
       options: {
         '--help': LANG.INIT.HELP.HELP,
         '--cwd': LANG.INIT.HELP.CWD,
-        '--noinstall': LANG.INIT.HELP.NO_INSTALL
-      }
+        '--noinstall': LANG.INIT.HELP.NO_INSTALL,
+      },
     }
     util.help(h)
     return Promise.resolve(h)
@@ -46,13 +46,17 @@ const events = {
     const { workflows } = wSeed
     let rootSeed = env.rootSeed
     if (!rootSeed || workflows.indexOf(rootSeed) === -1) {
-      rootSeed = (await inquirer.prompt([{
-        type: 'list',
-        name: 'rootSeed',
-        message: `${LANG.INIT.QUESTION.ROOT_SEED}:`,
-        choices: wSeed.workflows,
-        default: wSeed.workflows[0]
-      }])).rootSeed
+      rootSeed = (
+        await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'rootSeed',
+            message: `${LANG.INIT.QUESTION.ROOT_SEED}:`,
+            choices: wSeed.workflows,
+            default: wSeed.workflows[0],
+          },
+        ])
+      ).rootSeed
     }
     // - rootSeed
 
@@ -61,40 +65,45 @@ const events = {
 
     const IN_YY = await inYY()
     if (IN_YY) {
-      printSuccess({ env, str: LANG.INIT.INFO.IN_YY})
+      printSuccess({ env, str: LANG.INIT.INFO.IN_YY })
     }
 
     // + subSeed
-    let subSeeds = seed.initPackage[IN_YY ? 'yy' : 'default'].map((name) => seedFull2Short(name))
+    let subSeeds = seed.initPackage[IN_YY ? 'yy' : 'default'].map((name) =>
+      seedFull2Short(name)
+    )
     let subSeed = env.subSeed
     if (!subSeed || subSeed.indexOf(subSeeds) === -1) {
       if (subSeeds.length > 1) {
-        subSeed = (await inquirer.prompt([{
-          type: 'list',
-          name: 'subSeed',
-          choices: subSeeds,
-          default: subSeeds[0],
-          message: `${LANG.INIT.QUESTION.SUB_SEED}`
-        }])).subSeed
+        subSeed = (
+          await inquirer.prompt([
+            {
+              type: 'list',
+              name: 'subSeed',
+              choices: subSeeds,
+              default: subSeeds[0],
+              message: `${LANG.INIT.QUESTION.SUB_SEED}`,
+            },
+          ])
+        ).subSeed
       } else {
         subSeed = subSeeds[0]
       }
     }
     // - subSeed
 
-    printInfo({ env, str: LANG.INIT.INFO.LOADING_INIT_ME})
-
+    printInfo({ env, str: LANG.INIT.INFO.LOADING_INIT_ME })
 
     // + 执行 init-me
     await initMe.init(vars.PROJECT_PATH, {
       env: Object.assign(env, {
         seed: seedShort2Full(subSeed),
-        yylVersion: pkg.version
+        yylVersion: pkg.version,
       }),
-      inset: true
+      inset: true,
     })
     // - 执行 init-me
-  }
+  },
 }
 
 const r = (env) => {

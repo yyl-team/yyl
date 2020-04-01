@@ -16,16 +16,18 @@ const wProfile = function (key, val) {
     return she.data
   }
 
-  if (val !== undefined) { //set
+  if (val !== undefined) {
+    //set
     she.data[key] = val
     she.save()
     return val
-  } else { // get
+  } else {
+    // get
     return she.data[key]
   }
 }
 
-wProfile.init = function() {
+wProfile.init = function () {
   const she = wProfile
   she.data = {}
   if (fs.existsSync(PROFILE_PATH)) {
@@ -38,7 +40,7 @@ wProfile.init = function() {
   }
 }
 
-wProfile.save = function() {
+wProfile.save = function () {
   const she = wProfile
   if (!she.data) {
     return
@@ -47,13 +49,13 @@ wProfile.save = function() {
   fs.writeFileSync(PROFILE_PATH, JSON.stringify(she.data, null, 2))
 }
 
-wProfile.clear = function() {
+wProfile.clear = function () {
   const she = wProfile
   she.data = {}
   she.save()
 }
 
-wProfile.print = function() {
+wProfile.print = function () {
   const she = wProfile
   she.init()
 
@@ -61,32 +63,33 @@ wProfile.print = function() {
     const r = []
     Object.keys(she.data).forEach((key) => {
       switch (typeof she.data[key]) {
-      case 'string':
-        r.push(`${chalk.white.bold(key)}: ${she.data[key]}`)
-        break
-      case 'object':
-        r.push(`${chalk.white.bold(key)}: ${JSON.stringify(she.data[key])}`)
-        break
+        case 'string':
+          r.push(`${chalk.white.bold(key)}: ${she.data[key]}`)
+          break
+        case 'object':
+          r.push(`${chalk.white.bold(key)}: ${JSON.stringify(she.data[key])}`)
+          break
 
-      default:
-        return
+        default:
+          return
       }
     })
     return r.join(' \n')
   })()
 
-  console.log([
-    '',
-    ` ${chalk.yellow.bold('profile path')}: ${chalk.yellow(PROFILE_PATH)}`,
-    ` ${chalk.white.bold('data:')}`,
-    ' ----------------------',
-    ` ${keyStr}`,
-    ' ----------------------',
-    ''
-  ].join('\n'))
+  console.log(
+    [
+      '',
+      ` ${chalk.yellow.bold('profile path')}: ${chalk.yellow(PROFILE_PATH)}`,
+      ` ${chalk.white.bold('data:')}`,
+      ' ----------------------',
+      ` ${keyStr}`,
+      ' ----------------------',
+      '',
+    ].join('\n')
+  )
 
   return Promise.resolve()
 }
-
 
 module.exports = wProfile

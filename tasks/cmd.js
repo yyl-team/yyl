@@ -16,17 +16,17 @@ const events = {
     const h = {
       usage: 'yyl',
       commands: {
-        'init': LANG.CMD.HELP.COMMANDS.INIT,
-        'info': LANG.CMD.HELP.COMMANDS.INFO,
-        'server': LANG.CMD.HELP.COMMANDS.SERVER
+        init: LANG.CMD.HELP.COMMANDS.INIT,
+        info: LANG.CMD.HELP.COMMANDS.INFO,
+        server: LANG.CMD.HELP.COMMANDS.SERVER,
       },
       options: {
         '--help': LANG.CMD.HELP.OPTIONS.HELP,
         '-v, --version': LANG.CMD.HELP.OPTIONS.VERSION,
         '-p, --path': LANG.CMD.HELP.OPTIONS.PATH,
         '--logLevel': LANG.CMD.HELP.OPTIONS.LOG_LEVEL,
-        '--config': LANG.CMD.HELP.OPTIONS.CONFIG
-      }
+        '--config': LANG.CMD.HELP.OPTIONS.CONFIG,
+      },
     }
     opzerHandles.forEach((key) => {
       h.commands[key] = 'optimize'
@@ -42,14 +42,13 @@ const events = {
       extOs.openPath(vars.BASE_PATH)
     }
     return Promise.resolve(vars.BASE_PATH)
-  }
+  },
 }
 
-module.exports = async function(ctx) {
+module.exports = async function (ctx) {
   let iArgv = util.makeArray(arguments)
   const iEnv = util.envParse(arguments)
   let type = ''
-
 
   let configPath
   if (iEnv.config) {
@@ -70,8 +69,6 @@ module.exports = async function(ctx) {
   if (iEnv.silent) {
     require('./server.js').setLogLevel(0, true, true)
   }
-
-
 
   // optimize
   let handle = null
@@ -201,7 +198,6 @@ module.exports = async function(ctx) {
     log('msg', 'info', `${type} ${LANG.CMD.TASK_FINSHED}`)
     log('finished', `${type} ${LANG.CMD.TASK_FINSHED}`)
   }
-
 
   return r
 }

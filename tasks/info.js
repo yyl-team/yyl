@@ -9,13 +9,13 @@ const yh = new Hander({ vars, log })
 const LANG = require('../lang/index')
 
 const info = {
-  printInformation: function(config, silent) {
+  printInformation: function (config, silent) {
     const r = {}
     r[LANG.INFO.DETAIL.NAME] = config.name
     r[LANG.INFO.DETAIL.WORKFLOW] = config.workflow
     r[LANG.INFO.DETAIL.BUILD_VERSION] = config.version
     r[LANG.INFO.DETAIL.PLATFORM] = config.platform
-    r[LANG.INFO.DETAIL.PROXY] = (function() {
+    r[LANG.INFO.DETAIL.PROXY] = (function () {
       if (config.proxy) {
         var keys = Object.keys(config.proxy.localRemote)
         if (keys.length) {
@@ -69,7 +69,7 @@ const info = {
   },
   async run(iEnv, configPath) {
     return await info.init(iEnv, configPath)
-  }
+  },
 }
 
 module.exports = info

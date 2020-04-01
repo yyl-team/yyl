@@ -4,7 +4,6 @@ const server = require('./tasks/server.js')
 const init = require('./tasks/init.js')
 const vars = require('./lib/vars.js')
 
-
 const r = {
   run: async (ctx, cwd) => {
     let iArgv = ctx.split(/\s+/)
@@ -18,8 +17,7 @@ const r = {
     return await cmd(...iArgv)
   },
   server,
-  init
+  init,
 }
-
 
 module.exports = r

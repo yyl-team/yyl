@@ -3,12 +3,10 @@ const log = require('../lib/log.js')
 const iArgv = process.argv.splice(2)
 const util = require('yyl-util')
 
-
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:\n', err.stack)
-});
-
-(async () => {
+})
+;(async () => {
   const wCmd = require('../tasks/cmd.js')
   const { env } = util.cmdParse(process.argv)
   const handleErr = function (er) {
@@ -28,5 +26,3 @@ process.on('uncaughtException', (err) => {
     handleErr(er)
   }
 })()
-
-

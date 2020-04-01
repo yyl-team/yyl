@@ -16,7 +16,7 @@ const wProfile = require('./profile.js')
 const LANG = require('../lang/index')
 
 const cache = {
-  runner: null
+  runner: null,
 }
 
 const wServer = (ctx, iEnv, configPath) => {
@@ -53,14 +53,14 @@ wServer.help = (iEnv) => {
   let h = {
     usage: 'yyl server',
     commands: {
-      'start': LANG.SERVER.HELP.COMMANDS.START,
-      'abort': LANG.SERVER.HELP.COMMANDS.ABORT,
-      'clear': LANG.SERVER.HELP.COMMANDS.CLEAR
+      start: LANG.SERVER.HELP.COMMANDS.START,
+      abort: LANG.SERVER.HELP.COMMANDS.ABORT,
+      clear: LANG.SERVER.HELP.COMMANDS.CLEAR,
     },
     options: {
       '--help': LANG.SERVER.HELP.OPTIONS.HELP,
-      '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH
-    }
+      '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH,
+    },
   }
   if (!iEnv.silent) {
     print.help(h)
@@ -88,8 +88,8 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
         '--port <dir>': LANG.SERVER_START.HELP.OPTIONS.PORT,
         '--proxy': LANG.SERVER_START.HELP.OPTIONS.PROXY,
         '--https': LANG.SERVER_START.HELP.OPTIONS.HTTPS,
-        '--proxy <port>': LANG.SERVER_START.HELP.OPTIONS.PROXY_PORT
-      }
+        '--proxy <port>': LANG.SERVER_START.HELP.OPTIONS.PROXY_PORT,
+      },
     }
     if (!iEnv.silent) {
       print.help(h)
@@ -101,7 +101,7 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     port: 5000,
     root: vars.PROJECT_PATH,
     lrPort: 50001,
-    entry: undefined
+    entry: undefined,
   }
 
   const op = options || {}
@@ -113,10 +113,14 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     config.localserver = util.extend(DEFAULT_CONFIG, config.localserver)
   } else {
     try {
-      config = await yh.parseConfig(ctx, iEnv, ['localserver', 'proxy', 'commit'])
+      config = await yh.parseConfig(ctx, iEnv, [
+        'localserver',
+        'proxy',
+        'commit',
+      ])
     } catch (er) {
       config = {
-        localserver: DEFAULT_CONFIG
+        localserver: DEFAULT_CONFIG,
       }
       log('msg', 'warn', er)
       log('msg', 'warn', LANG.SERVER.USE_DEFAULT_CONFIG)
@@ -131,7 +135,7 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     },
     ignoreServer: op.ignoreServer,
     serverOption,
-    cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
+    cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH,
   })
 
   await cache.runner.start()
@@ -147,13 +151,13 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
   return config
 }
 
-wServer.abort = async function() {
+wServer.abort = async function () {
   if (cache.runner) {
     await cache.runner.abort()
   }
 }
 
-wServer.clear = async function() {
+wServer.clear = async function () {
   log('clear')
   log('start', 'server', LANG.SERVER.CLEAN_START)
   const list = await extFs.removeFiles(vars.SERVER_PATH)
@@ -164,26 +168,32 @@ wServer.clear = async function() {
   log('finish', LANG.SERVER.CLEAN_FINISHED)
 }
 
-wServer.setLogLevel = function(level, notSave, silent) {
+wServer.setLogLevel = function (level, notSave, silent) {
   if (!notSave) {
     wProfile('logLevel', level)
   }
   log.update(level)
   if (!silent) {
-    log('msg', 'success', `${LANG.SERVER.CHANGE_LOG_LEVEL}: ${chalk.yellow.bold(level)}`)
+    log(
+      'msg',
+      'success',
+      `${LANG.SERVER.CHANGE_LOG_LEVEL}: ${chalk.yellow.bold(level)}`
+    )
   }
   return Promise.resolve(level)
 }
-wServer.getLogLevel = function(silent) {
-  const level = wProfile('logLevel') ||  1
+wServer.getLogLevel = function (silent) {
+  const level = wProfile('logLevel') || 1
   log.update(+level)
   if (!silent) {
     // eslint-disable-next-line no-console
-    console.log([
-      '',
-      ` ${chalk.yellow.bold('logLevel')}: ${chalk.yellow(level)}`,
-      ''
-    ].join('\n'))
+    console.log(
+      [
+        '',
+        ` ${chalk.yellow.bold('logLevel')}: ${chalk.yellow(level)}`,
+        '',
+      ].join('\n')
+    )
   }
   return Promise.resolve(level)
 }

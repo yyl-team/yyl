@@ -1,37 +1,47 @@
-import 'yyl-flexlayout';
-import '@babel/polyfill';
-import Vue from 'vue';
-import { mapActions } from 'vuex';
-import VueRouter from 'vue-router';
+import 'yyl-flexlayout'
+import '@babel/polyfill'
+import Vue from 'vue'
+import { mapActions } from 'vuex'
+import VueRouter from 'vue-router'
 
-import store from '../../vuex/store.js';
-import './index.scss';
+import store from '../../vuex/store.js'
+import './index.scss'
 
-const pageIndex = () => import(/* webpackChunkName: "pageIndex" */ '../../components/page/p-index/p-index.vue');
-const pageSub = () => import(/* webpackChunkName: "pageSub" */ '../../components/page/p-sub/p-sub.vue');
+const pageIndex = () =>
+  import(
+    /* webpackChunkName: "pageIndex" */ '../../components/page/p-index/p-index.vue'
+  )
+const pageSub = () =>
+  import(
+    /* webpackChunkName: "pageSub" */ '../../components/page/p-sub/p-sub.vue'
+  )
 
-Vue.use(VueRouter);
+Vue.use(VueRouter)
 
 const router = new VueRouter({
-  routes: [{
-    path: '/index',
-    component: pageIndex
-  }, {
-    path: '/sub',
-    component: pageSub
-  }, {
-    path: '*',
-    redirect: '/index'
-  }]
-});
+  routes: [
+    {
+      path: '/index',
+      component: pageIndex,
+    },
+    {
+      path: '/sub',
+      component: pageSub,
+    },
+    {
+      path: '*',
+      redirect: '/index',
+    },
+  ],
+})
 
 new Vue({
   store,
   router,
   methods: {
-    ...mapActions(['addDemoLog'])
+    ...mapActions(['addDemoLog']),
   },
   mounted() {
-    this.addDemoLog('index.js ready 7');
-  }
-}).$mount('#app');
+    this.addDemoLog('index.js ready 7')
+  },
+}).$mount('#app')

@@ -42,12 +42,14 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     config.seed = 'vue2'
   }
 
-  yh.optimize.init({config, iEnv})
+  yh.optimize.init({ config, iEnv })
   yh.optimize.saveConfigToServer()
 
   // 版本检查
   if (util.compareVersion(config.version, PKG.version) > 0) {
-    throw new Error(`${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`)
+    throw new Error(
+      `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
+    )
   }
 
   const seed = wSeed.find(config)
@@ -61,7 +63,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     config,
     iEnv,
     ctx,
-    root: path.dirname(configPath)
+    root: path.dirname(configPath),
   })
 
   // handle exists check
@@ -89,11 +91,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     const wServer = require('./server.js')
     const op = {
       livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
-      ignoreServer: opzer.ignoreServer
+      ignoreServer: opzer.ignoreServer,
     }
 
     let afterConfig = await wServer.start(config, iEnv, op, {
-      appWillMount: opzer.appWillMount
+      appWillMount: opzer.appWillMount,
     })
     if (afterConfig) {
       config = afterConfig
@@ -126,7 +128,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       .on('loading', (name) => {
         log('loading', name)
       })
-      .on('finished', async() => {
+      .on('finished', async () => {
         if (!IS_WATCH && isError) {
           return reject(isError)
         }
@@ -139,9 +141,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
               r.push(item)
             })
             return r
-          })()
+          })(),
         })
-        log('msg', 'success', [`${LANG.OPTIMIZE.PRINT_HOME_PAGE}: ${chalk.yellow.bold(homePage)}`])
+        log('msg', 'success', [
+          `${LANG.OPTIMIZE.PRINT_HOME_PAGE}: ${chalk.yellow.bold(homePage)}`,
+        ])
         // 第一次构建 打开 对应页面
         if (IS_WATCH && !isUpdate && !iEnv.silent && iEnv.proxy) {
           extOs.openBrowser(homePage)
@@ -159,9 +163,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
           log('finished')
           next(config, opzer)
         }
-      })[ctx](iEnv)
+      })
+      [ctx](iEnv)
   })
 }
 
 module.exports = wOpzer
-

@@ -10,7 +10,7 @@ const vars = require('../lib/vars.js')
 const log = require('../lib/log.js')
 const LANG = require('../lang/index')
 
-const remove = async function(iPath) {
+const remove = async function (iPath) {
   log('start', 'remove')
   let tPath = ''
   if (path.isAbsolute(iPath)) {
@@ -31,7 +31,11 @@ const remove = async function(iPath) {
     await util.forEach(dirList, async (pathname) => {
       const filePath = path.join(tPath, pathname)
       if (/ /.test(pathname)) {
-        return log('msg', 'warn', `${LANG.REMOVE.FILE_NAME_WITH_SPACE_ERROR}: ${pathname}`)
+        return log(
+          'msg',
+          'warn',
+          `${LANG.REMOVE.FILE_NAME_WITH_SPACE_ERROR}: ${pathname}`
+        )
       }
 
       if (!fs.statSync(filePath).isDirectory()) {
@@ -67,6 +71,5 @@ const remove = async function(iPath) {
     log('finished')
   }
 }
-
 
 module.exports = remove
