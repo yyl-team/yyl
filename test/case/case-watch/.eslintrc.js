@@ -2,22 +2,20 @@ module.exports = {
   root: true,
   parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+    sourceType: 'module',
   },
   env: {
-    'browser': true
+    browser: true,
   },
   globals: {
     $: true,
     Vue: true,
     Vuex: true,
     VueRouter: true,
-    "__url": true
+    __url: true,
   },
   extends: 'airbnb-base',
-  plugins: [
-    'html'
-  ],
+  plugins: ['html'],
   rules: {
     'no-debugger': 2,
     'no-console': 1,
@@ -26,10 +24,10 @@ module.exports = {
     'import/extensions': 0,
     'import/no-extraneous-dependencies': 0,
     'linebreak-style': 0,
-    'no-param-reassign': [2, { 'props': false }],
+    'no-param-reassign': [2, { props: false }],
     'comma-dangle': [2, 'never'],
-    'quote-props': ["error", "consistent"],
+    'quote-props': ['error', 'consistent'],
     // async 语句需要有 await
-    'require-await': "error"
-  }
-};
+    'require-await': 'error',
+  },
+}

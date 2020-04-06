@@ -18,7 +18,7 @@ const FRAG_PATH = path.join(__dirname, '../__frag')
 const yh = new Hander({ vars, log })
 tUtil.frag.init(FRAG_PATH)
 
-async function destCheck (projectPath, selfConfigPath) {
+async function destCheck(projectPath, selfConfigPath) {
   let configPath = path.join(projectPath, 'config.js')
   if (selfConfigPath) {
     configPath = selfConfigPath
@@ -48,16 +48,20 @@ async function destCheck (projectPath, selfConfigPath) {
   const bothMap = {}
   const sourcePickup = (iPath, dirname) => {
     const rPath = tUtil.hideUrlTail(iPath)
-    if (rPath.match(frp.REG.HTML_IGNORE_REG)) { // 可忽略 的 url
+    if (rPath.match(frp.REG.HTML_IGNORE_REG)) {
+      // 可忽略 的 url
       return
-    } else if (rPath.match(frp.REG.IS_HTTP)) { // http
+    } else if (rPath.match(frp.REG.IS_HTTP)) {
+      // http
       remoteSource.push(rPath)
       if (rPath.match(BOTH_SOURCE_REG)) {
         bothMap[rPath] = path.join(destRoot, rPath.replace(BOTH_SOURCE_REG, ''))
       }
-    } else if (rPath.match(frp.REG.HTML_IS_ABSLUTE)) { // 绝对地址 /
+    } else if (rPath.match(frp.REG.HTML_IS_ABSLUTE)) {
+      // 绝对地址 /
       localSource.push(path.join(destRoot, rPath))
-    } else { // 相对地址
+    } else {
+      // 相对地址
       localSource.push(path.join(dirname, rPath))
     }
   }
@@ -132,7 +136,10 @@ async function destCheck (projectPath, selfConfigPath) {
 
 describe('all test', () => {
   const FRAG_WORKFLOW_PATH = path.join(FRAG_PATH, 'gulp-requirejs')
-  const ABSOLUTE_CONFIG_PATH = util.path.join(FRAG_WORKFLOW_PATH, 'config-test.js')
+  const ABSOLUTE_CONFIG_PATH = util.path.join(
+    FRAG_WORKFLOW_PATH,
+    'config-test.js'
+  )
   const RELATIVE_CONFIG_PATH = 'config-test.js'
 
   before('test prepare', async () => {
@@ -142,10 +149,10 @@ describe('all test', () => {
     // copy files
     const copyParam = {}
     copyParam[path.join(__dirname, '../case/commons')] = [
-      path.join(FRAG_PATH, 'commons')
+      path.join(FRAG_PATH, 'commons'),
     ]
     copyParam[path.join(__dirname, '../case/gulp-requirejs')] = [
-      path.join(FRAG_PATH, 'gulp-requirejs')
+      path.join(FRAG_PATH, 'gulp-requirejs'),
     ]
     await extFs.copyFiles(copyParam)
   })
@@ -181,7 +188,10 @@ describe('all test', () => {
     await extFs.removeFiles(distPath)
 
     // run all
-    await yyl.run(`all --config ${ABSOLUTE_CONFIG_PATH} --logLevel 0`, FRAG_WORKFLOW_PATH)
+    await yyl.run(
+      `all --config ${ABSOLUTE_CONFIG_PATH} --logLevel 0`,
+      FRAG_WORKFLOW_PATH
+    )
 
     await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH)
   }).timeout(0)
@@ -193,7 +203,10 @@ describe('all test', () => {
     await extFs.removeFiles(distPath)
 
     // run all
-    await yyl.run(`all --config ${RELATIVE_CONFIG_PATH} --logLevel 0`, FRAG_WORKFLOW_PATH)
+    await yyl.run(
+      `all --config ${RELATIVE_CONFIG_PATH} --logLevel 0`,
+      FRAG_WORKFLOW_PATH
+    )
 
     await destCheck(FRAG_WORKFLOW_PATH, ABSOLUTE_CONFIG_PATH)
   }).timeout(0)

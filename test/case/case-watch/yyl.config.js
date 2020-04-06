@@ -1,23 +1,24 @@
 /* eslint indent: ["error", 2, { "SwitchCase": 1 }] */
-const path = require('path');
+const path = require('path')
 
-const config = {};
+const config = {}
 
 // + vars
-const PROJECT_NAME = '3';
-const WORKFLOW = 'webpack-vue2';
-const PLATFORM = 'mobile';
-const VERSION = '3.4.8';
-const SRC_ROOT = './src';
-const COMMON_PATH = '../commons';
-const WEBPACK_CONFIG_PATH = './webpack.config.js';
+const PROJECT_NAME = '3'
+const WORKFLOW = 'webpack-vue2'
+const PLATFORM = 'mobile'
+const VERSION = '3.4.8'
+const SRC_ROOT = './src'
+const COMMON_PATH = '../commons'
+const WEBPACK_CONFIG_PATH = './webpack.config.js'
 // - vars
 
 // + setting
 const setting = {
-  localserver: { // 本地服务器配置
+  localserver: {
+    // 本地服务器配置
     root: './dist', // 服务器输出地址
-    port: 5000 // 服务器 port
+    port: 5000, // 服务器 port
   },
   dest: {
     basePath: `/project/${PROJECT_NAME}/${PLATFORM}`,
@@ -34,13 +35,16 @@ const setting = {
   proxy: {
     port: 8887,
     localRemote: {
-      'http://web.yy.com/': 'http://127.0.0.1:5000/'
+      'http://web.yy.com/': 'http://127.0.0.1:5000/',
     },
-    homePage: `http://www.yy.com/web/${PROJECT_NAME}/`
-  }
-};
-setting.proxy.localRemote[`http://www.yy.com/web/${PROJECT_NAME}`] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`;
-setting.proxy.localRemote['http://www.yy.com/api/mock'] = 'http://127.0.0.1:5000/api/mock';
+    homePage: `http://www.yy.com/web/${PROJECT_NAME}/`,
+  },
+}
+setting.proxy.localRemote[
+  `http://www.yy.com/web/${PROJECT_NAME}`
+] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`
+setting.proxy.localRemote['http://www.yy.com/api/mock'] =
+  'http://127.0.0.1:5000/api/mock'
 // - setting
 
 // + base
@@ -54,65 +58,75 @@ Object.assign(config, {
   dest: setting.dest,
   commit: {},
 
-  concat: { // js 合并
+  concat: {
+    // js 合并
     // '{$jsDest}/vendors.js': ['{$srcRoot}/js/lib/a.js', '{$srcRoot}/js/lib/b.js']
   },
-  resource: { // 自定义项目中其他需打包的文件夹
-    'src/resource': path.join(setting.localserver.root, setting.dest.basePath, setting.dest.resourcePath)
+  resource: {
+    // 自定义项目中其他需打包的文件夹
+    'src/resource': path.join(
+      setting.localserver.root,
+      setting.dest.basePath,
+      setting.dest.resourcePath
+    ),
     // 'src/pc/svga': path.join(setting.localserver.root, setting.dest.basePath, 'tpl')
   },
-  plugins: [ // 额外的 npm 组件
+  plugins: [
+    // 额外的 npm 组件
     // 'yyl-flexlayout'
   ],
   // 自定义 webpack.config 路径
-  webpackConfigPath: WEBPACK_CONFIG_PATH
-});
+  webpackConfigPath: WEBPACK_CONFIG_PATH,
+})
 // - base
 
-config.plugins.push('yyl-flexlayout');
+config.plugins.push('yyl-flexlayout')
 
 // + alias
-const DEST_BASE_PATH = path.join(setting.localserver.root, setting.dest.basePath);
+const DEST_BASE_PATH = path.join(
+  setting.localserver.root,
+  setting.dest.basePath
+)
 Object.assign(config, {
   alias: {
     // 输出目录中 到 html, js, css, image 层 的路径
-    'root': DEST_BASE_PATH,
+    root: DEST_BASE_PATH,
     // rev 输出内容的相对地址
-    'revRoot': DEST_BASE_PATH,
+    revRoot: DEST_BASE_PATH,
     // dest 地址
-    'destRoot': setting.localserver.root,
+    destRoot: setting.localserver.root,
     // src 地址
-    'srcRoot': SRC_ROOT,
+    srcRoot: SRC_ROOT,
     // 项目根目录
-    'dirname': './',
+    dirname: './',
     // 公用组件地址
-    'commons': COMMON_PATH,
+    commons: COMMON_PATH,
     // 公用 components 目录
-    'globalcomponents': path.join(COMMON_PATH, 'components'),
-    'globallib': path.join(COMMON_PATH, 'lib'),
+    globalcomponents: path.join(COMMON_PATH, 'components'),
+    globallib: path.join(COMMON_PATH, 'lib'),
     // js 输出地址
-    'jsDest': path.join(DEST_BASE_PATH, setting.dest.jsPath),
+    jsDest: path.join(DEST_BASE_PATH, setting.dest.jsPath),
     // js lib 输出地址
-    'jslibDest': path.join(DEST_BASE_PATH, setting.dest.jslibPath),
+    jslibDest: path.join(DEST_BASE_PATH, setting.dest.jslibPath),
     // html 输出地址
-    'htmlDest': path.join(DEST_BASE_PATH, setting.dest.htmlPath),
+    htmlDest: path.join(DEST_BASE_PATH, setting.dest.htmlPath),
     // css 输出地址
-    'cssDest': path.join(DEST_BASE_PATH, setting.dest.cssPath),
+    cssDest: path.join(DEST_BASE_PATH, setting.dest.cssPath),
     // images 输出地址
-    'imagesDest': path.join(DEST_BASE_PATH, setting.dest.imagesPath),
+    imagesDest: path.join(DEST_BASE_PATH, setting.dest.imagesPath),
     // assets 输出地址
-    'revDest': path.join(DEST_BASE_PATH, setting.dest.revPath),
+    revDest: path.join(DEST_BASE_PATH, setting.dest.revPath),
     // tpl 输出地址
-    'tplDest': path.join(DEST_BASE_PATH, setting.dest.tplPath),
+    tplDest: path.join(DEST_BASE_PATH, setting.dest.tplPath),
     // resource 输出地址
-    'resourceDest': path.join(DEST_BASE_PATH, setting.dest.resourcePath),
+    resourceDest: path.join(DEST_BASE_PATH, setting.dest.resourcePath),
     // webpackconfig 中的 alias
     '@': SRC_ROOT,
-    '~@': path.join(SRC_ROOT, 'components')
+    '~@': path.join(SRC_ROOT, 'components'),
     // + yyl make
     // - yyl make
-  }
-});
+  },
+})
 // - alias
 
 // + commit
@@ -123,9 +137,9 @@ Object.assign(config, {
     revAddr: `http://web.yystatic.com${setting.dest.basePath}/${setting.dest.revPath}/rev-manifest.json`,
     hostname: '//web.yystatic.com',
     staticHost: '//web.yystatic.com',
-    mainHost: '//www.yy.com/web'
-  }
-});
+    mainHost: '//www.yy.com/web',
+  },
+})
 // - commit
 
-module.exports = config;
+module.exports = config

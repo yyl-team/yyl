@@ -6,10 +6,7 @@ const chalk = require('chalk')
 const LANG = require('../lang/index')
 
 // + seed
-const seeds = [
-  'yyl-seed-gulp-requirejs',
-  'yyl-seed-webpack'
-]
+const seeds = ['yyl-seed-gulp-requirejs', 'yyl-seed-webpack']
 
 const seedCache = {
   profileName: 'seedCache',
@@ -32,7 +29,6 @@ const seedCache = {
       iCache[workflow] &&
       iCache[workflow][ver] &&
       iCache[workflow][ver][key]
-
     ) {
       return iCache[workflow][ver][key]
     } else {
@@ -40,7 +36,11 @@ const seedCache = {
     }
   },
   save(workflow, key) {
-    console.log(`${chalk.green('!')} ${chalk.green.bold(`${LANG.SEED.LOADING}: `)} ${chalk.yellow(workflow)}, ${LANG.SEED.PLEASE_WAIT}`)
+    console.log(
+      `${chalk.green('!')} ${chalk.green.bold(
+        `${LANG.SEED.LOADING}: `
+      )} ${chalk.yellow(workflow)}, ${LANG.SEED.PLEASE_WAIT}`
+    )
     const seed = wSeed.find(workflow)
     const iCache = wProfile(seedCache.profileName) || {}
     if (!seed) {
@@ -51,7 +51,7 @@ const seedCache = {
     }
     iCache[workflow][seed.version] = {
       examples: [].concat(seed.examples),
-      handles: [].concat(seed.optimize.handles)
+      handles: [].concat(seed.optimize.handles),
     }
 
     wProfile(seedCache.profileName, iCache)
@@ -61,7 +61,7 @@ const seedCache = {
     } else {
       return []
     }
-  }
+  },
 }
 
 // config, configPath, workflowName in, useful workflow out
@@ -123,7 +123,7 @@ const wSeed = {
       }
 
       if (typeof config === 'function') {
-        config = config({env: iEnv})
+        config = config({ env: iEnv })
       }
 
       // 适配 multi config 情况
@@ -160,12 +160,13 @@ const wSeed = {
       })
     })
 
-    if (r.length) { // 缩写用句柄
+    if (r.length) {
+      // 缩写用句柄
       r = r.concat(['o', 'd', 'r', 'w'])
     }
     return r
   },
-  workflows: seeds.map((str) => str.replace(/^yyl-seed-/, ''))
+  workflows: seeds.map((str) => str.replace(/^yyl-seed-/, '')),
 }
 
 module.exports = wSeed

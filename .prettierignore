@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+__committest/
+__frag/
+__gitcase/
+test/case/
+.vscode

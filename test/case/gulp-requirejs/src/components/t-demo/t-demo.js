@@ -1,3 +1,3 @@
-require(['wSubWidget'], function(wSubWidget) {
-    wSubWidget.init();
-});
+require(['wSubWidget'], function (wSubWidget) {
+  wSubWidget.init()
+})

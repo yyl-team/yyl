@@ -24,7 +24,7 @@ module.exports.handleAllGit = function (gitPath) {
       await extOs.runSpawn('git checkout master', pjPath)
     })
 
-    it (`${pjName} - yyl all`, async () => {
+    it(`${pjName} - yyl all`, async () => {
       let pjConfigPath = ''
       const configPath = path.join(pjPath, 'yyl.config.js')
       const legacyConfigPath = path.join(pjPath, 'config.js')

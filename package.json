@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.10.1",
+  "version": "3.10.3",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -12,80 +12,29 @@
     "yyl": "bin/init.js"
   },
   "eslintConfig": {
-    "env": {
-      "mocha": true,
-      "node": true
-    },
     "extends": [
-      "eslint:recommended",
-      "plugin:node/recommended"
-    ],
-    "rules": {
-      "semi": [
-        "error",
-        "never"
-      ],
-      "node/no-unpublished-require": [
-        0
-      ],
-      "node/exports-style": [
-        "error",
-        "module.exports"
-      ],
-      "node/file-extension-in-import": [
-        "error",
-        "always"
-      ],
-      "node/prefer-global/buffer": [
-        "error",
-        "always"
-      ],
-      "node/prefer-global/console": [
-        "error",
-        "always"
-      ],
-      "node/prefer-global/process": [
-        "error",
-        "always"
-      ],
-      "node/prefer-global/url-search-params": [
-        "error",
-        "always"
-      ],
-      "node/prefer-global/url": [
-        "error",
-        "always"
-      ],
-      "node/prefer-promises/dns": "error",
-      "node/prefer-promises/fs": 0,
-      "quote-props": [
-        "error",
-        "consistent"
-      ],
-      "no-empty": [
-        "error",
-        {
-          "allowEmptyCatch": true
-        }
-      ],
-      "indent": [
-        "warn",
-        2,
-        {
-          "SwitchCase": 1
-        }
-      ]
-    }
+      "yyl-node"
+    ]
   },
   "eslintIgnore": [
     "node_modules",
     "/test/case",
     "yyt",
-    "__frag"
+    "__frag",
+    "__gitcase"
   ],
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "endOfLine": "lf",
+    "quoteProps": "consistent"
+  },
   "scripts": {
+    "prepublish": "prettier --write **/*.js",
     "eslint": "eslint ./",
     "eslint:fix": "eslint ./ --fix",
+    "prettier": "prettier --write **/*.js",
     "test": "mocha ./test/mocha --timeout 10000000",
     "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
     "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
@@ -134,16 +83,17 @@
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "4.6.0",
-    "yyl-seed-webpack": "2.3.0",
+    "yyl-seed-webpack": "2.3.1",
     "yyl-server": "0.3.6",
     "yyl-util": "2.3.8"
   },
   "devDependencies": {
     "chai": "4.1.2",
     "eslint": "6.8.0",
-    "eslint-plugin-html": "6.0.0",
-    "eslint-plugin-node": "11.0.0",
+    "eslint-config-yyl-node": "^0.1.1",
+    "eslint-plugin-node": "^11.1.0",
     "mocha": "7.0.0",
+    "prettier": "^2.0.2",
     "yyl-file-replacer": "0.4.1",
     "yyl-seed-test-util": "0.3.1"
   }
