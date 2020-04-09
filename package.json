@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.10.3",
+  "version": "3.11.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -31,7 +31,7 @@
     "quoteProps": "consistent"
   },
   "scripts": {
-    "prepublish": "prettier --write **/*.js",
+    "prepublishOnly": "npm run prettier & npm test",
     "eslint": "eslint ./",
     "eslint:fix": "eslint ./ --fix",
     "prettier": "prettier --write **/*.js",
@@ -78,8 +78,8 @@
     "inquirer": "6.2.0",
     "keypress": "*",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.9.0",
-    "yyl-os": "0.8.3",
+    "yyl-hander": "0.10.0",
+    "yyl-os": "0.11.0",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "4.6.0",

@@ -60,6 +60,8 @@ const LANG = {
   OPTIMIZE: {
     PARSE_CONFIG_START: '解析配置 开始',
     PARSE_CONFIG_ERROR: '解析配置发生 错误',
+    INSTALL_YARN: '请先安装 yarn',
+    YARN_VERSION: 'yarn 版本',
     REQUIRE_ATLEAST_VERSION: '构建 失败, 项目要求 yyl 版本 不能低于',
     WORKFLOW_NOT_FOUND: '构建 失败, 技术栈配置<config.workflow> 不存在',
     WORKFLOW_OPTI_HANDLE_NOT_EXISTS:

@@ -59,6 +59,22 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     )
   }
 
+  // yarn 安装检查
+  if (config.yarn) {
+    const yarnVersion = await extOs.getYarnVersion()
+    if (yarnVersion) {
+      log(
+        'msg',
+        'info',
+        `${LANG.OPTIMIZE.YARN_VERSION}: ${chalk.green(yarnVersion)}`
+      )
+    } else {
+      throw new Error(
+        `${LANG.OPTIMIZE.INSTALL_YARN}: ${chalk.yellow('npm i yarn -g')}`
+      )
+    }
+  }
+
   const opzer = await seed.optimize({
     config,
     iEnv,

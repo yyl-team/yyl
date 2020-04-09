@@ -1,4 +1,9 @@
 # 版本信息
+## 3.11.0 (*)
+* feat: 升级 `yyl-os@0.11.0`
+* feat: 升级 `yyl-hander@0.10.0`
+* feat: yyl 支持 `yarn` 配置项
+
 ## 3.10.2 (2020-04-01)
 * feat: 升级 `yyl-seed-webpack@2.3.1`
 * fix: 修复 `webpack` 项目启动 webpack-dev-server 时会出现接口占用误判断问题
