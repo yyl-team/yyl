@@ -2,7 +2,7 @@
 ## 3.11.0 (*)
 * feat: 升级 `yyl-os@0.11.0`
 * feat: 升级 `yyl-hander@0.10.0`
-* feat: 升级 `yyl-seed-webpack@2.4.0`
+* feat: 升级 `yyl-seed-webpack@2.4.1`
 * feat: yyl 支持 `yarn` 配置项
 
 ## 3.10.2 (2020-04-01)
