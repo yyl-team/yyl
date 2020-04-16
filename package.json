@@ -83,7 +83,7 @@
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "4.6.0",
-    "yyl-seed-webpack": "2.4.1",
+    "yyl-seed-webpack": "2.4.2",
     "yyl-server": "0.3.8",
     "yyl-util": "2.3.8"
   },
