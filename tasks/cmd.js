@@ -47,7 +47,7 @@ const events = {
 
 module.exports = async function (ctx) {
   let iArgv = util.makeArray(arguments)
-  const iEnv = util.envParse(arguments)
+  let iEnv = util.envParse(arguments)
   let type = ''
 
   let configPath
@@ -82,16 +82,26 @@ module.exports = async function (ctx) {
       iArgv = ['all'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'd') {
       ctx = 'watch'
-      iEnv.proxy = true
-      iEnv.hmr = true
-      iEnv.tips = true
+      iEnv = Object.assign(
+        {
+          proxy: true,
+          hmr: true,
+          tips: true,
+        },
+        iEnv
+      )
       iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'r') {
       ctx = 'watch'
-      iEnv.proxy = true
-      iEnv.remote = true
-      iEnv.hmr = true
-      iEnv.tips = true
+      iEnv = Object.assign(
+        {
+          proxy: true,
+          remote: true,
+          hmr: true,
+          tips: true,
+        },
+        iEnv
+      )
       iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'w') {
       ctx = 'watch'
