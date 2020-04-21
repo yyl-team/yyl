@@ -27,7 +27,7 @@ const wVersion = function (iEnv) {
         '        +ooooooooooooooooo/```-::`   ',
         '         `sooossssoooo+:             ',
         '',
-        `        ${chalk.yellow(`yyl version: ${iVer}`)}`,
+        `        ${chalk.yellow(`yyl version: ${iVer}`)}`
       ].join('\n')
     )
   }

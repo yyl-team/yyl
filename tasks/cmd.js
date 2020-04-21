@@ -18,15 +18,15 @@ const events = {
       commands: {
         init: LANG.CMD.HELP.COMMANDS.INIT,
         info: LANG.CMD.HELP.COMMANDS.INFO,
-        server: LANG.CMD.HELP.COMMANDS.SERVER,
+        server: LANG.CMD.HELP.COMMANDS.SERVER
       },
       options: {
         '--help': LANG.CMD.HELP.OPTIONS.HELP,
         '-v, --version': LANG.CMD.HELP.OPTIONS.VERSION,
         '-p, --path': LANG.CMD.HELP.OPTIONS.PATH,
         '--logLevel': LANG.CMD.HELP.OPTIONS.LOG_LEVEL,
-        '--config': LANG.CMD.HELP.OPTIONS.CONFIG,
-      },
+        '--config': LANG.CMD.HELP.OPTIONS.CONFIG
+      }
     }
     opzerHandles.forEach((key) => {
       h.commands[key] = 'optimize'
@@ -42,7 +42,7 @@ const events = {
       extOs.openPath(vars.BASE_PATH)
     }
     return Promise.resolve(vars.BASE_PATH)
-  },
+  }
 }
 
 module.exports = async function (ctx) {
@@ -86,7 +86,7 @@ module.exports = async function (ctx) {
         {
           proxy: true,
           hmr: true,
-          tips: true,
+          tips: true
         },
         iEnv
       )
@@ -98,7 +98,7 @@ module.exports = async function (ctx) {
           proxy: true,
           remote: true,
           hmr: true,
-          tips: true,
+          tips: true
         },
         iEnv
       )

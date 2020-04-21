@@ -35,8 +35,8 @@ const events = {
       options: {
         '--help': LANG.INIT.HELP.HELP,
         '--cwd': LANG.INIT.HELP.CWD,
-        '--noinstall': LANG.INIT.HELP.NO_INSTALL,
-      },
+        '--noinstall': LANG.INIT.HELP.NO_INSTALL
+      }
     }
     util.help(h)
     return Promise.resolve(h)
@@ -53,8 +53,8 @@ const events = {
             name: 'rootSeed',
             message: `${LANG.INIT.QUESTION.ROOT_SEED}:`,
             choices: wSeed.workflows,
-            default: wSeed.workflows[0],
-          },
+            default: wSeed.workflows[0]
+          }
         ])
       ).rootSeed
     }
@@ -82,8 +82,8 @@ const events = {
               name: 'subSeed',
               choices: subSeeds,
               default: subSeeds[0],
-              message: `${LANG.INIT.QUESTION.SUB_SEED}`,
-            },
+              message: `${LANG.INIT.QUESTION.SUB_SEED}`
+            }
           ])
         ).subSeed
       } else {
@@ -98,12 +98,12 @@ const events = {
     await initMe.init(vars.PROJECT_PATH, {
       env: Object.assign(env, {
         seed: seedShort2Full(subSeed),
-        yylVersion: pkg.version,
+        yylVersion: pkg.version
       }),
-      inset: true,
+      inset: true
     })
     // - 执行 init-me
-  },
+  }
 }
 
 const r = (env) => {

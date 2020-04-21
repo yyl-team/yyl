@@ -16,7 +16,7 @@ const wProfile = require('./profile.js')
 const LANG = require('../lang/index')
 
 const cache = {
-  runner: null,
+  runner: null
 }
 
 const wServer = (ctx, iEnv, configPath) => {
@@ -55,12 +55,12 @@ wServer.help = (iEnv) => {
     commands: {
       start: LANG.SERVER.HELP.COMMANDS.START,
       abort: LANG.SERVER.HELP.COMMANDS.ABORT,
-      clear: LANG.SERVER.HELP.COMMANDS.CLEAR,
+      clear: LANG.SERVER.HELP.COMMANDS.CLEAR
     },
     options: {
       '--help': LANG.SERVER.HELP.OPTIONS.HELP,
-      '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH,
-    },
+      '-p, --path': LANG.SERVER.HELP.OPTIONS.PATH
+    }
   }
   if (!iEnv.silent) {
     print.help(h)
@@ -88,8 +88,8 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
         '--port <dir>': LANG.SERVER_START.HELP.OPTIONS.PORT,
         '--proxy': LANG.SERVER_START.HELP.OPTIONS.PROXY,
         '--https': LANG.SERVER_START.HELP.OPTIONS.HTTPS,
-        '--proxy <port>': LANG.SERVER_START.HELP.OPTIONS.PROXY_PORT,
-      },
+        '--proxy <port>': LANG.SERVER_START.HELP.OPTIONS.PROXY_PORT
+      }
     }
     if (!iEnv.silent) {
       print.help(h)
@@ -101,7 +101,7 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     port: 5000,
     root: vars.PROJECT_PATH,
     lrPort: 50001,
-    entry: undefined,
+    entry: undefined
   }
 
   const op = options || {}
@@ -116,11 +116,11 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
       config = await yh.parseConfig(ctx, iEnv, [
         'localserver',
         'proxy',
-        'commit',
+        'commit'
       ])
     } catch (er) {
       config = {
-        localserver: DEFAULT_CONFIG,
+        localserver: DEFAULT_CONFIG
       }
       log('msg', 'warn', er)
       log('msg', 'warn', LANG.SERVER.USE_DEFAULT_CONFIG)
@@ -135,7 +135,7 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     },
     ignoreServer: op.ignoreServer,
     serverOption,
-    cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH,
+    cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
   })
 
   await cache.runner.start()
@@ -191,7 +191,7 @@ wServer.getLogLevel = function (silent) {
       [
         '',
         ` ${chalk.yellow.bold('logLevel')}: ${chalk.yellow(level)}`,
-        '',
+        ''
       ].join('\n')
     )
   }

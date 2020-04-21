@@ -10,6 +10,6 @@ module.exports = {
   //   }
   // },
   __extend: {
-    headless: true,
-  },
+    headless: true
+  }
 }

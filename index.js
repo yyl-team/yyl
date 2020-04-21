@@ -17,7 +17,7 @@ const r = {
     return await cmd(...iArgv)
   },
   server,
-  init,
+  init
 }
 
 module.exports = r
