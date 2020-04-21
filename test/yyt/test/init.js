@@ -26,7 +26,7 @@ const buildCmd = (op) => {
       `--pcInit ${op.pc.example}`,
       `--mobileWorkflow ${op.mobile.workflow}`,
       `--mobileInit ${op.mobile.example}`,
-      `--commitType ${op.commitType}`,
+      `--commitType ${op.commitType}`
     ].join(' ')
   } else {
     return [
@@ -35,7 +35,7 @@ const buildCmd = (op) => {
       `--workflow ${op.workflow}`,
       `--platform ${op.platform}`,
       `--init ${op.example}`,
-      `--commitType ${op.commitType}`,
+      `--commitType ${op.commitType}`
     ].join(' ')
   }
 }
@@ -54,7 +54,7 @@ SEED.workflows.forEach((workflow) => {
             workflow,
             platform,
             example,
-            commitType,
+            commitType
           })
         )
       })

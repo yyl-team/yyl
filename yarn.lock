@@ -3898,7 +3898,7 @@ eslint-config-prettier@^6.10.1:
   dependencies:
     get-stdin "^6.0.0"
 
-eslint-config-yyl-node@^0.1.1:
+eslint-config-yyl-node@0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/eslint-config-yyl-node/-/eslint-config-yyl-node-0.1.2.tgz#648f9e6b56c46f2c049f87e13d43a73dea8ba39d"
   integrity sha512-NZ4DUljhNkhuf+JQ55uyulnvqkIfkVS3UWUigd/e7hu5ygKg6YGWcCq6WcsG+ku7EeEO5oSSn0FhtUpjsRlpBQ==
@@ -12140,10 +12140,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.1.tgz#9d26989f367ab40cbbbe4e14f5e2f3b348fad820"
-  integrity sha512-9lOApOmJtMZqwigv0TF1HncdTdJVjHzPNKHHA1b48HNJMelGQiGfWknRuPyoBqGIb9swVXu8LaVshlBcUX2h0w==
+yyl-seed-webpack@2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.2.tgz#94a2b48c8dc630a0bf8b65bb5b11870b60ce41b2"
+  integrity sha512-8jinF1oojqHIcv+lyLfVhz5W6B5/GjMP/y/mxhP2444IFXoOiU7SqHNb+QNHF2b6n0PEQGbAN0BL/my2vN20HQ==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
