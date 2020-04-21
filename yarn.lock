@@ -12140,10 +12140,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.4.4.tgz#725859a1678aa2711c93458b6a5a0db1207a486d"
-  integrity sha512-nO0YPIvY64yGqd5k8UjRv3witGVCJWyGYB3VIRYPUQ4imhgd873j2JK+uji9iEkat9zJ2SFtwtU6gMLWCPZEIQ==
+yyl-seed-webpack@2.5.1:
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.1.tgz#9d26989f367ab40cbbbe4e14f5e2f3b348fad820"
+  integrity sha512-9lOApOmJtMZqwigv0TF1HncdTdJVjHzPNKHHA1b48HNJMelGQiGfWknRuPyoBqGIb9swVXu8LaVshlBcUX2h0w==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"

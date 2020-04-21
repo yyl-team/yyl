@@ -1,10 +1,11 @@
 # 版本信息
-## 3.11.0 (*)
+## 3.11.0 (2020-04-21)
 * feat: 升级 `yyl-os@0.11.0`
 * feat: 升级 `yyl-hander@0.10.0`
-* feat: 升级 `yyl-seed-webpack@2.4.4`
+* feat: 升级 `yyl-seed-webpack@2.5.0`
 * feat: 升级 `yyl-server@0.3.8`
 * feat: yyl 支持 `yarn` 配置项
+* feat: 新增 `config.babelLoaderIncludes` 配置项
 * fix: 允许通过 `--port` 自定义 本地server 端口的功能
 * fix: 允许通过 `--proxy false` 自定义 是否打开 反向代理功能
 * fix: 修复快捷命令 `yyl r`, `yyl o`, `yyl d` 里面的参数 会覆盖 后面输入的 命令问题
