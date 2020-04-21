@@ -18,15 +18,15 @@ const events = {
       commands: {
         init: LANG.CMD.HELP.COMMANDS.INIT,
         info: LANG.CMD.HELP.COMMANDS.INFO,
-        server: LANG.CMD.HELP.COMMANDS.SERVER,
+        server: LANG.CMD.HELP.COMMANDS.SERVER
       },
       options: {
         '--help': LANG.CMD.HELP.OPTIONS.HELP,
         '-v, --version': LANG.CMD.HELP.OPTIONS.VERSION,
         '-p, --path': LANG.CMD.HELP.OPTIONS.PATH,
         '--logLevel': LANG.CMD.HELP.OPTIONS.LOG_LEVEL,
-        '--config': LANG.CMD.HELP.OPTIONS.CONFIG,
-      },
+        '--config': LANG.CMD.HELP.OPTIONS.CONFIG
+      }
     }
     opzerHandles.forEach((key) => {
       h.commands[key] = 'optimize'
@@ -42,12 +42,12 @@ const events = {
       extOs.openPath(vars.BASE_PATH)
     }
     return Promise.resolve(vars.BASE_PATH)
-  },
+  }
 }
 
 module.exports = async function (ctx) {
   let iArgv = util.makeArray(arguments)
-  const iEnv = util.envParse(arguments)
+  let iEnv = util.envParse(arguments)
   let type = ''
 
   let configPath
@@ -82,16 +82,26 @@ module.exports = async function (ctx) {
       iArgv = ['all'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'd') {
       ctx = 'watch'
-      iEnv.proxy = true
-      iEnv.hmr = true
-      iEnv.tips = true
+      iEnv = Object.assign(
+        {
+          proxy: true,
+          hmr: true,
+          tips: true
+        },
+        iEnv
+      )
       iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'r') {
       ctx = 'watch'
-      iEnv.proxy = true
-      iEnv.remote = true
-      iEnv.hmr = true
-      iEnv.tips = true
+      iEnv = Object.assign(
+        {
+          proxy: true,
+          remote: true,
+          hmr: true,
+          tips: true
+        },
+        iEnv
+      )
       iArgv = ['watch'].concat(util.envStringify(iEnv).split(' '))
     } else if (ctx === 'w') {
       ctx = 'watch'

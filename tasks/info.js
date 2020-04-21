@@ -69,7 +69,7 @@ const info = {
   },
   async run(iEnv, configPath) {
     return await info.init(iEnv, configPath)
-  },
+  }
 }
 
 module.exports = info

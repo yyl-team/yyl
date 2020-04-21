@@ -149,10 +149,10 @@ describe('all test', () => {
     // copy files
     const copyParam = {}
     copyParam[path.join(__dirname, '../case/commons')] = [
-      path.join(FRAG_PATH, 'commons'),
+      path.join(FRAG_PATH, 'commons')
     ]
     copyParam[path.join(__dirname, '../case/gulp-requirejs')] = [
-      path.join(FRAG_PATH, 'gulp-requirejs'),
+      path.join(FRAG_PATH, 'gulp-requirejs')
     ]
     await extFs.copyFiles(copyParam)
   })

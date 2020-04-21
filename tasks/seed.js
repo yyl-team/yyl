@@ -51,7 +51,7 @@ const seedCache = {
     }
     iCache[workflow][seed.version] = {
       examples: [].concat(seed.examples),
-      handles: [].concat(seed.optimize.handles),
+      handles: [].concat(seed.optimize.handles)
     }
 
     wProfile(seedCache.profileName, iCache)
@@ -61,7 +61,7 @@ const seedCache = {
     } else {
       return []
     }
-  },
+  }
 }
 
 // config, configPath, workflowName in, useful workflow out
@@ -166,7 +166,7 @@ const wSeed = {
     }
     return r
   },
-  workflows: seeds.map((str) => str.replace(/^yyl-seed-/, '')),
+  workflows: seeds.map((str) => str.replace(/^yyl-seed-/, ''))
 }
 
 module.exports = wSeed

@@ -11,7 +11,7 @@ const task = {
   async watch(iEnv) {
     const runPath = path.resolve(process.cwd(), iEnv.path)
     await yyl.run('watch', runPath)
-  },
+  }
 }
 
 switch (handle) {
