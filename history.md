@@ -1,4 +1,8 @@
 # 版本信息
+## 3.11.3 (*)
+* feat: 升级 `yyl-seed-webpack@2.5.6`
+* feat: 运行 webpack-dev-server 不再需要项目内安装 `webpack`, `webpack-dev-server` 了
+
 ## 3.11.2 (2020-04-23)
 * feat: 升级 `yyl-seed-webpack@2.5.5`
 * feat: 优化 `webpack-dev-server` 端口被占用时文案
