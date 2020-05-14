@@ -1,4 +1,13 @@
 # 版本信息
+## 3.11.3 (*)
+* feat: 升级 `yyl-seed-webpack@2.5.6`
+* feat: 运行 webpack-dev-server 不再需要项目内安装 `webpack`, `webpack-dev-server` 了
+
+## 3.11.2 (2020-04-23)
+* feat: 升级 `yyl-seed-webpack@2.5.5`
+* feat: 优化 `webpack-dev-server` 端口被占用时文案
+* fix: 修复 js 不会使用 babel-loader 问题
+
 ## 3.11.1 (2020-04-21)
 * feat: 升级 `yyl-seed-webpack@2.5.2`
 * fix: 修复 默认端口 `5000` 不能用问题
