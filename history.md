@@ -1,5 +1,8 @@
 # 版本信息
-## 3.11.3 (*)
+## 3.11.4 (2020-05-14)
+* feat: 升级 `yyl-seed-webpack@2.5.7`
+* fix: 修复 当 js 有 sugar 需要替换，而正好 html 引入了这个 js时，会出现 hash 不对的情况
+## 3.11.3 (2020-04-27)
 * feat: 升级 `yyl-seed-webpack@2.5.6`
 * feat: 运行 webpack-dev-server 不再需要项目内安装 `webpack`, `webpack-dev-server` 了
 

@@ -12140,10 +12140,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.5.6:
-  version "2.5.6"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.6.tgz#37c1ea603b49dbc72f3772378ce971bc8506f9cb"
-  integrity sha512-vb5j1UePO2imisCUonZGr3/VZ2buJOpwaNDRIQuZSuIdBI9Vo98XYzhoCFzkxA1XzKNpoZBsNPOkWQoL7BDBJQ==
+yyl-seed-webpack@2.5.7:
+  version "2.5.7"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.7.tgz#c3e897cadcdeb01e65c64dce6a23074c188fcdd9"
+  integrity sha512-2BeNZVIRZ+x8OYLXkuB7V5plwOuNqE0M//xww8urZUpbn4mN8CHPxUCQ/Cu+GWyI9U2QaUGH8rqP0cf980J3qA==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
@@ -12209,7 +12209,7 @@ yyl-seed-webpack@2.5.6:
     yyl-os "0.11.1"
     yyl-rev-webpack-plugin "0.1.5"
     yyl-seed-response "0.1.1"
-    yyl-sugar-webpack-plugin "0.1.13"
+    yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
 yyl-server@0.3.8:
@@ -12232,10 +12232,10 @@ yyl-server@0.3.8:
     yyl-request "0.1.1"
     yyl-util "2.3.8"
 
-yyl-sugar-webpack-plugin@0.1.13:
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/yyl-sugar-webpack-plugin/-/yyl-sugar-webpack-plugin-0.1.13.tgz#fc0314c1db8c2d0c43414ed0872b2e09fdcfc587"
-  integrity sha512-eiUaUYyRVfDSZGHUIBxqY8FJAcEx2QZF7QkmocVBGt8UXuG0v93oq5KKPqe3siloAt9RGknhbKKKxSbLOpZ2yQ==
+yyl-sugar-webpack-plugin@0.1.14:
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/yyl-sugar-webpack-plugin/-/yyl-sugar-webpack-plugin-0.1.14.tgz#ad7e65600c797ff41080dadd442a2b3095115fb8"
+  integrity sha512-oCvZ7GqduTgvIQFex9nIu1Xhd0h+2kwuDWnZXm6mq/R3tYI3PmBkePb3UvZGcnPJ1DfWxlug+bzWFbmXjAxigg==
   dependencies:
     chalk "^3.0.0"
     tapable "1.1.3"
