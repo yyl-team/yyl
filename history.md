@@ -1,4 +1,7 @@
 # 版本信息
+## 3.11.5 (2020-07-08)
+* feat: 更新 `yyl-server@0.3.10` 修复 ios 13 不能正常代理https 问题
+* feat: 更新 `yyl-os@0.11.2` 修复打开带[&] url 会报错问题
 ## 3.11.4 (2020-05-14)
 * feat: 升级 `yyl-seed-webpack@2.5.7`
 * fix: 修复 当 js 有 sugar 需要替换，而正好 html 引入了这个 js时，会出现 hash 不对的情况
