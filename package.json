@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.11.5",
+  "version": "3.11.7",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -32,16 +32,23 @@
     "trailingComma": "none"
   },
   "scripts": {
-    "prepublishOnly": "npm run prettier & npm test",
+    "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
+    "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
+    "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
+    "cra": "yyl all --config ./test/case/react-ts/yyl.config.js --isCommit",
+    "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
+    "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "eslint": "eslint ./",
     "eslint:fix": "eslint ./ --fix",
+    "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2",
+    "prepublishOnly": "npm run prettier & npm test",
     "prettier": "prettier --write **/*.js",
     "test": "mocha ./test/mocha --timeout 10000000",
-    "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
-    "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
-    "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.git.yycom_h5_live.test.js --timeout 1000000",
-    "test:all.git.usercenter": "mocha ./test/mocha/all.git.usercenter.test.js --timeout 1000000",
     "test:all": "mocha ./test/mocha/all.test.js --timeout 1000000",
+    "test:all.git.usercenter": "mocha ./test/mocha/all.git.usercenter.test.js --timeout 1000000",
+    "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
+    "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.git.yycom_h5_live.test.js --timeout 1000000",
+    "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
     "test:help": "mocha ./test/mocha/help.test.js --timeout 1000000",
     "test:info": "mocha ./test/mocha/info.test.js --timeout 1000000",
     "test:init": "mocha ./test/mocha/init.test.js --timeout 1000000",
@@ -49,14 +56,7 @@
     "test:path": "mocha ./test/mocha/path.test.js --timeout 1000000",
     "test:server": "mocha ./test/mocha/server.test.js --timeout 1000000",
     "test:version": "mocha ./test/mocha/version.test.js --timeout 1000000",
-    "ui-test": "yyt ./test/yyt --timeout 1000000",
-    "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
-    "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
-    "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
-    "cra": "yyl all --config ./test/case/react-ts/yyl.config.js --isCommit",
-    "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
-    "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
-    "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2"
+    "ui-test": "yyt ./test/yyt --timeout 1000000"
   },
   "main": "index.js",
   "directories": {
@@ -83,8 +83,8 @@
     "yyl-os": "0.11.2",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "4.6.0",
-    "yyl-seed-webpack": "2.5.7",
+    "yyl-seed-gulp-requirejs": "4.7.1",
+    "yyl-seed-webpack": "2.5.9",
     "yyl-server": "0.3.10",
     "yyl-util": "2.3.8"
   },

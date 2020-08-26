@@ -1,4 +1,16 @@
 # 版本信息
+## 3.11.8 (*)
+* feat: 允许 `yyl server start --port false` 禁用本地server
+
+## 3.11.7 (2020-07-22)
+* feat: 更新 `yyl-seed-gulp-requirejs@4.7.1`
+* feat: 更新 `yyl-seed-webpack@2.5.9`
+* feat: 更换 seed 包中 `node-sass` -> `sass`
+## 3.11.6 (2020-07-22)
+* feat: 更新 `yyl-seed-gulp-requirejs@4.7.0`
+* feat: 更新 `yyl-seed-webpack@2.5.8`
+* feat: 兼容 node@14
+
 ## 3.11.5 (2020-07-08)
 * feat: 更新 `yyl-server@0.3.10` 修复 ios 13 不能正常代理https 问题
 * feat: 更新 `yyl-os@0.11.2` 修复打开带[&] url 会报错问题
