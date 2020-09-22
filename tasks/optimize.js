@@ -46,10 +46,12 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   yh.optimize.saveConfigToServer()
 
   // 版本检查
-  if (util.compareVersion(config.version, PKG.version) > 0) {
-    throw new Error(
-      `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
-    )
+  if (config.version) {
+    if (util.compareVersion(config.version, PKG.version) > 0) {
+      throw new Error(
+        `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
+      )
+    }
   }
 
   const seed = wSeed.find(config)
@@ -75,11 +77,13 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     }
   }
 
+  const root = path.dirname(configPath)
+
   const opzer = await seed.optimize({
     config,
     iEnv,
     ctx,
-    root: path.dirname(configPath)
+    root
   })
 
   // handle exists check
@@ -99,7 +103,13 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // clean dist
-  await extFs.removeFiles(config.localserver.root)
+  if (
+    config.localserver &&
+    config.localserver.root &&
+    path.join(config.localserver.root) !== path.join(root)
+  ) {
+    await extFs.removeFiles(config.localserver.root)
+  }
 
   const IS_WATCH = ctx === 'watch'
 

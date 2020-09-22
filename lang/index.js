@@ -54,7 +54,8 @@ const LANG = {
     INFO: {
       LOADIND_SEED: '正在加载 seed 包',
       IN_YY: '您正在处于 YY 网环境',
-      LOADING_INIT_ME: '正在解析 seed 包'
+      LOADING_INIT_ME: '正在解析 seed 包',
+      NOT_INIT_PACKAGE: '当前 seed 包没配置 初始化 seed'
     }
   },
   OPTIMIZE: {

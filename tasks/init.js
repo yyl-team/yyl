@@ -91,18 +91,26 @@ const events = {
       }
     }
     // - subSeed
+    if (subSeed) {
+      printInfo({
+        env,
+        str: `${LANG.INIT.INFO.LOADING_INIT_ME}: ${chalk.yellow(
+          seedShort2Full(subSeed)
+        )}`
+      })
 
-    printInfo({ env, str: LANG.INIT.INFO.LOADING_INIT_ME })
-
-    // + 执行 init-me
-    await initMe.init(vars.PROJECT_PATH, {
-      env: Object.assign(env, {
-        seed: seedShort2Full(subSeed),
-        yylVersion: pkg.version
-      }),
-      inset: true
-    })
-    // - 执行 init-me
+      // + 执行 init-me
+      await initMe.init(vars.PROJECT_PATH, {
+        env: Object.assign(env, {
+          seed: seedShort2Full(subSeed),
+          yylVersion: pkg.version
+        }),
+        inset: true
+      })
+      // - 执行 init-me
+    } else {
+      printInfo({ env, str: LANG.INIT.INFO.NOT_INIT_PACKAGE })
+    }
   }
 }
 
