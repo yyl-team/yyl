@@ -11826,10 +11826,10 @@ yyl-fs@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-fs/-/yyl-fs-0.2.0.tgz#995aff7c4c64448ea2b8ce2ceca2e2cb76bafa2c"
   integrity sha512-NBs2zgNFg+uc1qEtBNzrUtT6Mcrk6m9KXSA8xsVYMVLFOT1zSdRjucQeUwCjSRfReUBG9sJjeniJTNphX+O70g==
 
-yyl-hander@0.11.3:
-  version "0.11.3"
-  resolved "https://registry.npmjs.org/yyl-hander/-/yyl-hander-0.11.3.tgz#2dd88362dc1f75d1cfff1e60de0d557cc0e36c15"
-  integrity sha512-qTlChg7Sl01sKoS9V2GcUere84R3KOP+WB1O/kIM6FwO1L1Cf4k+xLzFqiMdsurD0aelBVQ1/tMYHfEZwHwqRQ==
+yyl-hander@0.11.4:
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-0.11.4.tgz#5807d32a1e48ecbb72a23d7d6875be7a1057e511"
+  integrity sha512-jZ0jVMT+qwn4f0v7iBUmgPii43I5d+/W8JVSPoljRbi8gySueo8BnmdHA8moxnnEyVJAK0yPoYBco2qapJLlhg==
   dependencies:
     chalk "^2.4.2"
     concat-with-sourcemaps "^1.1.0"
@@ -12049,10 +12049,10 @@ yyl-seed-webpack@2.5.10:
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
-yyl-server@0.3.14:
-  version "0.3.14"
-  resolved "https://registry.npmjs.org/yyl-server/-/yyl-server-0.3.14.tgz#9408906b862643fbd62585384428fd803dd31b12"
-  integrity sha512-E7xyKtAazxdkvjflFsQKZNcMCaq3vI33F8Zcod8QSqZuHhzCaBoh9kTrKac8yhTnCySS8ZnX92O3rUgkEa6tHA==
+yyl-server@0.3.15:
+  version "0.3.15"
+  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.15.tgz#9349436d673f4f286ecaed6bf8ce14ecfca710f9"
+  integrity sha512-N1ojXBubMiY1dnYHFf5OzjPHnk99R6tuf13GlbryZVeed6cwlJ21gxWmz7DfCcR4u9P3ZMkWCt8FSc4dY0LVVg==
   dependencies:
     "@types/connect" "3.4.33"
     anyproxy "4.1.3"
