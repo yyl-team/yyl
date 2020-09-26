@@ -7,7 +7,7 @@
 * feat: 新增 `yyl-seed-other@0.1.1`
 * feat: 兼容 `fec`, `feb`, `yys` 构建方案
 * feat: 新增 `yyl-seed-gulp-other@0.1.1`
-* feat: 更新 `yyl-seed-gulp-requirejs@4.7.2`
+* feat: 更新 `yyl-seed-gulp-requirejs@4.7.3`
 * feat: 当配置 `config.yarn: true` 时， 会自动删除 项目根目录中的 `package-lock.json` 文件
 * fix: 修复 `yyl-seed-gulp-requirejs` 项目中 html 文件 `__url(path/to/file)` 语法糖失效问题
 * fix: 修复 当 `config.commit.hostname === '//www.yy.com/pc'` 这种带有 `pathname` 的 配置时， `localserver` 映射不正确问题
