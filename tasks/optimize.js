@@ -1,6 +1,7 @@
 'use strict'
 const path = require('path')
 const extFs = require('yyl-fs')
+const fs = require('fs')
 const util = require('yyl-util')
 const extOs = require('yyl-os')
 const Hander = require('yyl-hander')
@@ -61,6 +62,8 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     )
   }
 
+  const root = path.dirname(configPath)
+
   // yarn 安装检查
   if (config.yarn) {
     const yarnVersion = await extOs.getYarnVersion()
@@ -70,6 +73,17 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         'info',
         `${LANG.OPTIMIZE.YARN_VERSION}: ${chalk.green(yarnVersion)}`
       )
+
+      // 删除 package-lock.json
+      const pkgLockPath = path.join(root, 'package-lock.json')
+      if (fs.existsSync(pkgLockPath)) {
+        await extFs.removeFiles(pkgLockPath)
+        log(
+          'msg',
+          'warn',
+          LANG.OPTIMIZE.DEL_PKG_LOCK_FILE
+        )
+      }
     } else {
       throw new Error(
         `${LANG.OPTIMIZE.INSTALL_YARN}: ${chalk.yellow('npm i yarn -g')}`
@@ -77,7 +91,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     }
   }
 
-  const root = path.dirname(configPath)
 
   const opzer = await seed.optimize({
     config,
