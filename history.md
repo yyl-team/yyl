@@ -6,6 +6,8 @@
 * feat: 允许 `yyl server start --port false` 禁用本地server
 * feat: 新增 `yyl-seed-other@0.1.1`
 * feat: 兼容 `fec`, `feb`, `yys` 构建方案
+* feat: 更新 `yyl-seed-gulp-requirejs@4.7.2`
+* fix: 修复 yyl-seed-gulp-requirejs 项目中 html 文件 `__url(path/to/file)` 语法糖失效问题
 
 ## 3.11.7 (2020-07-22)
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.1`
