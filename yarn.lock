@@ -11817,7 +11817,12 @@ yyl-file-replacer@0.5.0:
   resolved "https://registry.yarnpkg.com/yyl-file-replacer/-/yyl-file-replacer-0.5.0.tgz#32372d210c0ecbe3e1cf37927d26337c37cb51ad"
   integrity sha512-pMtcnuwXKZBc0w1Fhupr8CC21JkY4TlrJB1ftEsoXH10bJ0+WaT9Lmwuxzj51HEIvEQA/aRvsCaRyiPFoYR/NA==
 
-yyl-file-replacer@0.6.2, yyl-file-replacer@^0.6.0:
+yyl-file-replacer@0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/yyl-file-replacer/-/yyl-file-replacer-0.6.3.tgz#27ec069df6f465ec02e69a3084d9652cfecc98b8"
+  integrity sha512-WxdYWVgX1S6btkYSgnq/R3nM0nHApwJeRwNrCzzXZHfqkXk4A/bTf5q0CfjWJ66Uy7/Wsr1dpSIAISJuh0rAgw==
+
+yyl-file-replacer@^0.6.0:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/yyl-file-replacer/-/yyl-file-replacer-0.6.2.tgz#d287983982b7ae770b9fc1ea90a84ee4455e587d"
   integrity sha512-jStrx6+pKu3oi8HSVvws6kY1Oj5Uaxt218hVOdXlSWBSEtj7Gctn2pt354jK9vnTOlCtG5gTiwwbyityy/8gTg==
@@ -11923,10 +11928,10 @@ yyl-rev-webpack-plugin@0.1.5:
     tapable "^1.1.3"
     yyl-request "^0.1.1"
 
-yyl-seed-gulp-requirejs@4.7.1:
-  version "4.7.1"
-  resolved "https://registry.npmjs.org/yyl-seed-gulp-requirejs/-/yyl-seed-gulp-requirejs-4.7.1.tgz#ab1f79de5d4f0a982d57340815e576ac1d5d2f89"
-  integrity sha512-4zvg8GeAgSJ/fkMsQQD/inpBzM0spnyBZ1KfBmByraTUcaJiBnHpqdnLhN/01CE4GHrJ1Dx3di+GUWnfYljeKg==
+yyl-seed-gulp-requirejs@4.7.2:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/yyl-seed-gulp-requirejs/-/yyl-seed-gulp-requirejs-4.7.2.tgz#2ddb5ddb7e86ca74a6fd96759457e0c8c099293a"
+  integrity sha512-a0b1Fg/uQlkLcn9TE0g+qgF7+8ILjMmVP7HQFE4CitXNwptxlzgOAiZ4MWG/eAc55qwtHxD3GqBT69w2ub+kTQ==
   dependencies:
     chalk "2.4.1"
     concat-with-sourcemaps "^1.1.0"
@@ -11949,7 +11954,7 @@ yyl-seed-gulp-requirejs@4.7.1:
     requirejs "2.3.6"
     rev-hash "3.0.0"
     through2 "2.0.3"
-    yyl-file-replacer "0.6.2"
+    yyl-file-replacer "0.6.3"
     yyl-fs "0.3.3"
     yyl-inlinesource "1.2.1"
     yyl-request "0.1.1"
@@ -12060,10 +12065,10 @@ yyl-seed-webpack@2.5.10:
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
-yyl-server@0.3.16:
-  version "0.3.16"
-  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.16.tgz#496b3b72fe1855b7ac70c0f8541528105271e1e4"
-  integrity sha512-snBUGH1Pn5dYE/j9efYiMT1g5J8S4d9Kheq6Kbr0bBTwbjtdcNwEpBJBXTiQIG6NUZPU6aJTCxQu11Q/0zIDyg==
+yyl-server@0.3.17:
+  version "0.3.17"
+  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.17.tgz#501fbee3577778f4130a28412a58037257d20820"
+  integrity sha512-15LsYUnqfa+95F+E2o+/J9HEXeTTWZd1BSSdFlPSBex0D8mOUQTnDnc4IYl8+KbAYys+TiR0Txz6+PhVt6zZww==
   dependencies:
     "@types/connect" "3.4.33"
     anyproxy "4.1.3"
