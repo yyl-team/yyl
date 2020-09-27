@@ -1,5 +1,5 @@
 # 版本信息
-## 3.12.0 (*)
+## 3.12.0 (2020-09-27)
 * feat: 更新 `yyl-seed-webpack@2.5.13` 兼容 当 `yconfig.localserver.entry` 时 `writeDisk` 自动设为 true
 * feat: 更新 `yyl-server@0.3.17` 兼容 `seed-other` 出现的问题
 * feat: 更新 `yyl-hander@0.11.4` 允许 `yyl.config.js` 只设置 `localserver` `proxy` 和 只设置 `proxy` 情况
