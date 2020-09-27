@@ -6,7 +6,7 @@ const chalk = require('chalk')
 const LANG = require('../lang/index')
 
 // + seed
-const seeds = ['yyl-seed-gulp-requirejs', 'yyl-seed-webpack']
+const seeds = ['yyl-seed-gulp-requirejs', 'yyl-seed-webpack', 'yyl-seed-other']
 
 const seedCache = {
   profileName: 'seedCache',

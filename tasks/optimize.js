@@ -1,6 +1,7 @@
 'use strict'
 const path = require('path')
 const extFs = require('yyl-fs')
+const fs = require('fs')
 const util = require('yyl-util')
 const extOs = require('yyl-os')
 const Hander = require('yyl-hander')
@@ -46,10 +47,12 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   yh.optimize.saveConfigToServer()
 
   // 版本检查
-  if (util.compareVersion(config.version, PKG.version) > 0) {
-    throw new Error(
-      `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
-    )
+  if (config.version) {
+    if (util.compareVersion(config.version, PKG.version) > 0) {
+      throw new Error(
+        `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
+      )
+    }
   }
 
   const seed = wSeed.find(config)
@@ -58,6 +61,8 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`
     )
   }
+
+  const root = path.dirname(configPath)
 
   // yarn 安装检查
   if (config.yarn) {
@@ -68,6 +73,17 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         'info',
         `${LANG.OPTIMIZE.YARN_VERSION}: ${chalk.green(yarnVersion)}`
       )
+
+      // 删除 package-lock.json
+      const pkgLockPath = path.join(root, 'package-lock.json')
+      if (fs.existsSync(pkgLockPath)) {
+        await extFs.removeFiles(pkgLockPath)
+        log(
+          'msg',
+          'warn',
+          LANG.OPTIMIZE.DEL_PKG_LOCK_FILE
+        )
+      }
     } else {
       throw new Error(
         `${LANG.OPTIMIZE.INSTALL_YARN}: ${chalk.yellow('npm i yarn -g')}`
@@ -75,11 +91,12 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     }
   }
 
+
   const opzer = await seed.optimize({
     config,
     iEnv,
     ctx,
-    root: path.dirname(configPath)
+    root
   })
 
   // handle exists check
@@ -99,7 +116,13 @@ const wOpzer = async function (ctx, iEnv, configPath) {
   }
 
   // clean dist
-  await extFs.removeFiles(config.localserver.root)
+  if (
+    config.localserver &&
+    config.localserver.root &&
+    path.join(config.localserver.root) !== path.join(root)
+  ) {
+    await extFs.removeFiles(config.localserver.root)
+  }
 
   const IS_WATCH = ctx === 'watch'
 

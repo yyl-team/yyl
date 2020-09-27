@@ -110,7 +110,9 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
   let config
   if (typeof ctx === 'object') {
     config = ctx
-    config.localserver = util.extend(DEFAULT_CONFIG, config.localserver)
+    if (config.localserver) {
+      config.localserver = util.extend(DEFAULT_CONFIG, config.localserver)
+    }
   } else {
     try {
       config = await yh.parseConfig(ctx, iEnv, [
@@ -133,7 +135,7 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     log(type, argu) {
       log('msg', type, ...argu)
     },
-    ignoreServer: op.ignoreServer,
+    ignoreServer: iEnv.port === false ? true : op.ignoreServer,
     serverOption,
     cwd: iEnv.config ? path.dirname(iEnv.config) : vars.PROJECT_PATH
   })

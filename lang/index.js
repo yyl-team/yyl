@@ -54,7 +54,8 @@ const LANG = {
     INFO: {
       LOADIND_SEED: '正在加载 seed 包',
       IN_YY: '您正在处于 YY 网环境',
-      LOADING_INIT_ME: '正在解析 seed 包'
+      LOADING_INIT_ME: '正在解析 seed 包',
+      NOT_INIT_PACKAGE: '当前 seed 包没配置 初始化 seed'
     }
   },
   OPTIMIZE: {
@@ -71,7 +72,8 @@ const LANG = {
     TASK_RUN_FINISHED: '任务运行 完成',
     PAGE_RELOAD: '页面 刷新',
     RESOURCE_UPDATE: '资源<config.resource>同步',
-    PRINT_HOME_PAGE: '主页地址'
+    PRINT_HOME_PAGE: '主页地址',
+    DEL_PKG_LOCK_FILE: '存在 package-lock.json, 与 yarn 冲突，删之'
   },
   REMOVE: {
     PATH_NOT_FOUND: '目标路径 不存在',
