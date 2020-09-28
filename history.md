@@ -1,4 +1,10 @@
 # 版本信息
+## 3.12.1(2020-09-28)
+* feat: 更新 `yyl-seed-webpack@2.5.14`
+* feat: 兼容 webpack.devServer.historyApiFallback.rewrite 配置项
+* fix: 修复 启动 `webpack.devServer` 时，如项目未安装 webpack 会报错的问题
+
+
 ## 3.12.0 (2020-09-27)
 * feat: 更新 `yyl-seed-webpack@2.5.13` 兼容 当 `yconfig.localserver.entry` 时 `writeDisk` 自动设为 true
 * feat: 更新 `yyl-server@0.3.17` 兼容 `seed-other` 出现的问题
