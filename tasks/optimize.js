@@ -78,11 +78,7 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       const pkgLockPath = path.join(root, 'package-lock.json')
       if (fs.existsSync(pkgLockPath)) {
         await extFs.removeFiles(pkgLockPath)
-        log(
-          'msg',
-          'warn',
-          LANG.OPTIMIZE.DEL_PKG_LOCK_FILE
-        )
+        log('msg', 'warn', LANG.OPTIMIZE.DEL_PKG_LOCK_FILE)
       }
     } else {
       throw new Error(
@@ -90,7 +86,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       )
     }
   }
-
 
   const opzer = await seed.optimize({
     config,
