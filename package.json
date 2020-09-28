@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.12.0",
+  "version": "3.12.1",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -85,7 +85,7 @@
     "yyl-request": "0.1.1",
     "yyl-seed-gulp-requirejs": "4.7.3",
     "yyl-seed-other": "0.1.1",
-    "yyl-seed-webpack": "2.5.13",
+    "yyl-seed-webpack": "2.5.14",
     "yyl-server": "0.3.17",
     "yyl-util": "2.3.8"
   },
