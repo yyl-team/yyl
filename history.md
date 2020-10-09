@@ -1,4 +1,9 @@
 # 版本信息
+## 3.13.0(*)
+* feat: 新增 `config.watch.beforeScripts`, `config.watch.afterScripts`
+* feat: 新增 `config.all.beforeScripts`, `config.all.afterScripts`
+* feat: 更新 `init-me@0.4.10`
+
 ## 3.12.1(2020-09-28)
 * feat: 更新 `yyl-seed-webpack@2.5.14`
 * feat: 兼容 webpack.devServer.historyApiFallback.rewrite 配置项
@@ -22,6 +27,7 @@
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.1`
 * feat: 更新 `yyl-seed-webpack@2.5.9`
 * feat: 更换 seed 包中 `node-sass` -> `sass`
+
 ## 3.11.6 (2020-07-22)
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.0`
 * feat: 更新 `yyl-seed-webpack@2.5.8`
@@ -30,9 +36,11 @@
 ## 3.11.5 (2020-07-08)
 * feat: 更新 `yyl-server@0.3.10` 修复 ios 13 不能正常代理https 问题
 * feat: 更新 `yyl-os@0.11.2` 修复打开带[&] url 会报错问题
+
 ## 3.11.4 (2020-05-14)
 * feat: 升级 `yyl-seed-webpack@2.5.7`
 * fix: 修复 当 js 有 sugar 需要替换，而正好 html 引入了这个 js时，会出现 hash 不对的情况
+
 ## 3.11.3 (2020-04-27)
 * feat: 升级 `yyl-seed-webpack@2.5.6`
 * feat: 运行 webpack-dev-server 不再需要项目内安装 `webpack`, `webpack-dev-server` 了

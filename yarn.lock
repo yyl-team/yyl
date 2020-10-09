@@ -1163,9 +1163,9 @@ ansi-cyan@^0.1.1:
   dependencies:
     ansi-wrap "0.1.0"
 
-ansi-escapes@^3.0.0:
+ansi-escapes@^3.0.0, ansi-escapes@^3.2.0:
   version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-3.2.0.tgz#8780b98ff9dbf5638152d1f1fe5c1d7b4442976b"
+  resolved "https://registry.npmjs.org/ansi-escapes/-/ansi-escapes-3.2.0.tgz#8780b98ff9dbf5638152d1f1fe5c1d7b4442976b"
   integrity sha512-cBhpre4ma+U0T1oM5fXg7Dy1Jw7zzwv7lt/GoCpr+hDQJoYnKVPLL4dCvSEFMmQurOQvSrwT7SL/DAlhBI97RQ==
 
 ansi-escapes@^4.2.1:
@@ -4256,7 +4256,7 @@ external-editor@^2.1.0:
     iconv-lite "^0.4.17"
     tmp "^0.0.33"
 
-external-editor@^3.0.0, external-editor@^3.0.3:
+external-editor@^3.0.3:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/external-editor/-/external-editor-3.1.0.tgz#cb03f740befae03ea4d283caed2741a83f335495"
   integrity sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==
@@ -5767,10 +5767,10 @@ ini@^1.3.4:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
   integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
 
-init-me@0.4.8:
-  version "0.4.8"
-  resolved "https://registry.npmjs.org/init-me/-/init-me-0.4.8.tgz#d7462d29325b3c075ea2415b107342eee76dc0ea"
-  integrity sha512-wIcuF2Rxif020dSDs5wgDhRkhoIbIyVmJ8RKi0RCjqdNrAQ3FMpbF0ffgaFwj6UM+c0fiwigphB3ON54Flp4WQ==
+init-me@0.4.10:
+  version "0.4.10"
+  resolved "https://registry.npmjs.org/init-me/-/init-me-0.4.10.tgz#48f6b8af24ca83ed6e190dad1d6b0b0b03888944"
+  integrity sha512-G4jCk5fTDuj6oje+t2w9KPZFqk+evR6JZb0hQDL99e5s4H5Sg14K23+i3TDtvbIRwrSisd027Covabl18M0cQg==
   dependencies:
     chalk "2.4.2"
     commander "3.0.1"
@@ -5780,25 +5780,6 @@ init-me@0.4.8:
     yyl-print "0.7.4"
     yyl-request "0.1.1"
     yyl-util "2.3.6"
-
-inquirer@6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-6.2.0.tgz#51adcd776f661369dc1e894859c2560a224abdd8"
-  integrity sha512-QIEQG4YyQ2UYZGDC4srMZ7BjHOmNk1lR2JQj5UknBapklm6WHA+VVH7N+sUdX3A7NeCfGF8o4X1S3Ao7nAcIeg==
-  dependencies:
-    ansi-escapes "^3.0.0"
-    chalk "^2.0.0"
-    cli-cursor "^2.1.0"
-    cli-width "^2.0.0"
-    external-editor "^3.0.0"
-    figures "^2.0.0"
-    lodash "^4.17.10"
-    mute-stream "0.0.7"
-    run-async "^2.2.0"
-    rxjs "^6.1.0"
-    string-width "^2.1.0"
-    strip-ansi "^4.0.0"
-    through "^2.3.6"
 
 inquirer@7.0.0:
   version "7.0.0"
@@ -5836,6 +5817,25 @@ inquirer@^5.2.0:
     rxjs "^5.5.2"
     string-width "^2.1.0"
     strip-ansi "^4.0.0"
+    through "^2.3.6"
+
+inquirer@^6.2.0:
+  version "6.5.2"
+  resolved "https://registry.npmjs.org/inquirer/-/inquirer-6.5.2.tgz#ad50942375d036d327ff528c08bd5fab089928ca"
+  integrity sha512-cntlB5ghuB0iuO65Ovoi8ogLHiWGs/5yNrtUcKjFhSSiVeAIVpD7koaSU9RM8mpXw5YDi9RdYXGQMaOURB7ycQ==
+  dependencies:
+    ansi-escapes "^3.2.0"
+    chalk "^2.4.2"
+    cli-cursor "^2.1.0"
+    cli-width "^2.0.0"
+    external-editor "^3.0.3"
+    figures "^2.0.0"
+    lodash "^4.17.12"
+    mute-stream "0.0.7"
+    run-async "^2.2.0"
+    rxjs "^6.4.0"
+    string-width "^2.1.0"
+    strip-ansi "^5.1.0"
     through "^2.3.6"
 
 inquirer@^7.0.0:
@@ -6840,7 +6840,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
+lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
@@ -9581,7 +9581,7 @@ rxjs@^5.5.2:
   dependencies:
     symbol-observable "1.0.1"
 
-rxjs@^6.1.0, rxjs@^6.4.0, rxjs@^6.5.3:
+rxjs@^6.4.0, rxjs@^6.5.3:
   version "6.5.5"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.5.tgz#c5c884e3094c8cfee31bf27eb87e54ccfc87f9ec"
   integrity sha512-WfQI+1gohdf0Dai/Bbmk5L5ItH5tYqm3ki2c5GdWhKjalzjg93N3avFjVStyZZz+A2Em+ZxKH5bNghw9UeylGQ==
@@ -12027,10 +12027,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.5.13:
-  version "2.5.13"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.13.tgz#254b43517e0d16db172c9b9c01f0b2cddfa718fc"
-  integrity sha512-2GLJd58a4MTMwxp5H/pnq9OPIm0tGS3/ArEAHYZoGRLLDctE8n+BMPYpGZE0FENc7ZOAz/S7rF5YctrUgrbJLw==
+yyl-seed-webpack@2.5.14:
+  version "2.5.14"
+  resolved "https://registry.npmjs.org/yyl-seed-webpack/-/yyl-seed-webpack-2.5.14.tgz#d2ec8e17354cf86fe847c3af07e516ea465ff83a"
+  integrity sha512-PTzQGgB5VZ444SUkjE56abnUx82HUAUVayLZQj5D+XfL0TNquJLSE71tJmDJs9kWdJjTQMTXMTZwrudpmY0Yag==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
