@@ -136,6 +136,9 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     }
   }
 
+  /** 执行代码执行前配置项 */
+  await yh.optimize.initBeforeScripts(IS_WATCH ? 'watch' : 'all')
+
   // optimize
   return new Promise((next, reject) => {
     let isUpdate = 0
@@ -166,6 +169,10 @@ const wOpzer = async function (ctx, iEnv, configPath) {
         if (!IS_WATCH && isError) {
           return reject(isError)
         }
+
+        /** 执行代码执行后配置项 */
+        await yh.optimize.initAfterScripts(IS_WATCH ? 'watch' : 'all')
+
         log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`])
 
         const homePage = await yh.optimize.getHomePage({

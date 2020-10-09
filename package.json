@@ -36,6 +36,7 @@
     "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
     "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "cra": "yyl all --config ./test/case/react-ts/yyl.config.js --isCommit",
+    "csa": "yyl all --config ./test/case/init-scripts/yyl.config.js --logLevel 2",
     "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
     "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "eslint": "eslint ./",
