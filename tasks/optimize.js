@@ -87,6 +87,11 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     }
   }
 
+  const IS_WATCH = ctx === 'watch'
+
+  /** 执行代码执行前配置项 */
+  await yh.optimize.initBeforeScripts(IS_WATCH ? 'watch' : 'all')
+
   const opzer = await seed.optimize({
     config,
     iEnv,
@@ -119,8 +124,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
     await extFs.removeFiles(config.localserver.root)
   }
 
-  const IS_WATCH = ctx === 'watch'
-
   if (IS_WATCH) {
     const wServer = require('./server.js')
     const op = {
@@ -135,9 +138,6 @@ const wOpzer = async function (ctx, iEnv, configPath) {
       config = afterConfig
     }
   }
-
-  /** 执行代码执行前配置项 */
-  await yh.optimize.initBeforeScripts(IS_WATCH ? 'watch' : 'all')
 
   // optimize
   return new Promise((next, reject) => {
