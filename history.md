@@ -3,7 +3,7 @@
 * feat: 新增 `config.watch.beforeScripts`, `config.watch.afterScripts`
 * feat: 新增 `config.all.beforeScripts`, `config.all.afterScripts`
 * feat: 更新 `init-me@0.4.10`
-* feat: 更新 `yyl-hander@0.12.0`
+* feat: 更新 `yyl-hander@0.12.1`
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.4`
 * feat: 更新 `yyl-seed-other@0.1.3`
 * feat: 更新 `yyl-seed-webpack@2.5.15`
