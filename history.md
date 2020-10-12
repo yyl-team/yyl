@@ -3,7 +3,7 @@
 * feat: 新增 `config.watch.beforeScripts`, `config.watch.afterScripts`
 * feat: 新增 `config.all.beforeScripts`, `config.all.afterScripts`
 * feat: 更新 `init-me@0.4.10` 优化 npm 配置错误 文案
-* feat: 更新 `yyl-hander@0.12.1` 新增 beforeScript, afterScript 相关处理
+* feat: 更新 `yyl-hander@0.12.2` 新增 beforeScript, afterScript 相关处理
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.4` 统一 yyl.config types
 * feat: 更新 `yyl-seed-other@0.1.3` 统一 yyl.config types
 * feat: 更新 `yyl-seed-webpack@2.5.15` 统一 yyl.config types

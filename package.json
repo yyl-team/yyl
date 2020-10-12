@@ -80,7 +80,7 @@
     "inquirer": "^6.2.0",
     "keypress": "*",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.12.1",
+    "yyl-hander": "0.12.2",
     "yyl-os": "0.11.2",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",

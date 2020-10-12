@@ -11875,10 +11875,10 @@ yyl-fs@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-fs/-/yyl-fs-0.2.0.tgz#995aff7c4c64448ea2b8ce2ceca2e2cb76bafa2c"
   integrity sha512-NBs2zgNFg+uc1qEtBNzrUtT6Mcrk6m9KXSA8xsVYMVLFOT1zSdRjucQeUwCjSRfReUBG9sJjeniJTNphX+O70g==
 
-yyl-hander@0.12.1:
-  version "0.12.1"
-  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-0.12.1.tgz#8879683c06fa68e53afcea970ebc5aa522947016"
-  integrity sha512-jaTEJGsqEquQ9W8++U3baWEHlwccHpc1PWTwgMbC5hEb3WUxEh8WE6ycA72W4Eor51f+OXuaZbaNjSl2NY0rlg==
+yyl-hander@0.12.2:
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-0.12.2.tgz#e4cae68aee0402cfbea7ce411a96aee0762e5d3b"
+  integrity sha512-rKbzL0AZiuOjv3XbeAMtx1PKpWYS5UavAzMyUCFD8UQM2W83bizCvfreMs0aTiAr4CytNSbX57uzcEHJGM0Z4Q==
   dependencies:
     chalk "^2.4.2"
     concat-with-sourcemaps "^1.1.0"
