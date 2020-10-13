@@ -1163,9 +1163,9 @@ ansi-cyan@^0.1.1:
   dependencies:
     ansi-wrap "0.1.0"
 
-ansi-escapes@^3.0.0:
+ansi-escapes@^3.0.0, ansi-escapes@^3.2.0:
   version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-3.2.0.tgz#8780b98ff9dbf5638152d1f1fe5c1d7b4442976b"
+  resolved "https://registry.npmjs.org/ansi-escapes/-/ansi-escapes-3.2.0.tgz#8780b98ff9dbf5638152d1f1fe5c1d7b4442976b"
   integrity sha512-cBhpre4ma+U0T1oM5fXg7Dy1Jw7zzwv7lt/GoCpr+hDQJoYnKVPLL4dCvSEFMmQurOQvSrwT7SL/DAlhBI97RQ==
 
 ansi-escapes@^4.2.1:
@@ -4256,7 +4256,7 @@ external-editor@^2.1.0:
     iconv-lite "^0.4.17"
     tmp "^0.0.33"
 
-external-editor@^3.0.0, external-editor@^3.0.3:
+external-editor@^3.0.3:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/external-editor/-/external-editor-3.1.0.tgz#cb03f740befae03ea4d283caed2741a83f335495"
   integrity sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==
@@ -5767,10 +5767,10 @@ ini@^1.3.4:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
   integrity sha512-RZY5huIKCMRWDUqZlEi72f/lmXKMvuszcMBduliQ3nnWbx9X/ZBQO7DijMEYS9EhHBb2qacRUMtC7svLwe0lcw==
 
-init-me@0.4.8:
-  version "0.4.8"
-  resolved "https://registry.npmjs.org/init-me/-/init-me-0.4.8.tgz#d7462d29325b3c075ea2415b107342eee76dc0ea"
-  integrity sha512-wIcuF2Rxif020dSDs5wgDhRkhoIbIyVmJ8RKi0RCjqdNrAQ3FMpbF0ffgaFwj6UM+c0fiwigphB3ON54Flp4WQ==
+init-me@0.4.10:
+  version "0.4.10"
+  resolved "https://registry.npmjs.org/init-me/-/init-me-0.4.10.tgz#48f6b8af24ca83ed6e190dad1d6b0b0b03888944"
+  integrity sha512-G4jCk5fTDuj6oje+t2w9KPZFqk+evR6JZb0hQDL99e5s4H5Sg14K23+i3TDtvbIRwrSisd027Covabl18M0cQg==
   dependencies:
     chalk "2.4.2"
     commander "3.0.1"
@@ -5780,25 +5780,6 @@ init-me@0.4.8:
     yyl-print "0.7.4"
     yyl-request "0.1.1"
     yyl-util "2.3.6"
-
-inquirer@6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-6.2.0.tgz#51adcd776f661369dc1e894859c2560a224abdd8"
-  integrity sha512-QIEQG4YyQ2UYZGDC4srMZ7BjHOmNk1lR2JQj5UknBapklm6WHA+VVH7N+sUdX3A7NeCfGF8o4X1S3Ao7nAcIeg==
-  dependencies:
-    ansi-escapes "^3.0.0"
-    chalk "^2.0.0"
-    cli-cursor "^2.1.0"
-    cli-width "^2.0.0"
-    external-editor "^3.0.0"
-    figures "^2.0.0"
-    lodash "^4.17.10"
-    mute-stream "0.0.7"
-    run-async "^2.2.0"
-    rxjs "^6.1.0"
-    string-width "^2.1.0"
-    strip-ansi "^4.0.0"
-    through "^2.3.6"
 
 inquirer@7.0.0:
   version "7.0.0"
@@ -5836,6 +5817,25 @@ inquirer@^5.2.0:
     rxjs "^5.5.2"
     string-width "^2.1.0"
     strip-ansi "^4.0.0"
+    through "^2.3.6"
+
+inquirer@^6.2.0:
+  version "6.5.2"
+  resolved "https://registry.npmjs.org/inquirer/-/inquirer-6.5.2.tgz#ad50942375d036d327ff528c08bd5fab089928ca"
+  integrity sha512-cntlB5ghuB0iuO65Ovoi8ogLHiWGs/5yNrtUcKjFhSSiVeAIVpD7koaSU9RM8mpXw5YDi9RdYXGQMaOURB7ycQ==
+  dependencies:
+    ansi-escapes "^3.2.0"
+    chalk "^2.4.2"
+    cli-cursor "^2.1.0"
+    cli-width "^2.0.0"
+    external-editor "^3.0.3"
+    figures "^2.0.0"
+    lodash "^4.17.12"
+    mute-stream "0.0.7"
+    run-async "^2.2.0"
+    rxjs "^6.4.0"
+    string-width "^2.1.0"
+    strip-ansi "^5.1.0"
     through "^2.3.6"
 
 inquirer@^7.0.0:
@@ -6840,7 +6840,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
 
-lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
+lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.3, lodash@^4.17.4, lodash@^4.17.5, lodash@^4.3.0:
   version "4.17.20"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
@@ -9581,7 +9581,7 @@ rxjs@^5.5.2:
   dependencies:
     symbol-observable "1.0.1"
 
-rxjs@^6.1.0, rxjs@^6.4.0, rxjs@^6.5.3:
+rxjs@^6.4.0, rxjs@^6.5.3:
   version "6.5.5"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.5.tgz#c5c884e3094c8cfee31bf27eb87e54ccfc87f9ec"
   integrity sha512-WfQI+1gohdf0Dai/Bbmk5L5ItH5tYqm3ki2c5GdWhKjalzjg93N3avFjVStyZZz+A2Em+ZxKH5bNghw9UeylGQ==
@@ -11821,6 +11821,11 @@ yyl-concat-webpack-plugin@0.2.10:
     terser "4.6.3"
     uglify-es "3.3.9"
 
+yyl-config-types@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/yyl-config-types/-/yyl-config-types-0.2.0.tgz#3b20a3fe0471fc7005332c6affc03346e7266c8d"
+  integrity sha512-89fSMLe1SmELst622hPONS0oVhJPwaagjwMfxVwb17Q4m7CgRFYL4nmayRbjBsVBkQO3vFgxFEQH6jQoiCKsyg==
+
 yyl-copy-webpack-plugin@0.2.11:
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/yyl-copy-webpack-plugin/-/yyl-copy-webpack-plugin-0.2.11.tgz#511d7bbd4fec4fcb218b9f1100beb60e2d04bb1e"
@@ -11855,11 +11860,6 @@ yyl-file-replacer@0.6.3:
   resolved "https://registry.yarnpkg.com/yyl-file-replacer/-/yyl-file-replacer-0.6.3.tgz#27ec069df6f465ec02e69a3084d9652cfecc98b8"
   integrity sha512-WxdYWVgX1S6btkYSgnq/R3nM0nHApwJeRwNrCzzXZHfqkXk4A/bTf5q0CfjWJ66Uy7/Wsr1dpSIAISJuh0rAgw==
 
-yyl-file-replacer@^0.6.0:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/yyl-file-replacer/-/yyl-file-replacer-0.6.2.tgz#d287983982b7ae770b9fc1ea90a84ee4455e587d"
-  integrity sha512-jStrx6+pKu3oi8HSVvws6kY1Oj5Uaxt218hVOdXlSWBSEtj7Gctn2pt354jK9vnTOlCtG5gTiwwbyityy/8gTg==
-
 yyl-fs@0.3.2:
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/yyl-fs/-/yyl-fs-0.3.2.tgz#bae59b34a0d10e1b653ed00b927d6828ff95df60"
@@ -11875,18 +11875,18 @@ yyl-fs@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-fs/-/yyl-fs-0.2.0.tgz#995aff7c4c64448ea2b8ce2ceca2e2cb76bafa2c"
   integrity sha512-NBs2zgNFg+uc1qEtBNzrUtT6Mcrk6m9KXSA8xsVYMVLFOT1zSdRjucQeUwCjSRfReUBG9sJjeniJTNphX+O70g==
 
-yyl-hander@0.11.4:
-  version "0.11.4"
-  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-0.11.4.tgz#5807d32a1e48ecbb72a23d7d6875be7a1057e511"
-  integrity sha512-jZ0jVMT+qwn4f0v7iBUmgPii43I5d+/W8JVSPoljRbi8gySueo8BnmdHA8moxnnEyVJAK0yPoYBco2qapJLlhg==
+yyl-hander@0.12.2:
+  version "0.12.2"
+  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-0.12.2.tgz#e4cae68aee0402cfbea7ce411a96aee0762e5d3b"
+  integrity sha512-rKbzL0AZiuOjv3XbeAMtx1PKpWYS5UavAzMyUCFD8UQM2W83bizCvfreMs0aTiAr4CytNSbX57uzcEHJGM0Z4Q==
   dependencies:
     chalk "^2.4.2"
     concat-with-sourcemaps "^1.1.0"
     rev-hash "^3.0.0"
-    yyl-file-replacer "^0.6.0"
+    yyl-config-types "^0.2.0"
     yyl-os "0.11.0"
-    yyl-request "^0.1.0"
-    yyl-util "^2.2.0"
+    yyl-request "^0.1.1"
+    yyl-util "^2.3.8"
 
 yyl-inlinesource@1.2.1:
   version "1.2.1"
@@ -11945,7 +11945,7 @@ yyl-print@0.7.4:
   dependencies:
     chalk "^2.4.2"
 
-yyl-request@0.1.1, yyl-request@^0.1.0, yyl-request@^0.1.1:
+yyl-request@0.1.1, yyl-request@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/yyl-request/-/yyl-request-0.1.1.tgz#5fdaf9795b466f0e7208c23b4e33a35f6ffe9b96"
   integrity sha512-Bkj89soBrBxjBNnv3TSfVOJvbtJ9/ULJyYrS5yFVqoL4PYyFMPaOoK45jFKq+HwVOLWqr3x/W8QIxk912gWHDw==
@@ -11961,10 +11961,10 @@ yyl-rev-webpack-plugin@0.1.5:
     tapable "^1.1.3"
     yyl-request "^0.1.1"
 
-yyl-seed-gulp-requirejs@4.7.3:
-  version "4.7.3"
-  resolved "https://registry.yarnpkg.com/yyl-seed-gulp-requirejs/-/yyl-seed-gulp-requirejs-4.7.3.tgz#85725d48870e53865ad539a95a8df98c4929491a"
-  integrity sha512-31yXI6OIT2OYcacItp9zMLMCHtCyjEFQSf4wHzdQBrYUidarlJUkz1KmxE6JW515PBRg0bLTiHGISzOn+cLEZw==
+yyl-seed-gulp-requirejs@4.7.4:
+  version "4.7.4"
+  resolved "https://registry.yarnpkg.com/yyl-seed-gulp-requirejs/-/yyl-seed-gulp-requirejs-4.7.4.tgz#381a6c42c7a233f38f00e917255726c5bdcd915b"
+  integrity sha512-GSrKnEJct0vopBHDO7qWPyLmpM2qTN6IdMacL9edzBs97zeBZ9nxAIZUhrxq48JOBlRs25wLGwlpu2l1dwWnOA==
   dependencies:
     chalk "2.4.1"
     concat-with-sourcemaps "^1.1.0"
@@ -11987,6 +11987,7 @@ yyl-seed-gulp-requirejs@4.7.3:
     requirejs "2.3.6"
     rev-hash "3.0.0"
     through2 "2.0.3"
+    yyl-config-types "^0.2.0"
     yyl-file-replacer "0.6.3"
     yyl-fs "0.3.3"
     yyl-inlinesource "1.2.1"
@@ -11994,12 +11995,13 @@ yyl-seed-gulp-requirejs@4.7.3:
     yyl-seed-response "0.1.0"
     yyl-util "2.3.7"
 
-yyl-seed-other@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/yyl-seed-other/-/yyl-seed-other-0.1.1.tgz#26e468629a83b2f56fe9aff99d183aa87e828879"
-  integrity sha512-4zW+6T+yswhpKKR5ZT/UPtPgYmtkvcddd0DnY+TVHo6IhP4lQOPTfa4Hf5yexfXwHtni6np807B1SYsOP0enqw==
+yyl-seed-other@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/yyl-seed-other/-/yyl-seed-other-0.1.3.tgz#c74411cb804ee398660d3dfe76da5fe2cb148534"
+  integrity sha512-ID3jnQnPG8HVKD8AAh6GnNAXE7p41NKFddwC1t+x3jQ11hvE58AQVQlyl5F4VQqrcqw+W+Ido4c7M5+nr8Q3hA==
   dependencies:
     chalk "^4.1.0"
+    yyl-config-types "^0.2.0"
     yyl-os "^0.11.2"
     yyl-seed-response "^0.1.1"
 
@@ -12027,10 +12029,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.5.13:
-  version "2.5.13"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.13.tgz#254b43517e0d16db172c9b9c01f0b2cddfa718fc"
-  integrity sha512-2GLJd58a4MTMwxp5H/pnq9OPIm0tGS3/ArEAHYZoGRLLDctE8n+BMPYpGZE0FENc7ZOAz/S7rF5YctrUgrbJLw==
+yyl-seed-webpack@2.5.15:
+  version "2.5.15"
+  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.15.tgz#b0127e04b9525232aea4cd47502aadab16cfd6ee"
+  integrity sha512-9al25VT0P1LQeF6w84OLVB5gmHG9XMAIw1C/gYTnVv87+OeQ2XEzH31oR5xknJU+uCA8ILtrsh4MI9+AQmA54Q==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
@@ -12080,6 +12082,7 @@ yyl-seed-webpack@2.5.13:
     webpack-hot-middleware "2.24.3"
     webpack-merge "4.2.1"
     yyl-concat-webpack-plugin "0.2.10"
+    yyl-config-types "^0.2.0"
     yyl-copy-webpack-plugin "0.2.11"
     yyl-env-pop-webpack-plugin "0.1.5"
     yyl-fs "0.3.2"
@@ -12089,10 +12092,10 @@ yyl-seed-webpack@2.5.13:
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
-yyl-server@0.3.17:
-  version "0.3.17"
-  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.17.tgz#501fbee3577778f4130a28412a58037257d20820"
-  integrity sha512-15LsYUnqfa+95F+E2o+/J9HEXeTTWZd1BSSdFlPSBex0D8mOUQTnDnc4IYl8+KbAYys+TiR0Txz6+PhVt6zZww==
+yyl-server@0.3.18:
+  version "0.3.18"
+  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.18.tgz#3b129cb87edbaec4cba724fceae24f6f43260300"
+  integrity sha512-soE/tGwuMyIOa9XBR0r7P5YwL2Vrq8fHWNM3MJiropzWHcjr6+7xAfVhPu2KwmzggJlEz8q5MJ0nY+eEKDk7mw==
   dependencies:
     "@types/connect" "3.4.33"
     anyproxy "4.1.3"
@@ -12105,6 +12108,7 @@ yyl-server@0.3.17:
     serve-index "1.9.1"
     serve-static "1.13.2"
     tiny-lr "1.1.1"
+    yyl-config-types "^0.2.0"
     yyl-fs "0.3.3"
     yyl-os "0.10.3"
     yyl-request "0.1.1"
@@ -12135,7 +12139,7 @@ yyl-util@2.3.7:
   resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.3.7.tgz#5e5b96eb9a9c750fd8365195c991f4011cd76b79"
   integrity sha512-NSMslwZwWwxWzM+yw1Zk6/Bua7RUinkv0FEj/sf4LYweal2qsw6sgQfKjumSzqkyPV2LNHQTAe8OHmwgnqRBkg==
 
-yyl-util@2.3.8, yyl-util@^2.1.0, yyl-util@^2.2.0, yyl-util@^2.3.5:
+yyl-util@2.3.8, yyl-util@^2.1.0, yyl-util@^2.3.5, yyl-util@^2.3.8:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/yyl-util/-/yyl-util-2.3.8.tgz#5ef178f47ddc33c841add5356628c9c305836f2d"
   integrity sha512-z4mgp4mHdyDWJmvLswB6ayBrobtEGPr80wsGkhUKCfsSzl6gD1bRWoXTbkYX4P7/wnSBkNQ+L6eDZ1HOt32qXg==

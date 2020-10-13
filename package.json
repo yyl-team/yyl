@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.12.1",
+  "version": "3.13.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -36,6 +36,7 @@
     "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
     "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "cra": "yyl all --config ./test/case/react-ts/yyl.config.js --isCommit",
+    "csa": "yyl all --config ./test/case/init-scripts/yyl.config.js --logLevel 2",
     "crw": "yyl watch --proxy --config ./test/case/react-ts/yyl.config.js",
     "cww": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
     "eslint": "eslint ./",
@@ -71,22 +72,22 @@
   },
   "homepage": "https://github.com/jackness1208/yyl#readme",
   "engines": {
-    "node": ">= 8.0.0"
+    "node": ">= 10.0.0"
   },
   "dependencies": {
-    "chalk": "2.4.1",
-    "init-me": "0.4.8",
-    "inquirer": "6.2.0",
+    "chalk": "^2.4.1",
+    "init-me": "0.4.10",
+    "inquirer": "^6.2.0",
     "keypress": "*",
     "yyl-fs": "0.3.2",
-    "yyl-hander": "0.11.4",
+    "yyl-hander": "0.12.2",
     "yyl-os": "0.11.2",
     "yyl-print": "0.7.3",
     "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "4.7.3",
-    "yyl-seed-other": "0.1.1",
-    "yyl-seed-webpack": "2.5.14",
-    "yyl-server": "0.3.17",
+    "yyl-seed-gulp-requirejs": "4.7.4",
+    "yyl-seed-other": "0.1.3",
+    "yyl-seed-webpack": "2.5.15",
+    "yyl-server": "0.3.18",
     "yyl-util": "2.3.8"
   },
   "devDependencies": {
