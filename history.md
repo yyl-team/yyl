@@ -1,5 +1,5 @@
 # 版本信息
-## 3.13.0(*)
+## 3.13.0(2020-10-13)
 * feat: 新增 `config.watch.beforeScripts`, `config.watch.afterScripts`
 * feat: 新增 `config.all.beforeScripts`, `config.all.afterScripts`
 * feat: 最低支持改为 node 10 版本
