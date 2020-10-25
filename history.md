@@ -1,4 +1,8 @@
 # 版本信息
+## 3.13.1 (*)
+* feat: 去掉 `yyl-seed-webpack` 类项目在打包时会生成 sourcemap 的操作
+* feat: 更新 `yyl-seed-webpack@2.5.16`
+
 ## 3.13.0(2020-10-13)
 * feat: 新增 `config.watch.beforeScripts`, `config.watch.afterScripts`
 * feat: 新增 `config.all.beforeScripts`, `config.all.afterScripts`
