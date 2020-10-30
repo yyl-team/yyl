@@ -1,7 +1,8 @@
 # 版本信息
 ## 3.13.1 (*)
+* feat: 新增 `config.urlLoaderMatch` 属性, 用于配置 其他 需要用到 url-loader 的文件 
 * feat: 去掉 `yyl-seed-webpack` 类项目在打包时会生成 sourcemap 的操作
-* feat: 更新 `yyl-seed-webpack@2.5.16`
+* feat: 更新 `yyl-seed-webpack@2.6.0`
 
 ## 3.13.0(2020-10-13)
 * feat: 新增 `config.watch.beforeScripts`, `config.watch.afterScripts`
