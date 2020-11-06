@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const log = require('../lib/log.js')
-const iArgv = process.argv.splice(2)
+const iArgv = process.argv.slice(2)
 const util = require('yyl-util')
 
 process.on('uncaughtException', (err) => {

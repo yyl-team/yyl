@@ -133,7 +133,7 @@ wServer.start = async function (ctx, iEnv, options, serverOption) {
     config,
     env: iEnv,
     log(type, argu) {
-      log('msg', type, ...argu)
+      log('msg', type, argu)
     },
     ignoreServer: iEnv.port === false ? true : op.ignoreServer,
     serverOption,

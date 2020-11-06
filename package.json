@@ -87,7 +87,7 @@
     "yyl-seed-gulp-requirejs": "4.7.4",
     "yyl-seed-other": "0.1.3",
     "yyl-seed-webpack": "2.6.0",
-    "yyl-server": "0.3.18",
+    "yyl-server": "0.3.19",
     "yyl-util": "2.3.8"
   },
   "devDependencies": {
