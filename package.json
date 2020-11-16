@@ -76,6 +76,7 @@
   },
   "dependencies": {
     "chalk": "^2.4.1",
+    "core-js": "^3.7.0",
     "init-me": "0.4.10",
     "inquirer": "^6.2.0",
     "keypress": "*",
