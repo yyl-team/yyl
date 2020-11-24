@@ -1,4 +1,6 @@
 # 版本信息
+## 3.13.2 (*)
+* feat: 更新 `yyl-seed-webpack@2.6.2` 优化 rev 组件 log显示
 ## 3.13.1 (2020-11-16)
 * feat: 新增 `config.urlLoaderMatch` 属性, 用于配置 其他 需要用到 url-loader 的文件 
 * feat: 更新 `yyl-server@0.3.19`
