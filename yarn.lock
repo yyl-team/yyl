@@ -2886,6 +2886,11 @@ core-js@^2.4.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
   integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
 
+core-js@^3.7.0:
+  version "3.7.0"
+  resolved "https://registry.npmjs.org/core-js/-/core-js-3.7.0.tgz#b0a761a02488577afbf97179e4681bf49568520f"
+  integrity sha512-NwS7fI5M5B85EwpWuIwJN4i/fbisQUwLwiSNUWeXlkAZ0sbBjLEvLvFLf1uzAUV66PcEPt4xCGCmOZSxVf3xzA==
+
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
@@ -11826,6 +11831,11 @@ yyl-config-types@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-config-types/-/yyl-config-types-0.2.0.tgz#3b20a3fe0471fc7005332c6affc03346e7266c8d"
   integrity sha512-89fSMLe1SmELst622hPONS0oVhJPwaagjwMfxVwb17Q4m7CgRFYL4nmayRbjBsVBkQO3vFgxFEQH6jQoiCKsyg==
 
+yyl-config-types@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.npmjs.org/yyl-config-types/-/yyl-config-types-0.3.0.tgz#acb3c9ee025650d18daf2d422aed8b62b819fd84"
+  integrity sha512-ZDlgbBd/VVcaMLN6m4FJzcWL6UEQ0wcic0iwYd1Ih1qjycDnyolO6sBAoYVuR05peHd1GRQca9PZ81C1JuWjbw==
+
 yyl-copy-webpack-plugin@0.2.11:
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/yyl-copy-webpack-plugin/-/yyl-copy-webpack-plugin-0.2.11.tgz#511d7bbd4fec4fcb218b9f1100beb60e2d04bb1e"
@@ -12029,10 +12039,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.5.15:
-  version "2.5.15"
-  resolved "https://registry.yarnpkg.com/yyl-seed-webpack/-/yyl-seed-webpack-2.5.15.tgz#b0127e04b9525232aea4cd47502aadab16cfd6ee"
-  integrity sha512-9al25VT0P1LQeF6w84OLVB5gmHG9XMAIw1C/gYTnVv87+OeQ2XEzH31oR5xknJU+uCA8ILtrsh4MI9+AQmA54Q==
+yyl-seed-webpack@2.6.0:
+  version "2.6.0"
+  resolved "https://registry.npmjs.org/yyl-seed-webpack/-/yyl-seed-webpack-2.6.0.tgz#e69fedaf21b404ee76d4c72934e45dd16951e8e5"
+  integrity sha512-ZTkmju0TrlmVABrMEjDexgMF2Je9hGtFOGOF9joXZpwu9idQCYr6ULXg6xCMKoEEsJm42o2nvRNvcwtHyIlB2Q==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
@@ -12082,7 +12092,7 @@ yyl-seed-webpack@2.5.15:
     webpack-hot-middleware "2.24.3"
     webpack-merge "4.2.1"
     yyl-concat-webpack-plugin "0.2.10"
-    yyl-config-types "^0.2.0"
+    yyl-config-types "^0.3.0"
     yyl-copy-webpack-plugin "0.2.11"
     yyl-env-pop-webpack-plugin "0.1.5"
     yyl-fs "0.3.2"
@@ -12092,10 +12102,10 @@ yyl-seed-webpack@2.5.15:
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
-yyl-server@0.3.18:
-  version "0.3.18"
-  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.18.tgz#3b129cb87edbaec4cba724fceae24f6f43260300"
-  integrity sha512-soE/tGwuMyIOa9XBR0r7P5YwL2Vrq8fHWNM3MJiropzWHcjr6+7xAfVhPu2KwmzggJlEz8q5MJ0nY+eEKDk7mw==
+yyl-server@0.3.19:
+  version "0.3.19"
+  resolved "https://registry.npmjs.org/yyl-server/-/yyl-server-0.3.19.tgz#32576e5ca6df6ec71f6f275d67bcc94cb5e0c272"
+  integrity sha512-6E5AbG5TprrtW1A/mJgIlbLiASJyHQSWeej8o6aVLnXmhIkGFX49vaTmuNT1i52q4KkaiCZs9TVndz/jL4p1EQ==
   dependencies:
     "@types/connect" "3.4.33"
     anyproxy "4.1.3"
