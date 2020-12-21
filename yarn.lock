@@ -12124,10 +12124,10 @@ yyl-seed-webpack@2.6.2:
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
-yyl-server@0.3.20:
-  version "0.3.20"
-  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.20.tgz#165a0b030a72a3fb49364fa4cb6646981a384902"
-  integrity sha512-anqRPPsC/ciFnMrOX446BECpdMdvtEaWuioV4jCPpo3VPdg42KWXkq8u50ucupTxd7lWHyUjl5cG40m8eL83rg==
+yyl-server@0.3.21:
+  version "0.3.21"
+  resolved "https://registry.npmjs.org/yyl-server/-/yyl-server-0.3.21.tgz#6e1864fb5f19f6999c899590cf38be406c8e4fbf"
+  integrity sha512-nLqNlyG3N46Er+JUO1wQCG/fx/6htcbfmwjaFWs4oUAhJH10LccoBamK8zKWDEN8JpgbkJFmCaR70I/YB8ZR7Q==
   dependencies:
     "@types/connect" "3.4.33"
     anyproxy "4.1.3"

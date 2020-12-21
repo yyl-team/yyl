@@ -1,4 +1,8 @@
 # 版本信息
+## 3.13.4 (2020-12-21)
+* feat: 更新 `yyl-server@0.3.22` 修复 proxy 模式下 目標地址白屏問題
+## 3.13.3 (2020-12-14)
+* feat: 更新 `yyl-server@0.3.21` 修复 proxy 模式下 本地服务中图片不能正确显示的问题
 ## 3.13.2 (2020-12-13)
 * feat: 更新 `yyl-seed-webpack@2.6.2` 优化 rev 组件 log显示
 * feat: 更新 `yyl-server@0.3.20` 支持 proxy 模式下 转发 headers 和 cookies
