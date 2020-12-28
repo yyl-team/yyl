@@ -11951,7 +11951,14 @@ yyl-os@0.11.1:
   dependencies:
     yyl-util "^2.3.5"
 
-yyl-os@0.11.2, yyl-os@^0.11.2:
+yyl-os@0.11.4:
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/yyl-os/-/yyl-os-0.11.4.tgz#635172b344ab92d2a517bc8c011b8836a30f4e40"
+  integrity sha512-R2YvkA4BMCCk6BdJliBThG3ISN6FZOqeqfiuTXATG8XXF6XVdcL+Ik1H1udWZS99WMLLz+783iKs88KM5CQR0Q==
+  dependencies:
+    yyl-util "^2.3.5"
+
+yyl-os@^0.11.2:
   version "0.11.2"
   resolved "https://registry.npmjs.org/yyl-os/-/yyl-os-0.11.2.tgz#7d25d95f9fc8d5a8f7bb8b550739df059c5ae101"
   integrity sha512-PIeJLmkIRSwR0OeM3IhL2AKDPLwRBu5ZXjZDHzZ2Y+J1g907FbZ2nreMYo8hBDKT8aKdw0hr2Fg3C8z7dDWqqQ==
@@ -12061,10 +12068,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.6.2:
-  version "2.6.2"
-  resolved "https://registry.npmjs.org/yyl-seed-webpack/-/yyl-seed-webpack-2.6.2.tgz#92f71be259f129ddf7a9e05cc7463e960138fab2"
-  integrity sha512-Jm68lYjm8Pe58Cn89xYK0zeb0x+7Xa2FWBax/JFD2JqQG9Lb0n9BHEOHnwHYa7mbNdr6ziWOyzBJyAbiRPYgOQ==
+yyl-seed-webpack@2.6.3:
+  version "2.6.3"
+  resolved "https://registry.npmjs.org/yyl-seed-webpack/-/yyl-seed-webpack-2.6.3.tgz#49c292e13d068b3ed888dfbbe4bcd176e1d29e7b"
+  integrity sha512-50IntFzNqNyUvE/9M5l/eqN0dROVAQVK0shcwEPX3l6Dt0F8qpkCXDbEh2kpw29x73jgi6sZ4tweW2ZrhQVw2A==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
@@ -12124,10 +12131,10 @@ yyl-seed-webpack@2.6.2:
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
 
-yyl-server@0.3.21:
-  version "0.3.21"
-  resolved "https://registry.npmjs.org/yyl-server/-/yyl-server-0.3.21.tgz#6e1864fb5f19f6999c899590cf38be406c8e4fbf"
-  integrity sha512-nLqNlyG3N46Er+JUO1wQCG/fx/6htcbfmwjaFWs4oUAhJH10LccoBamK8zKWDEN8JpgbkJFmCaR70I/YB8ZR7Q==
+yyl-server@0.3.22:
+  version "0.3.22"
+  resolved "https://registry.yarnpkg.com/yyl-server/-/yyl-server-0.3.22.tgz#7c4972a971c0d193bca91053bb442ecc85e3fff3"
+  integrity sha512-DuAYhkNkZaFiF1m9bi7j3z08IUMCowiIfurh6shkW3WRUvccoSZXrBpaNaUJ5Iix9L63c1BVd8cwFBKM7azmkg==
   dependencies:
     "@types/connect" "3.4.33"
     anyproxy "4.1.3"
