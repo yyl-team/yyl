@@ -1,4 +1,7 @@
 # 版本信息
+## 3.13.5 (*)
+* feat: 更新 `yyl-server@0.3.23` 修复 proxy 模式下 --port 不会修改 proxy.remote 下 `127.0.0.1:5000` 部分
+
 ## 3.13.5 (2020-12-28)
 * feat: 更新 `yyl-os@0.11.4` 修复 macOs 打开 带 & 的 url 时结果不符合预期的问题
 * feat: 更新  `yyl-seed-webpack@2.6.3` 调整配置中 alias 字段
