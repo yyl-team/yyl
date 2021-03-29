@@ -11991,10 +11991,10 @@ yyl-request@0.1.1, yyl-request@^0.1.1:
   dependencies:
     request "^2.88.0"
 
-yyl-rev-webpack-plugin@0.1.7:
-  version "0.1.7"
-  resolved "https://registry.npmjs.org/yyl-rev-webpack-plugin/-/yyl-rev-webpack-plugin-0.1.7.tgz#03ea959b230794639771e1ac721952d9f86c0a6a"
-  integrity sha512-x78AOV/d4j1nmYKFDVehu5zV27LmZ7Rss545dPi0opSDwGGkh2hfMgg+VM8mJe3bGjcjytQwH9aRBO6XdKHnMQ==
+yyl-rev-webpack-plugin@0.1.8:
+  version "0.1.8"
+  resolved "https://registry.npmjs.org/yyl-rev-webpack-plugin/-/yyl-rev-webpack-plugin-0.1.8.tgz#f3724c49eb602e4fe24fd463e4851cceade7b36f"
+  integrity sha512-WGiy3+iHmVwl93vuyusXO/MG0cPmUJwDzmOUUa2MgjpaLvqmBm1vhvbYB8TXePR1sr14+JzrqlIp5CwLtTmaeQ==
   dependencies:
     chalk "^3.0.0"
     tapable "^1.1.3"
@@ -12068,10 +12068,10 @@ yyl-seed-test-util@0.3.1:
     yyl-os "^0.2.0"
     yyl-util "^2.1.0"
 
-yyl-seed-webpack@2.6.3:
-  version "2.6.3"
-  resolved "https://registry.npmjs.org/yyl-seed-webpack/-/yyl-seed-webpack-2.6.3.tgz#49c292e13d068b3ed888dfbbe4bcd176e1d29e7b"
-  integrity sha512-50IntFzNqNyUvE/9M5l/eqN0dROVAQVK0shcwEPX3l6Dt0F8qpkCXDbEh2kpw29x73jgi6sZ4tweW2ZrhQVw2A==
+yyl-seed-webpack@2.6.5:
+  version "2.6.5"
+  resolved "https://registry.npmjs.org/yyl-seed-webpack/-/yyl-seed-webpack-2.6.5.tgz#1c3f048c3f2cb2bf8619c264e31328891fb0b559"
+  integrity sha512-vF8eQQpDgYwTdfH9Iona6kIhfNe7suWEZasiMrq1Jl6U5YOogHiomEiJOIcFBoHAZK3+KhY0NtQbF4cxvG1nYw==
   dependencies:
     "@babel/core" "7.2.2"
     "@babel/plugin-proposal-class-properties" "7.5.5"
@@ -12126,7 +12126,7 @@ yyl-seed-webpack@2.6.3:
     yyl-env-pop-webpack-plugin "0.1.5"
     yyl-fs "0.3.2"
     yyl-os "0.11.1"
-    yyl-rev-webpack-plugin "0.1.7"
+    yyl-rev-webpack-plugin "0.1.8"
     yyl-seed-response "0.1.1"
     yyl-sugar-webpack-plugin "0.1.14"
     yyl-util "2.3.3"
