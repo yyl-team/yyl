@@ -1,0 +1,9 @@
+**/js/lib/**
+dist/**
+docs/**
+output/**
+node_modules/**
+**/*.json
+**/*.scss
+**/*.yml
+**/*.md
