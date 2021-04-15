@@ -5,4 +5,5 @@ __committest/
 __frag/
 __gitcase/
 test/case/
+packages/
 .vscode

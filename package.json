@@ -12,12 +12,16 @@
     "yyl": "bin/init.js"
   },
   "eslintConfig": {
+    "env": {
+      "mocha": true
+    },
     "extends": [
       "yyl-node"
     ]
   },
   "eslintIgnore": [
     "node_modules",
+    "/packages",
     "/test/case",
     "yyt",
     "__frag",

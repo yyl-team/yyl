@@ -3,7 +3,7 @@
 ## 安装
 
 ```
-yarn add yyl-cmd-logger
+yarn add @yyl/cmd-logger
 ```
 
 ## 使用
@@ -11,7 +11,7 @@ yarn add yyl-cmd-logger
 ### 一般使用
 
 ```typescript
-import YylCmdLogger from 'yyl-cmd-logger'
+import YylCmdLogger from '@yyl/cmd-logger'
 const logger = new YylCmdLogger()
 logger.log('info', ['hello world'])
 logger.log('warn', ['hello world'])
@@ -33,7 +33,7 @@ logger.setProgress('finished')
 ### 进度功能
 
 ```typescript
-import YylCmdLogger from 'yyl-cmd-logger'
+import YylCmdLogger from '@yyl/cmd-logger'
 const logger = new YylCmdLogger()
 
 logger.setProgress('start')
@@ -47,7 +47,7 @@ logger.setProgress('finished')
 ### 自定义 type
 
 ```typescript
-import YylCmdLogger from 'yyl-cmd-logger'
+import YylCmdLogger from '@yyl/cmd-logger'
 import chalk from 'chalk'
 const logger = new YylCmdLogger({
   type: {
