@@ -1,5 +1,5 @@
 {
-  "version": "0.1.6",
+  "version": "0.1.0",
   "main": "output/index.js",
   "types": "output/index.d.ts",
   "repository": {
@@ -59,7 +59,7 @@
     "rollup-plugin-typescript2": "^0.29.0",
     "typescript": "^4.1.3"
   },
-  "name": "yyl-cmd-logger",
+  "name": "@yylive/cmd-logger",
   "author": "liudaojie <liudaojie@yy.com>",
   "license": "MIT",
   "dependencies": {

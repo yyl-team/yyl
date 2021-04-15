@@ -1,6 +1,6 @@
 {
-  "name": "yyl-config-types",
-  "version": "0.4.4",
+  "name": "@yylive/config-types",
+  "version": "0.1.0",
   "description": "yyl.config types",
   "main": "output/index.js",
   "repository": {
