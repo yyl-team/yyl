@@ -1,15 +1,7 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.3",
   "main": "output/index.js",
   "types": "output/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jackness1208/yyl.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jackness1208/yyl/issues"
-  },
-  "homepage": "https://github.com/jackness1208/yyl#readme",
   "eslintConfig": {
     "env": {
       "jest": true
@@ -23,6 +15,14 @@
     "/output",
     "/test"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackness1208/yyl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jackness1208/yyl/issues"
+  },
+  "homepage": "https://github.com/jackness1208/yyl#readme",
   "prettier": {
     "tabWidth": 2,
     "semi": false,
@@ -33,16 +33,16 @@
     "printWidth": 100
   },
   "scripts": {
-    "bootstrap": "yarn install & npm run prettier",
+    "bootstarp": "yarn install & npm run prettier",
     "eslint": "eslint --ext=jsx,ts,tsx ./",
     "prettier": "prettier --write ./**",
     "dev": "rollup --config ./rollup.config.js",
     "d": "rollup --config ./rollup.config.js",
     "build": "cross-env NODE_ENV=production rollup --config ./rollup.config.js",
     "w": "rollup --watch --config ./rollup.config.js",
-    "prepublishOnly": "npm run prettier & npm test",
-    "test": "npm run build & jest ./test/jest/",
-    "test:wrap": "jest ./test/jest/wrap.test.js"
+    "prepublishOnly": "npm run prettier & npm run build & npm test & npm run doc",
+    "doc": "typedoc ./src/index.ts",
+    "test": "jest ./test/jest/"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
@@ -57,12 +57,14 @@
     "rollup-plugin-node-externals": "^2.2.0",
     "rollup-plugin-terser": "^5.3.0",
     "rollup-plugin-typescript2": "^0.29.0",
+    "typedoc": "^0.20.20",
     "typescript": "^4.1.3"
   },
-  "name": "@yylive/cmd-logger",
+  "name": "init-yyl-config",
+  "description": "init yyl config",
   "author": "liudaojie <liudaojie@yy.com>",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^4.1.0"
+    "yyl-config-types": "^0.4.0"
   }
 }
