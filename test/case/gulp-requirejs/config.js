@@ -27,8 +27,7 @@ var //+ yyl init 自动 匹配内容
     proxy: {
       port: 8887,
       localRemote: {
-        //'http://www.yy.com/': './dist/',
-        'http://www.yy.com/': 'http://127.0.0.1:5000/',
+        'http://www.testhost.com/': 'http://127.0.0.1:5000/',
       },
     },
     /**
@@ -159,7 +158,7 @@ var config = {
     // 上线配置
     revAddr: 'http://yyweb.yystatic.com/pc/assets/rev-manifest.json',
     staticHost: 'http://yyweb.yystatic.com/',
-    mainHost: 'http://www.yy.com',
+    mainHost: 'http://www.testhost.com',
     hostname: 'http://yyweb.yystatic.com/',
     git: {
       update: [],

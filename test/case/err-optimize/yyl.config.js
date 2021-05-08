@@ -29,22 +29,22 @@ const setting = {
   proxy: {
     port: 8887,
     localRemote: {
-      'http://web.yy.com/': 'http://127.0.0.1:5000/',
-      'http://webtest.yy.com/': 'http://127.0.0.1:5000/',
+      'http://web.testhost.com/': 'http://127.0.0.1:5000/',
+      'http://webtest.testhost.com/': 'http://127.0.0.1:5000/',
     },
-    homePage: `http://www.yy.com/web/${PROJECT_NAME}/`,
+    homePage: `http://www.testhost.com/web/${PROJECT_NAME}/`,
   },
 }
 setting.proxy.localRemote[
-  `http://www.yy.com/web/${PROJECT_NAME}`
+  `http://www.testhost.com/web/${PROJECT_NAME}`
 ] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`
 setting.proxy.localRemote[
-  `http://web.yy.com/${PROJECT_NAME}`
+  `http://web.testhost.com/${PROJECT_NAME}`
 ] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`
 setting.proxy.localRemote[
-  `http://webtest.yy.com/${PROJECT_NAME}`
+  `http://webtest.testhost.com/${PROJECT_NAME}`
 ] = `http://127.0.0.1:5000/project/${PROJECT_NAME}/${PLATFORM}/html`
-setting.proxy.localRemote['http://www.yy.com/api/mock'] =
+setting.proxy.localRemote['http://www.testhost.com/api/mock'] =
   'http://127.0.0.1:5000/api/mock'
 
 // - setting
@@ -121,16 +121,16 @@ function makeConfig({ env }) {
       revAddr: `http://web.yystatic.com${setting.dest.basePath}/${setting.dest.revPath}/rev-manifest.json`,
       hostname: '//web.yystatic.com',
       staticHost: '//web.yystatic.com',
-      mainHost: '//www.yy.com/web',
+      mainHost: '//www.testhost.com/web',
     },
     // - configCommit
   }
   if (env.mode !== 'master') {
-    config.proxy.homePage = `http:/webtest.yy.com/${PROJECT_NAME}/`
+    config.proxy.homePage = `http:/webtest.testhost.com/${PROJECT_NAME}/`
     config.commit.revAddr = `http://webtest.yystatic.com${setting.dest.basePath}/${setting.dest.revPath}/rev-manifest.json`
     config.commit.hostname = '//webtest.yystatic.com'
     config.commit.staticHost = '//webtest.yystatic.com'
-    config.commit.mainHost = '//webtest.yy.com'
+    config.commit.mainHost = '//webtest.testhost.com'
   }
   return config
 }

@@ -50,7 +50,7 @@
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.3`
 * feat: 当配置 `config.yarn: true` 时， 会自动删除 项目根目录中的 `package-lock.json` 文件
 * fix: 修复 `yyl-seed-gulp-requirejs` 项目中 html 文件 `__url(path/to/file)` 语法糖失效问题
-* fix: 修复 当 `config.commit.hostname === '//www.yy.com/pc'` 这种带有 `pathname` 的 配置时， `localserver` 映射不正确问题
+* fix: 修复 当 `config.commit.hostname === '//www.testhost.com/pc'` 这种带有 `pathname` 的 配置时， `localserver` 映射不正确问题
 
 ## 3.11.7 (2020-07-22)
 * feat: 更新 `yyl-seed-gulp-requirejs@4.7.1`
@@ -752,7 +752,7 @@
 * feat: 工作流 `README.md` 中 新增 对 打包命令的 例子说明
 
 ## 2.10.1 (2017-06-22)
-* fix: 修复在config.commit.hostname 中填写 不带协议的 url如 `//www.yy.com` 时，路径替换出错问题
+* fix: 修复在config.commit.hostname 中填写 不带协议的 url如 `//www.testhost.com` 时，路径替换出错问题
 
 ## 2.10.0 (2017-06-19)
 * del: 去掉不完善的 `browserify-babel` 工作流

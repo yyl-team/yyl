@@ -36,4 +36,4 @@ yyl 3.0
 
 更多
 ------------------
-可以参考[这里](http://fet.yy.com/yyl/)
+可以参考 <a href="javascript:location.href='http://fet*yy*com/yyl/'.split('*').join('.')">这里</a>

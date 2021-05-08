@@ -4,4 +4,5 @@ dist/
 __committest/
 __frag/
 **/__gitcase
+**/package-lock.json
 .vscode

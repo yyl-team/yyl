@@ -9,31 +9,6 @@
 
 
 ## 环境信息
-### host
-```
-# 测试环境 hsot
-14.17.108.184 www.yy.com
-14.17.108.184 yyweb.yystatic.com
-
-183.36.117.141 web.yy.com
-183.36.117.141 web.yystatic.com
-183.36.117.141 web1.yystatic.com
-183.36.117.141 web2.yystatic.com
-183.36.117.141 web3.yystatic.com
-```
-
-### 访问地址
-* 正式环境 [http://web.yy.com/3](http://web.yy.com/3)
-* 正式环境 [http://www.yy.com/web/3](http://www.yy.com/web/3)
-* 测试环境 [http://webtest.yy.com/3](http://webtest.yy.com/3)
-
-### git 地址
-* [https://git.yy.com/webs/web_static/3](https://git.yy.com/webs/web_static/3)
-
-### 潜龙入口
-* [http://bigdragon.yy.com/admin/dragon/project/list.jsp?projId=314115](http://bigdragon.yy.com/admin/dragon/project/list.jsp?projId=314115)
-
-
 ## 构建信息
 本项目使用 `yyl` 进行构建
 

@@ -27,8 +27,7 @@ var //+ yyl init 自动 匹配内容
     proxy: {
       port: 8887,
       localRemote: {
-        //'http://www.yy.com/': './dist/',
-        'http://www.yy.com/': 'http://127.0.0.1:5000/',
+        'http://www.testhost.com/': 'http://127.0.0.1:5000/',
       },
     },
     /**
@@ -76,12 +75,12 @@ var config = {
     // yyl server 路径替换地方
     // svn dev 分支地址
     dev: path.join(
-      '../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'
+      '../../../svn.testhost.com/yy-music/web-dragon/star-fans/yyweb/branches/develop'
     ),
 
     // svn trunk 分支地址
     trunk: path.join(
-      '../../../svn.yy.com/yy-music/web-dragon/star-fans/yyweb/trunk'
+      '../../../svn.testhost.com/yy-music/web-dragon/star-fans/yyweb/trunk'
     ),
     // 公用组件地址
     commons: commonPath,
