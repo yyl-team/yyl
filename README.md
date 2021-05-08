@@ -33,7 +33,3 @@ yyl 3.0
 ------------------
 * 若有任何问题, 欢迎提 [issuses](https://github.com/jackness1208/yyl/issues)
 * 若想贡献代码, 欢迎 提一个 [pr](https://github.com/jackness1208/yyl/pulls)
-
-更多
-------------------
-可以参考 <a href="javascript:location.href='http://fet*yy*com/yyl/'.split('*').join('.')">这里</a>

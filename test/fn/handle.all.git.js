@@ -45,3 +45,7 @@ module.exports.handleAllGit = function (gitPath) {
     })
   })
 }
+
+
+const PREFIX_HOST = 'yy'
+module.exports.GIT_HOST = `git.${PREFIX_HOST}.com`
