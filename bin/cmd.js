@@ -2,7 +2,7 @@ const chalk = require('chalk')
 const extOs = require('yyl-os')
 const print = require('yyl-print')
 const LANG = require('../lang/index')
-const vars = require('../lib/vars')
+const vars = require('../lib/const')
 
 const events = {
   help({ env }) {

@@ -49,7 +49,16 @@ async function init({ env }) {
 
   printInfo({ env, str: LANG.INIT.INFO.LOADIND_SEED })
   // TODO: 缺个菊花
-  const iSeed = await seed.get(rootSeed)
+  const iSeed = await seed.get({
+    name: rootSeed,
+    env,
+    logger: {
+      log(type, args) {
+        // TODO:
+        console.log(type, args)
+      }
+    }
+  })
 
   const IN_YY = await inYY()
   if (IN_YY) {
