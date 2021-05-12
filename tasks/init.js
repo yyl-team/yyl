@@ -60,6 +60,7 @@ async function init({ env }) {
     }
   })
 
+  // TODO: init-me 缺个请求超时
   const IN_YY = await inYY()
   if (IN_YY) {
     printSuccess({ env, str: LANG.INIT.INFO.IN_YY })
