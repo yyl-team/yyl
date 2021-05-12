@@ -115,6 +115,11 @@ const LANG = {
         PATH: '在指定目录执行'
       }
     }
+  },
+  INSTALL: {
+    HELP: {
+      FORCE: '强制执行'
+    }
   }
 }
 

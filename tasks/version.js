@@ -1,8 +1,8 @@
 'use strict'
 const chalk = require('chalk')
-const wVersion = function (iEnv) {
+const wVersion = function ({ env }) {
   const iVer = require('../package.json').version
-  if (!iEnv.silent) {
+  if (!env.silent) {
     console.log(
       [
         '',
