@@ -16,9 +16,10 @@ const LANG = {
     HELP: {
       COMMANDS: {
         INIT: '初始化',
-        INFO: '打印项目基本信息',
         SERVER: '服务器相关命令',
-        MAKE: '组件生成(适用于部分 yyl 项目)'
+        INSTALL: 'seed 包安装',
+        WATCH: '项目构建并启动相关服务',
+        ALL: '项目打包'
       },
       OPTIONS: {
         HELP: '显示帮助信息',

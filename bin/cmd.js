@@ -9,16 +9,16 @@ const events = {
     const h = {
       usage: 'yyl',
       commands: {
-        init: LANG.CMD.HELP.COMMANDS.INIT,
-        info: LANG.CMD.HELP.COMMANDS.INFO,
-        server: LANG.CMD.HELP.COMMANDS.SERVER
+        'init': LANG.CMD.HELP.COMMANDS.INIT,
+        'watch,w,d,r': LANG.CMD.HELP.COMMANDS.WATCH,
+        'all,o': LANG.CMD.HELP.COMMANDS.ALL,
+        'install': LANG.CMD.HELP.COMMANDS.INSTALL,
+        'server': LANG.CMD.HELP.COMMANDS.SERVER
       },
       options: {
         '--help': LANG.CMD.HELP.OPTIONS.HELP,
         '-v, --version': LANG.CMD.HELP.OPTIONS.VERSION,
-        '-p, --path': LANG.CMD.HELP.OPTIONS.PATH,
-        '--logLevel': LANG.CMD.HELP.OPTIONS.LOG_LEVEL,
-        '--config': LANG.CMD.HELP.OPTIONS.CONFIG
+        '-p, --path': LANG.CMD.HELP.OPTIONS.PATH
       }
     }
     if (!env.silent) {
@@ -38,35 +38,55 @@ const events = {
   }
 }
 
-async function command({ env, shortEnv, cmds, logger, context }) {
-  console.log(env, shortEnv, cmds)
+async function command({
+  env = {},
+  shortEnv = {},
+  cmds = [],
+  logger,
+  context
+}) {
+  if (!logger) {
+    logger = {
+      log() {},
+      setProgress() {}
+    }
+  }
+  if (!context) {
+    context = process.cwd()
+  }
+
   if (!cmds.length) {
     // 根命令
     if (env.help || shortEnv.h) {
       // 显示帮助信息
-      events.help({ env, logger })
+      return events.help({ env, logger })
     } else if (env.path || env.p) {
       // 显示 yyl 所在路径
-      events.path({ env, logger })
+      return events.path({ env, logger })
     } else if (env.version || shortEnv.v) {
       // 显示 yyl 版本
-      require('../tasks/version')({ env })
+      return require('../tasks/version')({ env })
     }
   } else {
     switch (cmds[0]) {
       // yyl 项目初始化
       case 'init':
-        // TODO:
-        break
+        return require('../tasks/init')({ env })
+
       // seed 安装
       case 'i':
       case 'install':
-        // TODO:
-        break
+        return require('../tasks/install')({ cmds: cmds.slice(1), env })
+
       // server 相关命令
       case 'server':
-        // TODO:
-        break
+        return require('../tasks/server')({
+          context,
+          env,
+          cmds: cmds.slice(1),
+          shortEnv,
+          logger
+        })
 
       // 构建相关命令
       case 'w':
@@ -75,9 +95,15 @@ async function command({ env, shortEnv, cmds, logger, context }) {
       case 'r':
       case 'all':
       case 'watch':
-        require('../tasks/optimize')({ env, context, logger })
-        // TODO: 先校验 yyl 配置是否存在
-        break
+        return require('../tasks/optimize')({
+          env,
+          context,
+          logger,
+          cmds: cmds.slice(1)
+        })
+
+      default:
+        return events.help({ env, logger })
     }
   }
 }

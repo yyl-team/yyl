@@ -59,24 +59,20 @@
     "test:version": "mocha ./test/mocha/version.test.js --timeout 1000000",
     "ui-test": "yyt ./test/yyt --timeout 1000000"
   },
-  "main": "index.js",
-  "directories": {
-    "example": "examples"
-  },
+  "main": "bin/cmd.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jackness1208/yyl.git"
+    "url": "git+https://github.com/yyl-team/yyl.git"
   },
   "bugs": {
-    "url": "https://github.com/jackness1208/yyl/issues"
+    "url": "https://github.com/yyl-team/yyl/issues"
   },
-  "homepage": "https://github.com/jackness1208/yyl#readme",
+  "homepage": "https://github.com/yyl-team/yyl#readme",
   "engines": {
     "node": ">= 10.0.0"
   },
   "dependencies": {
     "chalk": "^2.4.1",
-    "core-js": "^3.7.0",
     "init-me": "0.4.10",
     "inquirer": "^6.2.0",
     "keypress": "*",

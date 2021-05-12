@@ -2,7 +2,7 @@
 // const path = require('path');
 // const fs = require('fs');
 const print = require('yyl-print')
-const vars = require('../lib/vars.js')
+const vars = require('../lib/const.js')
 const inquirer = require('inquirer')
 const chalk = require('chalk')
 
@@ -48,7 +48,8 @@ async function init({ env }) {
   // - rootSeed
 
   printInfo({ env, str: LANG.INIT.INFO.LOADIND_SEED })
-  const iSeed = seed.get(rootSeed)
+  // TODO: 缺个菊花
+  const iSeed = await seed.get(rootSeed)
 
   const IN_YY = await inYY()
   if (IN_YY) {

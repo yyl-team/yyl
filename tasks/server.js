@@ -4,7 +4,7 @@ const extFs = require('yyl-fs')
 const extOs = require('yyl-os')
 const print = require('yyl-print')
 
-const vars = require('../lib/vars.js')
+const vars = require('../lib/const')
 
 const LANG = require('../lang/index')
 
