@@ -3,37 +3,44 @@ const extFs = require('yyl-fs')
 const extOs = require('yyl-os')
 const util = require('yyl-util')
 const print = require('yyl-print')
+const chalk = require('chalk')
 const fs = require('fs')
 const path = require('path')
 
 const Lang = {
-  HelpList: '显示 seed 信息',
+  HelpInit: 'seed 初始化',
+  HelpInstall: 'seed 包安装',
   HelpForce: '强制执行',
+  GetSeedVersionFail: '获取 seed 版本信息失败',
+  SeedPath: 'seed 包所在目录',
+  SeedInfo: 'seed 包信息',
+  SeedNeedInstall: 'seed 需要更新',
+  SeedNeedNotInstall: 'seed 无需更新',
   SeedConfigInitFinished: 'seed 本地配置初始化完成',
   SeedNotAllow: 'seed 包不在可选范围',
   SeedInstallStart: 'seed 包开始安装',
   SeedInstallFinished: 'seed 包安装完成'
 }
 
-function seed({ logger, env, cmds }) {
-  switch (cmds[0]) {
-    // 初始化 seed
-    case 'init':
-      seed.init({ logger, env })
-      break
-    // seed 安装
-    case 'i':
-    case 'install':
-      seed.install({ logger, env, cmds: cmds.slice(1) })
-      break
-    // seed 列表
-    case 'list':
-      seed.list({ logger, env })
-      break
-    // 显示 help
-    default:
-      seed.help({ env, logger })
-      break
+function seed({ logger, env, cmds, shortEnv }) {
+  if (cmds.length) {
+    switch (cmds[0]) {
+      // 初始化 seed
+      case 'init':
+        seed.init({ logger, env })
+        break
+      // seed 安装
+      case 'i':
+      case 'install':
+        seed.install({ logger, env, cmds: cmds.slice(1) })
+        break
+      // 显示 help
+      default:
+        seed.help({ env, logger })
+        break
+    }
+  } else if (shortEnv.p || env.path) {
+    seed.path({ env, logger })
   }
 }
 
@@ -43,7 +50,7 @@ seed.packages = [
     version: '3.0.1'
   },
   {
-    name: 'yyl-seed-requirejs',
+    name: 'yyl-seed-gulp-requirejs',
     version: '5.0.0'
   },
   {
@@ -57,9 +64,12 @@ seed.help = function ({ env }) {
   const h = {
     usage: 'yyl seed <commands>',
     commands: {
-      list: Lang.HelpList,
-      init: Lang.HelpInit,
-      install: Lang.Install
+      'init': Lang.HelpInit,
+      'install <packages>': Lang.HelpInstall
+    },
+    options: {
+      'packages': seed.packages.map((item) => item.name).join('|'),
+      '--force': Lang.HelpForce
     }
   }
   if (!env.silent) {
@@ -68,8 +78,60 @@ seed.help = function ({ env }) {
   return Promise.resolve(h)
 }
 
+seed.init = async function ({ logger, env }) {
+  await seed.initServer({ logger })
+  const seedPath = path.join(SERVER_SEED_PATH, 'node_modules')
+  const needInstalls = []
+  const seedInfos = []
+  await util.forEach(seed.packages, async (item) => {
+    const pkgPath = path.join(seedPath, item.name, 'package.json')
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const seedPkg = require(pkgPath)
+        if (util.compareVersion(seedPkg.version, item.version) >= 0) {
+          // 大于设定版本
+          seedInfos.push(
+            `${item.name}@${chalk.cyan(seedPkg.version)}(${chalk.gray(
+              item.version
+            )})`
+          )
+        } else {
+          // 小于设定版本
+          needInstalls.push(`${item.name}@${item.version}`)
+          seedInfos.push(
+            `${item.name}@${chalk.cyan(seedPkg.version)}(${chalk.red(
+              item.version
+            )})`
+          )
+        }
+      } catch (er) {
+        logger.log('warn', [Lang.GetSeedVersionFail, item.seed, er])
+      }
+    } else {
+      needInstalls.push(`${item.name}@${item.version}`)
+      seedInfos.push(
+        `${item.name}@${chalk.gray('null')}(${chalk.red(item.version)})`
+      )
+    }
+  })
+
+  logger.log('info', [`${Lang.SeedInfo}:`])
+  seedInfos.forEach((ctx) => {
+    logger.log('info', [ctx])
+  })
+  if (needInstalls.length) {
+    await seed.install({
+      cmds: needInstalls,
+      env,
+      logger
+    })
+  } else {
+    logger.log('success', [Lang.SeedNeedNotInstall])
+  }
+}
+
 // 初始化本地配置文件
-seed.init = async function ({ logger }) {
+seed.initServer = async function ({ logger }) {
   if (!fs.existsSync(SERVER_SEED_PATH)) {
     await extFs.mkdirSync(SERVER_SEED_PATH)
   }
@@ -91,47 +153,53 @@ seed.init = async function ({ logger }) {
   }
 }
 
+// 安装 seed
 seed.install = async function ({ logger, cmds, env }) {
-  await seed.init({ logger })
+  await seed.initServer({ logger })
+  const pkgNames = seed.packages.map((item) => item.name)
   const allowSeeds = cmds.filter((ctx) => {
     const arr = ctx.split('@')
     const name = arr[0]
-    return seed.packages.includes(name)
+    return pkgNames.includes(name)
   })
   if (allowSeeds.length) {
-    logger.log('msg', [
-      'success',
-      [`${Lang.SeedInstallStart}: ${allowSeeds.join(' ')}`]
-    ])
-    await extOs.runSpawn(
-      `yarn add ${allowSeeds.join(' ')} ${util.envStringify(env)}`,
-      SERVER_SEED_PATH,
-      (msg) => {
-        logger.log('msg', ['info', [msg.toString()]])
-      }
-    )
-    logger.log('msg', ['success', [Lang.SeedInstallFinished]])
+    logger.log('success', [`${Lang.SeedInstallStart}: ${allowSeeds.join(' ')}`])
+    let cmd = `yarn add ${allowSeeds.join(' ')} ${util.envStringify(env)}`
+    if (!(await extOs.getYarnVersion())) {
+      cmd = `npm i ${allowSeeds.join(' ')} ${util.envStringify(env)}`
+    }
+    logger.log('cmd', [cmd])
+    await extOs.runSpawn(cmd, SERVER_SEED_PATH, (msg) => {
+      logger.log('info', [msg.toString()])
+    })
+    logger.log('success', [Lang.SeedInstallFinished])
   } else {
-    throw new Error(
-      `${Lang.SeedNotAllow}: ${cmds} (${seed.packages.join('|')})`
-    )
+    throw new Error(`${Lang.SeedNotAllow}: ${cmds} (${pkgNames.join('|')})`)
   }
 }
 
 seed.get = async function ({ name, logger, env = {} }) {
   const seedPath = path.join(SERVER_SEED_PATH, 'node_modules', name)
+  const pkgNames = seed.packages.map((item) => item.name)
   if (fs.existsSync(seedPath)) {
     return require(seedPath)
   } else {
-    if (seed.packages.includes(name)) {
+    if (pkgNames.includes(name)) {
       await seed.install({ cmds: [name], logger, env })
       return require(seedPath)
     } else {
-      throw new Error(
-        `${Lang.SeedNotAllow}: ${seed} (${seed.packages.join('|')})`
-      )
+      throw new Error(`${Lang.SeedNotAllow}: ${seed} (${pkgNames.join('|')})`)
     }
   }
+}
+
+seed.path = async function ({ env, logger }) {
+  await seed.initServer({ env, logger })
+  if (!env.silent) {
+    logger.log('info', [`${Lang.SeedPath}: ${chalk.yellow(SERVER_SEED_PATH)}`])
+    extOs.openPath(SERVER_SEED_PATH)
+  }
+  return SERVER_SEED_PATH
 }
 
 module.exports = seed

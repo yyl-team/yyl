@@ -10,7 +10,7 @@ const { inYY } = require('init-me/lib/search')
 const pkg = require('../package.json')
 
 const LANG = require('../lang/index')
-const seed = require('../lib/seed')
+const seed = require('./seed')
 
 const liteLogger = new YylCmdLogger({
   lite: true,

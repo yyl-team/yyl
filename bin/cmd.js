@@ -75,7 +75,12 @@ async function command({
 
       // seed
       case 'seed':
-        return require('../tasks/seed')({ cmds: cmds.slice(1), env, logger })
+        return require('../tasks/seed')({
+          cmds: cmds.slice(1),
+          env,
+          logger,
+          shortEnv
+        })
 
       // server 相关命令
       case 'server':
