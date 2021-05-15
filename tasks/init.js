@@ -8,9 +8,27 @@ const initMe = require('init-me')
 const { seedFull2Short, seedShort2Full } = require('init-me/lib/formatter')
 const { inYY } = require('init-me/lib/search')
 const pkg = require('../package.json')
-
-const LANG = require('../lang/index')
 const seed = require('./seed')
+
+const LANG = {
+  INIT: {
+    QUESTION: {
+      ROOT_SEED: 'seed 包选择',
+      SUB_SEED: '选择用于初始化的 init-me seed 包'
+    },
+    HELP: {
+      HELP: '显示帮助信息',
+      NAME: '项目名称设置',
+      NO_INSTALL: '初始化结束后不执行 npm install 初始化'
+    },
+    INFO: {
+      LOADIND_SEED: '正在加载 seed 包',
+      IN_YY: '您正在处于 YY 网环境',
+      LOADING_INIT_ME: '正在解析 seed 包',
+      NOT_INIT_PACKAGE: '当前 seed 包没配置 初始化 seed'
+    }
+  }
+}
 
 const liteLogger = new YylCmdLogger({
   lite: true,

@@ -1,9 +1,10 @@
 # 版本信息
 ## 4.0.0 (*)
-* feat: 新增 `yyl install` 相关命令
+* feat: 新增 `yyl seed` 相关命令
 * feat: 将 `yyl-seed-webpack`, `yyl-seed-gulp-requirejs`, `yyl-seed-other` 不包含到主体应用里面
 * del: 去掉 `yyl info` 相关命令
 * del: 去掉 `yyl rm` 相关命令
+* del: 去掉 `yyl server` 相关命令
 ## 3.13.7 (2021-03-29)
 * feat: 更新 `yyl-server@0.3.23` 修复 proxy 模式下 --port 不会修改 proxy.remote 下 `127.0.0.1:5000` 部分
 * feat: 更新  `yyl-seed-webpack@2.6.5` 修复 window 模式下 remote 模式资源代理不能问题

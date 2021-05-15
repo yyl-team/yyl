@@ -1,7 +1,30 @@
 const chalk = require('chalk')
 const extOs = require('yyl-os')
 const print = require('yyl-print')
-const LANG = require('../lang/index')
+const LANG = {
+  CMD: {
+    HELP: {
+      COMMANDS: {
+        INIT: '初始化',
+        SERVER: '服务器相关命令',
+        SEED: 'seed 包相关命令',
+        WATCH: '项目构建并启动相关服务',
+        ALL: '项目打包'
+      },
+      OPTIONS: {
+        HELP: '显示帮助信息',
+        VERSION: '显示版本',
+        PATH: '显示 yyl 所在路径',
+        LOG_LEVEL: '设置 logLevel: 0|1|2',
+        CONFIG: '设置 yyl 配置路径'
+      }
+    }
+  },
+  PATH: {
+    YYL_PATH: 'yyl 项目所在路径',
+    YYL_CONDIG_PATH: 'yyl 配置所在路径'
+  }
+}
 const vars = require('../lib/const')
 
 const events = {
@@ -12,8 +35,7 @@ const events = {
         'init': LANG.CMD.HELP.COMMANDS.INIT,
         'watch,w,d,r': LANG.CMD.HELP.COMMANDS.WATCH,
         'all,o': LANG.CMD.HELP.COMMANDS.ALL,
-        'install': LANG.CMD.HELP.COMMANDS.INSTALL,
-        'server': LANG.CMD.HELP.COMMANDS.SERVER
+        'seed': LANG.CMD.HELP.COMMANDS.SEED
       },
       options: {
         '--help': LANG.CMD.HELP.OPTIONS.HELP,
@@ -28,11 +50,15 @@ const events = {
   },
   path({ env, logger }) {
     if (!env.silent) {
-      logger.log('msg', [
-        'success',
-        `path: ${chalk.yellow.bold(vars.BASE_PATH)}`
+      logger.log('info', [
+        `${LANG.PATH.YYL_PATH}: ${chalk.yellow.bold(vars.BASE_PATH)}`
+      ])
+
+      logger.log('info', [
+        `${LANG.PATH.YYL_CONDIG_PATH}: ${chalk.yellow.bold(vars.SERVER_PATH)}`
       ])
       extOs.openPath(vars.BASE_PATH)
+      extOs.openPath(vars.SERVER_PATH)
     }
     return Promise.resolve(vars.BASE_PATH)
   }
@@ -60,7 +86,7 @@ async function command({
     if (env.help || shortEnv.h) {
       // 显示帮助信息
       return events.help({ env, logger })
-    } else if (env.path || env.p) {
+    } else if (env.path || shortEnv.p) {
       // 显示 yyl 所在路径
       return events.path({ env, logger })
     } else if (env.version || shortEnv.v) {
@@ -80,16 +106,6 @@ async function command({
           env,
           logger,
           shortEnv
-        })
-
-      // server 相关命令
-      case 'server':
-        return require('../tasks/server')({
-          context,
-          env,
-          cmds: cmds.slice(1),
-          shortEnv,
-          logger
         })
 
       // 构建相关命令
