@@ -4,6 +4,7 @@
 const print = require('yyl-print')
 const vars = require('../lib/const.js')
 const inquirer = require('inquirer')
+const YylCmdLogger = require('yyl-cmd-logger')
 const chalk = require('chalk')
 
 const initMe = require('init-me')
@@ -14,21 +15,18 @@ const pkg = require('../package.json')
 const LANG = require('../lang/index')
 const seed = require('../lib/seed')
 
-function printInfo({ env, str }) {
-  if (!env.silent) {
-    // eslint-disable-next-line no-console
-    console.log(`${chalk.yellow('!')} ${str}`)
+const liteLogger = new YylCmdLogger({
+  lite: true,
+  progressInfo: {
+    shortColor: chalk.cyan,
+    shortIcons: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
   }
-}
-
-function printSuccess({ env, str }) {
-  if (!env.silent) {
-    // eslint-disable-next-line no-console
-    console.log(`${chalk.green('Y')} ${str}`)
-  }
-}
+})
 
 async function init({ env }) {
+  if (env.logLevel !== undefined) {
+    liteLogger.setLogLevel(env.logLevel)
+  }
   // + rootSeed
   const { packages } = seed
   let rootSeed = env.rootSeed
@@ -47,23 +45,28 @@ async function init({ env }) {
   }
   // - rootSeed
 
-  printInfo({ env, str: LANG.INIT.INFO.LOADIND_SEED })
-  // TODO: 缺个菊花
-  const iSeed = await seed.get({
-    name: rootSeed,
-    env,
-    logger: {
-      log(type, args) {
-        // TODO:
-        console.log(type, args)
+  liteLogger.setProgress('start', [])
+  liteLogger.log('info', [LANG.INIT.INFO.LOADIND_SEED])
+  let iSeed
+  try {
+    iSeed = await seed.get({
+      name: rootSeed,
+      env,
+      logger: {
+        log(type, args) {
+          liteLogger.log(type, args)
+        }
       }
-    }
-  })
+    })
+    liteLogger.setProgress('finished', [])
+  } catch (er) {
+    liteLogger.log('error', [er])
+    liteLogger.setProgress('finished', [])
+  }
 
-  // TODO: init-me 缺个请求超时
   const IN_YY = await inYY()
   if (IN_YY) {
-    printSuccess({ env, str: LANG.INIT.INFO.IN_YY })
+    liteLogger.log('success', [LANG.INIT.INFO.IN_YY])
   }
 
   // + subSeed
@@ -90,12 +93,11 @@ async function init({ env }) {
   }
   // - subSeed
   if (subSeed) {
-    printInfo({
-      env,
-      str: `${LANG.INIT.INFO.LOADING_INIT_ME}: ${chalk.yellow(
+    liteLogger.log('info', [
+      `${LANG.INIT.INFO.LOADING_INIT_ME}: ${chalk.yellow(
         seedShort2Full(subSeed)
       )}`
-    })
+    ])
 
     // + 执行 init-me
     await initMe.init(vars.PROJECT_PATH, {
@@ -103,11 +105,12 @@ async function init({ env }) {
         seed: seedShort2Full(subSeed),
         yylVersion: pkg.version
       }),
-      inset: true
+      inset: true,
+      logger: liteLogger
     })
     // - 执行 init-me
   } else {
-    printInfo({ env, str: LANG.INIT.INFO.NOT_INIT_PACKAGE })
+    liteLogger.log('info', [LANG.INIT.INFO.NOT_INIT_PACKAGE])
   }
 }
 
