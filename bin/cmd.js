@@ -73,10 +73,9 @@ async function command({
       case 'init':
         return require('../tasks/init')({ env, context })
 
-      // seed 安装
-      case 'i':
-      case 'install':
-        return require('../tasks/install')({ cmds: cmds.slice(1), env })
+      // seed
+      case 'seed':
+        return require('../tasks/seed')({ cmds: cmds.slice(1), env, logger })
 
       // server 相关命令
       case 'server':

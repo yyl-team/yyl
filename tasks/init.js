@@ -1,8 +1,5 @@
 'use strict'
-// const path = require('path');
-// const fs = require('fs');
 const print = require('yyl-print')
-const vars = require('../lib/const.js')
 const inquirer = require('inquirer')
 const YylCmdLogger = require('yyl-cmd-logger')
 const chalk = require('chalk')
