@@ -12,6 +12,11 @@ const logger = new YylCmdLogger({
       shortName: 'Y',
       shortColor: chalk.white.bgBlack.bold
     }
+  },
+  progressInfo: {
+    icons: ['⠋', '⠙  ', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'].map(
+      (chat) => `   ${chat}`
+    )
   }
 })
 

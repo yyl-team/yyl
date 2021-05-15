@@ -23,7 +23,7 @@ const liteLogger = new YylCmdLogger({
   }
 })
 
-async function init({ env }) {
+async function init({ env, context }) {
   if (env.logLevel !== undefined) {
     liteLogger.setLogLevel(env.logLevel)
   }
@@ -100,7 +100,7 @@ async function init({ env }) {
     ])
 
     // + 执行 init-me
-    await initMe.init(vars.PROJECT_PATH, {
+    await initMe.init(context, {
       env: Object.assign(env, {
         seed: seedShort2Full(subSeed),
         yylVersion: pkg.version

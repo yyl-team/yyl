@@ -71,7 +71,7 @@ async function command({
     switch (cmds[0]) {
       // yyl 项目初始化
       case 'init':
-        return require('../tasks/init')({ env })
+        return require('../tasks/init')({ env, context })
 
       // seed 安装
       case 'i':
