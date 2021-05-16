@@ -50,18 +50,19 @@ function seed({ logger, env, cmds, shortEnv }) {
   }
 }
 
+// seed 版本信息
 seed.packages = [
   {
     name: 'yyl-seed-webpack',
-    version: '3.0.1'
+    version: '3.0.3'
   },
   {
     name: 'yyl-seed-gulp-requirejs',
-    version: '5.0.0'
+    version: '5.0.1'
   },
   {
     name: 'yyl-seed-other',
-    version: '1.0.0'
+    version: '1.0.2'
   }
 ]
 
@@ -199,14 +200,30 @@ seed.clear = async function ({ logger, env = {} }) {
   logger.log('success', [Lang.SeedClearFinished])
 }
 
-seed.get = async function ({ name, logger, env = {} }) {
+seed.get = async function ({ name, logger }) {
   const seedPath = path.join(SERVER_SEED_PATH, 'node_modules', name)
   const pkgNames = seed.packages.map((item) => item.name)
   if (fs.existsSync(seedPath)) {
+    // 检查是否需要更新
+    const pkgPath = path.join(seedPath)
+    const pkg = require(pkgPath)
+    const seedInfo = seed.packages.filter((item) => item.name === name)[0]
+    if (util.compareVersion(pkg.version, seedInfo.version) < 0) {
+      // 需要更新
+      await seed.install({
+        cmds: [`${seedInfo.name}@${seedInfo.version}`],
+        logger,
+        env: {}
+      })
+    } else {
+      logger.log('info', [
+        `${Lang.SeedInfo}: ${chalk.yellow(`${name}@${pkg.version}`)}`
+      ])
+    }
     return require(seedPath)
   } else {
     if (pkgNames.includes(name)) {
-      await seed.install({ cmds: [name], logger, env })
+      await seed.install({ cmds: [name], logger, env: {} })
       return require(seedPath)
     } else {
       throw new Error(`${Lang.SeedNotAllow}: ${seed} (${pkgNames.join('|')})`)
