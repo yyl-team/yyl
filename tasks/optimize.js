@@ -1,6 +1,7 @@
 const print = require('yyl-print')
 const util = require('yyl-util')
 const chalk = require('chalk')
+const seed = require('./seed')
 const { YylHander } = require('yyl-hander')
 const pkg = require('../package.json')
 const Lang = {
@@ -18,7 +19,8 @@ const Lang = {
     Proxy: '启动反向代理',
     Https: '启动 https 代理',
     Remote: '映射线上 menifest'
-  }
+  },
+  WorkflowNotMatch: 'config.workflow 错误'
 }
 async function optimize({ cmds, context, logger, env, shortEnv }) {
   if (env.help || shortEnv.h) {
@@ -74,10 +76,40 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
       }
     })
 
-    console.log(yylHander.getYylConfig())
+    const yylConfig = yylHander.getYylConfig()
+    let seedName = ''
+    switch (yylConfig.workflow) {
+      case 'webpack':
+        seedName = 'yyl-seed-webpack'
+        break
+      case 'gulp-requirejs':
+        seedName = 'yyl-seed-gulp-requirejs'
+        break
+      case 'other':
+        seedName = 'yyl-seed-other'
+        break
+      default:
+        break
+    }
+    if (!seedName) {
+      throw new Error(
+        `${Lang.WorkflowNotMatch}: ${chalk.red(
+          yylConfig.workflow
+        )} (${chalk.yellow('webpack | gulp-requirejs | other')})`
+      )
+    }
 
     // 获取 seed
-    // TODO:
+    const iSeed = seed.get({
+      name: seedName,
+      logger,
+      env
+    })
+    await yylHander.init({
+      seed: iSeed,
+      watch: cmds[0] === 'watch'
+    })
+    return yylConfig
   }
 }
 
