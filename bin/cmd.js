@@ -92,12 +92,15 @@ async function command({
     } else if (env.version || shortEnv.v) {
       // 显示 yyl 版本
       return require('../tasks/version')({ env })
+    } else {
+      // 显示帮助信息
+      return events.help({ env, logger })
     }
   } else {
     switch (cmds[0]) {
       // yyl 项目初始化
       case 'init':
-        return require('../tasks/init')({ env, context })
+        return require('../tasks/init')({ env, context, logger })
 
       // seed
       case 'seed':
@@ -117,9 +120,10 @@ async function command({
       case 'watch':
         return require('../tasks/optimize')({
           env,
+          shortEnv,
           context,
           logger,
-          cmds: cmds.slice(1)
+          cmds
         })
 
       default:

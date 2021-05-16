@@ -12,11 +12,6 @@ const logger = new YylCmdLogger({
       shortName: 'Y',
       shortColor: chalk.white.bgBlack.bold
     }
-  },
-  progressInfo: {
-    icons: ['⠋', '⠙  ', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'].map(
-      (chat) => `   ${chat}`
-    )
   }
 })
 
@@ -25,9 +20,13 @@ process.on('uncaughtException', (err) => {
 })
 ;(async () => {
   const { env, cmds, shortEnv } = util.cmdParse(process.argv)
-  if (env.logLevel) {
+  // log 日志等级
+  if (env.silent) {
+    logger.setLogLevel(0)
+  } else if (env.logLevel) {
     logger.setLogLevel(env.logLevel)
   }
+
   const handleErr = function (er) {
     logger.log('error', [er])
     // eslint-disable-next-line no-process-exit

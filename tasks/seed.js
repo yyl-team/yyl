@@ -62,7 +62,7 @@ seed.packages = [
 // 显示帮助信息
 seed.help = function ({ env }) {
   const h = {
-    usage: 'yyl seed <commands>',
+    usage: 'yyl seed',
     commands: {
       'init': Lang.HelpInit,
       'install <packages>': Lang.HelpInstall

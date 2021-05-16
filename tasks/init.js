@@ -1,7 +1,6 @@
 'use strict'
 const print = require('yyl-print')
 const inquirer = require('inquirer')
-const YylCmdLogger = require('yyl-cmd-logger')
 const chalk = require('chalk')
 
 const initMe = require('init-me')
@@ -30,18 +29,7 @@ const LANG = {
   }
 }
 
-const liteLogger = new YylCmdLogger({
-  lite: true,
-  progressInfo: {
-    shortColor: chalk.cyan,
-    shortIcons: ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
-  }
-})
-
-async function init({ env, context }) {
-  if (env.logLevel !== undefined) {
-    liteLogger.setLogLevel(env.logLevel)
-  }
+async function init({ env, context, logger }) {
   // + rootSeed
   const { packages } = seed
   let rootSeed = env.rootSeed
@@ -60,8 +48,9 @@ async function init({ env, context }) {
   }
   // - rootSeed
 
-  liteLogger.setProgress('start', [])
-  liteLogger.log('info', [LANG.INIT.INFO.LOADIND_SEED])
+  logger.setLite(true)
+  logger.setProgress('start', [])
+  logger.log('info', [LANG.INIT.INFO.LOADIND_SEED])
   let iSeed
   try {
     iSeed = await seed.get({
@@ -69,19 +58,19 @@ async function init({ env, context }) {
       env,
       logger: {
         log(type, args) {
-          liteLogger.log(type, args)
+          logger.log(type, args)
         }
       }
     })
-    liteLogger.setProgress('finished', [])
+    logger.setProgress('finished', [])
   } catch (er) {
-    liteLogger.log('error', [er])
-    liteLogger.setProgress('finished', [])
+    logger.log('error', [er])
+    logger.setProgress('finished', [])
   }
 
   const IN_YY = await inYY()
   if (IN_YY) {
-    liteLogger.log('success', [LANG.INIT.INFO.IN_YY])
+    logger.log('success', [LANG.INIT.INFO.IN_YY])
   }
 
   // + subSeed
@@ -108,7 +97,7 @@ async function init({ env, context }) {
   }
   // - subSeed
   if (subSeed) {
-    liteLogger.log('info', [
+    logger.log('info', [
       `${LANG.INIT.INFO.LOADING_INIT_ME}: ${chalk.yellow(
         seedShort2Full(subSeed)
       )}`
@@ -121,11 +110,11 @@ async function init({ env, context }) {
         yylVersion: pkg.version
       }),
       inset: true,
-      logger: liteLogger
+      logger: logger
     })
     // - 执行 init-me
   } else {
-    liteLogger.log('info', [LANG.INIT.INFO.NOT_INIT_PACKAGE])
+    logger.log('info', [LANG.INIT.INFO.NOT_INIT_PACKAGE])
   }
 }
 
