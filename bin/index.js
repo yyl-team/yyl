@@ -23,7 +23,7 @@ process.on('uncaughtException', (err) => {
   // log 日志等级
   if (env.silent) {
     logger.setLogLevel(0)
-  } else if (env.logLevel) {
+  } else if (env.logLevel || env.logLevel === 0) {
     logger.setLogLevel(env.logLevel)
   }
 

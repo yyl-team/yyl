@@ -29,11 +29,14 @@ const LANG = {
   }
 }
 
-async function init({ env, context, logger }) {
+async function init({ env, context, logger, shortEnv }) {
+  if (env.help || shortEnv.h) {
+    return init.help({ env })
+  }
   // + rootSeed
   const { packages } = seed
   let rootSeed = env.rootSeed
-  if (!rootSeed || packages.indexOf(rootSeed) === -1) {
+  if (!rootSeed || packages.map((item) => item.name).indexOf(rootSeed) === -1) {
     rootSeed = (
       await inquirer.prompt([
         {
@@ -104,7 +107,7 @@ async function init({ env, context, logger }) {
     ])
 
     // + 执行 init-me
-    await initMe.init(context, {
+    return await initMe.init(context, {
       env: Object.assign(env, {
         seed: seedShort2Full(subSeed),
         yylVersion: pkg.version

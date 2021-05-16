@@ -24,29 +24,27 @@ const Lang = {
   SeedClearFinished: 'seed 清除完成'
 }
 
-function seed({ logger, env, cmds, shortEnv }) {
+async function seed({ logger, env, cmds, shortEnv }) {
   if (cmds.length) {
     switch (cmds[0]) {
       // 初始化 seed
       case 'init':
-        seed.init({ logger, env })
-        break
+        return await seed.init({ logger, env })
       // seed 安装
       case 'i':
       case 'install':
-        seed.install({ logger, env, cmds: cmds.slice(1) })
-        break
+        return await seed.install({ logger, env, cmds: cmds.slice(1) })
       // 清除 seed
       case 'clear':
-        seed.clear({ logger, env })
-        break
+        return await seed.clear({ logger, env })
       // 显示 help
       default:
-        seed.help({ env, logger })
-        break
+        return await seed.help({ env, logger })
     }
   } else if (shortEnv.p || env.path) {
-    seed.path({ env, logger })
+    return await seed.path({ env, logger })
+  } else {
+    return await seed.help({ env, logger })
   }
 }
 
@@ -215,6 +213,9 @@ seed.get = async function ({ name, logger }) {
         logger,
         env: {}
       })
+      if (require.cache[seedPath]) {
+        delete require.cache[seedPath]
+      }
     } else {
       logger.log('info', [
         `${Lang.SeedInfo}: ${chalk.yellow(`${name}@${pkg.version}`)}`
@@ -224,6 +225,9 @@ seed.get = async function ({ name, logger }) {
   } else {
     if (pkgNames.includes(name)) {
       await seed.install({ cmds: [name], logger, env: {} })
+      if (require.cache[seedPath]) {
+        delete require.cache[seedPath]
+      }
       return require(seedPath)
     } else {
       throw new Error(`${Lang.SeedNotAllow}: ${seed} (${pkgNames.join('|')})`)

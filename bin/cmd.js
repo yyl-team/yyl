@@ -74,7 +74,9 @@ async function command({
   if (!logger) {
     logger = {
       log() {},
-      setProgress() {}
+      setProgress() {},
+      setLite() {},
+      setLogLevel() {}
     }
   }
   if (!context) {
@@ -100,7 +102,7 @@ async function command({
     switch (cmds[0]) {
       // yyl 项目初始化
       case 'init':
-        return require('../tasks/init')({ env, context, logger })
+        return require('../tasks/init')({ env, context, logger, shortEnv })
 
       // seed
       case 'seed':

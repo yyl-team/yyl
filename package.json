@@ -12,6 +12,9 @@
     "yyl": "bin/index.js"
   },
   "eslintConfig": {
+    "env": {
+      "mocha": true
+    },
     "extends": [
       "yyl-node"
     ]
@@ -32,6 +35,8 @@
     "trailingComma": "none"
   },
   "scripts": {
+    "yyl:d": "echo 'hello yyl-seed other d'",
+    "yyl:o": "echo 'hello yyl-seed other o'",
     "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
     "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
     "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
@@ -42,7 +47,7 @@
     "eslint": "eslint ./",
     "eslint:fix": "eslint ./ --fix",
     "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2",
-    "prepublishOnly": "npm run prettier & npm test",
+    "prepublishOnly": "npm run prettier && npm test",
     "prettier": "prettier --write **/*.js",
     "test": "mocha ./test/mocha --timeout 10000000",
     "test:all": "mocha ./test/mocha/all.test.js --timeout 1000000",
@@ -50,13 +55,9 @@
     "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
     "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.git.yycom_h5_live.test.js --timeout 1000000",
     "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
-    "test:help": "mocha ./test/mocha/help.test.js --timeout 1000000",
-    "test:info": "mocha ./test/mocha/info.test.js --timeout 1000000",
-    "test:init": "mocha ./test/mocha/init.test.js --timeout 1000000",
-    "test:mock": "mocha ./test/mocha/mock.test.js --timeout 1000000",
-    "test:path": "mocha ./test/mocha/path.test.js --timeout 1000000",
-    "test:server": "mocha ./test/mocha/server.test.js --timeout 1000000",
-    "test:version": "mocha ./test/mocha/version.test.js --timeout 1000000",
+    "test:yyl.options": "mocha ./test/mocha/yyl.options.test.js --timeout 1000000",
+    "test:yyl.init": "mocha ./test/mocha/yyl.init.test.js --timeout 1000000",
+    "test:yyl.seed": "mocha ./test/mocha/yyl.seed.test.js --timeout 1000000",
     "ui-test": "yyt ./test/yyt --timeout 1000000"
   },
   "main": "bin/cmd.js",

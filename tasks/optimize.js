@@ -18,7 +18,8 @@ const Lang = {
     Tips: '引入本地调试标识',
     Proxy: '启动反向代理',
     Https: '启动 https 代理',
-    Remote: '映射线上 menifest'
+    Remote: '映射线上 menifest',
+    Open: '自动打开网页'
   },
   WorkflowNotMatch: 'config.workflow 错误'
 }
@@ -128,6 +129,7 @@ optimize.help = ({ cmds, env }) => {
       '--proxy': Lang.Help.Proxy,
       '--tips': Lang.Help.Tips,
       '--hmr': Lang.Help.Hmr,
+      '--open': Lang.Help.Open,
       '--remote': Lang.Help.Remote,
       '--https': Lang.Help.Https,
       '--isCommit': Lang.Help.IsCommit,
