@@ -11,6 +11,7 @@ const Lang = {
   HelpInit: 'seed 初始化',
   HelpInstall: 'seed 包安装',
   HelpForce: '强制执行',
+  HelpClear: '清除所有 seed',
   GetSeedVersionFail: '获取 seed 版本信息失败',
   SeedPath: 'seed 包所在目录',
   SeedInfo: 'seed 包信息',
@@ -19,7 +20,8 @@ const Lang = {
   SeedConfigInitFinished: 'seed 本地配置初始化完成',
   SeedNotAllow: 'seed 包不在可选范围',
   SeedInstallStart: 'seed 包开始安装',
-  SeedInstallFinished: 'seed 包安装完成'
+  SeedInstallFinished: 'seed 包安装完成',
+  SeedClearFinished: 'seed 清除完成'
 }
 
 function seed({ logger, env, cmds, shortEnv }) {
@@ -33,6 +35,10 @@ function seed({ logger, env, cmds, shortEnv }) {
       case 'i':
       case 'install':
         seed.install({ logger, env, cmds: cmds.slice(1) })
+        break
+      // 清除 seed
+      case 'clear':
+        seed.clear({ logger, env })
         break
       // 显示 help
       default:
@@ -65,10 +71,11 @@ seed.help = function ({ env }) {
     usage: 'yyl seed',
     commands: {
       'init': Lang.HelpInit,
-      'install <packages>': Lang.HelpInstall
+      'install <packages>': Lang.HelpInstall,
+      'clear': Lang.HelpClear
     },
     options: {
-      'packages': seed.packages.map((item) => item.name).join('|'),
+      '<packages>': seed.packages.map((item) => item.name).join('|'),
       '--force': Lang.HelpForce
     }
   }
@@ -176,6 +183,20 @@ seed.install = async function ({ logger, cmds, env }) {
   } else {
     throw new Error(`${Lang.SeedNotAllow}: ${cmds} (${pkgNames.join('|')})`)
   }
+}
+
+seed.clear = async function ({ logger, env = {} }) {
+  await seed.initServer({ logger })
+  const pkgNames = seed.packages.map((item) => item.name)
+  let cmd = `yarn remove ${pkgNames.join(' ')} ${util.envStringify(env)}`
+  if (!(await extOs.getYarnVersion())) {
+    cmd = `npm uninstall ${pkgNames.join(' ')} ${util.envStringify(env)}`
+  }
+  logger.log('cmd', [cmd])
+  await extOs.runSpawn(cmd, SERVER_SEED_PATH, (msg) => {
+    logger.log('info', [msg.toString()])
+  })
+  logger.log('success', [Lang.SeedClearFinished])
 }
 
 seed.get = async function ({ name, logger, env = {} }) {

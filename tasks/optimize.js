@@ -100,7 +100,7 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
     }
 
     // 获取 seed
-    const iSeed = seed.get({
+    const iSeed = await seed.get({
       name: seedName,
       logger,
       env
