@@ -31,11 +31,6 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
     })
   } else {
     logger.log('yyl', [chalk.yellow(pkg.version)])
-    logger.log('cmd', [
-      `yyl ${cmds.join(' ')} ${util.envStringify(env)} ${util.shortEnvStringify(
-        shortEnv
-      )}`
-    ])
     // 简写复原
     if (cmds[0] === 'w') {
       cmds[0] = 'watch'
@@ -51,6 +46,7 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
         proxy: true,
         tips: true,
         hmr: true,
+        open: true,
         ...env
       }
     } else if (cmds[0] === 'r') {
@@ -63,6 +59,12 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
         ...env
       }
     }
+
+    logger.log('cmd', [
+      `yyl ${cmds.join(' ')} ${util.envStringify(env)} ${util.shortEnvStringify(
+        shortEnv
+      )}`
+    ])
 
     // 初始化 handler
     const yylHander = new YylHander({
