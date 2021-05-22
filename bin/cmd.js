@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const extOs = require('yyl-os')
-const print = require('yyl-print')
+const { printHelp } = require('yyl-cmd-logger')
 const LANG = {
   CMD: {
     HELP: {
@@ -44,7 +44,7 @@ const events = {
       }
     }
     if (!env.silent) {
-      print.help(h)
+      printHelp(h)
     }
     return Promise.resolve(h)
   },

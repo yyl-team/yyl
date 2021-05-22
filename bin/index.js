@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 const chalk = require('chalk')
 const util = require('yyl-util')
-const YylCmdLogger = require('yyl-cmd-logger')
+const { YylCmdLogger, cleanScreen } = require('yyl-cmd-logger')
 const command = require('./cmd')
 
 const logger = new YylCmdLogger({
+  lite: true,
   type: {
     yyl: {
       name: 'YYL>',
       color: chalk.white.bgBlack.bold,
       shortName: 'Y',
-      shortColor: chalk.white.bgBlack.bold
+      shortColor: chalk.red.bgBlack
     }
   }
 })
@@ -19,6 +20,7 @@ process.on('uncaughtException', (err) => {
   logger.log('error', ['Uncaught exception:\n', err])
 })
 ;(async () => {
+  cleanScreen()
   const { env, cmds, shortEnv } = util.cmdParse(process.argv)
   // log 日志等级
   if (env.silent) {

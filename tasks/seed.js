@@ -2,10 +2,11 @@ const { SERVER_SEED_PATH } = require('../lib/const')
 const extFs = require('yyl-fs')
 const extOs = require('yyl-os')
 const util = require('yyl-util')
-const print = require('yyl-print')
+const { printHelp } = require('yyl-cmd-logger')
 const chalk = require('chalk')
 const fs = require('fs')
 const path = require('path')
+const { printHeader } = require('../lib/util')
 
 const Lang = {
   HelpInit: 'seed 初始化',
@@ -21,7 +22,10 @@ const Lang = {
   SeedNotAllow: 'seed 包不在可选范围',
   SeedInstallStart: 'seed 包开始安装',
   SeedInstallFinished: 'seed 包安装完成',
-  SeedClearFinished: 'seed 清除完成'
+  SeedClearStart: '正在清空 seed 包',
+  SeedClearFinished: '清空 seed 包完成',
+  SeedClearNotNeed: '未安装任何 seed 包，无需清理',
+  IgnoreCheckUpdate: '跳过 seed 包检查更新操作'
 }
 
 async function seed({ logger, env, cmds, shortEnv }) {
@@ -29,13 +33,16 @@ async function seed({ logger, env, cmds, shortEnv }) {
     switch (cmds[0]) {
       // 初始化 seed
       case 'init':
+        printHeader({ logger, env, cmds, shortEnv })
         return await seed.init({ logger, env })
       // seed 安装
       case 'i':
       case 'install':
+        printHeader({ logger, env, cmds, shortEnv })
         return await seed.install({ logger, env, cmds: cmds.slice(1) })
       // 清除 seed
       case 'clear':
+        printHeader({ logger, env, cmds, shortEnv })
         return await seed.clear({ logger, env })
       // 显示 help
       default:
@@ -52,15 +59,15 @@ async function seed({ logger, env, cmds, shortEnv }) {
 seed.packages = [
   {
     name: 'yyl-seed-webpack',
-    version: '3.0.7'
+    version: '3.0.8'
   },
   {
     name: 'yyl-seed-gulp-requirejs',
-    version: '5.0.1'
+    version: '5.0.2'
   },
   {
     name: 'yyl-seed-other',
-    version: '1.0.2'
+    version: '1.0.3'
   }
 ]
 
@@ -70,16 +77,22 @@ seed.help = function ({ env }) {
     usage: 'yyl seed',
     commands: {
       'init': Lang.HelpInit,
-      'install <packages>': Lang.HelpInstall,
+      'install <Packages>': Lang.HelpInstall,
       'clear': Lang.HelpClear
     },
     options: {
-      '<packages>': seed.packages.map((item) => item.name).join('|'),
       '--force': Lang.HelpForce
+    },
+    others: {
+      Packages: {
+        'yyl-seed-gulp-requirejs': 'requirejs 类项目，支持 ie6+',
+        'yyl-seed-webpack': 'webpack 类项目, 支持 ie9+',
+        'yyl-seed-other': '其他类型项目，可嵌入 fec, feb 等构建工具'
+      }
     }
   }
   if (!env.silent) {
-    print.help(h)
+    printHelp(h)
   }
   return Promise.resolve(h)
 }
@@ -97,7 +110,7 @@ seed.init = async function ({ logger, env }) {
         if (util.compareVersion(seedPkg.version, item.version) >= 0) {
           // 大于设定版本
           seedInfos.push(
-            `${item.name}@${chalk.cyan(seedPkg.version)}(${chalk.gray(
+            `${chalk.cyan(`${item.name}@${seedPkg.version}`)}(${chalk.gray(
               item.version
             )})`
           )
@@ -105,7 +118,7 @@ seed.init = async function ({ logger, env }) {
           // 小于设定版本
           needInstalls.push(`${item.name}@${item.version}`)
           seedInfos.push(
-            `${item.name}@${chalk.cyan(seedPkg.version)}(${chalk.red(
+            `${chalk.red(`${item.name}@${seedPkg.version}`)}(${chalk.yellow(
               item.version
             )})`
           )
@@ -116,15 +129,12 @@ seed.init = async function ({ logger, env }) {
     } else {
       needInstalls.push(`${item.name}@${item.version}`)
       seedInfos.push(
-        `${item.name}@${chalk.gray('null')}(${chalk.red(item.version)})`
+        `${chalk.gray(`${item.name}@null`)}(${chalk.yellow(item.version)})`
       )
     }
   })
 
-  logger.log('info', [`${Lang.SeedInfo}:`])
-  seedInfos.forEach((ctx) => {
-    logger.log('info', [ctx])
-  })
+  logger.log('info', [`${Lang.SeedInfo}:`].concat(seedInfos))
   if (needInstalls.length) {
     await seed.install({
       cmds: needInstalls,
@@ -169,7 +179,8 @@ seed.install = async function ({ logger, cmds, env }) {
     return pkgNames.includes(name)
   })
   if (allowSeeds.length) {
-    logger.log('success', [`${Lang.SeedInstallStart}: ${allowSeeds.join(' ')}`])
+    logger.log('info', [`${Lang.SeedInstallStart}: ${allowSeeds.join(' ')}`])
+    logger.setProgress('start')
     let cmd = `yarn add ${allowSeeds.join(' ')} ${util.envStringify(env)}`
     if (!(await extOs.getYarnVersion())) {
       cmd = `npm i ${allowSeeds.join(' ')} ${util.envStringify(env)}`
@@ -178,7 +189,7 @@ seed.install = async function ({ logger, cmds, env }) {
     await extOs.runSpawn(cmd, SERVER_SEED_PATH, (msg) => {
       logger.log('info', [msg.toString()])
     })
-    logger.log('success', [Lang.SeedInstallFinished])
+    logger.setProgress('finished', 'success', [Lang.SeedInstallFinished])
   } else {
     throw new Error(`${Lang.SeedNotAllow}: ${cmds} (${pkgNames.join('|')})`)
   }
@@ -186,19 +197,28 @@ seed.install = async function ({ logger, cmds, env }) {
 
 seed.clear = async function ({ logger, env = {} }) {
   await seed.initServer({ logger })
-  const pkgNames = seed.packages.map((item) => item.name)
+  const nodeModulePath = path.join(SERVER_SEED_PATH)
+  const pkgNames = seed.packages
+    .map((item) => item.name)
+    .filter((name) => fs.existsSync(path.join(nodeModulePath, name)))
+
+  if (!pkgNames.length) {
+    logger.log('success', [Lang.SeedClearNotNeed])
+    return
+  }
   let cmd = `yarn remove ${pkgNames.join(' ')} ${util.envStringify(env)}`
   if (!(await extOs.getYarnVersion())) {
     cmd = `npm uninstall ${pkgNames.join(' ')} ${util.envStringify(env)}`
   }
   logger.log('cmd', [cmd])
+  logger.setProgress('start', [Lang.SeedClearStart])
   await extOs.runSpawn(cmd, SERVER_SEED_PATH, (msg) => {
     logger.log('info', [msg.toString()])
   })
-  logger.log('success', [Lang.SeedClearFinished])
+  logger.setProgress('finished', 'success', [Lang.SeedClearFinished])
 }
 
-seed.get = async function ({ name, logger }) {
+seed.get = async function ({ name, logger, env }) {
   const seedPath = path.join(SERVER_SEED_PATH, 'node_modules', name)
   const pkgNames = seed.packages.map((item) => item.name)
   if (fs.existsSync(seedPath)) {
@@ -206,7 +226,12 @@ seed.get = async function ({ name, logger }) {
     const pkgPath = path.join(seedPath)
     const pkg = require(pkgPath)
     const seedInfo = seed.packages.filter((item) => item.name === name)[0]
-    if (util.compareVersion(pkg.version, seedInfo.version) < 0) {
+    if (!env.doctor) {
+      logger.log('info', [`${Lang.IgnoreCheckUpdate}`])
+      logger.log('info', [
+        `${Lang.SeedInfo}: ${chalk.yellow(`${name}@${pkg.version}`)}`
+      ])
+    } else if (util.compareVersion(pkg.version, seedInfo.version) < 0) {
       // 需要更新
       await seed.install({
         cmds: [`${seedInfo.name}@${seedInfo.version}`],

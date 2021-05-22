@@ -1,5 +1,5 @@
 'use strict'
-const print = require('yyl-print')
+const { printHelp } = require('yyl-cmd-logger')
 const inquirer = require('inquirer')
 const chalk = require('chalk')
 
@@ -51,7 +51,6 @@ async function init({ env, context, logger, shortEnv }) {
   }
   // - rootSeed
 
-  logger.setLite(true)
   logger.setProgress('start', [])
   logger.log('info', [LANG.INIT.INFO.LOADIND_SEED])
   let iSeed
@@ -130,7 +129,7 @@ init.help = ({ env }) => {
     }
   }
   if (!env.silent) {
-    print.help(h)
+    printHelp(h)
   }
   return Promise.resolve(h)
 }
