@@ -59,11 +59,11 @@ async function seed({ logger, env, cmds, shortEnv }) {
 seed.packages = [
   {
     name: 'yyl-seed-webpack',
-    version: '3.0.8'
+    version: '3.0.10'
   },
   {
     name: 'yyl-seed-gulp-requirejs',
-    version: '5.0.2'
+    version: '5.0.7'
   },
   {
     name: 'yyl-seed-other',
@@ -197,10 +197,12 @@ seed.install = async function ({ logger, cmds, env }) {
 
 seed.clear = async function ({ logger, env = {} }) {
   await seed.initServer({ logger })
-  const nodeModulePath = path.join(SERVER_SEED_PATH)
+  const nodeModulePath = path.join(SERVER_SEED_PATH, 'node_modules')
   const pkgNames = seed.packages
     .map((item) => item.name)
-    .filter((name) => fs.existsSync(path.join(nodeModulePath, name)))
+    .filter((name) => {
+      return fs.existsSync(path.join(nodeModulePath, name))
+    })
 
   if (!pkgNames.length) {
     logger.log('success', [Lang.SeedClearNotNeed])
