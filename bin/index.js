@@ -10,8 +10,8 @@ const logger = new YylCmdLogger({
     yyl: {
       name: 'YYL>',
       color: chalk.white.bgBlack.bold,
-      shortName: 'Y',
-      shortColor: chalk.red.bgBlack
+      shortName: '>',
+      shortColor: chalk.cyan
     }
   }
 })

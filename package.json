@@ -35,8 +35,7 @@
     "trailingComma": "none"
   },
   "scripts": {
-    "yyl:d": "echo 'hello yyl-seed other d'",
-    "yyl:o": "echo 'hello yyl-seed other o'",
+    "postinstall": "node bin/install",
     "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
     "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
     "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
@@ -57,8 +56,7 @@
     "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
     "test:yyl.options": "mocha ./test/mocha/yyl.options.test.js --timeout 1000000",
     "test:yyl.init": "mocha ./test/mocha/yyl.init.test.js --timeout 1000000",
-    "test:yyl.seed": "mocha ./test/mocha/yyl.seed.test.js --timeout 1000000",
-    "ui-test": "yyt ./test/yyt --timeout 1000000"
+    "test:yyl.seed": "mocha ./test/mocha/yyl.seed.test.js --timeout 1000000"
   },
   "main": "bin/cmd.js",
   "repository": {

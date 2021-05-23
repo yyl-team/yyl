@@ -13,11 +13,12 @@ const Lang = {
   HelpInstall: 'seed 包安装',
   HelpForce: '强制执行',
   HelpClear: '清除所有 seed',
+  HelpList: '显示seed列表',
   GetSeedVersionFail: '获取 seed 版本信息失败',
   SeedPath: 'seed 包所在目录',
   SeedInfo: 'seed 包信息',
-  SeedNeedInstall: 'seed 需要更新',
-  SeedNeedNotInstall: 'seed 无需更新',
+  SeedNeedInstall: '需要更新 seed',
+  SeedNeedNotInstall: '无需更新 seed',
   SeedConfigInitFinished: 'seed 本地配置初始化完成',
   SeedNotAllow: 'seed 包不在可选范围',
   SeedInstallStart: 'seed 包开始安装',
@@ -33,16 +34,21 @@ async function seed({ logger, env, cmds, shortEnv }) {
     switch (cmds[0]) {
       // 初始化 seed
       case 'init':
-        printHeader({ logger, env, cmds, shortEnv })
+        printHeader({ logger, env, cmds: ['seed'].concat(cmds), shortEnv })
         return await seed.init({ logger, env })
+
+      // 显示seed列表
+      case 'list':
+        printHeader({ logger, env, cmds: ['seed'].concat(cmds), shortEnv })
+        return await seed.list({ logger, env })
       // seed 安装
       case 'i':
       case 'install':
-        printHeader({ logger, env, cmds, shortEnv })
+        printHeader({ logger, env, cmds: ['seed'].concat(cmds), shortEnv })
         return await seed.install({ logger, env, cmds: cmds.slice(1) })
       // 清除 seed
       case 'clear':
-        printHeader({ logger, env, cmds, shortEnv })
+        printHeader({ logger, env, cmds: ['seed'].concat(cmds), shortEnv })
         return await seed.clear({ logger, env })
       // 显示 help
       default:
@@ -63,7 +69,7 @@ seed.packages = [
   },
   {
     name: 'yyl-seed-gulp-requirejs',
-    version: '5.0.7'
+    version: '5.0.8'
   },
   {
     name: 'yyl-seed-other',
@@ -77,6 +83,7 @@ seed.help = function ({ env }) {
     usage: 'yyl seed',
     commands: {
       'init': Lang.HelpInit,
+      'list': Lang.HelpList,
       'install <Packages>': Lang.HelpInstall,
       'clear': Lang.HelpClear
     },
@@ -97,7 +104,28 @@ seed.help = function ({ env }) {
   return Promise.resolve(h)
 }
 
-seed.init = async function ({ logger, env }) {
+seed.neetToUpdate = ({ name }) => {
+  const seedPath = path.join(SERVER_SEED_PATH, 'node_modules')
+  const sysSeedInfo = seed.packages.filter((item) => item.name === name)[0]
+  if (!sysSeedInfo) {
+    return true
+  }
+  const pkgPath = path.join(seedPath, name, 'package.json')
+  if (!fs.existsSync(pkgPath)) {
+    return true
+  }
+  try {
+    const pkgVersion = require(pkgPath).version
+    if (util.compareVersion(pkgVersion, sysSeedInfo.version) >= 0) {
+      return false
+    } else {
+      return true
+    }
+  } catch (er) {
+    return true
+  }
+}
+seed.list = async function ({ logger }) {
   await seed.initServer({ logger })
   const seedPath = path.join(SERVER_SEED_PATH, 'node_modules')
   const needInstalls = []
@@ -135,6 +163,11 @@ seed.init = async function ({ logger, env }) {
   })
 
   logger.log('info', [`${Lang.SeedInfo}:`].concat(seedInfos))
+  return needInstalls
+}
+
+seed.init = async function ({ logger, env }) {
+  const needInstalls = await seed.list({ logger })
   if (needInstalls.length) {
     await seed.install({
       cmds: needInstalls,
@@ -179,6 +212,24 @@ seed.install = async function ({ logger, cmds, env }) {
     return pkgNames.includes(name)
   })
   if (allowSeeds.length) {
+    let needInstall = false
+    allowSeeds.forEach((ctx) => {
+      const arr = ctx.split('@')
+      const name = arr[0]
+      const version = arr[1]
+
+      if (version) {
+        needInstall = true
+      } else {
+        if (seed.neetToUpdate({ name })) {
+          needInstall = true
+        }
+      }
+    })
+    if (!needInstall) {
+      logger.log('success', [`${Lang.SeedNeedNotInstall}`])
+      return
+    }
     logger.log('info', [`${Lang.SeedInstallStart}: ${allowSeeds.join(' ')}`])
     logger.setProgress('start')
     let cmd = `yarn add ${allowSeeds.join(' ')} ${util.envStringify(env)}`
