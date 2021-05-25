@@ -42,6 +42,7 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
       cmds[0] = 'all'
       env = {
         isCommit: true,
+        doctor: true,
         ...env
       }
     } else if (cmds[0] === 'd') {
