@@ -1,212 +1,175 @@
-'use strict'
-const path = require('path')
-const extFs = require('yyl-fs')
-const fs = require('fs')
-const util = require('yyl-util')
-const extOs = require('yyl-os')
-const Hander = require('yyl-hander')
+const { printHelp, cleanScreen } = require('yyl-cmd-logger')
+const { printHeader } = require('../lib/util')
 const chalk = require('chalk')
-
-const vars = require('../lib/vars.js')
-const log = require('../lib/log.js')
-
-const wSeed = require('./seed.js')
-const PKG = require('../package.json')
-
-const yh = new Hander({ vars, log })
-
-const LANG = require('../lang/index')
-
-const wOpzer = async function (ctx, iEnv, configPath) {
-  yh.setVars(vars)
-
-  // env format
-  if (iEnv.ver == 'remote') {
-    iEnv.remote = true
-  }
-  if (iEnv.remote) {
-    iEnv.ver = 'remote'
-  }
-
-  log('msg', 'info', LANG.OPTIMIZE.PARSE_CONFIG_START)
-
-  // init config
-  let config
-  try {
-    config = await yh.parseConfig(configPath, iEnv)
-  } catch (er) {
-    throw new Error(`${LANG.OPTIMIZE.PARSE_CONFIG_ERROR}: ${er}`)
-  }
-
-  if (config.workflow === 'webpack-vue2') {
-    config.workflow = 'webpack'
-    config.seed = 'vue2'
-  }
-
-  yh.optimize.init({ config, iEnv })
-  yh.optimize.saveConfigToServer()
-
-  // 版本检查
-  if (config.version) {
-    if (util.compareVersion(config.version, PKG.version) > 0) {
-      throw new Error(
-        `${LANG.OPTIMIZE.REQUIRE_ATLEAST_VERSION} ${config.version}`
-      )
-    }
-  }
-
-  const seed = wSeed.find(config)
-  if (!seed) {
-    throw new Error(
-      `${LANG.OPTIMIZE.WORKFLOW_NOT_FOUND}: (${config.workflow}), usage: ${wSeed.workflows}`
-    )
-  }
-
-  const root = path.dirname(configPath)
-
-  // yarn 安装检查
-  if (config.yarn) {
-    const yarnVersion = await extOs.getYarnVersion()
-    if (yarnVersion) {
-      log(
-        'msg',
-        'info',
-        `${LANG.OPTIMIZE.YARN_VERSION}: ${chalk.green(yarnVersion)}`
-      )
-
-      // 删除 package-lock.json
-      const pkgLockPath = path.join(root, 'package-lock.json')
-      if (fs.existsSync(pkgLockPath)) {
-        await extFs.removeFiles(pkgLockPath)
-        log('msg', 'warn', LANG.OPTIMIZE.DEL_PKG_LOCK_FILE)
-      }
-    } else {
-      throw new Error(
-        `${LANG.OPTIMIZE.INSTALL_YARN}: ${chalk.yellow('npm i yarn -g')}`
-      )
-    }
-  }
-
-  const IS_WATCH = ctx === 'watch'
-
-  /** 执行代码执行前配置项 */
-  await yh.optimize.initBeforeScripts(IS_WATCH ? 'watch' : 'all')
-
-  const opzer = await seed.optimize({
-    config,
-    iEnv,
-    ctx,
-    root
-  })
-
-  // handle exists check
-  if (!opzer[ctx] || util.type(opzer[ctx]) !== 'function') {
-    throw new Error(`${LANG.OPTIMIZE.WORKFLOW_OPTI_HANDLE_NOT_EXISTS}: ${ctx}`)
-  }
-
-  // package check
-  try {
-    await yh.optimize.initPlugins()
-  } catch (er) {
-    if (iEnv.logLevel === 2) {
-      throw new Error(er)
-    } else {
-      throw new Error(`${LANG.OPTIMIZE.PLUGINS_INSTALL_FAIL}: ${er.message}`)
-    }
-  }
-
-  // clean dist
-  if (
-    config.localserver &&
-    config.localserver.root &&
-    path.join(config.localserver.root) !== path.join(root)
-  ) {
-    await extFs.removeFiles(config.localserver.root)
-  }
-
-  if (IS_WATCH) {
-    const wServer = require('./server.js')
-    const op = {
-      livereload: opzer.ignoreLiveReload && !iEnv.livereload ? false : true,
-      ignoreServer: opzer.ignoreServer
-    }
-
-    let afterConfig = await wServer.start(config, iEnv, op, {
-      appWillMount: opzer.appWillMount
+const seed = require('./seed')
+const { YylHander } = require('yyl-hander')
+const Lang = {
+  Help: {
+    Help: '显示帮助信息',
+    Watch: '构建并监听文件',
+    All: '构建文件',
+    O: '构建并压缩文件， 等同 yyl all --isCommit --doctor',
+    D: '构建并监听文件, 等同 yyl watch --proxy --tips --hmr --doctor',
+    W: '构建并监听文件， 等同 yyl watch --doctor',
+    R: '构建监听文件,并映射线上 rev-map, 等同 yyl d --remote',
+    IsCommit: '压缩文件',
+    Hmr: '激活热更新',
+    Tips: '引入本地调试标识',
+    Proxy: '启动反向代理',
+    Https: '启动 https 代理',
+    Remote: '映射线上 menifest',
+    Open: '自动打开网页',
+    Doctor: '自动检查并更新 seed 包版本'
+  },
+  WorkflowNotMatch: 'config.workflow 错误',
+  OptimizeStart: '正在构建项目'
+}
+async function optimize({ cmds, context, logger, env, shortEnv }) {
+  if (env.help || shortEnv.h) {
+    return optimize.help({
+      cmds,
+      env
     })
-    if (afterConfig) {
-      config = afterConfig
+  } else {
+    // 简写复原
+    if (cmds[0] === 'w') {
+      cmds[0] = 'watch'
+      env = {
+        doctor: true,
+        ...env
+      }
+    } else if (cmds[0] === 'o') {
+      cmds[0] = 'all'
+      env = {
+        isCommit: true,
+        doctor: true,
+        ...env
+      }
+    } else if (cmds[0] === 'd') {
+      cmds[0] = 'watch'
+      env = {
+        proxy: true,
+        tips: true,
+        hmr: true,
+        open: true,
+        doctor: true,
+        ...env
+      }
+    } else if (cmds[0] === 'r') {
+      cmds[0] = 'watch'
+      env = {
+        proxy: true,
+        tips: true,
+        hmr: true,
+        remote: true,
+        doctor: true,
+        ...env
+      }
     }
+
+    printHeader({
+      logger,
+      cmds,
+      env,
+      shortEnv
+    })
+
+    // 初始化 handler
+    const yylHander = new YylHander({
+      context,
+      env,
+      logger(type, $1, $2, $3) {
+        if (type === 'msg') {
+          logger.log($1, $2)
+        } else if (type === 'progress') {
+          logger.setProgress($1, $2, $3)
+        } else if (type === 'cleanScreen') {
+          cleanScreen()
+        }
+      }
+    })
+
+    const yylConfig = yylHander.getYylConfig()
+    let seedName = ''
+    switch (yylConfig.workflow) {
+      case 'webpack':
+        seedName = 'yyl-seed-webpack'
+        break
+      case 'gulp-requirejs':
+        seedName = 'yyl-seed-gulp-requirejs'
+        break
+      case 'other':
+        seedName = 'yyl-seed-other'
+        break
+      default:
+        break
+    }
+    if (!seedName) {
+      throw new Error(
+        `${Lang.WorkflowNotMatch}: ${chalk.red(
+          yylConfig.workflow
+        )} (${chalk.yellow('webpack | gulp-requirejs | other')})`
+      )
+    }
+
+    // 获取 seed
+    const iSeed = await seed.get({
+      name: seedName,
+      logger,
+      env
+    })
+    await yylHander.init({
+      seed: iSeed,
+      watch: cmds[0] === 'watch'
+    })
+    return yylConfig
   }
-
-  // optimize
-  return new Promise((next, reject) => {
-    let isUpdate = 0
-    let isError = false
-    const htmlSet = new Set()
-    opzer
-      .on('start', () => {
-        if (isUpdate) {
-          log('clear')
-          log('start', 'optimize')
-        }
-      })
-      .on('msg', (type, ...argv) => {
-        log('msg', type, argv)
-        if (type === 'error') {
-          isError = argv
-        }
-        if (['create', 'update'].indexOf(type) !== -1) {
-          if (/\.html$/.test(argv[0])) {
-            htmlSet.add(argv[0])
-          }
-        }
-      })
-      .on('loading', (name) => {
-        log('loading', name)
-      })
-      .on('finished', async () => {
-        if (!IS_WATCH && isError) {
-          return reject(isError)
-        }
-
-        /** 执行代码执行后配置项 */
-        await yh.optimize.initAfterScripts(IS_WATCH ? 'watch' : 'all')
-
-        log('msg', 'success', [`${ctx} ${LANG.OPTIMIZE.TASK_RUN_FINSHED}`])
-
-        const homePage = await yh.optimize.getHomePage({
-          files: (() => {
-            const r = []
-            htmlSet.forEach((item) => {
-              r.push(item)
-            })
-            return r
-          })()
-        })
-        log('msg', 'success', [
-          `${LANG.OPTIMIZE.PRINT_HOME_PAGE}: ${chalk.yellow.bold(homePage)}`
-        ])
-        // 第一次构建 打开 对应页面
-        if (IS_WATCH && !isUpdate && !iEnv.silent && iEnv.proxy) {
-          extOs.openBrowser(homePage)
-        }
-
-        if (isUpdate) {
-          // 刷新页面
-          if (!opzer.ignoreLiveReload || iEnv.livereload) {
-            log('msg', 'success', LANG.OPTIMIZE.PAGE_RELOAD)
-            await yh.optimize.livereload()
-          }
-          log('finished')
-        } else {
-          isUpdate = 1
-          log('finished')
-          next(config, opzer)
-        }
-      })
-      [ctx](iEnv)
-  })
 }
 
-module.exports = wOpzer
+optimize.help = ({ cmds, env }) => {
+  const h = {
+    usage: 'yyl',
+    commands: {
+      watch: Lang.Help.Watch,
+      all: Lang.Help.All,
+      d: Lang.Help.D,
+      r: Lang.Help.R,
+      w: Lang.Help.W,
+      o: Lang.Help.O
+    },
+    options: {
+      '--proxy': Lang.Help.Proxy,
+      '--tips': Lang.Help.Tips,
+      '--hmr': Lang.Help.Hmr,
+      '--open': Lang.Help.Open,
+      '--remote': Lang.Help.Remote,
+      '--https': Lang.Help.Https,
+      '--isCommit': Lang.Help.IsCommit,
+      '--doctor': Lang.Help.Doctor,
+      '-h, --help': Lang.Help.Help
+    }
+  }
+
+  switch (cmds[0]) {
+    case 'watch':
+    case 'all':
+    case 'd':
+    case 'r':
+    case 'w':
+    case 'o':
+      h.usage = `yyl ${cmds[0]}`
+      h.desc = h.commands[cmds[0]]
+      delete h.commands
+      break
+
+    default:
+      break
+  }
+
+  if (!env.silent) {
+    printHelp(h)
+  }
+  return Promise.resolve(h)
+}
+
+module.exports = optimize

@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "3.13.7",
+  "version": "4.0.0",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -9,9 +9,12 @@
   "author": "yylive FE team",
   "license": "ISC",
   "bin": {
-    "yyl": "bin/init.js"
+    "yyl": "bin/index.js"
   },
   "eslintConfig": {
+    "env": {
+      "mocha": true
+    },
     "extends": [
       "yyl-node"
     ]
@@ -32,6 +35,7 @@
     "trailingComma": "none"
   },
   "scripts": {
+    "postinstall": "node bin/install",
     "cec": "yyl all --proxy --config ./test/case/err-config/yyl.config.js",
     "ceo": "yyl all --proxy --config ./test/case/err-optimize/yyl.config.js",
     "cgw": "yyl watch --proxy --config ./test/case/gulp-requirejs/config.js",
@@ -42,7 +46,7 @@
     "eslint": "eslint ./",
     "eslint:fix": "eslint ./ --fix",
     "guw": "yyl watch --proxy --config ./test/__gitcase/usercenter/config.js --name pc --logLevel 2",
-    "prepublishOnly": "npm run prettier & npm test",
+    "prepublishOnly": "npm run prettier && npm test",
     "prettier": "prettier --write **/*.js",
     "test": "mocha ./test/mocha --timeout 10000000",
     "test:all": "mocha ./test/mocha/all.test.js --timeout 1000000",
@@ -50,46 +54,33 @@
     "test:all.git.yycom": "mocha ./test/mocha/all.git.yycom.test.js --timeout 1000000",
     "test:all.git.yycom_h5_live": "mocha ./test/mocha/all.git.yycom_h5_live.test.js --timeout 1000000",
     "test:all.git.yycom_header": "mocha ./test/mocha/all.git.yycom_header.test.js --timeout 1000000",
-    "test:help": "mocha ./test/mocha/help.test.js --timeout 1000000",
-    "test:info": "mocha ./test/mocha/info.test.js --timeout 1000000",
-    "test:init": "mocha ./test/mocha/init.test.js --timeout 1000000",
-    "test:mock": "mocha ./test/mocha/mock.test.js --timeout 1000000",
-    "test:path": "mocha ./test/mocha/path.test.js --timeout 1000000",
-    "test:server": "mocha ./test/mocha/server.test.js --timeout 1000000",
-    "test:version": "mocha ./test/mocha/version.test.js --timeout 1000000",
-    "ui-test": "yyt ./test/yyt --timeout 1000000"
+    "test:yyl.options": "mocha ./test/mocha/yyl.options.test.js --timeout 1000000",
+    "test:yyl.init": "mocha ./test/mocha/yyl.init.test.js --timeout 1000000",
+    "test:yyl.seed": "mocha ./test/mocha/yyl.seed.test.js --timeout 1000000"
   },
-  "main": "index.js",
-  "directories": {
-    "example": "examples"
-  },
+  "main": "bin/cmd.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jackness1208/yyl.git"
+    "url": "git+https://github.com/yyl-team/yyl.git"
   },
   "bugs": {
-    "url": "https://github.com/jackness1208/yyl/issues"
+    "url": "https://github.com/yyl-team/yyl/issues"
   },
-  "homepage": "https://github.com/jackness1208/yyl#readme",
+  "homepage": "https://github.com/yyl-team/yyl#readme",
   "engines": {
     "node": ">= 10.0.0"
   },
   "dependencies": {
     "chalk": "^2.4.1",
-    "core-js": "^3.7.0",
-    "init-me": "0.4.10",
+    "init-me": "1.0.0",
     "inquirer": "^6.2.0",
     "keypress": "*",
-    "yyl-fs": "0.3.2",
-    "yyl-hander": "0.12.2",
-    "yyl-os": "0.11.4",
-    "yyl-print": "0.7.3",
+    "yyl-cmd-logger": "^0.2.1",
+    "yyl-fs": "0.3.3",
+    "yyl-hander": "1.3.12",
+    "yyl-os": "0.14.1",
     "yyl-request": "0.1.1",
-    "yyl-seed-gulp-requirejs": "4.7.4",
-    "yyl-seed-other": "0.1.3",
-    "yyl-seed-webpack": "2.6.5",
-    "yyl-server": "0.3.23",
-    "yyl-util": "2.3.8"
+    "yyl-util": "2.3.9"
   },
   "devDependencies": {
     "chai": "4.1.2",
