@@ -1,5 +1,7 @@
 # 版本信息
-## 4.0.0 (*)
+## 4.0.1 (2021-05-28)
+* feat: 更新 `yyl-seed-webpack` 到 `3.0.16`
+## 4.0.0 (2021-05-28)
 * feat: 新增 `yyl seed` 相关命令
 * feat: 将 `yyl-seed-webpack`, `yyl-seed-gulp-requirejs`, `yyl-seed-other` 不包含到主体应用里面
 * del: 去掉 `yyl info` 相关命令

@@ -11,17 +11,19 @@ module.exports.handleAllGit = function (gitPath) {
     beforeEach(async () => {
       if (fs.existsSync(pjPath)) {
         if (fs.existsSync(path.join(pjPath, '.git'))) {
-          await extOs.runSpawn('git reset --hard', pjPath)
-          await extOs.runSpawn('git pull', pjPath)
+          await extOs.runCMD('git reset --hard', pjPath)
+          await extOs.runCMD('git pull', pjPath, true)
         } else {
           await extFs.removeFiles(pjPath, true)
-          await extOs.runSpawn(`git clone ${gitPath}`, FRAG_PATH)
+          await extOs.runCMD(`git clone ${gitPath}`, FRAG_PATH, (msg) => {
+            console.log(msg.toString())
+          })
         }
       } else {
         await extFs.mkdirSync(FRAG_PATH)
-        await extOs.runSpawn(`git clone ${gitPath}`, FRAG_PATH)
+        await extOs.runCMD(`git clone ${gitPath}`, FRAG_PATH)
       }
-      await extOs.runSpawn('git checkout master', pjPath)
+      await extOs.runCMD('git checkout master', pjPath, true)
     })
 
     it(`${pjName} - yyl all`, async () => {
@@ -40,8 +42,8 @@ module.exports.handleAllGit = function (gitPath) {
       if (localConfig.pc) {
         prefix = '--name pc'
       }
-      await extOs.runSpawn(`yyl all ${prefix}`, pjPath)
-      await extOs.runSpawn(`yyl all ${prefix} --isCommit`, pjPath)
+      await extOs.runCMD(`yyl all ${prefix}`, pjPath, true)
+      await extOs.runCMD(`yyl all ${prefix} --isCommit`, pjPath)
     })
   })
 }
