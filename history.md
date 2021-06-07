@@ -1,4 +1,12 @@
 # 版本信息
+## 4.0.3 (2021-06-07)
+* feat: 更新 `yyl-seed-webpack` 到 `3.0.21`
+* feat: 优化 webpack watchOption
+* fix: 修复 项目 自定义 `webpack.config.js` 当没有配置 `wConifg.output` 时会报错问题
+## 4.0.2 (2021-06-03)
+* feat: 更新 `yyl-seed-webpack` 到 `3.0.19`
+* fix: 修复 `webpack` 类项目 `px2rem` 失效问题
+
 ## 4.0.1 (2021-05-28)
 * feat: 更新 `yyl-seed-webpack` 到 `3.0.16`
 ## 4.0.0 (2021-05-28)
