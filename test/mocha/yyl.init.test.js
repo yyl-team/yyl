@@ -34,7 +34,8 @@ describe('yyl init', () => {
         rootSeed: 'yyl-seed-other',
         name: 'yyl_init_other',
         silent: true
-      }
+      },
+      context: FRAG_PATH
     })
     expect(rs).to.equal(undefined)
   })
