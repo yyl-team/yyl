@@ -1,4 +1,7 @@
 # 版本信息
+## 4.0.4 (2021-06-09)
+* feat: 更新 `yyl-hander@1.3.20`
+* fix: 兼容 `webpack-vue2` workflow
 ## 4.0.3 (2021-06-07)
 * feat: 更新 `yyl-seed-webpack` 到 `3.0.21`
 * feat: 优化 webpack watchOption
