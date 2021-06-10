@@ -345,7 +345,7 @@
     "@types/bluebird" "*"
     "@types/request" "*"
 
-"@types/request@*", "@types/request@^2.48.5":
+"@types/request@*":
   version "2.48.5"
   resolved "https://registry.yarnpkg.com/@types/request/-/request-2.48.5.tgz#019b8536b402069f6d11bee1b2c03e7f232937a0"
   integrity sha512-/LO7xRVnL3DxJ1WkPGDQrp4VTV1reX9RkC85mJ+Qzykj2Bdw+mG15aAfDahc76HtknjzE16SX/Yddn6MxVbmGQ==
@@ -3763,25 +3763,24 @@ yyl-fs@^0.2.0:
   resolved "https://registry.yarnpkg.com/yyl-fs/-/yyl-fs-0.2.0.tgz#995aff7c4c64448ea2b8ce2ceca2e2cb76bafa2c"
   integrity sha512-NBs2zgNFg+uc1qEtBNzrUtT6Mcrk6m9KXSA8xsVYMVLFOT1zSdRjucQeUwCjSRfReUBG9sJjeniJTNphX+O70g==
 
-yyl-hander@1.3.17:
-  version "1.3.17"
-  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-1.3.17.tgz#129cec028ab9ae4e67595d862e49d214542b1af4"
-  integrity sha512-FoKO397CVvaMiYxIrohtJRlYo8hBFytT2fuiXRtP7FuShyEZ4Cl7MBs/xXb+IgCbICAfrh353Rh7J+bjnmbQQw==
+yyl-hander@1.3.20:
+  version "1.3.20"
+  resolved "https://registry.yarnpkg.com/yyl-hander/-/yyl-hander-1.3.20.tgz#3da267ba2cb515a4b445f180e36a482db7aaee88"
+  integrity sha512-1cVRm3sNrEIsUXP9uz/baRM72IwsKc5Xl5sTRR1RmCVErhZXnljxshhLwxX1YRtDNR3g4CL29BbkJWY/ktnudA==
   dependencies:
     "@babel/core" "^7.13.15"
     "@babel/preset-typescript" "^7.13.0"
-    "@types/request" "^2.48.5"
-    chalk "^4.1.0"
+    axios "^0.21.1"
+    chalk "^4.1.1"
     node-ts-parser "^0.1.3"
-    request "^2.88.2"
     yyl-config-types "^0.5.4"
     yyl-fs "^0.3.3"
-    yyl-os "^0.14.1"
+    yyl-os "^0.14.4"
     yyl-seed-base "^0.4.1"
     yyl-server "^1.0.7"
     yyl-util "^2.3.9"
 
-yyl-os@0.14.1, yyl-os@^0.14.1:
+yyl-os@0.14.1:
   version "0.14.1"
   resolved "https://registry.yarnpkg.com/yyl-os/-/yyl-os-0.14.1.tgz#384de6bb0dc9c1667ed3ebbd2d2efc716651092a"
   integrity sha512-QpSLuh9MoDcIpvLilrw7Y5uYSt7Tf270gqITIFcNqM1mxQdwMd3BItfXhZY9uTocrbXVeVxv+7+38tF9AO70EQ==
@@ -3799,6 +3798,13 @@ yyl-os@^0.14.0:
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/yyl-os/-/yyl-os-0.14.0.tgz#4452e55ebd56f02b3b4d0d01c8f0a3d6185e5a25"
   integrity sha512-qxAi3wiFRKLsQ95j5Oun6H2uiIwKGAn5U8fjaq7kFmQT7pSaEEKhJnALUkFDf4TLlXYVJbmtIgxfYtqnEHwuCw==
+  dependencies:
+    yyl-util "^2.3.5"
+
+yyl-os@^0.14.4:
+  version "0.14.4"
+  resolved "https://registry.yarnpkg.com/yyl-os/-/yyl-os-0.14.4.tgz#ad1d1e28ae2230c28dbf4e35dd055c63f954fe7a"
+  integrity sha512-dRpFfny+7nw+kdrS5Ixb11rjY5WqQeYQQcVn8exPDCEPmu0drXlgSKzx2zSQnXtCfTW59a2D8JJGbffspmOusw==
   dependencies:
     yyl-util "^2.3.5"
 
