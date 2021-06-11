@@ -1,5 +1,11 @@
 # 版本信息
 
+## 5.0.6 (*)
+* TODO: yyl seed install 添加选项选择对应的 seed 包进行更新
+* TODO: 如遇到 zepto 禁止构建并提示更换
+* TODO: yyl 执行时 会提示有新版本进行更新
+* TODO: yyl 新增 ca 证书 清理操作 或者显示证书目录
+
 ## 4.0.5 (2021-06-10)
 * feat: 更新 `yyl-seed-webpack@3.0.22`
 * fix: 修复 px2rem 在 isCommit 情况下 处理异常问题
