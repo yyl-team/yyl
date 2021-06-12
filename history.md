@@ -5,7 +5,8 @@
 * TODO: 如遇到 zepto 禁止构建并提示更换
 * TODO: yyl 执行时 会提示有新版本进行更新
 * TODO: yyl 新增 ca 证书 清理操作 或者显示证书目录
-* 通过 webpack.config.js 添加 vconsole 无效
+* TODO: 通过 webpack.config.js 添加 vconsole 无效
+* TODO: webpack 运行崩溃问题
 
 ## 4.0.5 (2021-06-10)
 * feat: 更新 `yyl-seed-webpack@3.0.22`
