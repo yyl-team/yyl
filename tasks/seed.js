@@ -3,6 +3,7 @@ const extFs = require('yyl-fs')
 const extOs = require('yyl-os')
 const util = require('yyl-util')
 const { printHelp } = require('yyl-cmd-logger')
+const inquirer = require('inquirer')
 const chalk = require('chalk')
 const fs = require('fs')
 const path = require('path')
@@ -14,6 +15,7 @@ const Lang = {
   HelpForce: '强制执行',
   HelpClear: '清除所有 seed',
   HelpList: '显示seed列表',
+  QuestionSeedName: '可安装 seed',
   GetSeedVersionFail: '获取 seed 版本信息失败',
   SeedPath: 'seed 包所在目录',
   SeedInfo: 'seed 包信息',
@@ -132,42 +134,63 @@ seed.list = async function ({ logger }) {
   const seedInfos = []
   await util.forEach(seed.packages, async (item) => {
     const pkgPath = path.join(seedPath, item.name, 'package.json')
+    let info
     if (fs.existsSync(pkgPath)) {
       try {
         const seedPkg = require(pkgPath)
         if (util.compareVersion(seedPkg.version, item.version) >= 0) {
-          // 大于设定版本
-          seedInfos.push(
-            `${chalk.cyan(`${item.name}@${seedPkg.version}`)}(${chalk.gray(
-              item.version
-            )})`
-          )
+          info = {
+            print: `${chalk.cyan(
+              `${item.name}@${seedPkg.version}`
+            )}(${chalk.gray(item.version)})`,
+            cmd: `${item.name}@${seedPkg.version}`,
+            name: item.name,
+            version: item.version,
+            needUpdate: false
+          }
         } else {
           // 小于设定版本
-          needInstalls.push(`${item.name}@${item.version}`)
-          seedInfos.push(
-            `${chalk.red(`${item.name}@${seedPkg.version}`)}(${chalk.yellow(
-              item.version
-            )})`
-          )
+          info = {
+            print: `${chalk.red(
+              `${item.name}@${seedPkg.version}`
+            )}(${chalk.yellow(item.version)})`,
+            cmd: `${item.name}@${seedPkg.version}`,
+            name: item.name,
+            version: item.version,
+            needUpdate: true
+          }
         }
       } catch (er) {
-        logger.log('warn', [Lang.GetSeedVersionFail, item.seed, er])
+        logger && logger.log('warn', [Lang.GetSeedVersionFail, item.seed, er])
       }
     } else {
-      needInstalls.push(`${item.name}@${item.version}`)
-      seedInfos.push(
-        `${chalk.gray(`${item.name}@null`)}(${chalk.yellow(item.version)})`
-      )
+      info = {
+        print: `${chalk.gray(`${item.name}@null`)}(${chalk.yellow(
+          item.version
+        )})`,
+        cmd: `${item.name}@${item.version}`,
+        name: item.name,
+        version: item.version,
+        needUpdate: true
+      }
+    }
+    if (info) {
+      seedInfos.push(info)
     }
   })
 
-  logger.log('info', [`${Lang.SeedInfo}:`].concat(seedInfos))
-  return needInstalls
+  logger &&
+    logger.log(
+      'info',
+      [`${Lang.SeedInfo}:`].concat(seedInfos.map((item) => item.print))
+    )
+  return seedInfos
 }
 
 seed.init = async function ({ logger, env }) {
-  const needInstalls = await seed.list({ logger })
+  const needInstalls = (await seed.list({ logger }))
+    .filter((item) => item.needUpdate)
+    .map((item) => item.cmd)
   if (needInstalls.length) {
     await seed.install({
       cmds: needInstalls,
@@ -198,13 +221,27 @@ seed.initServer = async function ({ logger }) {
         2
       )
     )
-    logger.log('msg', ['info', [Lang.SeedConfigInitFinished]])
+    logger && logger.log('msg', ['info', [Lang.SeedConfigInitFinished]])
   }
 }
 
 // 安装 seed
 seed.install = async function ({ logger, cmds, env }) {
   await seed.initServer({ logger })
+  if (cmds.length === 0) {
+    const seedInfos = await seed.list({})
+    const obj = await inquirer.prompt({
+      type: 'list',
+      name: 'seed',
+      message: `${Lang.QuestionSeedName}:`,
+      choices: seedInfos.map((item) => item.print),
+      default: seedInfos.filter((item) => item.needUpdate)[0]
+        ? seedInfos.filter((item) => item.needUpdate)[0].print
+        : seedInfos[0].print
+    })
+    const result = seedInfos.filter(item => item.print === obj.seed)[0]
+    cmds = [result.cmd]
+  }
   const pkgNames = seed.packages.map((item) => item.name)
   const allowSeeds = cmds.filter((ctx) => {
     const arr = ctx.split('@')
