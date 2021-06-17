@@ -10,6 +10,7 @@
 * TODO: yyl 安装后 如本地已存在 seed 包，会更新不了（因为有package-lock.json）
 * TODO: yyl -v 添加 检查最新版本的功能
 * TODO: webpack 运行崩溃问题
+* TODO: webpack sugar 没命中时如 代码有 sugar， 则直接转换sugar
 * TODO: yyl seed 初始化添加 yarn install 时的 提示
 
 ## 4.0.5 (2021-06-10)
