@@ -4,8 +4,7 @@
 * feat: 更新 `yyl-seed-webpack@3.0.23`
 * feat: 如遇到 `zepto` 禁止构建并提示更换
 * feat: 通过 `webpack.config.js` 添加 `vconsole` 无效, 原因是 `vconsole-webpack-plugins` 不支持 `webpack5`
-* TODO: yyl seed install 添加选项选择对应的 seed 包进行更新
-* TODO: yyl 执行时 会提示有新版本进行更新
+* feat: yyl seed install 添加选项选择对应的 seed 包进行更新
 * TODO: yyl 新增 ca 证书 清理操作 或者显示证书目录
 * TODO: yyl 安装后 如本地已存在 seed 包，会更新不了（因为有package-lock.json）
 * TODO: yyl -v 添加 检查最新版本的功能
