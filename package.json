@@ -74,7 +74,7 @@
   },
   "dependencies": {
     "chalk": "^2.4.1",
-    "init-me": "1.0.0",
+    "init-me": "1.0.1",
     "inquirer": "^6.2.0",
     "keypress": "*",
     "yyl-cmd-logger": "^0.2.1",

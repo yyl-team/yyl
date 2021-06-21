@@ -1914,16 +1914,16 @@ inherits@2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
   integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
 
-init-me@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/init-me/-/init-me-1.0.0.tgz#e09f5e584f7ca35571b2484ba1606c7fc15f8460"
-  integrity sha512-CHx/pknBSCIY3QqXUZefcpVb7FWACmzaPBMhAtuNILp9niQc77TRhLLMwXtFrAZXeLDMeys7DHiG+S26XeRPaw==
+init-me@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/init-me/-/init-me-1.0.1.tgz#86a5113d0e7f451f557d33091ac43c5e575617d9"
+  integrity sha512-WMdcDF/RtrZOHNmag8Y0vrolNprls7PV4q6WudOWLxYvDnAdBKJCcWTxv20UUXoUIaWhocBQCOdQSswBYdC6OQ==
   dependencies:
     axios "^0.21.1"
     chalk "^4.1.1"
     commander "^3.0.1"
     inquirer "^8.0.0"
-    yyl-cmd-logger "^0.1.6"
+    yyl-cmd-logger "^0.2.1"
     yyl-fs "0.3.3"
     yyl-os "^0.14.0"
     yyl-util "^2.3.9"
@@ -3718,13 +3718,6 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
-
-yyl-cmd-logger@^0.1.6:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/yyl-cmd-logger/-/yyl-cmd-logger-0.1.6.tgz#ae9e7409a7cb5e76391239a86fe9e7d60a524b65"
-  integrity sha512-W/UHVhFWpUeQljVf0H9n3yjE9qd2iIS0tqQmy9SEna78FiIhXeID6/1/tgwmpANut2Q5dT0LQv4maDsBnQPb+A==
-  dependencies:
-    chalk "^4.1.0"
 
 yyl-cmd-logger@^0.2.1:
   version "0.2.1"
