@@ -1,33 +1,36 @@
 'use strict'
 const chalk = require('chalk')
-const wVersion = function ({ env }) {
+const util = require('yyl-util')
+const { getPkgLatestVersion } = require('../lib/util')
+const wVersion = async function ({ env }) {
   const iVer = require('../package.json').version
   if (!env.silent) {
     console.log(
       [
+        chalk.yellow('----    ----    --------'),
+        chalk.yellow('----    ----          --'),
+        chalk.yellow('----    ----    --------'),
+        chalk.yellow('----    ----    --      '),
+        chalk.yellow('----    ----    --------'),
+        chalk.yellow('----    ----            '),
+        chalk.yellow('----    ----            '),
+        chalk.yellow('------------    --      '),
+        chalk.yellow('  --------      --      '),
+        chalk.yellow('    ----        --      '),
+        chalk.yellow('    ----        --      '),
+        chalk.yellow('    ----        --------'),
         '',
-        '                  :                  ',
-        '    ``        :++o+-      ```        ',
-        '  :ooooooo++ooooooooo+sooooooo       ',
-        '  oooooooooooooooooooooooooooo       ',
-        '  oooooooooooooooooooooooooooo       ',
-        '   ooooo+:`-/oooooos:``/ooooos       ',
-        '   /oo+       -oos`      `ooo        ',
-        '   oo/                     oo/       ',
-        '  /oo                       oo       ',
-        '  -oo          --`         -oo       ',
-        '   +oo+-``-/oooooooos/-``-+oo`       ',
-        '    /ooooooooooooooooooooooo         ',
-        '       `soooooooooooooooooo` /+s+/-  ',
-        '       soooooooooooooooooooooooooooo ',
-        '      ooooooooooooooooooooooooooooooo',
-        '     oooooooooooooooooooooooooooooooo',
-        '     -:/ooooooooooooooooooooooooooooo',
-        '        oooooooooooooooooooooooooooo ',
-        '        +ooooooooooooooooo/```-::`   ',
-        '         `sooossssoooo+:             ',
-        '',
-        `        ${chalk.yellow(`yyl version: ${iVer}`)}`
+        `    ${`yyl version: ${iVer}`}`
+      ].join('\n')
+    )
+    const latestVer = await getPkgLatestVersion('yyl')
+    console.log(
+      [
+        `    ${`     ${chalk.gray('latest:')} ${
+          util.compareVersion(latestVer, iVer) > 0
+            ? chalk.yellow(latestVer)
+            : chalk.gray(latestVer)
+        }`}`
       ].join('\n')
     )
   }

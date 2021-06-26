@@ -67,7 +67,7 @@ async function seed({ logger, env, cmds, shortEnv }) {
 seed.packages = [
   {
     name: 'yyl-seed-webpack',
-    version: '3.0.22'
+    version: '3.0.26'
   },
   {
     name: 'yyl-seed-gulp-requirejs',
@@ -130,7 +130,6 @@ seed.neetToUpdate = ({ name }) => {
 seed.list = async function ({ logger }) {
   await seed.initServer({ logger })
   const seedPath = path.join(SERVER_SEED_PATH, 'node_modules')
-  const needInstalls = []
   const seedInfos = []
   await util.forEach(seed.packages, async (item) => {
     const pkgPath = path.join(seedPath, item.name, 'package.json')
@@ -239,15 +238,25 @@ seed.install = async function ({ logger, cmds, env }) {
         ? seedInfos.filter((item) => item.needUpdate)[0].print
         : seedInfos[0].print
     })
-    const result = seedInfos.filter(item => item.print === obj.seed)[0]
+    const result = seedInfos.filter((item) => item.print === obj.seed)[0]
     cmds = [result.cmd]
   }
   const pkgNames = seed.packages.map((item) => item.name)
-  const allowSeeds = cmds.filter((ctx) => {
-    const arr = ctx.split('@')
-    const name = arr[0]
-    return pkgNames.includes(name)
-  })
+  const allowSeeds = cmds
+    .filter((ctx) => {
+      const arr = ctx.split('@')
+      const name = arr[0]
+      return pkgNames.includes(name)
+    })
+    .map((ctx) => {
+      if (ctx.split('@').length == 1) {
+        return `${ctx}@${
+          seed.packages.filter((item) => item.name === ctx)[0].version
+        }`
+      } else {
+        return ctx
+      }
+    })
   if (allowSeeds.length) {
     let needInstall = false
     allowSeeds.forEach((ctx) => {

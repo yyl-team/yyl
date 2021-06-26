@@ -1,19 +1,20 @@
 # 版本信息
 
-## 5.0.6 (*)
-* feat: 更新 `yyl-seed-webpack@3.0.23`
+## 4.0.6 (*)
+* feat: 更新 `yyl-seed-webpack@3.0.26`
 * feat: 更新 `init-me@1.0.1`
 * feat: 如遇到 `zepto` 禁止构建并提示更换
 * feat: 通过 `webpack.config.js` 添加 `vconsole` 无效, 原因是 `vconsole-webpack-plugins` 不支持 `webpack5`
-* fix: init-me 初始化 @yy seed 失败： init-me 切换用 axios 后 rs.body -> rs.data 并且不需要json
 * feat: yyl seed install 添加选项选择对应的 seed 包进行更新
-* TODO: yyl 新增 ca 证书 清理操作 或者显示证书目录
-* TODO: yyl 安装后 如本地已存在 seed 包，会更新不了（因为有package-lock.json）
-* TODO: yyl -v 添加 检查最新版本的功能
-* TODO: webpack 运行崩溃问题
-* TODO: webpack sugar 没命中时如 代码有 sugar， 则直接转换sugar
-* TODO: yyl seed 初始化添加 yarn install 时的 提示
-* TODO: 构建 出来的 不带 hash 图片无法显示
+* feat: 优化 webpack 在安装依赖时的日志显示
+* feat: yyl seed 初始化添加 yarn install 时的 提示
+* feat: yyl -v 添加 检查最新版本的功能
+* feat: 修复 yyl 安装后 如本地已存在 seed 包，会更新不了（因为有package-lock.json）的问题
+* fix: init-me 初始化 @yy seed 失败： init-me 切换用 axios 后 rs.body -> rs.data 并且不需要json
+* fix: js 里面的 __url 替换不生效
+* fix: 构建 出来的 不带 hash 图片无法显示
+* feat: yyl 新增 ca 证书 清理操作 或者显示证书目录
+* feat: 新增 yyl cache 类句柄 用于清理缓存
 
 ## 4.0.5 (2021-06-10)
 * feat: 更新 `yyl-seed-webpack@3.0.22`

@@ -9,6 +9,7 @@ const LANG = {
         SERVER: '服务器相关命令',
         SEED: 'seed 包相关命令',
         WATCH: '项目构建并启动相关服务',
+        CACHE: '构建工具缓存相关命令',
         ALL: '项目打包'
       },
       OPTIONS: {
@@ -35,6 +36,7 @@ const events = {
         'init': LANG.CMD.HELP.COMMANDS.INIT,
         'watch,w,d,r': LANG.CMD.HELP.COMMANDS.WATCH,
         'all,o': LANG.CMD.HELP.COMMANDS.ALL,
+        'cache': LANG.CMD.HELP.CACHE,
         'seed': LANG.CMD.HELP.COMMANDS.SEED
       },
       options: {
@@ -111,6 +113,16 @@ async function command({
           env,
           logger,
           shortEnv
+        })
+
+      // 缓存
+      case 'cache':
+        return require('../tasks/cache')({
+          env,
+          shortEnv,
+          context,
+          logger,
+          cmds: cmds.slice(1)
         })
 
       // 构建相关命令
