@@ -58,11 +58,7 @@ async function init({ env, context, logger, shortEnv }) {
     iSeed = await seed.get({
       name: rootSeed,
       env,
-      logger: {
-        log(type, args) {
-          logger.log(type, args)
-        }
-      }
+      logger
     })
     logger.setProgress('finished', [])
   } catch (er) {
@@ -79,6 +75,7 @@ async function init({ env, context, logger, shortEnv }) {
   let subSeeds = iSeed.initPackage[IN_YY ? 'yy' : 'default'].map((name) =>
     seedFull2Short(name)
   )
+
   let subSeed = env.subSeed
   if (!subSeed || subSeed.indexOf(subSeeds) === -1) {
     if (subSeeds.length > 1) {
