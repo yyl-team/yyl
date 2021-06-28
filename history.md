@@ -1,6 +1,12 @@
 # 版本信息
 
-## 4.0.7 (*)
+## 4.0.7 (2021-06-28)
+* feat: 更新 `yyl-hander@1.3.22`
+* feat: 更新 `yyl-seed-webpack@3.0.27`
+* feat: 更新 `yyl-seed-other@1.0.5`
+* feat: 更新 `yyl-seed-gulp-requirejs@5.0.11`
+* fix: 修复 window 下 `alias.basePath` 赋值问题
+
 ## 4.0.6 (2021-06-26)
 * feat: 更新 `yyl-seed-webpack@3.0.26`
 * feat: 更新 `init-me@1.0.1`

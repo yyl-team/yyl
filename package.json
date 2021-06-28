@@ -1,6 +1,6 @@
 {
   "name": "yyl",
-  "version": "4.0.6",
+  "version": "4.0.7",
   "description": "yy live workflow",
   "keywords": [
     "yylive"
@@ -79,7 +79,7 @@
     "keypress": "*",
     "yyl-cmd-logger": "^0.2.1",
     "yyl-fs": "0.3.3",
-    "yyl-hander": "1.3.20",
+    "yyl-hander": "1.3.22",
     "yyl-os": "0.14.3",
     "yyl-request": "0.1.1",
     "yyl-util": "2.3.9"
