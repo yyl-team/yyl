@@ -12,6 +12,7 @@ const Lang = {
     D: '构建并监听文件, 等同 yyl watch --proxy --tips --hmr --doctor',
     W: '构建并监听文件， 等同 yyl watch --doctor',
     R: '构建监听文件,并映射线上 rev-map, 等同 yyl d --remote',
+    E: '构建并监听文件, 等同 yyl d --esbuild',
     IsCommit: '压缩文件',
     Hmr: '激活热更新',
     Tips: '引入本地调试标识',
@@ -19,7 +20,8 @@ const Lang = {
     Https: '启动 https 代理',
     Remote: '映射线上 menifest',
     Open: '自动打开网页',
-    Doctor: '自动检查并更新 seed 包版本'
+    Doctor: '自动检查并更新 seed 包版本',
+    Esbuild: '开启 esbuild 模式'
   },
   WorkflowNotMatch: 'config.workflow 错误',
   OptimizeStart: '正在构建项目'
@@ -53,6 +55,17 @@ async function optimize({ cmds, context, logger, env, shortEnv }) {
         hmr: true,
         open: true,
         doctor: true,
+        ...env
+      }
+    } else if (cmds[0] === 'e') {
+      cmds[0] = 'watch'
+      env = {
+        proxy: true,
+        tips: true,
+        hmr: true,
+        open: true,
+        doctor: true,
+        esbuild: true,
         ...env
       }
     } else if (cmds[0] === 'r') {
@@ -135,7 +148,8 @@ optimize.help = ({ cmds, env }) => {
       d: Lang.Help.D,
       r: Lang.Help.R,
       w: Lang.Help.W,
-      o: Lang.Help.O
+      o: Lang.Help.O,
+      e: Lang.Help.E
     },
     options: {
       '--proxy': Lang.Help.Proxy,
@@ -146,6 +160,7 @@ optimize.help = ({ cmds, env }) => {
       '--https': Lang.Help.Https,
       '--isCommit': Lang.Help.IsCommit,
       '--doctor': Lang.Help.Doctor,
+      '--esbuild': Lang.Help.Esbuild,
       '-h, --help': Lang.Help.Help
     }
   }
@@ -157,6 +172,7 @@ optimize.help = ({ cmds, env }) => {
     case 'r':
     case 'w':
     case 'o':
+    case 'e':
       h.usage = `yyl ${cmds[0]}`
       h.desc = h.commands[cmds[0]]
       delete h.commands

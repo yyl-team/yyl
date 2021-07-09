@@ -34,7 +34,7 @@ const events = {
       usage: 'yyl',
       commands: {
         'init': LANG.CMD.HELP.COMMANDS.INIT,
-        'watch,w,d,r': LANG.CMD.HELP.COMMANDS.WATCH,
+        'watch,w,d,r,e': LANG.CMD.HELP.COMMANDS.WATCH,
         'all,o': LANG.CMD.HELP.COMMANDS.ALL,
         'cache': LANG.CMD.HELP.CACHE,
         'seed': LANG.CMD.HELP.COMMANDS.SEED
@@ -130,6 +130,7 @@ async function command({
       case 'd':
       case 'o':
       case 'r':
+      case 'e':
       case 'all':
       case 'watch':
         return require('../tasks/optimize')({
