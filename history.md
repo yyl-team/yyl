@@ -1,5 +1,9 @@
 # 版本信息
 
+## 4.1.0 (2021-07-09)
+* feat: 更新 `yyl-seed-webpack@3.1.0`
+* feat: 新增 `yyl e` 命令用于使用 esbuild-loader 构建文件
+* feat: 新增 `--esbuild` 参数
 ## 4.0.7 (2021-06-28)
 * feat: 更新 `yyl-hander@1.3.22`
 * feat: 更新 `yyl-seed-webpack@3.0.27`
