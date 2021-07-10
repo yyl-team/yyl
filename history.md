@@ -1,4 +1,7 @@
 # 版本信息
+## 4.1.1 (2021-07-10)
+* feat: 更新 `yyl-seed-webpack@3.1.1`
+* fix: 去除多余的log
 
 ## 4.1.0 (2021-07-09)
 * feat: 更新 `yyl-seed-webpack@3.1.0`
