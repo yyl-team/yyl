@@ -67,7 +67,7 @@ async function seed({ logger, env, cmds, shortEnv }) {
 seed.packages = [
   {
     name: 'yyl-seed-webpack',
-    version: '3.1.0'
+    version: '3.1.1'
   },
   {
     name: 'yyl-seed-gulp-requirejs',
