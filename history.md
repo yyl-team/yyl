@@ -1,4 +1,7 @@
 # 版本信息
+## 4.1.2 (2021-07-12)
+* feat: 更新 `yyl-seed-webpack@3.1.2`
+* fix: 补充 svg 处理逻辑
 ## 4.1.1 (2021-07-10)
 * feat: 更新 `yyl-seed-webpack@3.1.1`
 * fix: 去除多余的log
