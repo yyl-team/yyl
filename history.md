@@ -1,4 +1,7 @@
 # 版本信息
+## 4.1.3 (*)
+* feat: 更新 `yyl-seed-webpack@3.1.3`
+* fix: 修复 在不支持 ts 情况下 执行 esbuild 报错问题
 ## 4.1.2 (2021-07-12)
 * feat: 更新 `yyl-seed-webpack@3.1.2`
 * fix: 补充 svg 处理逻辑
