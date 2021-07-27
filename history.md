@@ -1,7 +1,11 @@
 # 版本信息
-## 4.1.3 (*)
-* feat: 更新 `yyl-seed-webpack@3.1.3`
+
+## 4.2.0 (*)
+* feat: yyl 支持 emp 引入
+## 4.1.3 (2021-07-27)
+* feat: 更新 `yyl-seed-webpack@3.1.4`
 * fix: 修复 在不支持 ts 情况下 执行 esbuild 报错问题
+* fix: 对齐 `yyl e`, `yyl d` postcss 使用的插件 （px2rem）
 ## 4.1.2 (2021-07-12)
 * feat: 更新 `yyl-seed-webpack@3.1.2`
 * fix: 补充 svg 处理逻辑
