@@ -278,9 +278,11 @@ seed.install = async function ({ logger, cmds, env }) {
     }
     logger.log('info', [`${Lang.SeedInstallStart}: ${allowSeeds.join(' ')}`])
     logger.setProgress('start')
-    let cmd = `yarn add ${allowSeeds.join(' ')} ${util.envStringify(env)}`
+    let cmd = `yarn add ${allowSeeds.join(' ')} ${util.envStringify(
+      env
+    )} --verbose`
     if (!(await extOs.getYarnVersion())) {
-      cmd = `npm i ${allowSeeds.join(' ')} ${util.envStringify(env)}`
+      cmd = `npm i ${allowSeeds.join(' ')} ${util.envStringify(env)} --verbose`
     }
     logger.log('cmd', [cmd])
     await extOs.runSpawn(cmd, SERVER_SEED_PATH, (msg) => {
