@@ -2,6 +2,8 @@
 
 ## 4.2.0 (*)
 * feat: yyl 支持 emp 引入
+* feat: 更新 `yyl-seed-webpack@3.1.11`
+* feat: seed install 添加详细log
 ## 4.1.3 (2021-07-27)
 * feat: 更新 `yyl-seed-webpack@3.1.4`
 * fix: 修复 在不支持 ts 情况下 执行 esbuild 报错问题
