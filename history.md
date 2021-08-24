@@ -1,7 +1,7 @@
 # 版本信息
 
 ## 4.2.0 (*)
-* feat: yyl 支持 emp 引入
+* todo: yyl 支持 emp 引入
 * feat: 更新 `yyl-seed-webpack@3.1.11`
 * feat: seed install 添加详细log
 ## 4.1.3 (2021-07-27)
