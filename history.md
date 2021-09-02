@@ -1,7 +1,12 @@
 # 版本信息
 
 ## 4.2.0 (*)
-* feat: yyl 支持 emp 引入
+* todo: yyl 支持 emp 引入
+* feat: seed install 添加详细log
+
+## 4.1.4 (2021-09-02)
+* feat: 更新 `yyl-seed-webpack@3.1.12`
+* fix: 修复 webpack 生成文件后依然会有箭头函数的问题
 ## 4.1.3 (2021-07-27)
 * feat: 更新 `yyl-seed-webpack@3.1.4`
 * fix: 修复 在不支持 ts 情况下 执行 esbuild 报错问题
